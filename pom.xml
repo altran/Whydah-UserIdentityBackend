@@ -6,6 +6,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>UserIdentityBackend</name>
+    <url>https://wiki.cantara.no/display/iam/UserIdentityBackend</url>
 
     <parent>
         <groupId>no.cantara.emi</groupId>
