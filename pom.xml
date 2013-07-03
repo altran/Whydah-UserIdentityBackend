@@ -37,16 +37,14 @@
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <id>yenka</id>
-            <name>Yenka Release Repository</name>
-            <url>dav:http://mvnrepo.cantara.no/content/repositories/yenka-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>yenka</id>
-            <name>Yenka Snapshot Repository</name>
-            <url>dav:http://mvnrepo.cantara.no/content/repositories/yenka-snapshots/</url>
-        </snapshotRepository>
+	  <repository>
+	    <id>altran-releases</id>
+	    <url>http://mvnrepo.cantara.no/content/repositories/altran-releases</url>
+	  </repository>
+	  <snapshotRepository>
+	    <id>altran-snapshots</id>
+	    <url>http://mvnrepo.cantara.no/content/repositories/altran-snapshots</url>
+	  </snapshotRepository>
     </distributionManagement>
 
     <dependencies>
