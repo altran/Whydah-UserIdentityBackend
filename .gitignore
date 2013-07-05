@@ -6,6 +6,8 @@
 *.war
 *.ear
 target/
+bootstrapdata/
+
 
 #IDE files#
 .idea/
