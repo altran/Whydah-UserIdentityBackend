@@ -61,6 +61,6 @@ public class StringCleaner {
                 cleanedString.append(currentCharacter);
             }
         }
-        return cleanedString.toString();
+        return cleanedString.toString().trim();
     }
 }

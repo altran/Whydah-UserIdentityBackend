@@ -32,7 +32,7 @@ public class UserAdminTest {
         PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
         uib = new Main();
         uib.startEmbeddedDS();
-        uib.importData();
+        uib.importUsersAndRoles();
         uib.startHttpServer();
         URI baseUri = UriBuilder.fromUri("http://localhost/uib/useradmin/").port(uib.getPort()).build();
         URI logonUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();

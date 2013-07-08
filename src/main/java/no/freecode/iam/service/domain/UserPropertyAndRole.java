@@ -32,7 +32,7 @@ public class UserPropertyAndRole {
     }
 
     public String getApplicationName() {
-        return applicationName;
+        return (applicationName == null ? "" : applicationName);
     }
 
     public void setApplicationName(String applicationName) {
@@ -48,7 +48,7 @@ public class UserPropertyAndRole {
     }
 
     public String getOrganizationName() {
-        return organizationName;
+        return (organizationName == null ? "" : organizationName);
     }
 
     public void setOrganizationName(String organizationName) {

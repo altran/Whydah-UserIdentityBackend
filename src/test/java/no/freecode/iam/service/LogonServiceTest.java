@@ -32,7 +32,7 @@ public class LogonServiceTest {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
         uib = new Main();
         uib.startEmbeddedDS();
-        uib.importData();
+        uib.importUsersAndRoles();
         uib.startHttpServer();
         baseUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();
     }

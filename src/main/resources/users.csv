@@ -1,0 +1,4 @@
+#userId, username, password, firstName, lastName, email, cellPhone, personRef
+thomas.pringle@altran.com, thomasp, logMeInPlease, Thomas, Pringle, thomas.pringle@altran.com, +46707771841, 1 
+erik.drolshammer, erikd, secretPw, Erik, Drolshammer, erik.drolshammer@altran.com, +47123456, 2
+useradmin, admin, admin, User, Admin, useradmin@altran.com, +1555406789, 0

@@ -1,0 +1,4 @@
+#userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
+thomas.pringle@altran.com, 1, useradmin, 1, whydah, Brukeradmin, 99 
+thomas.pringle@altran.com, 11, whydah, 7, whydah, developer, 20
+erik.drolshammer, 42, mobilefirst, 23, altran, admin, 70

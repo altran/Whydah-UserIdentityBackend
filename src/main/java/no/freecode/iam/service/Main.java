@@ -1,19 +1,20 @@
 package no.freecode.iam.service;
 
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.servlet.GuiceFilter;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import java.io.File;
+import java.util.HashMap;
+
 import no.freecode.iam.service.config.AppConfig;
 import no.freecode.iam.service.config.ImportModule;
 import no.freecode.iam.service.config.UserIdentityBackendModule;
-import no.freecode.iam.service.dataimport.PstyrImporter;
 import no.freecode.iam.service.helper.FileUtils;
 import no.freecode.iam.service.ldap.EmbeddedADS;
 import no.freecode.iam.service.security.SecurityFilter;
 import no.freecode.iam.service.security.SecurityTokenHelper;
-import org.apache.lucene.store.Directory;
+import no.freecode.iam.service.user.WhydahRoleMappingImporter;
+import no.freecode.iam.service.user.WhydahUserImporter;
+
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -21,8 +22,10 @@ import org.glassfish.grizzly.servlet.ServletHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.HashMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceFilter;
+import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -78,7 +81,7 @@ public class Main {
         if (importUsers) {
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("roledb.directory")));
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("lucene.directory")));
-            main.importData();
+            main.importUsersAndRoles();
         }
 
         try {
@@ -99,16 +102,18 @@ public class Main {
         }
     }
 
-    public void importData() {
-        Injector injector = Guice.createInjector(new ImportModule());
-        PstyrImporter pstyrImporter = injector.getInstance(PstyrImporter.class);
-        Directory index = injector.getInstance(Directory.class);
-        pstyrImporter.setIndex(index);      //TODO This call is probably redundant.
-
+    public void importUsersAndRoles() {
         String userImportSource = AppConfig.appConfig.getProperty("userimportsource");
-        pstyrImporter.importUsers(userImportSource);
+        String roleMappingImportSource = AppConfig.appConfig.getProperty("rolemappingimportsource");
+        
+        Injector injector = Guice.createInjector(new ImportModule());
+        
+        WhydahUserImporter userImporter = injector.getInstance(WhydahUserImporter.class);
+        userImporter.importUsers(userImportSource);
+        
+        WhydahRoleMappingImporter roleMappingImporter = injector.getInstance(WhydahRoleMappingImporter.class);
+        roleMappingImporter.importRoleMapping(roleMappingImportSource);
     }
-
 
     public static boolean shouldImportUsers() {
         String dburl = AppConfig.appConfig.getProperty("roledb.jdbc.url");
@@ -137,11 +142,7 @@ public class Main {
         GuiceFilter filter = new GuiceFilter();
         servletHandler.addFilter(filter, "guiceFilter", null);
 
-        SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class));
-        HashMap<String, String> initParams = new HashMap<>(1);
-        initParams.put(SecurityFilter.SECURED_PATHS_PARAM, "/useradmin, /createandlogon");   //TODO verify
-        initParams.put(SecurityFilter.REQUIRED_ROLE_PARAM, "Brukeradmin");
-        servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
+        addSecurityFilterForUserAdmin(servletHandler);
 
 
         GuiceContainer container = new GuiceContainer(injector);
@@ -163,6 +164,19 @@ public class Main {
         httpServer.start();
         logger.info("UserIdentityBackend started on port {}", webappPort);
     }
+
+
+	private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
+		String requiredRoleName = AppConfig.appConfig.getProperty("requiredrolename");
+		if (StringUtils.isEmpty(requiredRoleName)) {
+			logger.warn("Required Role Name is empty! Verify the requiredrolename-attribute in the configuration.");
+		}
+		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class));
+        HashMap<String, String> initParams = new HashMap<>(1);
+        initParams.put(SecurityFilter.SECURED_PATHS_PARAM, "/useradmin, /createandlogon");   //TODO verify
+        initParams.put(SecurityFilter.REQUIRED_ROLE_PARAM, requiredRoleName);
+        servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
+	}
 
     public int getPort() {
         return webappPort;
