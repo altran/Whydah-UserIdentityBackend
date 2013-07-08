@@ -74,20 +74,20 @@ public class LogonServiceTest {
     public void formLogonOK() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
-        formData.add("username", "sunil@freecode.no");
-        formData.add("password", "654321");
+        formData.add("username", "thomasp");
+        formData.add("password", "logMeInPlease");
         ClientResponse response = webResource.path("logon").type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
         String responseBody = response.getEntity(String.class);
         //System.out.println(responseBody);
         //assertTrue(responseBody.contains("Logon ok"));
-        assertTrue(responseBody.contains("sunil@freecode.no"));
+        assertTrue(responseBody.contains("thomas.pringle@altran.com"));
     }
 
     @Test
     public void formLogonFail() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
-        formData.add("username", "sunil@freecode.no");
+        formData.add("username", "thomasp");
         formData.add("password", "vrangt");
         ClientResponse response = webResource.path("logon").type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
         String responseBody = response.getEntity(String.class);
@@ -104,7 +104,7 @@ public class LogonServiceTest {
         ClientResponse response = webResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
         String responseXML = response.getEntity(String.class);
         //System.out.println(responseXML);
-        assertTrue(responseXML.contains("freecode"));
+        assertTrue(responseXML.contains("logonFailed"));
 
     }
 
