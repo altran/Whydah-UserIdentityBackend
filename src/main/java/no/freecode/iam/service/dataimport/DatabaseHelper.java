@@ -1,28 +1,25 @@
 package no.freecode.iam.service.dataimport;
 
-import com.google.inject.Inject;
+import java.sql.SQLException;
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.SQLException;
+import com.google.inject.Inject;
 
 /**
  * @author <a href="mailto:erik@freecode.no">Erik Drolshammer</a>
  * @since 10/19/12
  */
 public class DatabaseHelper {
-    public static final String APPID_INVOICE = "101";
-    public static final String APPID_STYREROMMET = "201";
-    public static final String APPID_GIFTIT = "23";
-    public static final String APPID_BRUKERADMIN = "1";
-    public static final String APPID_FREECODEPERSONKUNDE = "50";
-
-    public static final String APPID_GIFTIT_STORE = "45";
+//    public static final String APPID_INVOICE = "101";
+//    public static final String APPID_STYREROMMET = "201";
+//    public static final String APPID_GIFTIT = "23";
+//    public static final String APPID_BRUKERADMIN = "1";
+//    public static final String APPID_FREECODEPERSONKUNDE = "50";
+//
+//    public static final String APPID_GIFTIT_STORE = "45";
 
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseHelper.class);
@@ -35,7 +32,7 @@ public class DatabaseHelper {
 
     public void initDB() {
         createDatabaseTables();
-        addDatabaseInitData();
+//        addDatabaseInitData();
     }
 
     private void createDatabaseTables() {
@@ -75,56 +72,56 @@ public class DatabaseHelper {
             logger.info("Error creating tables", e);
         }
     }
-
-    private void addDatabaseInitData() {
-        try {
-            logger.info("Legger inn grunndata");
-            queryRunner.update("INSERT INTO Applications values ('" + APPID_BRUKERADMIN + "', 'Brukeradmin', 'Brukeradmin', '9999')");
-            queryRunner.update("INSERT INTO Applications values ('" + APPID_GIFTIT + "', 'Giftit', 'GiftitTilgang', '9999')");
-            queryRunner.update("INSERT INTO Applications values ('" + APPID_GIFTIT_STORE + "', 'GiftitStore', 'GiftitTilgang', '9999')");
-            queryRunner.update("INSERT INTO Applications values ('" + APPID_STYREROMMET + "', 'Styrerommet', 'StyrerommetTilgang', '9999')");
-            //queryRunner.update("INSERT INTO Applications values ('" + APPID_INVOICE + "', 'Invoice', 'InvoiceBruker', '9999')");
-            queryRunner.update("INSERT INTO Applications values ('" + APPID_FREECODEPERSONKUNDE + "', 'FREECODE Personkunde', 'Kunde', '9999')");
-
-            logger.info("Oppretter tabeller-stop");
-            importerSelskaper();
-        } catch (SQLException e) {
-            logger.info("Error inserting init data.", e);
-        }
-    }
-
-    private void importerSelskaper() {
-        logger.info("Import selskaper");
-        BufferedReader reader = null;
-        try {
-            InputStream classpathStream = getClass().getClassLoader().getResourceAsStream("selskaper.csv");
-            InputStreamReader isr = new InputStreamReader(classpathStream, "UTF-8");
-            reader = new BufferedReader(isr);
-            String line = reader.readLine();
-            /*
-            while (line != null) {
-                String[] columns = line.split(",");
-                queryRunner.update("INSERT INTO Organization values (?, ?)", columns[0], columns[1]);
-            }
-            */
-            while ((line = reader.readLine()) != null) {
-                String[] columns = line.split(",");
-                queryRunner.update("INSERT INTO Organization values (?, ?)", columns[0], columns[1]);
-            }
-        } catch (IOException e) {
-            logger.error(e.getLocalizedMessage(), e);
-        } catch (SQLException e) {
-            logger.error(e.getLocalizedMessage(), e);
-        } finally {
-            if(reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    logger.warn("Error closing stream", e);
-                }
-            }
-        }
-    }
+//
+//    private void addDatabaseInitData() {
+//        try {
+//            logger.info("Legger inn grunndata");
+//            queryRunner.update("INSERT INTO Applications values ('" + APPID_BRUKERADMIN + "', 'Brukeradmin', 'Brukeradmin', '9999')");
+//            queryRunner.update("INSERT INTO Applications values ('" + APPID_GIFTIT + "', 'Giftit', 'GiftitTilgang', '9999')");
+//            queryRunner.update("INSERT INTO Applications values ('" + APPID_GIFTIT_STORE + "', 'GiftitStore', 'GiftitTilgang', '9999')");
+//            queryRunner.update("INSERT INTO Applications values ('" + APPID_STYREROMMET + "', 'Styrerommet', 'StyrerommetTilgang', '9999')");
+//            //queryRunner.update("INSERT INTO Applications values ('" + APPID_INVOICE + "', 'Invoice', 'InvoiceBruker', '9999')");
+//            queryRunner.update("INSERT INTO Applications values ('" + APPID_FREECODEPERSONKUNDE + "', 'FREECODE Personkunde', 'Kunde', '9999')");
+//
+//            logger.info("Oppretter tabeller-stop");
+//            importerSelskaper();
+//        } catch (SQLException e) {
+//            logger.info("Error inserting init data.", e);
+//        }
+//    }
+//
+//    private void importerSelskaper() {
+//        logger.info("Import selskaper");
+//        BufferedReader reader = null;
+//        try {
+//            InputStream classpathStream = getClass().getClassLoader().getResourceAsStream("selskaper.csv");
+//            InputStreamReader isr = new InputStreamReader(classpathStream, "UTF-8");
+//            reader = new BufferedReader(isr);
+//            String line = reader.readLine();
+//            /*
+//            while (line != null) {
+//                String[] columns = line.split(",");
+//                queryRunner.update("INSERT INTO Organization values (?, ?)", columns[0], columns[1]);
+//            }
+//            */
+//            while ((line = reader.readLine()) != null) {
+//                String[] columns = line.split(",");
+//                queryRunner.update("INSERT INTO Organization values (?, ?)", columns[0], columns[1]);
+//            }
+//        } catch (IOException e) {
+//            logger.error(e.getLocalizedMessage(), e);
+//        } catch (SQLException e) {
+//            logger.error(e.getLocalizedMessage(), e);
+//        } finally {
+//            if(reader != null) {
+//                try {
+//                    reader.close();
+//                } catch (IOException e) {
+//                    logger.warn("Error closing stream", e);
+//                }
+//            }
+//        }
+//    }
 
 
 }

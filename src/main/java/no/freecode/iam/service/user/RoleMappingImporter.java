@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class WhydahRoleMappingImporter {
+public class RoleMappingImporter {
 
-	private static final Logger logger = LoggerFactory.getLogger(WhydahRoleMappingImporter.class);
+	private static final Logger logger = LoggerFactory.getLogger(RoleMappingImporter.class);
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 7;
 
@@ -32,7 +32,7 @@ public class WhydahRoleMappingImporter {
     private UserPropertyAndRoleRepository roleMappingRepository;
     
     @Inject
-	public WhydahRoleMappingImporter(UserPropertyAndRoleRepository roleMappingRepository) {
+	public RoleMappingImporter(UserPropertyAndRoleRepository roleMappingRepository) {
 		this.roleMappingRepository = roleMappingRepository;
 	}
 
@@ -54,7 +54,7 @@ public class WhydahRoleMappingImporter {
 		try {
 			List<UserPropertyAndRole> roleMappings = new ArrayList<>();
 			logger.info("Importing data from {}", roleMappingSource);
-	        InputStream classpathStream = WhydahRoleMappingImporter.class.getClassLoader().getResourceAsStream(roleMappingSource);
+	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(roleMappingSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
 	        while (null != (line = reader.readLine())) {

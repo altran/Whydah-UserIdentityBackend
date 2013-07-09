@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.freecode.iam.service.dataimport.DatabaseHelper;
 import no.freecode.iam.service.domain.WhydahUserIdentity;
 import no.freecode.iam.service.ldap.LDAPHelper;
 import no.freecode.iam.service.search.Indexer;
@@ -19,9 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class WhydahUserImporter {
+public class WhydahUserIdentityImporter {
 
-	private static final Logger logger = LoggerFactory.getLogger(WhydahUserImporter.class);
+	private static final Logger logger = LoggerFactory.getLogger(WhydahUserIdentityImporter.class);
 
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 8;
 	private static final int USERID = 0;
@@ -34,13 +33,11 @@ public class WhydahUserImporter {
 	private static final int PERSONREF = 7;
 	
     private LDAPHelper ldapHelper;
-    private DatabaseHelper databaseHelper;
     private Directory index;
     
     @Inject
-	public WhydahUserImporter(LDAPHelper ldapHelper, DatabaseHelper databaseHelper, Directory index) {
+	public WhydahUserIdentityImporter(LDAPHelper ldapHelper, Directory index) {
 		this.ldapHelper = ldapHelper;
-		this.databaseHelper = databaseHelper;
 		this.index = index;
 	}
     
@@ -54,7 +51,6 @@ public class WhydahUserImporter {
 
 	private void saveUsers(List<WhydahUserIdentity> users) {
 		try {
-			databaseHelper.initDB();
 			Indexer indexer = new Indexer(index);
 			final IndexWriter indexWriter = indexer.getWriter();
 			for (WhydahUserIdentity userIdentity : users) {
@@ -74,7 +70,7 @@ public class WhydahUserImporter {
 		try {
 			List<WhydahUserIdentity> users = new ArrayList<>();
 			logger.info("Importing data from {}", userImportSource);
-			InputStream classpathStream = WhydahUserImporter.class.getClassLoader().getResourceAsStream(userImportSource);
+			InputStream classpathStream = WhydahUserIdentityImporter.class.getClassLoader().getResourceAsStream(userImportSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
 	        while (null != (line = reader.readLine())) {

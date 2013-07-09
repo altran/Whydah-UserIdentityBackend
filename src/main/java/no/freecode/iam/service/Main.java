@@ -7,12 +7,11 @@ import java.util.HashMap;
 import no.freecode.iam.service.config.AppConfig;
 import no.freecode.iam.service.config.ImportModule;
 import no.freecode.iam.service.config.UserIdentityBackendModule;
+import no.freecode.iam.service.dataimport.IamDataImporter;
 import no.freecode.iam.service.helper.FileUtils;
 import no.freecode.iam.service.ldap.EmbeddedADS;
 import no.freecode.iam.service.security.SecurityFilter;
 import no.freecode.iam.service.security.SecurityTokenHelper;
-import no.freecode.iam.service.user.WhydahRoleMappingImporter;
-import no.freecode.iam.service.user.WhydahUserImporter;
 
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -103,16 +102,25 @@ public class Main {
     }
 
     public void importUsersAndRoles() {
-        String userImportSource = AppConfig.appConfig.getProperty("userimportsource");
-        String roleMappingImportSource = AppConfig.appConfig.getProperty("rolemappingimportsource");
         
         Injector injector = Guice.createInjector(new ImportModule());
         
-        WhydahUserImporter userImporter = injector.getInstance(WhydahUserImporter.class);
-        userImporter.importUsers(userImportSource);
+        IamDataImporter iamDataImporter = injector.getInstance(IamDataImporter.class);
+        iamDataImporter.importIamData();
         
-        WhydahRoleMappingImporter roleMappingImporter = injector.getInstance(WhydahRoleMappingImporter.class);
-        roleMappingImporter.importRoleMapping(roleMappingImportSource);
+//        databaseHelper.initDB();
+//        
+//        ApplicationImporter applicationImporter = injector.getInstance(ApplicationImporter.class);
+//        applicationImporter.importApplications(applicationsImportSource);
+//        
+//        OrganizationImporter organizationImporter = injector.getInstance(OrganizationImporter.class);
+//        organizationImporter.importOrganizations(organizationsImportSource);
+//        
+//        WhydahUserIdentityImporter userImporter = injector.getInstance(WhydahUserIdentityImporter.class);
+//        userImporter.importUsers(userImportSource);
+//        
+//        RoleMappingImporter roleMappingImporter = injector.getInstance(RoleMappingImporter.class);
+//        roleMappingImporter.importRoleMapping(roleMappingImportSource);
     }
 
     public static boolean shouldImportUsers() {

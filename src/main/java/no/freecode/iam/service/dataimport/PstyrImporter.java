@@ -160,12 +160,12 @@ public class PstyrImporter {
         UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
         userPropertyAndRole.setUid(user.getUid());
         if(invoiceRoles.contains(rolle)) {
-            userPropertyAndRole.setAppId(DatabaseHelper.APPID_INVOICE);
+            userPropertyAndRole.setAppId("bleh");
 //            if(rolle.equals("SM") || rolle.equals("VM")) {
 //                rolle += getString(columns, STYRET_REKKEFOLGE);
 //            }
         } else {
-            userPropertyAndRole.setAppId(DatabaseHelper.APPID_GIFTIT);
+            userPropertyAndRole.setAppId("blah");
         }
         String orgid = getString(columns, BORETTSLAGSNR);
         orgid = "0000".substring(orgid.length()) + orgid;

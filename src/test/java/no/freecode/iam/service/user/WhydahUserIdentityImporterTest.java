@@ -8,13 +8,13 @@ import no.freecode.iam.service.domain.WhydahUserIdentity;
 
 import org.junit.Test;
 
-public class WhydahUserImporterTest {
+public class WhydahUserIdentityImporterTest {
 
 	@Test
 	public void parseUsers() {
 		String userImportSource = "testusers.csv";
 		
-		List<WhydahUserIdentity> users = WhydahUserImporter.parseUsers(userImportSource);
+		List<WhydahUserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportSource);
 		
 		assertEquals("All users must be found.", 2, users.size());
 		

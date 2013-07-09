@@ -1,0 +1,4 @@
+#applicationId, applicationName, defaultRole, defaultOrgId
+1, Brukeradmin, Brukeradmin, 1
+2, Mobilefirst, Client, 2
+3, Whydah, Developer, 2
