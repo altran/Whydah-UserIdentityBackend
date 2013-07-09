@@ -1,7 +1,7 @@
 package net.whydah.iam.service.config;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
+import java.io.File;
+import java.io.IOException;
 
 import net.whydah.iam.service.exceptions.ConfigurationException;
 import net.whydah.iam.service.ldap.LDAPHelper;
@@ -9,15 +9,15 @@ import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
 import net.whydah.iam.service.search.Indexer;
 import net.whydah.iam.service.search.Search;
 import net.whydah.iam.service.security.SecurityTokenHelper;
-import net.whydah.module.service.config.FCconfig;
+import net.whydah.module.service.config.WhydahConfig;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 
-import java.io.File;
-import java.io.IOException;
+import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 
 /**
  * User: asbkar
@@ -59,22 +59,20 @@ public class UserIdentityBackendModule extends AbstractModule {
         String externalAdmCredentials =  AppConfig.appConfig.getProperty("ldap.external.credentials");
         String externalUsernameAttribute =  AppConfig.appConfig.getProperty("ldap.external.usernameattribute");
 
-      //String internalLdapUrl =  "ldap://hkdc03.obos.no:389/DC=obos,DC=no"; //TODO old
-        
         String internalLdapUrl;
         String admPrincipal;
 		String admCredentials;
 		String usernameAttribute;
         
-        FCconfig fCconfig = new FCconfig();
+        WhydahConfig fCconfig = new WhydahConfig();
         //For Customer   
-        if(fCconfig.getProptype().equals("DEV")){
+        if (fCconfig.getProptype().equals("DEV")){
         	internalLdapUrl = "internalLdapUrl FOR CUSTOMER";
             admPrincipal = "admPrincipal FOR CUSTOMER";
      		admCredentials = "admCredentials FOR CUSTOMER";
      		usernameAttribute="usernameAttribute FOR CUSTOMER";
-        }else{
-        	//For Freecode DEV or TEST
+        } else {
+        	//For Whydah DEV or TEST
         	internalLdapUrl = fCconfig.getfCinternalLdapUrl(); 
             admPrincipal = fCconfig.getfCadmPrincipal();
     		admCredentials = fCconfig.getfCadmCredentials();
@@ -84,9 +82,6 @@ public class UserIdentityBackendModule extends AbstractModule {
         
         bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("external")).toInstance(new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
         bind(LDAPHelper.class).toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
-		//bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(internalLdapUrl, "ldap@obos.no", "NeSe1542", "sAMAccountName")); //TODO old
-        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute)); //TODO new
-        
-   
+        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute));
     }
 }

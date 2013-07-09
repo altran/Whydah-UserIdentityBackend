@@ -22,7 +22,7 @@ import org.junit.Test;
 
 public class LDAPHelperTest {
     private final static int serverPort = 10363;
-    private final static String LDAP_URL = "ldap://localhost:" + serverPort + "/dc=external,dc=OBOS,dc=no";
+    private final static String LDAP_URL = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
     private static final LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
     private static final LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");

@@ -34,12 +34,6 @@ import java.util.UUID;
  * @since 10/4/12
  */
 public class UserAdminHelper {
-//    public static final String ORG_ID_YENKA = "24";
-//    public static final String ORG_NAME_YENKA = "Yenka";
-//    public static final String APP_ID_GIFTIT = "23";
-//    public static final String APP_NAME_GIFTIT = "Giftit";
-//    public static final String ROLE_NAME_GIFTIT_USER = "GiftItUser";
-//    public static final String ROLE_NAME_FACEBOOK_DATA = "FBdata";
 
     private static final Logger logger = LoggerFactory.getLogger(UserAdminHelper.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");

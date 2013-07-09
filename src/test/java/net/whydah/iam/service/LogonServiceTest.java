@@ -53,7 +53,7 @@ public class LogonServiceTest {
     public void welcome() {
         WebResource webResource = restClient.resource(baseUri);
         String s = webResource.get(String.class);
-        assertTrue(s.contains("Freecode"));
+        assertTrue(s.contains("Whydah"));
         assertTrue(s.contains("<FORM"));
         assertFalse(s.contains("backtrace"));
     }
@@ -101,23 +101,23 @@ public class LogonServiceTest {
     @Test
     public void XMLLogonOK() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
-        String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><authgreier><auth><dilldall>dilldall</dilldall><user><username>sunil@freecode.no</username><coffee>yes please</coffee><password>654321</password></user></auth></authgreier>";
+        String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><authgreier><auth><dilldall>dilldall</dilldall><user><username>thomasp</username><coffee>yes please</coffee><password>logMeInPlease</password></user></auth></authgreier>";
         ClientResponse response = webResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
         String responseXML = response.getEntity(String.class);
         //System.out.println(responseXML);
-        assertTrue(responseXML.contains("freecode"));
+        assertTrue(responseXML.contains("thomasp"));
 
     }
 
     @Test
     public void XMLLogonFail() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
-        String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><authgreier><auth><dilldall>dilldall</dilldall><user><username>sunil@freecode.no</username><coffee>yes please</coffee><password>vrangt</password></user></auth></authgreier>";
+        String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><authgreier><auth><dilldall>dilldall</dilldall><user><username>thomasp</username><coffee>yes please</coffee><password>vrangt</password></user></auth></authgreier>";
         ClientResponse response = webResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
         String responseXML = response.getEntity(String.class);
         //System.out.println(responseXML);
         assertTrue(responseXML.contains("logonFailed"));
-        assertFalse(responseXML.contains("freecodeUser"));
+        assertFalse(responseXML.contains("thomasp"));
     }
 
 }

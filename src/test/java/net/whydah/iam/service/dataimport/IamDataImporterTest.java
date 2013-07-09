@@ -37,7 +37,7 @@ public class IamDataImporterTest {
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
     private final static int LDAP_PORT = 10937;
-    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=OBOS,dc=no";
+    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper;

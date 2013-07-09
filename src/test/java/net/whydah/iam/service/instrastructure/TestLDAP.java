@@ -19,7 +19,7 @@ public class TestLDAP extends TestCase {
     final static String ldapServerName = "localhost";
     final static String rootdn = "uid=admin,ou=system";
     final static String rootpass = "secret";
-    final static String rootContext = "dc=external,dc=OBOS,dc=no";
+    final static String rootContext = "dc=external,dc=WHYDAH,dc=no";
     final static int serverPort = 10367;
 
 

@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service for å autentisere bruker og hente WhydahUser med oversikt over applikasjoner, selskaper og roller.
+ * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.   
  */
 @Path("/")
 public class WhydahUserResource {
@@ -213,40 +213,6 @@ public class WhydahUserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
         }
     }
-
-    /*
-    Response createAndAuthenticateUser(WhydahUserIdentity whydahUserIdentity) {
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
-        }
-
-        try {
-            String newPassword = calculateFacebookPassword(whydahUserIdentity.getPersonRef());
-            Response response = userAdminHelper.addUser(whydahUserIdentity, newPassword);
-            userAdminHelper.addFacebookDataRole(whydahUserIdentity.getUid(), );
-
-            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                return response;
-            }
-
-            UserPropertyAndRole role = new UserPropertyAndRole();
-            role.setRoleName(ROLE_NAME_GIFTIT_USER);
-            role.setRoleValue("1");
-            role.setAppId(APP_ID_GIFTIT);
-            role.setApplicationName(APP_NAME_GIFTIT);
-            role.setOrgId(ORG_ID_GIFTIT);
-            role.setOrganizationName(ORG_NAME_YENKA);
-            role.setUid(whydahUserIdentity.getUid());
-            roleRepository.addUserPropertyAndRole(role);
-
-            return authenticateUser(whydahUserIdentity.getUsername(), newPassword, whydahUserIdentity.getPersonRef());
-        } catch (Exception e) {
-            logger.error("createAndAuthenticateUser failed " + whydahUserIdentity.toString(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
-        }
-    }
-    */
-
 
     /**
      * Form/html-based authentication.

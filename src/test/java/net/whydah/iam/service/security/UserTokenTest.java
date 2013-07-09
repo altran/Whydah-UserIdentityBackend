@@ -43,7 +43,7 @@ public class UserTokenTest {
             "    <application ID=\"1\">\n" +
             "        <applicationName>Brukeradmin</applicationName>\n" +
             "        <organization ID=\"9999\">\n" +
-            "            <organizationName>OBOS</organizationName>\n" +
+            "            <organizationName>WHYDAH</organizationName>\n" +
             "            <role name=\"Brukeradmin\" value=\"\"/>\n" +
             "            <role name=\"Tester\" value=\"\"/>\n" +
             "        </organization>\n" +

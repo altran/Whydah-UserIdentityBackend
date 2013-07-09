@@ -1,7 +1,7 @@
 package net.whydah.iam.service.ldap;
 
 import net.whydah.iam.service.Main;
-import net.whydah.module.service.config.FCconfig;
+import net.whydah.module.service.config.WhydahConfig;
 
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -150,15 +150,15 @@ public class EmbeddedADS {
         service = new DefaultDirectoryService();
         service.setWorkingDirectory(workDir);
 
-        FCconfig fCconfig = new FCconfig();
+        WhydahConfig fCconfig = new WhydahConfig();
         if (fCconfig.getProptype().equals("FCDEV")) {
             //dc = fCconfig.getFCDc(); //TODO commented for a while. Work with it when Prod and dev. enviroment are ready
-            dc="OBOS";
+            dc="WHYDAH";
         } else if(fCconfig.getProptype().equals("DEV")) {
             //dc = "CUSTOMER"; //TODO commented for a while. Work with it when Prod and dev. enviroment are ready
-            dc="OBOS";
+            dc="WHYDAH";
         } else{
-            dc="OBOS"; //Test
+            dc="WHYDAH"; //Test
         }
 
 
@@ -176,52 +176,25 @@ public class EmbeddedADS {
 
         // Now we can create as many partitions as we need
         // Create some new partitions named 'foo', 'bar' and 'apache'.
-//        Partition fooPartition = addPartition("foo", "dc=foo,dc=com");
-//        Partition barPartition = addPartition("bar", "dc=bar,dc=com");
-        //Partition apachePartition = addPartition("OBOS", "dc=external,dc=OBOS,dc=no"); //TODO ok OLD
-        Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no"); //TODO new
+
+        Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
         // Index some attributes on the apache partition
         addIndex(apachePartition, "objectClass", "ou", "uid");
 
         // And start the service
         service.startup();
 
-//        // Inject the foo root entry if it does not already exist
-//        try {
-//            service.getAdminSession().lookup(fooPartition.getSuffixDn());
-//        } catch (LdapException lnnfe) {
-//            DN dnFoo = new DN("dc=foo,dc=com");
-//            ServerEntry entryFoo = service.newEntry(dnFoo);
-//            entryFoo.add("objectClass", "top", "domain", "extensibleObject");
-//            entryFoo.add("dc", "foo");
-//            service.getAdminSession().add(entryFoo);
-//        }
-
-        // Inject the bar root entry
-//        try {
-//            service.getAdminSession().lookup(barPartition.getSuffixDn());
-//        } catch (LdapException lnnfe) {
-//            DN dnBar = new DN("dc=bar,dc=com");
-//            ServerEntry entryBar = service.newEntry(dnBar);
-//            entryBar.add("objectClass", "top", "domain", "extensibleObject");
-//            entryBar.add("dc", "bar");
-//            service.getAdminSession().add(entryBar);
-//        }
-
         // Inject the apache root entry
         if (service.getAdminSession().exists(apachePartition.getSuffixDn())) {
             return;
         }
 
-        //DN dnApache = new DN("dc=external,dc=OBOS,dc=no"); //TODO old ok
         DN dnApache = new DN("dc=external,dc="+dc+",dc=no");
         ServerEntry entryApache = service.newEntry(dnApache);
         entryApache.add("objectClass", "top", "domain", "extensibleObject");
-        // entryApache.add("dc", "OBOS"); //TODO old
-        entryApache.add("dc", dc); //TODO new
+        entryApache.add("dc", dc); 
         service.getAdminSession().add(entryApache);
-        //ServerEntry entryApache2 = service.newEntry(new DN("ou=users,dc=external,dc=OBOS,dc=no")); //TODO old
-        ServerEntry entryApache2 = service.newEntry(new DN("ou=users,dc=external,dc="+dc+",dc=no")); //TODO new
+        ServerEntry entryApache2 = service.newEntry(new DN("ou=users,dc=external,dc="+dc+",dc=no")); 
         entryApache2.add("objectClass", "top", "organizationalUnit");
         service.getAdminSession().add(entryApache2);
     }
@@ -294,7 +267,7 @@ public class EmbeddedADS {
 
 
             // Read an entry
-//            Entry result = ads.service.getAdminSession().lookup(new DN("dc=external,dc=OBOS,dc=no"));
+//            Entry result = ads.service.getAdminSession().lookup(new DN("dc=external,dc=WHYDAH,dc=no"));
 
             // And print it if available
 //            System.out.println("Found entry : " + result);

@@ -45,7 +45,7 @@ import org.w3c.dom.Document;
 import com.sun.jersey.api.view.Viewable;
 
 /**
- * @author <a href="mailto:erik@freecode.no">Erik Drolshammer</a>
+ * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/18/12
  */
 public class WhydahUserResourceTest {
@@ -53,7 +53,7 @@ public class WhydahUserResourceTest {
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
     private final static int LDAP_PORT = 10937;
-    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=OBOS,dc=no";
+    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper;
