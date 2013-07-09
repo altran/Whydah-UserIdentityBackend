@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * Helper class to avoid code duplication between UserAdminResource and WhydahUserResource.
  *
- * @author <a href="mailto:erik@freecode.no">Erik Drolshammer</a>
+ * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/4/12
  */
 public class UserAdminHelper {
@@ -113,7 +113,8 @@ public class UserAdminHelper {
         return fbId + fbId;
     }
 
-    public void addGiftItUserRole(WhydahUserIdentity userIdentity){
+    public void addGiftItUserRole(WhydahUserIdentity userIdentity) {
+    	// TODO : Add default role to properties-file
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(userIdentity.getUid());
         role.setAppId(APP_ID_GIFTIT);
