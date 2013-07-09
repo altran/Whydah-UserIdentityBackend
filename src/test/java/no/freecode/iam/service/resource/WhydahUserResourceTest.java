@@ -1,6 +1,8 @@
 package no.freecode.iam.service.resource;
 
 import com.sun.jersey.api.view.Viewable;
+
+import no.freecode.iam.service.config.AppConfig;
 import no.freecode.iam.service.dataimport.DatabaseHelper;
 import no.freecode.iam.service.domain.UserPropertyAndRole;
 import no.freecode.iam.service.domain.WhydahUser;
@@ -13,6 +15,7 @@ import no.freecode.iam.service.repository.AuditLogRepository;
 import no.freecode.iam.service.repository.BackendConfigDataRepository;
 import no.freecode.iam.service.repository.UserPropertyAndRoleRepository;
 import no.freecode.iam.service.search.Indexer;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
@@ -29,6 +32,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -58,6 +62,8 @@ public class WhydahUserResourceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+    	System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
+    	
         PstyrImporterTest.deleteDirectory(new File(basepath));
 
         File ldapdir = new File(ldappath);
@@ -125,21 +131,29 @@ public class WhydahUserResourceTest {
 
 
         List<UserPropertyAndRole> propsAndRoles = model.getPropsAndRoles();
-
+        
+        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
+        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
+        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
+        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
+        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
+        
+        String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
+        
         for (UserPropertyAndRole role : propsAndRoles) {
-            assertEquals(UserAdminHelper.APP_ID_GIFTIT, role.getAppId());
-            assertEquals(UserAdminHelper.APP_NAME_GIFTIT, role.getApplicationName());
-            assertEquals(UserAdminHelper.ORG_ID_YENKA, role.getOrgId());
-            //assertEquals(UserAdminHelper.ORG_NAME_YENKA, role.getOrganizationName()); //TODO figure out why orgName is not set.
+            assertEquals(applicationId, role.getAppId());
+            assertEquals(applicationName, role.getApplicationName());
+            assertEquals(organizationId, role.getOrgId());
+//            assertEquals(organizationName, role.getOrganizationName()); //TODO figure out why orgName is not set.
         }
 
         assertEquals(2, propsAndRoles.size());
 
         UserPropertyAndRole role1 = propsAndRoles.get(0);
-        assertEquals(UserAdminHelper.ROLE_NAME_GIFTIT_USER, role1.getRoleName());
+        assertEquals(roleName, role1.getRoleName());
 
         UserPropertyAndRole role2 = propsAndRoles.get(1);
-        assertEquals(UserAdminHelper.ROLE_NAME_FACEBOOK_DATA, role2.getRoleName());
+        assertEquals(facebookRoleName, role2.getRoleName());
     }
 
 

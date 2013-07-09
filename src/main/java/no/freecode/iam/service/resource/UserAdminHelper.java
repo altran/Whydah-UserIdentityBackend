@@ -1,7 +1,9 @@
 package no.freecode.iam.service.resource;
 
 import com.google.inject.Inject;
+
 import no.freecode.iam.service.audit.ActionPerformed;
+import no.freecode.iam.service.config.AppConfig;
 import no.freecode.iam.service.domain.UserPropertyAndRole;
 import no.freecode.iam.service.domain.WhydahUserIdentity;
 import no.freecode.iam.service.ldap.LDAPHelper;
@@ -10,6 +12,7 @@ import no.freecode.iam.service.repository.UserPropertyAndRoleRepository;
 import no.freecode.iam.service.search.Indexer;
 import no.freecode.iam.service.security.Authentication;
 import no.freecode.iam.service.security.UserToken;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -19,6 +22,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -30,12 +34,12 @@ import java.util.UUID;
  * @since 10/4/12
  */
 public class UserAdminHelper {
-    public static final String ORG_ID_YENKA = "24";
-    public static final String ORG_NAME_YENKA = "Yenka";
-    public static final String APP_ID_GIFTIT = "23";
-    public static final String APP_NAME_GIFTIT = "Giftit";
-    public static final String ROLE_NAME_GIFTIT_USER = "GiftItUser";
-    public static final String ROLE_NAME_FACEBOOK_DATA = "FBdata";
+//    public static final String ORG_ID_YENKA = "24";
+//    public static final String ORG_NAME_YENKA = "Yenka";
+//    public static final String APP_ID_GIFTIT = "23";
+//    public static final String APP_NAME_GIFTIT = "Giftit";
+//    public static final String ROLE_NAME_GIFTIT_USER = "GiftItUser";
+//    public static final String ROLE_NAME_FACEBOOK_DATA = "FBdata";
 
     private static final Logger logger = LoggerFactory.getLogger(UserAdminHelper.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
@@ -71,7 +75,7 @@ public class UserAdminHelper {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        addGiftItUserRole(newIdentity);
+        addDefaultWhydahUserRole(newIdentity);
 
         try {
             indexer.addToIndex(newIdentity);
@@ -113,16 +117,23 @@ public class UserAdminHelper {
         return fbId + fbId;
     }
 
-    public void addGiftItUserRole(WhydahUserIdentity userIdentity) {
-    	// TODO : Add default role to properties-file
+    public void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
+        
+        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
+        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
+        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
+        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
+        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
+        String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
+        
         role.setUid(userIdentity.getUid());
-        role.setAppId(APP_ID_GIFTIT);
-        role.setApplicationName(APP_NAME_GIFTIT);
-        role.setOrgId(ORG_ID_YENKA);
-        role.setOrganizationName(ORG_NAME_YENKA);
-        role.setRoleName(ROLE_NAME_GIFTIT_USER);
-        role.setRoleValue("1");
+		role.setAppId(applicationId);
+		role.setApplicationName(applicationName);
+		role.setOrgId(organizationId);
+		role.setOrganizationName(organizationName);
+		role.setRoleName(roleName);
+		role.setRoleValue(roleValue);
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
@@ -137,12 +148,19 @@ public class UserAdminHelper {
 
     public void addFacebookDataRole(WhydahUserIdentity userIdentity, String roleValue){
         UserPropertyAndRole role = new UserPropertyAndRole();
+        
+        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
+        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
+        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
+        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
+        String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
+        
         role.setUid(userIdentity.getUid());
-        role.setAppId(APP_ID_GIFTIT);
-        role.setApplicationName(APP_NAME_GIFTIT);
-        role.setOrgId(ORG_ID_YENKA);
-        role.setOrganizationName(ORG_NAME_YENKA);
-        role.setRoleName(ROLE_NAME_FACEBOOK_DATA);
+        role.setAppId(applicationId);
+        role.setApplicationName(applicationName);
+        role.setOrgId(organizationId);
+        role.setOrganizationName(organizationName);
+        role.setRoleName(facebookRoleName); 
         role.setRoleValue(roleValue);
         logger.debug("Adding Role: {}", role);
 

@@ -31,7 +31,7 @@ public class ApplicationImporterTest {
 		Application application3 = applications.get(2);
 		assertEquals("applicationId must be set.", "3", application3.getId());
 		assertEquals("applicationName must be set.", "Whydah", application3.getName());
-		assertEquals("defaultRole must be set.", "Developer", application3.getDefaultRoleName());
+		assertEquals("defaultRole must be set.", "WhydahDefaultUser", application3.getDefaultRoleName());
 		assertEquals("defaultOrgId must be set.", "2", application3.getDefaultOrganizationId());
 
 	}

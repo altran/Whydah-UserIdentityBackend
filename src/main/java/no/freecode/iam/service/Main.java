@@ -175,9 +175,9 @@ public class Main {
 
 
 	private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
-		String requiredRoleName = AppConfig.appConfig.getProperty("requiredrolename");
+		String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
 		if (StringUtils.isEmpty(requiredRoleName)) {
-			logger.warn("Required Role Name is empty! Verify the requiredrolename-attribute in the configuration.");
+			logger.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
 		}
 		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class));
         HashMap<String, String> initParams = new HashMap<>(1);

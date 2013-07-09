@@ -35,10 +35,10 @@ public class IamDataImporter {
 	
 	public void importIamData() {
 		
-        String userImportSource = AppConfig.appConfig.getProperty("userimportsource");
-        String roleMappingImportSource = AppConfig.appConfig.getProperty("rolemappingimportsource");
-        String organizationsImportSource = AppConfig.appConfig.getProperty("organizationsimportsource");
-        String applicationsImportSource= AppConfig.appConfig.getProperty("applicationsimportsource");
+        String userImportSource = AppConfig.appConfig.getProperty("import.usersource");
+        String roleMappingImportSource = AppConfig.appConfig.getProperty("import.rolemappingsource");
+        String organizationsImportSource = AppConfig.appConfig.getProperty("import.organizationssource");
+        String applicationsImportSource= AppConfig.appConfig.getProperty("import.applicationssource");
         
         logger.info("Initializing database.");
         databaseHelper.initDB();

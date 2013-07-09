@@ -12,7 +12,7 @@ public class RoleMappingImporterTest {
 
 	@Test
 	public void parseRoles() {
-		String roleMappingSource = "testrolemapping.csv";
+		String roleMappingSource = "testrolemappings.csv";
 		
 		List<UserPropertyAndRole> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingSource);
 		

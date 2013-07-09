@@ -104,7 +104,7 @@ public class LogonServiceTest {
         ClientResponse response = webResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
         String responseXML = response.getEntity(String.class);
         //System.out.println(responseXML);
-        assertTrue(responseXML.contains("logonFailed"));
+        assertTrue(responseXML.contains("freecode"));
 
     }
 
