@@ -40,7 +40,7 @@ public class UserPropertyAndRole {
     }
 
     public String getOrgId() {
-        return orgId;
+        return (orgId == null ? "" : orgId);
     }
 
     public void setOrgId(String orgId) {

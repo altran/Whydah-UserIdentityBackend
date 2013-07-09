@@ -15,10 +15,6 @@ import no.freecode.iam.service.ldap.EmbeddedADS;
 import no.freecode.iam.service.ldap.LDAPHelper;
 import no.freecode.iam.service.repository.BackendConfigDataRepository;
 import no.freecode.iam.service.repository.UserPropertyAndRoleRepository;
-import no.freecode.iam.service.user.ApplicationImporter;
-import no.freecode.iam.service.user.OrganizationImporter;
-import no.freecode.iam.service.user.RoleMappingImporter;
-import no.freecode.iam.service.user.WhydahUserIdentityImporter;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;

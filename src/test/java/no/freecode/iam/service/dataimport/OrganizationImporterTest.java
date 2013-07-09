@@ -1,8 +1,11 @@
-package no.freecode.iam.service.user;
+package no.freecode.iam.service.dataimport;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
+import no.freecode.iam.service.dataimport.Organization;
+import no.freecode.iam.service.dataimport.OrganizationImporter;
 
 import org.junit.Test;
 

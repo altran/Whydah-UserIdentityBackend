@@ -1,4 +1,4 @@
-package no.freecode.iam.service.user;
+package no.freecode.iam.service.dataimport;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package no.freecode.iam.service.user;
+package no.freecode.iam.service.dataimport;
 
 public class Application {
 

@@ -1,10 +1,6 @@
 package no.freecode.iam.service.dataimport;
 
 import no.freecode.iam.service.config.AppConfig;
-import no.freecode.iam.service.user.ApplicationImporter;
-import no.freecode.iam.service.user.OrganizationImporter;
-import no.freecode.iam.service.user.RoleMappingImporter;
-import no.freecode.iam.service.user.WhydahUserIdentityImporter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

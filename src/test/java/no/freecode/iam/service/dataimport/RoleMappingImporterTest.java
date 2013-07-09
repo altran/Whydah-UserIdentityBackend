@@ -1,9 +1,10 @@
-package no.freecode.iam.service.user;
+package no.freecode.iam.service.dataimport;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import no.freecode.iam.service.dataimport.RoleMappingImporter;
 import no.freecode.iam.service.domain.UserPropertyAndRole;
 
 import org.junit.Test;
