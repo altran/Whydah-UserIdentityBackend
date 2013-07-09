@@ -1,16 +1,31 @@
 package no.freecode.iam.service.resource;
 
-import com.sun.jersey.api.view.Viewable;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+
+import javax.naming.NamingException;
+import javax.ws.rs.core.Response;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import no.freecode.iam.service.config.AppConfig;
 import no.freecode.iam.service.dataimport.DatabaseHelper;
 import no.freecode.iam.service.domain.UserPropertyAndRole;
 import no.freecode.iam.service.domain.WhydahUser;
 import no.freecode.iam.service.domain.WhydahUserIdentity;
+import no.freecode.iam.service.helper.FileUtils;
 import no.freecode.iam.service.ldap.EmbeddedADS;
 import no.freecode.iam.service.ldap.LDAPHelper;
 import no.freecode.iam.service.ldap.LdapAuthenticatorImpl;
-import no.freecode.iam.service.prestyr.PstyrImporterTest;
 import no.freecode.iam.service.repository.AuditLogRepository;
 import no.freecode.iam.service.repository.BackendConfigDataRepository;
 import no.freecode.iam.service.repository.UserPropertyAndRoleRepository;
@@ -25,22 +40,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import javax.naming.NamingException;
-import javax.ws.rs.core.Response;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.sun.jersey.api.view.Viewable;
 
 /**
  * @author <a href="mailto:erik@freecode.no">Erik Drolshammer</a>
@@ -64,7 +64,7 @@ public class WhydahUserResourceTest {
     public static void setUp() throws Exception {
     	System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
     	
-        PstyrImporterTest.deleteDirectory(new File(basepath));
+    	FileUtils.deleteDirectory(new File(basepath));
 
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();

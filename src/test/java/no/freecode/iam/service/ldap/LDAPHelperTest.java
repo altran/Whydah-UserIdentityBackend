@@ -1,16 +1,21 @@
 package no.freecode.iam.service.ldap;
 
-import no.freecode.iam.service.domain.WhydahUserIdentity;
-import no.freecode.iam.service.prestyr.PstyrImporterTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
-import javax.naming.NamingException;
 import java.io.File;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import javax.naming.NamingException;
+
+import no.freecode.iam.service.domain.WhydahUserIdentity;
+import no.freecode.iam.service.helper.FileUtils;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LDAPHelperTest {
     private final static int serverPort = 10363;
@@ -23,7 +28,7 @@ public class LDAPHelperTest {
     public static void setUp() throws Exception {
         String workDirPath = "target/testldap";
         File workDir = new File(workDirPath);
-        PstyrImporterTest.deleteDirectory(workDir);
+        FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
             fail("Error creating working directory " + workDirPath);
         }

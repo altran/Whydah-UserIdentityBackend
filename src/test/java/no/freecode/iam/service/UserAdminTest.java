@@ -1,24 +1,31 @@
 package no.freecode.iam.service;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.net.URI;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
 import no.freecode.iam.service.config.AppConfig;
+import no.freecode.iam.service.helper.FileUtils;
 import no.freecode.iam.service.mail.MockMail;
-import no.freecode.iam.service.prestyr.PstyrImporterTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.File;
-import java.net.URI;
-
-import static org.junit.Assert.*;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 
 
 @Ignore
@@ -29,7 +36,7 @@ public class UserAdminTest {
     @BeforeClass
     public static void init() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
-        PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
+        FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
         uib = new Main();
         uib.startEmbeddedDS();
         uib.importUsersAndRoles();
@@ -44,7 +51,7 @@ public class UserAdminTest {
     @AfterClass
     public static void teardown() throws Exception {
         uib.stop();
-        PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
+        FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
     }
 
     @Test

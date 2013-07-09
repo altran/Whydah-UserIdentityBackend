@@ -1,29 +1,28 @@
 package no.freecode.iam.service;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+
 import junit.framework.TestCase;
-import no.freecode.iam.service.prestyr.PstyrImporterTest;
+import no.freecode.iam.service.helper.FileUtils;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-
-import static org.junit.Assert.*;
 public class MainTest extends TestCase {
 
 
     @BeforeClass
     public static void init() {
-    	 PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
+    	FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
     }
 
     @AfterClass
     public static void cleanup() {
-    	PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
+    	FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
     }
    
 
