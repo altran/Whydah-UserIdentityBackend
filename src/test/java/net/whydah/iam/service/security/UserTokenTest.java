@@ -13,16 +13,16 @@ public class UserTokenTest {
     @Test
     public void hasRole() {
         UserToken token = new UserToken(usertoken);
-        assertTrue(token.hasRole("Brukeradmin"));
+        assertTrue(token.hasRole("WhydahUserAdmin"));
         assertFalse(token.hasRole("nesevis"));
     }
     @Test
     public void getRoles() {
         UserToken token = new UserToken(usertoken);
 
-        UserRole expectedRole1 = new UserRole("1", "9999", "Brukeradmin");
+        UserRole expectedRole1 = new UserRole("1", "9999", "WhydahUserAdmin");
         UserRole expectedRole2 = new UserRole("1", "9999", "Tester");
-        UserRole expectedRole3 = new UserRole("005", "1234", "Brukeradmin");
+        UserRole expectedRole3 = new UserRole("005", "1234", "WhydahUserAdmin");
         List<UserRole> actualRoles = token.getUserRoles();
         assertNotNull(actualRoles);
         assertEquals(3, actualRoles.size());
@@ -41,10 +41,10 @@ public class UserTokenTest {
             "    <lifespan>200000</lifespan>\n" +
             "    <issuer>http://10.10.3.88:9998/iam/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
             "    <application ID=\"1\">\n" +
-            "        <applicationName>Brukeradmin</applicationName>\n" +
+            "        <applicationName>WhydahUserAdmin</applicationName>\n" +
             "        <organization ID=\"9999\">\n" +
             "            <organizationName>WHYDAH</organizationName>\n" +
-            "            <role name=\"Brukeradmin\" value=\"\"/>\n" +
+            "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
             "            <role name=\"Tester\" value=\"\"/>\n" +
             "        </organization>\n" +
             "    </application>\n" +
@@ -52,7 +52,7 @@ public class UserTokenTest {
             "        <applicationName>HMS</applicationName>\n" +
             "        <organization ID=\"1234\">\n" +
             "            <organizationName>NBBL</organizationName>\n" +
-            "            <role name=\"Brukeradmin\" value=\"\"/>\n" +
+            "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
             "        </organization>\n" +
             "    </application>\n" +
             "\n" +

@@ -37,7 +37,7 @@ public class SecurityTokenHelper {
 
     public UserToken getUserToken(String usertokenid) {
         if(mock) {
-            return new UserToken("<token><fornavn>Stand</fornavn><etternavn>Alone</etternavn><application ID=\"1\"><organization ID=\"2\"><role name=\"Brukeradmin\"/></organization></application></token>");
+            return new UserToken("<token><fornavn>Stand</fornavn><etternavn>Alone</etternavn><application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application></token>");
         }
         String appTokenId = getAppTokenId();
         logger.debug("usertokenid={}", usertokenid);

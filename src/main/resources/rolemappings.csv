@@ -1,5 +1,5 @@
 #userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
-thomas.pringle@altran.com, 1, Brukeradmin, 1, Whydah, Brukeradmin, 99 
+thomas.pringle@altran.com, 1, UserAdmin, 1, Whydah, UserAdmin, 99 
 thomas.pringle@altran.com, 2, Mobilefirst, 5, Altran, client, 10
 thomas.pringle@altran.com, 3, Whydah, 1, Whydah, developer, 20
 erik.drolshammer, 2, Mobilefirst, 5, Altran, admin, 70

@@ -18,7 +18,7 @@ public class ApplicationImporterTest {
 		List<Application> applications = ApplicationImporter.parseApplications(applicationsSource);
 		
 //		#applicationId, applicationName, defaultRole, defaultOrgId
-//		1, Brukeradmin, Brukeradmin, 1
+//		1, WhydahUserAdmin, WhydahUserAdmin, 1
 //		2, Mobilefirst, Client, 2
 //		3, Development, Developer, 2
 		
@@ -26,8 +26,8 @@ public class ApplicationImporterTest {
 		
 		Application application1 = applications.get(0);
 		assertEquals("applicationId must be set.", "1", application1.getId());
-		assertEquals("applicationName must be set.", "Brukeradmin", application1.getName());
-		assertEquals("defaultRole must be set.", "Brukeradmin", application1.getDefaultRoleName());
+		assertEquals("applicationName must be set.", "WhydahUserAdmin", application1.getName());
+		assertEquals("defaultRole must be set.", "WhydahUserAdmin", application1.getDefaultRoleName());
 		assertEquals("defaultOrgId must be set.", "1", application1.getDefaultOrganizationId());
 		
 

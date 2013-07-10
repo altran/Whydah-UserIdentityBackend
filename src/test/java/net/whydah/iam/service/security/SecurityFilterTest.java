@@ -29,7 +29,7 @@ public class SecurityFilterTest {
 
         FilterConfig filterConfig = mock(FilterConfig.class);
         when(filterConfig.getInitParameter(SecurityFilter.SECURED_PATHS_PARAM)).thenReturn("/admin,/secured");
-        when(filterConfig.getInitParameter(SecurityFilter.REQUIRED_ROLE_PARAM)).thenReturn("Brukeradmin");
+        when(filterConfig.getInitParameter(SecurityFilter.REQUIRED_ROLE_PARAM)).thenReturn("WhydahUserAdmin");
         securityFilter.init(filterConfig);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
@@ -78,5 +78,5 @@ public class SecurityFilterTest {
     }
 
     private final static String tokenOther = "<application ID=\"1\"><organization ID=\"2\"><role name=\"Vaktmester\"/></organization></application>";
-    private final static String tokenBrukeradmin = "<application ID=\"1\"><organization ID=\"2\"><role name=\"Brukeradmin\"/></organization></application>";
+    private final static String tokenBrukeradmin = "<application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application>";
 }
