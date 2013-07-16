@@ -17,12 +17,12 @@ public class MainTest extends TestCase {
 
     @BeforeClass
     public static void init() {
-    	FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
+    	FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
 
     @AfterClass
     public static void cleanup() {
-    	FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
+    	FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
    
 

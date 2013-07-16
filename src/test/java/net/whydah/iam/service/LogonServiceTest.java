@@ -30,7 +30,6 @@ public class LogonServiceTest {
 
     @BeforeClass
     public static void init() throws Exception {
-        //PstyrImporterTest.deleteDirectory(new File("/tmp/ssotest/"));
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
         uib = new Main();
         uib.startEmbeddedDS();

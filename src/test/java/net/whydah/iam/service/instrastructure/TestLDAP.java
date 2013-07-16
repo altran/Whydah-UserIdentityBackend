@@ -24,7 +24,7 @@ public class TestLDAP extends TestCase {
 
 
     public void setUp() throws Exception {
-        File workDir = new File("/tmp/testldap/ldap");
+        File workDir = new File("target/testldap/ldap");
         workDir.mkdirs();
         // Create the server
         ads = new EmbeddedADS(workDir);

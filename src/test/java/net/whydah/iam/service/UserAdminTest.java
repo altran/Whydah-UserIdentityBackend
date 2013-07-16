@@ -37,7 +37,7 @@ public class UserAdminTest {
     @BeforeClass
     public static void init() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
-        FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
+        FileUtils.deleteDirectory(new File("target/ssotest/"));
         uib = new Main();
         uib.startEmbeddedDS();
         uib.importUsersAndRoles();
@@ -52,7 +52,7 @@ public class UserAdminTest {
     @AfterClass
     public static void teardown() throws Exception {
         uib.stop();
-        FileUtils.deleteDirectory(new File("/tmp/ssotest/"));
+        FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
 
     @Test

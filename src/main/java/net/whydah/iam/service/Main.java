@@ -40,14 +40,6 @@ public class Main {
 
 
     public static void main(String[] args) {
-        //ED: Not in use as far as I can see.
-        /*
-        String propName = AppConfig.appConfig.getProperty("prop.type");
-        logger.info("Prop name is " + propName);
-        FCconfig fCconfig = new FCconfig();
-        fCconfig.setPropName(propName);
-        */
-
 
         final Main main = new Main();
 
@@ -58,7 +50,6 @@ public class Main {
         });
 
         boolean importUsers = shouldImportUsers();
-
 
         // Start ldap embedded server
         String startEmbeddedDS = AppConfig.appConfig.getProperty("ldap.embedded");
@@ -74,7 +65,6 @@ public class Main {
                 System.exit(1);
             }
         }
-
 
         // Populate ldap, database and lucene index
         if (importUsers) {
@@ -108,19 +98,6 @@ public class Main {
         IamDataImporter iamDataImporter = injector.getInstance(IamDataImporter.class);
         iamDataImporter.importIamData();
         
-//        databaseHelper.initDB();
-//        
-//        ApplicationImporter applicationImporter = injector.getInstance(ApplicationImporter.class);
-//        applicationImporter.importApplications(applicationsImportSource);
-//        
-//        OrganizationImporter organizationImporter = injector.getInstance(OrganizationImporter.class);
-//        organizationImporter.importOrganizations(organizationsImportSource);
-//        
-//        WhydahUserIdentityImporter userImporter = injector.getInstance(WhydahUserIdentityImporter.class);
-//        userImporter.importUsers(userImportSource);
-//        
-//        RoleMappingImporter roleMappingImporter = injector.getInstance(RoleMappingImporter.class);
-//        roleMappingImporter.importRoleMapping(roleMappingImportSource);
     }
 
     public static boolean shouldImportUsers() {
