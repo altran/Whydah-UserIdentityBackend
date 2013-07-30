@@ -36,8 +36,7 @@ public class IamDataImporterTest {
 	private static final String lucenePath = basepath + "lucene";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
-    private final static int LDAP_PORT = 10937;
-    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+    private static String LDAP_URL; 
 
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper;
@@ -58,6 +57,9 @@ public class IamDataImporterTest {
     	FileUtils.deleteDirectory(new File(basepath + "/hsqldb"));
         FileUtils.deleteDirectory(new File(lucenePath));
 
+        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
         EmbeddedADS ads = new EmbeddedADS(ldappath);
