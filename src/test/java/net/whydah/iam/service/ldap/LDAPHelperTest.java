@@ -18,8 +18,10 @@ import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class LDAPHelperTest {
     private final static int serverPort = 10363;
     private final static String LDAP_URL = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
