@@ -1,6 +1,7 @@
 package net.whydah.iam.service.instrastructure;
 
 import junit.framework.TestCase;
+import net.whydah.iam.service.config.AppConfig;
 import net.whydah.iam.service.ldap.EmbeddedADS;
 
 import javax.naming.Context;
@@ -20,15 +21,18 @@ public class TestLDAP extends TestCase {
     final static String rootdn = "uid=admin,ou=system";
     final static String rootpass = "secret";
     final static String rootContext = "dc=external,dc=WHYDAH,dc=no";
-    final static int serverPort = 10367;
-
+//    final static int serverPort = 10367;
+    static String LDAP_URL;
 
     public void setUp() throws Exception {
+        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        
         File workDir = new File("target/testldap/ldap");
         workDir.mkdirs();
         // Create the server
         ads = new EmbeddedADS(workDir);
-        ads.startServer(serverPort);
+        ads.startServer(LDAP_PORT);
         super.setUp();
         Thread.sleep(1000);
     }
@@ -46,7 +50,8 @@ public class TestLDAP extends TestCase {
 
         env.put(Context.INITIAL_CONTEXT_FACTORY,
                 "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://" + ldapServerName + ":" + serverPort + "/" + rootContext);
+        //env.put(Context.PROVIDER_URL, "ldap://" + ldapServerName + ":" + serverPort + "/" + rootContext);
+        env.put(Context.PROVIDER_URL, LDAP_URL);
         env.put(Context.SECURITY_PRINCIPAL, rootdn);
         env.put(Context.SECURITY_CREDENTIALS, rootpass);
 

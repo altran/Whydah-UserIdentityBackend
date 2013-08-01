@@ -10,11 +10,9 @@ import java.util.UUID;
 
 import javax.naming.NamingException;
 
+import net.whydah.iam.service.config.AppConfig;
 import net.whydah.iam.service.domain.WhydahUserIdentity;
 import net.whydah.iam.service.helper.FileUtils;
-import net.whydah.iam.service.ldap.EmbeddedADS;
-import net.whydah.iam.service.ldap.LDAPHelper;
-import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -23,14 +21,19 @@ import org.junit.Test;
 
 @Ignore
 public class LDAPHelperTest {
-    private final static int serverPort = 10363;
-    private final static String LDAP_URL = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
+//    private final static int serverPort = 10363;
+    private static String LDAP_URL; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
-    private static final LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-    private static final LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
+    private static LDAPHelper ldapHelper; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+    private static LdapAuthenticatorImpl ldapAuthenticator; // = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
 
     @BeforeClass
     public static void setUp() throws Exception {
+        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
+        
         String workDirPath = "target/testldap";
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
@@ -39,7 +42,7 @@ public class LDAPHelperTest {
         }
         // Create the server
         ads = new EmbeddedADS(workDir);
-        ads.startServer(serverPort);
+        ads.startServer(LDAP_PORT);
         Thread.sleep(1000);
     }
 

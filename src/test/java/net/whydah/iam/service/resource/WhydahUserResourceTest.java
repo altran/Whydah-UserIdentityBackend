@@ -52,8 +52,8 @@ public class WhydahUserResourceTest {
     private final static String basepath = "target/WhydahUserResourceTest/";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
-    private final static int LDAP_PORT = 10937;
-    private final static String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+//    private final static int LDAP_PORT = 10937;
+    private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper;
@@ -66,11 +66,14 @@ public class WhydahUserResourceTest {
     public static void setUp() throws Exception {
     	System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
     	
+        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        
     	FileUtils.deleteDirectory(new File(basepath));
 
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
-        EmbeddedADS ads = new EmbeddedADS(ldappath);
+        ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
         ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
