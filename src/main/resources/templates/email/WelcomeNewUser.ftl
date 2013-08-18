@@ -5,9 +5,9 @@
 </head>
 <body>
 <h3>New Whydah User</h3>
-Dear ${navn}.<br>
+Dear ${name}.<br>
 <br>
-Welcome as user of ${systemnavn}.<br>
+Welcome as user of ${systemName}.<br>
 <br>
 To be able to log on you need to chose a username and password:<br>
 <br>
