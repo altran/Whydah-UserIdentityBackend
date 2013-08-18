@@ -3,12 +3,11 @@ package net.whydah.iam.service.resource;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.view.Viewable;
-
 import net.whydah.iam.service.audit.ActionPerformed;
 import net.whydah.iam.service.domain.*;
 import net.whydah.iam.service.ldap.LDAPHelper;
 import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
-import net.whydah.iam.service.mail.MockMail;
+import net.whydah.iam.service.mail.PasswordSender;
 import net.whydah.iam.service.repository.AuditLogRepository;
 import net.whydah.iam.service.repository.BackendConfigDataRepository;
 import net.whydah.iam.service.repository.UserPropertyAndRoleRepository;
@@ -16,7 +15,6 @@ import net.whydah.iam.service.search.Indexer;
 import net.whydah.iam.service.search.Search;
 import net.whydah.iam.service.security.Authentication;
 import net.whydah.iam.service.security.UserToken;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,7 +26,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -59,7 +56,7 @@ public class UserAdminResource {
     @Inject
     private PasswordGenerator passwordGenerator;
     @Inject
-    private MockMail mailSender;
+    private PasswordSender passwordSender;
     @Inject
     private UserAdminHelper userAdminHelper;
 
@@ -241,22 +238,11 @@ public class UserAdminResource {
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
-            String newPassword = passwordGenerator.generate();
-            ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
-            String salt = passwordGenerator.generate();
-            ldapHelper.setTempPassword(username, newPassword, salt);
-            String token = null;
-            try {
-                token = changePasswordToken.generateTokenString(salt.getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                logger.error("", e);
-            }
-            mailSender.sendpasswordmail(user.getEmail(), username, token);
+
+            passwordSender.resetPassword(username, user.getEmail());
             audit(ActionPerformed.MODIFIED, "password", user.getUid());
-            logger.info("Password reset " + token);
-            logger.debug("salt=" + salt);
             return Response.ok().build();
-        } catch (NamingException e) {
+        } catch (Exception e) {
             logger.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
