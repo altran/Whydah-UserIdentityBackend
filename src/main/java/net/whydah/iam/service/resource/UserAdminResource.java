@@ -229,24 +229,6 @@ public class UserAdminResource {
         return Response.ok().build();
     }
 
-    @GET
-    @Path("users/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        logger.info("Reset password for user {}", username);
-        try {
-            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "password", user.getUid());
-            return Response.ok().build();
-        } catch (Exception e) {
-            logger.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @POST
     @Path("users/{username}/newpassword/{token}")

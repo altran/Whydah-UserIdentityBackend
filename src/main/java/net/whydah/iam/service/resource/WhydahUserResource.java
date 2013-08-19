@@ -5,13 +5,15 @@ import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.view.Viewable;
-
+import net.whydah.iam.service.audit.ActionPerformed;
 import net.whydah.iam.service.domain.UserPropertyAndRole;
 import net.whydah.iam.service.domain.WhydahUser;
 import net.whydah.iam.service.domain.WhydahUserIdentity;
+import net.whydah.iam.service.ldap.LDAPHelper;
 import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
+import net.whydah.iam.service.mail.PasswordSender;
+import net.whydah.iam.service.repository.AuditLogRepository;
 import net.whydah.iam.service.repository.UserPropertyAndRoleRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -29,12 +31,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,8 @@ import java.util.Map;
 @Path("/")
 public class WhydahUserResource {
     private static final Logger logger = LoggerFactory.getLogger(WhydahUserResource.class);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
+
 
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
     private LdapAuthenticatorImpl externalLdapAuthenticator;
@@ -52,6 +57,13 @@ public class WhydahUserResource {
     private UserAdminHelper userAdminHelper;
 
     private Map<String, Object> welcomeModel;
+
+    @Inject
+    private PasswordSender passwordSender;
+    @Inject
+    private LDAPHelper ldapHelper;
+    @Inject
+    private AuditLogRepository auditLogRepository;
 
     @Inject
     public WhydahUserResource(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator, UserPropertyAndRoleRepository roleRepository,
@@ -254,5 +266,31 @@ public class WhydahUserResource {
         } catch (UnknownHostException e) {
             logger.warn(e.getLocalizedMessage(), e);
         }
+    }
+
+
+    @GET
+    @Path("users/{username}/resetpassword")
+    public Response resetPassword(@PathParam("username") String username) {
+        logger.info("Reset password for user {}", username);
+        try {
+            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            passwordSender.resetPassword(username, user.getEmail());
+            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            return Response.ok().build();
+        } catch (Exception e) {
+            logger.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private void audit(String action, String what, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
     }
 }
