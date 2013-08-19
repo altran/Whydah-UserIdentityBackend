@@ -233,8 +233,8 @@ public class UserAdminResource {
     @POST
     @Path("users/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        logger.info("Endrer passord for {}: {}", username, passwordJson);
+    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
+        logger.info("Changing password for {}", username);
         try {
             WhydahUserIdentity user = ldapHelper.getUserinfo(username);
             if (user == null) {
@@ -266,11 +266,8 @@ public class UserAdminResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             return Response.ok().build();
-        } catch (IllegalArgumentException e) {
-            logger.error("changePassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (NamingException e) {
-            logger.error("changePassword failed", e);
+        } catch (Exception e) {
+            logger.error("changePasswordForUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
