@@ -60,7 +60,9 @@ public class MailSender {
             message.setFrom(new InternetAddress(FROM_ADDRESS));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
             message.setSubject(subject);
-            message.setText(body);
+
+            message.setContent(body, "text/html; charset=utf-8");
+//            message.setText(body);
             Transport.send(message);
             log.info("Sent email to " + recipients);
         } catch (MessagingException e) {
