@@ -4,6 +4,84 @@ UserIdentityBackend
 Stores UserIdentities and their relation to Roles, Applications and Organizations.
 Requires SecurityTokenService if authorization is turned on. 
 
+
+Installation
+============
+
+
+
+* create a user for the service
+* create start_service.sh
+
+```
+#!/bin/sh
+
+export IAM_MODE=TEST
+
+A=UserIdentityBackend
+V=1.0-SNAPSHOT
+JARFILE=$A-$V.jar
+
+pkill -f $A
+
+wget --user=altran --password=l1nkSys -O $JARFILE "http://mvnrepo.cantara.no/service/local/artifact/maven/content?r=altran-snapshots&g=net.whydah.sso.service&a=$A&v=$V&p=jar"
+nohup java -jar -DIAM_CONFIG=useridentitybackend.TEST.properties $JARFILE &
+
+tail -f nohup.out
+```
+
+* create useradmin.TEST.properties
+
+```
+prop.type=DEV
+#prop.type=TEST
+ldap.embedded=enabled
+ldap.embedded.directory=bootstrapdata/ldap
+ldap.embedded.port=10389
+
+ldap.external.url=ldap://localhost:10389/dc=external,dc=WHYDAH,dc=no
+ldap.external.principal=uid=admin,ou=system
+ldap.external.credentials=secret
+ldap.external.usernameattribute=initials
+
+roledb.directory=bootstrapdata/hsqldb
+roledb.jdbc.driver=org.hsqldb.jdbc.JDBCDriver
+roledb.jdbc.url=jdbc:hsqldb:file:bootstrapdata/hsqldb/roles
+roledb.jdbc.user=sa
+roledb.jdbc.password=
+
+import.usersource=users.csv
+import.rolemappingsource=rolemappings.csv
+import.applicationssource=applications.csv
+import.organizationssource=organizations.csv
+
+useradmin.requiredrolename=WhydahUserAdmin
+
+adduser.defaultrole.facebook.name=FBData
+
+adduser.defaultrole.name=WhydahDefaultUser
+adduser.defaultrole.value=1
+adduser.defaultapplication.name=Whydah
+adduser.defaultapplication.id=3
+adduser.defaultorganization.name=Whydah
+adduser.defaultorganization.value=1
+
+#ssologinservice=http://myservice.net/sso/
+ssologinservice=http://localhost:9997/sso/
+# securitytokenservice=http://myservice.net/tokenservice/
+securitytokenservice=http://localhost:9998/tokenservice/
+# myuri=http://myservice.net/uib
+myuri=http://localhost:9995/
+service.port=9995
+
+
+lucene.directory=bootstrapdata/lucene
+
+
+gmail.username=mysystem@gmail.com
+gmail.password=pw
+```
+
 TODO:
 Better configuration of temporary lucene/hsqldb-paths. They are stored in different folders for different tests & usage modes. 
 
