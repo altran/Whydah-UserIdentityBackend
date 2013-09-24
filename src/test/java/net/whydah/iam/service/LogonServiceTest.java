@@ -144,7 +144,7 @@ public class LogonServiceTest {
 
     @Test
     public void formLogonOK() throws IOException {
-        WebResource webResource = restClient.resource(baseUri+"useradmin");
+        WebResource webResource = restClient.resource(baseUri);
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("username", "thomasp");
         formData.add("password", "logMeInPlease");
@@ -157,7 +157,7 @@ public class LogonServiceTest {
 
     @Test
     public void formLogonFail() throws IOException {
-        WebResource webResource = restClient.resource(baseUri+"useradmin");
+        WebResource webResource = restClient.resource(baseUri);
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("username", "thomasp");
         formData.add("password", "vrangt");
