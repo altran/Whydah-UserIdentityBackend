@@ -30,7 +30,7 @@ public class LogonServiceTest {
 
     @BeforeClass
     public static void init() throws Exception {
-        System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
+        System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         uib = new Main();
         uib.startEmbeddedDS();
         uib.importUsersAndRoles();

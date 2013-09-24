@@ -36,7 +36,7 @@ public class UserAdminTest {
     private static Main uib;
     @BeforeClass
     public static void init() throws Exception {
-        System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_JUNIT);
+        System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         FileUtils.deleteDirectory(new File("target/ssotest/"));
         uib = new Main();
         uib.startEmbeddedDS();
