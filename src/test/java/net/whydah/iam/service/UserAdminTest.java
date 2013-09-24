@@ -52,7 +52,13 @@ public class UserAdminTest {
     @AfterClass
     public static void teardown() throws Exception {
         uib.stop();
-        FileUtils.deleteDirectory(new File("target/ssotest/"));
+        try {
+            Thread.sleep(3000);
+        } catch (Exception e) {
+
+        }
+
+            FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
 
     @Test
