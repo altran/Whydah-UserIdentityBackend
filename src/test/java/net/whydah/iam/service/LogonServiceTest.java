@@ -41,6 +41,11 @@ public class LogonServiceTest {
     @AfterClass
     public static void cleanup() {
         uib.stop();
+        try {
+            Thread.sleep(3000);
+        } catch (Exception e) {
+
+        }
     }
 
     @Before
@@ -73,7 +78,7 @@ public class LogonServiceTest {
     @Test
     public void formLogonOK() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
-        MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
+        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("username", "thomasp");
         formData.add("password", "logMeInPlease");
         ClientResponse response = webResource.path("logon").type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
@@ -86,7 +91,7 @@ public class LogonServiceTest {
     @Test
     public void formLogonFail() throws IOException {
         WebResource webResource = restClient.resource(baseUri);
-        MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
+        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("username", "thomasp");
         formData.add("password", "vrangt");
         ClientResponse response = webResource.path("logon").type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
