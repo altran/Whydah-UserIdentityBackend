@@ -98,7 +98,8 @@ public class LogonServiceTest {
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
         try {
-        uib = new Main();
+            uib = new Main();
+            uib.importUsersAndRoles();
         } catch (Exception e){
 
         }

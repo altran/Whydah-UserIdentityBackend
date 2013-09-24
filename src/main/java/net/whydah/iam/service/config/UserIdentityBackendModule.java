@@ -19,9 +19,6 @@ import org.apache.lucene.store.NIOFSDirectory;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-/**
- * User: asbkar
- */
 public class UserIdentityBackendModule extends AbstractModule {
 	
 
@@ -78,10 +75,14 @@ public class UserIdentityBackendModule extends AbstractModule {
     		admCredentials = fCconfig.getfCadmCredentials();
     		usernameAttribute = fCconfig.getfCusernameAttribute();
         }
-        
-        
+
+//        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+//        internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+
+
         bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("external")).toInstance(new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
         bind(LDAPHelper.class).toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
         bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute));
+//        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
     }
 }
