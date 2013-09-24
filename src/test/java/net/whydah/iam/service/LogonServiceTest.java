@@ -9,6 +9,20 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import net.whydah.iam.service.Main;
 import net.whydah.iam.service.config.AppConfig;
 
+import net.whydah.iam.service.dataimport.DatabaseHelper;
+import net.whydah.iam.service.helper.FileUtils;
+import net.whydah.iam.service.ldap.EmbeddedADS;
+import net.whydah.iam.service.ldap.LDAPHelper;
+import net.whydah.iam.service.ldap.LdapAuthenticatorImpl;
+import net.whydah.iam.service.repository.AuditLogRepository;
+import net.whydah.iam.service.repository.BackendConfigDataRepository;
+import net.whydah.iam.service.repository.UserPropertyAndRoleRepository;
+import net.whydah.iam.service.resource.UserAdminHelper;
+import net.whydah.iam.service.search.Indexer;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,6 +31,7 @@ import org.junit.Test;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -26,25 +41,66 @@ import static org.junit.Assert.assertTrue;
 public class LogonServiceTest {
     private static URI baseUri;
     Client restClient;
-    private static Main uib;
+
+    private final static String basepath = "target/WhydahUserResourceTest/";
+    private final static String ldappath = basepath + "hsqldb/ldap/";
+    private final static String dbpath = basepath + "hsqldb/roles";
+    //    private final static int LDAP_PORT = 10937;
+    private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+
+    private static EmbeddedADS ads;
+    private static LDAPHelper ldapHelper;
+    private static LdapAuthenticatorImpl ldapAuthenticator;
+    private static UserPropertyAndRoleRepository roleRepository;
+    private static UserAdminHelper userAdminHelper;
+    private static QueryRunner queryRunner;
+
 
     @BeforeClass
-    public static void init() throws Exception {
+    public static void setUp() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        uib = new Main();
-        uib.startEmbeddedDS();
-        uib.importUsersAndRoles();
-        uib.startHttpServer();
-        baseUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();
+
+        int HTTP_PORT = new Integer(AppConfig.appConfig.getProperty("service.port"));
+        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+
+        FileUtils.deleteDirectory(new File(basepath));
+
+        File ldapdir = new File(ldappath);
+        ldapdir.mkdirs();
+        ads = new EmbeddedADS(ldappath);
+        ads.startServer(LDAP_PORT);
+        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+
+
+        roleRepository = new UserPropertyAndRoleRepository();
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
+        dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
+        queryRunner = new QueryRunner(dataSource);
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
+        databaseHelper.initDB();
+
+        roleRepository.setQueryRunner(queryRunner);
+        BackendConfigDataRepository configDataRepository = new BackendConfigDataRepository();
+        configDataRepository.setQueryRunner(queryRunner);
+        roleRepository.setBackendConfigDataRepository(configDataRepository);
+        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+        Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
+        userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
+
+        baseUri = UriBuilder.fromUri("http://localhost/uib/").port(HTTP_PORT).build();
     }
 
-    @AfterClass
-    public static void cleanup() {
-        uib.stop();
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
 
+    @AfterClass
+    public static void teardown()  {
+        if (ads != null) {
+            ads.stopServer();
         }
     }
 
