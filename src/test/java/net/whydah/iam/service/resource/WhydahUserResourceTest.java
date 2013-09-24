@@ -74,7 +74,11 @@ public class WhydahUserResourceTest {
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
         ads = new EmbeddedADS(ldappath);
-        ads.startServer(LDAP_PORT);
+        try {
+            ads.startServer(LDAP_PORT);
+        } catch (Exception e){
+
+        }
         ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 

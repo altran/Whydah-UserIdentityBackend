@@ -32,7 +32,12 @@ public class TestLDAP extends TestCase {
         workDir.mkdirs();
         // Create the server
         ads = new EmbeddedADS(workDir);
-        ads.startServer(LDAP_PORT);
+        try {
+            ads.startServer(LDAP_PORT);
+        } catch (Exception e){
+
+        }
+
         super.setUp();
         Thread.sleep(1000);
     }
