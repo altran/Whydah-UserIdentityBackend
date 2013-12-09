@@ -8,9 +8,9 @@
 
     <!--Daily rolling file appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>useridentity.log</File>
+        <File>logs/UserIdentityBackend.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>useridentity-%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>UserIdentityBackend-%d{yyyy-MM-dd}.log</FileNamePattern>
             <maxHistory>5</maxHistory>
         </rollingPolicy>
 
