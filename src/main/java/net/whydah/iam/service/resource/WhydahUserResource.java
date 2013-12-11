@@ -155,7 +155,7 @@ public class WhydahUserResource {
 
         String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
         //String facebookUserAsString = getFacebookDataAsXmlString(input);
-        return createAndAuthenticateUser(userIdentity, facebookUserAsString);
+        return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
     }
 
     static String getFacebookDataAsXmlString(Document fbUserDoc) {
@@ -210,10 +210,10 @@ public class WhydahUserResource {
     }
 
 
-    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue) {
+    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue,boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
-            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
 
