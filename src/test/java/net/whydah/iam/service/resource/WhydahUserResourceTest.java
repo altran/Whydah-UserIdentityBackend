@@ -127,7 +127,7 @@ public class WhydahUserResourceTest {
 
 
         String roleValue = "roleValue";
-        Response response = resource.createAndAuthenticateUser(newIdentity, roleValue);
+        Response response = resource.createAndAuthenticateUser(newIdentity, roleValue,false);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         Viewable entity = (Viewable) response.getEntity();
         WhydahUser model = (WhydahUser) entity.getModel();
