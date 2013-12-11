@@ -217,7 +217,7 @@ public class WhydahUserResource {
                 return response;
             }
 
-            userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
+                userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
 
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
         } catch (Exception e) {

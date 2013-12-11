@@ -113,21 +113,21 @@ public class UserAdminHelper {
 
     public void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
-        
+
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
         String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
         String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
-        
+
         role.setUid(userIdentity.getUid());
-		role.setAppId(applicationId);
-		role.setApplicationName(applicationName);
-		role.setOrgId(organizationId);
-		role.setOrganizationName(organizationName);
-		role.setRoleName(roleName);
-		role.setRoleValue(roleValue);
+        role.setAppId(applicationId);
+        role.setApplicationName(applicationName);
+        role.setOrgId(organizationId);
+        role.setOrganizationName(organizationName);
+        role.setRoleName(roleName);
+        role.setRoleValue(roleValue);
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
@@ -140,15 +140,15 @@ public class UserAdminHelper {
         audit(ActionPerformed.ADDED, "role", value);
     }
 
-    public void addFacebookDataRole(WhydahUserIdentity userIdentity, String roleValue){
-        boolean facebook=true;
-        boolean netiq=false;
-        if (roleValue.indexOf("netIQAccessToken")>0){
-            facebook=false;
-            netiq=true;
+    public void addFacebookDataRole(WhydahUserIdentity userIdentity, String roleValue) {
+        boolean facebook = true;
+        boolean netiq = false;
+        if (roleValue.indexOf("netIQAccessToken") > 0) {
+            facebook = false;
+            netiq = true;
         }
         UserPropertyAndRole role = new UserPropertyAndRole();
-        
+
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
         String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
@@ -161,10 +161,10 @@ public class UserAdminHelper {
         role.setApplicationName(applicationName);
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
-        if (facebook){
+        if (facebook) {
             role.setRoleName(facebookRoleName);
-        role.setRoleValue(roleValue);
-        } else if (netiq){
+            role.setRoleValue(roleValue);
+        } else if (netiq) {
             role.setRoleName(netIQRoleName);
             role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         }
@@ -175,9 +175,13 @@ public class UserAdminHelper {
             return;
         }
 
-        roleRepository.addUserPropertyAndRole(role);
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
-        audit(ActionPerformed.ADDED, "role", value);
+        try {
+            roleRepository.addUserPropertyAndRole(role);
+            audit(ActionPerformed.ADDED, "role", value);
+        } catch (Exception e) {
+            logger.warn("Failed to add role:" + value,e);
+        }
     }
 
 
