@@ -36,7 +36,7 @@ import java.util.Map;
  * assuming the map is of type <tt>Map&lt;String,Object></tt>.
  * </p>
  *
- * <p>
+ * <Useradminhelperp>
  * There are a number of methods you can override to change the behavior, such
  * as handling processing exceptions, changing the default template extension,
  * or adding variables to be assigned to every template context.

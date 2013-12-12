@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -146,10 +148,24 @@ public class UserAdminResource {
             WhydahUserIdentity userIdentity = new WhydahUserIdentity();
             String username = jsonobj.getString("username");
             logger.debug("Username is : " + username);
+            InternetAddress internetAddress = new InternetAddress();
+            String email = jsonobj.getString("email");
+            if(email.contains("+")){
+                email = replacePlusWithEmpty(email);
+            }
+            internetAddress.setAddress(email);
+            try {
+                internetAddress.validate();
+                userIdentity.setEmail(jsonobj.getString("email"));
+            } catch (AddressException e) {
+
+                logger.error(String.format("E-mail: %s is of wrong format.", email));
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
             userIdentity.setUsername(username);
             userIdentity.setFirstName(jsonobj.getString("firstName"));
             userIdentity.setLastName(jsonobj.getString("lastName"));
-            userIdentity.setEmail(jsonobj.getString("email"));
+
             userIdentity.setCellPhone(jsonobj.getString("cellPhone"));
             userIdentity.setPersonRef(jsonobj.getString("personRef"));
             //userIdentity.setUid(UUID.randomUUID().toString());
@@ -160,6 +176,17 @@ public class UserAdminResource {
             logger.error("Bad json: " + userJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+    private String replacePlusWithEmpty(String email){
+        String[] words = email.split("[+]");
+        if(words.length == 1){
+            return email;
+        }
+        email  = "";
+        for(int i = 0; i < words.length; i++){
+            email += words[i];
+        }
+        return email;
     }
 
     private void audit(String action, String what, String value) {
