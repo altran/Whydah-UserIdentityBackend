@@ -109,7 +109,7 @@ public class LDAPHelper {
         container.put(new BasicAttribute(ATTRIBUTE_NAME_GIVENNAME, userIdentity.getFirstName()));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_SN, userIdentity.getLastName()));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_UID, stringCleaner.cleanString(userIdentity.getUid())));
-        container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, stringCleaner.cleanString(userIdentity.getEmail())));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, userIdentity.getEmail()));
         container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, userIdentity.getPassword()));
 
