@@ -127,7 +127,8 @@ public class UserAdminHelper {
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
         role.setRoleName(roleName);
-        role.setRoleValue(roleValue);
+//        role.setRoleValue(roleValue);
+        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
@@ -172,7 +173,7 @@ public class UserAdminHelper {
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
             logger.warn("Role already exist. " + role.toString());
-            return;
+            // roleRepository.deleteUserRole(userIdentity.getUid(), role.getAppId(), role.getOrgId(), role.getRoleName());
         }
 
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
