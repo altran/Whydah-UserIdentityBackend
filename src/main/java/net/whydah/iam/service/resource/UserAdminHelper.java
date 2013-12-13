@@ -178,8 +178,10 @@ public class UserAdminHelper {
 
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
         try {
+            if (userIdentity!= null){
             roleRepository.addUserPropertyAndRole(role);
             audit(ActionPerformed.ADDED, "role", value);
+            }
         } catch (Exception e) {
             logger.warn("Failed to add role:" + value,e);
         }

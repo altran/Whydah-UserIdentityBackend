@@ -216,8 +216,10 @@ public class WhydahUserResource {
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
+            if (userIdentity!= null){
 
                 userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
+            }
 
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
         } catch (Exception e) {
