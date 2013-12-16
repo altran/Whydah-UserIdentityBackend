@@ -218,7 +218,7 @@ public class UserAdminResource {
         }
     }
 
-    @GET
+    @POST
     @Path("users/{username}/delete")
     public Response deleteUser(@PathParam("username") String username) {
         try {

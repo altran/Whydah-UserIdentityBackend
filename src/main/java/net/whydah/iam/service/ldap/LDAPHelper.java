@@ -241,7 +241,7 @@ public class LDAPHelper {
     }
 
     public void deleteUser(String username) {
-        try {
+            try {
             ctx.destroySubcontext(createUserDN(username));
         } catch (NamingException ne) {
             logger.error(ne.getLocalizedMessage(), ne);
