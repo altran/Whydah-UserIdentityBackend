@@ -199,6 +199,7 @@ public class LDAPHelper {
 
         Attributes attributes = getUserAttributes(username);
         if (attributes == null) {
+
             return null;
         }
 
@@ -227,7 +228,14 @@ public class LDAPHelper {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        logger.debug("No attributes found for username=" + username);
+        logger.debug("No attributes found for username=" + username + " trying using uid");
+        String uid = username;
+        results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
+        if (results.hasMore()) {
+            SearchResult searchResult = (SearchResult) results.next();
+            return searchResult.getAttributes();
+        }
+        logger.debug("No attributes found for username=" + uid);
         return null;
     }
 
