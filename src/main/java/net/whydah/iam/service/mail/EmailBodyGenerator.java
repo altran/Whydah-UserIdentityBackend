@@ -25,16 +25,16 @@ public class EmailBodyGenerator {
     }
 
 
-    public String resetPassword(String url) {
+    public String resetPassword(String url,String username) {
         HashMap<String, String> model = new HashMap<>();
+        model.put("username", username);
         model.put("url", url);
         return createBody(RESET_PASSWORD_EMAIL_TEMPLATE, model);
     }
 
-    public String newUser(String navn, String systemnavn, String url) {
+    public String newUser(String name, String systemname, String url) {
         HashMap<String, String> model = new HashMap<>();
-        model.put("name", navn);
-        model.put("systemName", systemnavn);
+        model.put("name", name);
         model.put("url", url);
         return createBody(NEW_USER_EMAIL_TEMPLATE, model);
     }

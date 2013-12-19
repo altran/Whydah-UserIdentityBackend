@@ -51,7 +51,7 @@ public class PasswordSender {
         }
 
         String resetUrl = ssoLoginServiceUrl + CHANGE_PASSWORD_PATH + token;
-        String body = bodyGenerator.resetPassword(resetUrl);
+        String body = bodyGenerator.resetPassword(resetUrl,username);
 
         mailSender.send(userEmail, RESET_PASSWORD_SUBJECT, body);
         log.info("Password reset for user {}, token={}", username, token);
