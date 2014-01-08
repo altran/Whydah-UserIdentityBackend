@@ -228,13 +228,6 @@
             <version>r03</version>
         </dependency>
 
-        <!-- Open Source toolkit for accessing AS/400 features from Java code http://jt400.sourceforge.net/ -->
-        <dependency>
-            <groupId>net.sf.jt400</groupId>
-            <artifactId>jt400</artifactId>
-            <version>6.7</version>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
