@@ -32,12 +32,14 @@ public class EmailBodyGenerator {
         return createBody(RESET_PASSWORD_EMAIL_TEMPLATE, model);
     }
 
+    /*
     public String newUser(String name, String systemname, String url) {
         HashMap<String, String> model = new HashMap<>();
         model.put("name", name);
         model.put("url", url);
         return createBody(NEW_USER_EMAIL_TEMPLATE, model);
     }
+    */
 
     private String createBody(String templateName, HashMap<String, String> model) {
         StringWriter stringWriter = new StringWriter();
