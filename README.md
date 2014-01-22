@@ -4,7 +4,7 @@ UserIdentityBackend
 Stores UserIdentities and their relation to Roles, Applications and Organizations.
 Requires SecurityTokenService if authorization is turned on. 
 
-![Architectural Overview](https://raw2.github.com/altran/Whydah-SSOWebApplication/master/Whydah%20infrastructure.png)
+![Architectural Overview](https://raw2.github.com/altran/Whydah-SSOLoginWebApp/master/Whydah%20infrastructure.png)
 
 
 Installation
