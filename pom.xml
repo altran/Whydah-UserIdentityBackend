@@ -49,19 +49,7 @@
         <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserIdentityBackend.git</developerConnection>
         <connection>scm:git:https://github.com/altran/Whydah-UserIdentityBackend.git</connection>
         <url>Whydah-UserIdentityBackend</url>
-  </scm>
-
-
-    <distributionManagement>
-        <repository>
-            <id>altran-releases</id>
-            <url>http://mvnrepo.cantara.no/content/repositories/altran-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>altran-snapshots</id>
-            <url>http://mvnrepo.cantara.no/content/repositories/altran-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+    </scm>
 
     <properties>
         <jersey.version>1.6</jersey.version>
