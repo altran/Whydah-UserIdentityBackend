@@ -195,12 +195,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.1</version>
+            <version>1.7.6</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>0.9.27</version>
+            <version>1.1.1</version>
         </dependency>
 
         <!-- TODO Use more fine-grained jars to reduce problem of overlapping classes when performing shade. -->
@@ -224,7 +224,21 @@
             <artifactId>httpclient</artifactId>
             <version>4.1</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <!-- Bridge commons-logging in httpclient -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.6</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
