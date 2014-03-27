@@ -1,4 +1,4 @@
-package net.whydah.identity.mail;
+package net.whydah.identity.user.email;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;

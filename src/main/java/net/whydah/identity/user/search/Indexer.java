@@ -1,7 +1,6 @@
-package net.whydah.identity.search;
+package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.WhydahUserIdentity;
-import net.whydah.identity.user.resource.UserAdminResource;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -20,7 +19,7 @@ import java.util.List;
  * Indexer for adding users to the index.
  */
 public class Indexer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserAdminResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
 
     public static final String FIELD_FIRSTNAME = "firstname";
     public static final String FIELD_LASTNAME = "surname";

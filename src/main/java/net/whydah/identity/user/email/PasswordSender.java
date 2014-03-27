@@ -1,4 +1,4 @@
-package net.whydah.identity.mail;
+package net.whydah.identity.user.email;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

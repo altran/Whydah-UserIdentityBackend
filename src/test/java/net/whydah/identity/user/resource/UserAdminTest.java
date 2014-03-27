@@ -6,7 +6,7 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import net.whydah.identity.Main;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.mail.MockMail;
+import net.whydah.identity.user.email.MockMail;
 import net.whydah.identity.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

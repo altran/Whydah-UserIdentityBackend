@@ -1,4 +1,4 @@
-package net.whydah.identity.search;
+package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.apache.lucene.analysis.Analyzer;

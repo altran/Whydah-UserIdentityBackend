@@ -1,4 +1,4 @@
-package net.whydah.identity.mail;
+package net.whydah.identity.user.email;
 
 import org.junit.Test;
 
