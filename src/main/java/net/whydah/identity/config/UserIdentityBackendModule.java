@@ -18,7 +18,20 @@ import java.io.IOException;
 public class UserIdentityBackendModule extends AbstractModule {
     @Override
     protected void configure() {
-        //datasource
+        BasicDataSource dataSource = getDataSource();
+        QueryRunner queryRunner = new QueryRunner(dataSource);
+        bind(QueryRunner.class).toInstance(queryRunner);
+
+        bindLuceneServices();
+
+        String tokenserviceUri = AppConfig.appConfig.getProperty("securitytokenservice");
+        bind(SecurityTokenHelper.class).toInstance(new SecurityTokenHelper(tokenserviceUri));
+
+        bindLdapServices();
+    }
+
+
+    private BasicDataSource getDataSource() {
         String jdbcdriver = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
         String jdbcurl = AppConfig.appConfig.getProperty("roledb.jdbc.url");
         String roledbuser = AppConfig.appConfig.getProperty("roledb.jdbc.user");
@@ -29,8 +42,10 @@ public class UserIdentityBackendModule extends AbstractModule {
         dataSource.setUrl(jdbcurl);//"jdbc:hsqldb:file:" + basepath + "hsqldb");
         dataSource.setUsername(roledbuser);
         dataSource.setPassword(roledbpasswd);
-        QueryRunner queryRunner = new QueryRunner(dataSource);
-        bind(QueryRunner.class).toInstance(queryRunner);
+        return dataSource;
+    }
+
+    private void bindLuceneServices() {
         try {
             String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
             Directory index = new NIOFSDirectory(new File(luceneDir));
@@ -38,24 +53,26 @@ public class UserIdentityBackendModule extends AbstractModule {
             bind(Indexer.class).toInstance(new Indexer(index));
             bind(Search.class).toInstance(new Search(index));
         } catch (IOException e) {
-            throw new ConfigurationException(e.getLocalizedMessage(), e);
+            throw new ConfigurationException(e);
         }
+    }
 
-        String tokenserviceUri = AppConfig.appConfig.getProperty("securitytokenservice");
-        bind(SecurityTokenHelper.class).toInstance(new SecurityTokenHelper(tokenserviceUri));
-
+    private void bindLdapServices() {
         String externalLdapUrl =  AppConfig.appConfig.getProperty("ldap.external.url");
         String externalAdmPrincipal =  AppConfig.appConfig.getProperty("ldap.external.principal");
         String externalAdmCredentials =  AppConfig.appConfig.getProperty("ldap.external.credentials");
         String externalUsernameAttribute =  AppConfig.appConfig.getProperty("ldap.external.usernameattribute");
+        LdapAuthenticatorImpl externalLdapAuthenticator = new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute);
+        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("external")).toInstance(externalLdapAuthenticator);
+
+        bind(LDAPHelper.class).toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
 
         String internalLdapUrl;
         String admPrincipal;
-		String admCredentials;
-		String usernameAttribute;
-        
+        String admCredentials;
+        String usernameAttribute;
         WhydahConfig fCconfig = new WhydahConfig();
-        //For Customer   
+        //For Customer
         if (fCconfig.getProptype().equals("DEV")){
         	internalLdapUrl = "internalLdapUrl FOR CUSTOMER";
             admPrincipal = "admPrincipal FOR CUSTOMER";
@@ -63,19 +80,14 @@ public class UserIdentityBackendModule extends AbstractModule {
      		usernameAttribute="usernameAttribute FOR CUSTOMER";
         } else {
         	//For Whydah DEV or TEST
-        	internalLdapUrl = fCconfig.getfCinternalLdapUrl(); 
+        	internalLdapUrl = fCconfig.getfCinternalLdapUrl();
             admPrincipal = fCconfig.getfCadmPrincipal();
     		admCredentials = fCconfig.getfCadmCredentials();
     		usernameAttribute = fCconfig.getfCusernameAttribute();
         }
-
-//        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-//        internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
-
-
-        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("external")).toInstance(new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
-        bind(LDAPHelper.class).toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
-        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute));
-//        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
+        //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        // internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        LdapAuthenticatorImpl internalLdapAuthenticator = new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute);
+        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(internalLdapAuthenticator);
     }
 }
