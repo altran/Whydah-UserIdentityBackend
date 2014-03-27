@@ -1,4 +1,4 @@
-package net.whydah.identity.repository;
+package net.whydah.identity.user;
 
 import com.google.inject.Inject;
 import net.whydah.identity.domain.Application;
@@ -19,7 +19,6 @@ import java.util.List;
 public class BackendConfigDataRepository {
     private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgid from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
-    private static final String ORG_SQL = "SELECT Name from Organization WHERE id=?";
 
     @Inject
     private QueryRunner queryRunner;
@@ -40,28 +39,11 @@ public class BackendConfigDataRepository {
         }
     }
 
-    public String getOrgname(String orgid) {
-        try {
-        return queryRunner.query(ORG_SQL, new OrgnameResultSetHandler(), orgid);
-        } catch (SQLException e) {
-            throw new DatastoreException(e);
-        }
 
-    }
     public void setQueryRunner(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
     }
 
-    private static class OrgnameResultSetHandler implements ResultSetHandler<String> {
-        @Override
-        public String handle(ResultSet rs) throws SQLException {
-            if(rs.next()) {
-                return rs.getString(1);
-            } else {
-                return null;
-            }
-        }
-    }
 
     private static class ApplicationsResultSetHandler implements ResultSetHandler<List<Application>> {
         public List<Application> handle(ResultSet rs) throws SQLException {

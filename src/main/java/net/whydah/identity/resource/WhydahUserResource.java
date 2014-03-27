@@ -14,7 +14,7 @@ import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.mail.PasswordSender;
-import net.whydah.identity.repository.UserPropertyAndRoleRepository;
+import net.whydah.identity.user.UserPropertyAndRoleRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

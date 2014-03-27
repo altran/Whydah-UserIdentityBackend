@@ -1,4 +1,4 @@
-package net.whydah.identity.repository;
+package net.whydah.identity.user;
 
 public class DatastoreException extends RuntimeException {
     public DatastoreException() {

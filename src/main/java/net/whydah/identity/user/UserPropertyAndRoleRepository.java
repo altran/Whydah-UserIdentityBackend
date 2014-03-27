@@ -1,4 +1,4 @@
-package net.whydah.identity.repository;
+package net.whydah.identity.user;
 
 import com.google.inject.Inject;
 import net.whydah.identity.domain.Application;
@@ -115,6 +115,27 @@ public class UserPropertyAndRoleRepository {
         }
     }
 
+    public String getOrgname(String orgid) {
+        try {
+            String ORG_SQL = "SELECT Name from Organization WHERE id=?";
+            return queryRunner.query(ORG_SQL, new OrgnameResultSetHandler(), orgid);
+        } catch (SQLException e) {
+            throw new DatastoreException(e);
+        }
+    }
+    private static class OrgnameResultSetHandler implements ResultSetHandler<String> {
+        @Override
+        public String handle(ResultSet rs) throws SQLException {
+            if(rs.next()) {
+                return rs.getString(1);
+            } else {
+                return null;
+            }
+        }
+    }
+
+
+
     public void setQueryRunner(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
     }
@@ -138,7 +159,7 @@ public class UserPropertyAndRoleRepository {
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
                 }
-                String orgName = backendConfigDataRepository.getOrgname(userPropertyAndRole.getOrgId());
+                String orgName = getOrgname(userPropertyAndRole.getOrgId());
                 if(orgName != null) {
                     userPropertyAndRole.setOrganizationName(orgName);
                 }
@@ -151,4 +172,6 @@ public class UserPropertyAndRoleRepository {
             return in != null ? in : "";
         }
     }
+
+
 }

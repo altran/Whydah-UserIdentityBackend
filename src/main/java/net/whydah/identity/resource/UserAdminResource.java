@@ -9,12 +9,12 @@ import net.whydah.identity.domain.*;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.mail.PasswordSender;
-import net.whydah.identity.repository.BackendConfigDataRepository;
-import net.whydah.identity.repository.UserPropertyAndRoleRepository;
 import net.whydah.identity.search.Indexer;
 import net.whydah.identity.search.Search;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.security.UserToken;
+import net.whydah.identity.user.BackendConfigDataRepository;
+import net.whydah.identity.user.UserPropertyAndRoleRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -514,7 +514,7 @@ public class UserAdminResource {
         if (app.getDefaultrole() == null) {
             return Response.status(Response.Status.CONFLICT).entity("{\"error\":\"app has no default role\"}'").build();
         }
-        String orgName = backendConfigDataRepository.getOrgname(app.getDefaultOrgid());
+        String orgName = userPropertyAndRoleRepository.getOrgname(app.getDefaultOrgid());
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(whydahUserIdentity.getUid());
         role.setAppId(appid);
