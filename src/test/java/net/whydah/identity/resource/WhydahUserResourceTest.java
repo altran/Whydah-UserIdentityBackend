@@ -1,6 +1,7 @@
 package net.whydah.identity.resource;
 
 import com.sun.jersey.api.view.Viewable;
+import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.domain.UserPropertyAndRole;
@@ -9,7 +10,6 @@ import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.ldap.EmbeddedADS;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
-import net.whydah.identity.repository.AuditLogRepository;
 import net.whydah.identity.repository.BackendConfigDataRepository;
 import net.whydah.identity.repository.UserPropertyAndRoleRepository;
 import net.whydah.identity.search.Indexer;

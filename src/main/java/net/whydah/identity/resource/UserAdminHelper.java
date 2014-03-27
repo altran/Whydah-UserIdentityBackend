@@ -2,11 +2,11 @@ package net.whydah.identity.resource;
 
 import com.google.inject.Inject;
 import net.whydah.identity.audit.ActionPerformed;
+import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.domain.UserPropertyAndRole;
 import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.ldap.LDAPHelper;
-import net.whydah.identity.repository.AuditLogRepository;
 import net.whydah.identity.repository.UserPropertyAndRoleRepository;
 import net.whydah.identity.search.Indexer;
 import net.whydah.identity.security.Authentication;
