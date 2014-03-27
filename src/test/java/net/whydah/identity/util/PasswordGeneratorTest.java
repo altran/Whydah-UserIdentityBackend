@@ -1,4 +1,4 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.util;
 
 import org.junit.Test;
 
@@ -16,30 +16,28 @@ public class PasswordGeneratorTest {
             assertNotNull(password);
             assertTrue(password.length() > 0);
         }
-
     }
 
     @Test
-    public void testUTF8() {
-        String myString = "\u0048\u0065\u006C\u006C\u006F World";
-        myString="HallstrÃ¸m";
-        System.out.println(myString);
-        byte[] myBytes = null;
+    public void testUTF8() throws UnsupportedEncodingException {
+        String myString = "HallstrÃ¸m"; //"\u0048\u0065\u006C\u006C\u006F World";
+        myString.getBytes("UTF-8");
 
-        try
-        {
+        //byte[] myBytes = myString.getBytes("UTF-8");
+
+        /*
+        try {
             myBytes = myString.getBytes("UTF-8");
             System.out.println("UTF8:"+ new String(myString.getBytes("ISO-8859-1"), "UTF-8"));
             System.out.println("ISO-8859-1:"+ new String(myString.getBytes("ISO-8859-1"), "ISO-8859-1"));
-        } catch (UnsupportedEncodingException e)
-        {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
             System.out.println("UTF8"+myBytes);
             System.exit(-1);
         }
 
-        for (int i=0; i < myBytes.length; i++) {
-            System.out.println(myBytes[i]);
+        for (byte myByte : myBytes) {
+            System.out.println(myByte);
         }
+        */
     }
 }

@@ -1,4 +1,4 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.user;
 
 /**
  * A "holder"-class for a users various properties and roles. Backed by RDBMS scheme

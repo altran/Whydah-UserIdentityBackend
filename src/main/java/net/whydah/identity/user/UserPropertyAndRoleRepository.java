@@ -1,8 +1,8 @@
 package net.whydah.identity.user;
 
 import com.google.inject.Inject;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.domain.Application;
-import net.whydah.identity.domain.UserPropertyAndRole;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
-    @Inject private BackendConfigDataRepository backendConfigDataRepository;
+    @Inject private ApplicationRepository applicationRepository;
 
     private static final String GET_USERROLES_SQL = "SELECT UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
     private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (UserID, AppID, OrganizationId, RoleName, RoleValues) values (?, ?, ?, ?, ?)";
@@ -140,8 +140,8 @@ public class UserPropertyAndRoleRepository {
         this.queryRunner = queryRunner;
     }
 
-    public void setBackendConfigDataRepository(BackendConfigDataRepository backendConfigDataRepository) {
-        this.backendConfigDataRepository = backendConfigDataRepository;
+    public void setApplicationRepository(ApplicationRepository applicationRepository) {
+        this.applicationRepository = applicationRepository;
     }
 
     private class UserRolesResultsetHandler implements ResultSetHandler<List<UserPropertyAndRole>> {
@@ -155,7 +155,7 @@ public class UserPropertyAndRoleRepository {
                 userPropertyAndRole.setOrgId(rs.getString(3));
                 userPropertyAndRole.setRoleName(rs.getString(4));
                 userPropertyAndRole.setRoleValue(null2empty(rs.getString(5)));
-                Application application = backendConfigDataRepository.getApplication(userPropertyAndRole.getAppId());
+                Application application = applicationRepository.getApplication(userPropertyAndRole.getAppId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
                 }

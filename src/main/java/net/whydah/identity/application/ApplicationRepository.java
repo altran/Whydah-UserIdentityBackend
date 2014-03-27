@@ -1,7 +1,8 @@
-package net.whydah.identity.user;
+package net.whydah.identity.application;
 
 import com.google.inject.Inject;
 import net.whydah.identity.domain.Application;
+import net.whydah.identity.user.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 
@@ -11,12 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: asbkar
- * Date: 3/10/11
- * Time: 10:26 AM
+ * @author asbkar
  */
-public class BackendConfigDataRepository {
+public class ApplicationRepository {
     private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgid from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 

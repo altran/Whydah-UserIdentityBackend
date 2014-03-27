@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.domain.ChangePasswordToken;
-import net.whydah.identity.domain.PasswordGenerator;
 import net.whydah.identity.ldap.LDAPHelper;
+import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

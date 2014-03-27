@@ -1,5 +1,7 @@
 package net.whydah.identity.domain;
 
+import net.whydah.identity.user.UserPropertyAndRole;
+
 import java.util.ArrayList;
 import java.util.List;
 

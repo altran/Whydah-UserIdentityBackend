@@ -3,9 +3,13 @@ package net.whydah.identity.resource;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.view.Viewable;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
-import net.whydah.identity.domain.*;
+import net.whydah.identity.domain.Application;
+import net.whydah.identity.domain.ChangePasswordToken;
+import net.whydah.identity.domain.WhydahUser;
+import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.mail.PasswordSender;
@@ -13,8 +17,9 @@ import net.whydah.identity.search.Indexer;
 import net.whydah.identity.search.Search;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.security.UserToken;
-import net.whydah.identity.user.BackendConfigDataRepository;
+import net.whydah.identity.user.UserPropertyAndRole;
 import net.whydah.identity.user.UserPropertyAndRoleRepository;
+import net.whydah.identity.util.PasswordGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -43,7 +48,7 @@ public class UserAdminResource {
     @Inject
     private UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     @Inject
-    private BackendConfigDataRepository backendConfigDataRepository;
+    private ApplicationRepository applicationRepository;
     @Inject
     private LDAPHelper ldapHelper;
     @Inject
@@ -397,7 +402,7 @@ public class UserAdminResource {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
         WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        List<Application> allApps = backendConfigDataRepository.getApplications();
+        List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<String>();
         for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
             myApps.add(role.getAppId());
@@ -507,7 +512,7 @@ public class UserAdminResource {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
 
-        Application app = backendConfigDataRepository.getApplication(appid);
+        Application app = applicationRepository.getApplication(appid);
         if (app == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"app not found\"}'").build();
         }

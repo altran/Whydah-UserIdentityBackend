@@ -1,4 +1,4 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.util;
 
 import java.util.Random;
 

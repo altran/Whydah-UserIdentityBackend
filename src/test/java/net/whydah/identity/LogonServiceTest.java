@@ -5,6 +5,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.MediaTypes;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
@@ -13,7 +14,6 @@ import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.resource.UserAdminHelper;
 import net.whydah.identity.search.Indexer;
-import net.whydah.identity.user.BackendConfigDataRepository;
 import net.whydah.identity.user.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -87,9 +87,9 @@ public class LogonServiceTest {
         databaseHelper.initDB();
 
         roleRepository.setQueryRunner(queryRunner);
-        BackendConfigDataRepository configDataRepository = new BackendConfigDataRepository();
+        ApplicationRepository configDataRepository = new ApplicationRepository();
         configDataRepository.setQueryRunner(queryRunner);
-        roleRepository.setBackendConfigDataRepository(configDataRepository);
+        roleRepository.setApplicationRepository(configDataRepository);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);

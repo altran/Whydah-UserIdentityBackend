@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
 import com.google.inject.Inject;
-import net.whydah.identity.domain.UserPropertyAndRole;
+import net.whydah.identity.user.UserPropertyAndRole;
 import net.whydah.identity.user.UserPropertyAndRoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
