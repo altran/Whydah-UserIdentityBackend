@@ -1,6 +1,5 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.exceptions.SystemException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,7 +43,7 @@ public class UserToken {
             String etternavn = (String) xPath.evaluate("/token/etternavn", doc, XPathConstants.STRING);
             return fornavn + ' ' + etternavn;
         } catch (XPathExpressionException e) {
-            throw new SystemException(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -77,12 +76,8 @@ public class UserToken {
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
             return documentBuilder.parse(new InputSource(new StringReader(userToken)));
-        } catch (ParserConfigurationException e) {
-            throw new SystemException(e.getLocalizedMessage(), e);
-        } catch (SAXException e) {
-            throw new SystemException(e.getLocalizedMessage(), e);
-        } catch (IOException e) {
-            throw new SystemException(e.getLocalizedMessage(), e);
+        } catch (ParserConfigurationException|SAXException|IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,7 +102,7 @@ public class UserToken {
                 }
             }
         } catch (XPathExpressionException e) {
-            throw new SystemException(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
         }
         return userRoleList;
     }

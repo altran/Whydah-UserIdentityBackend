@@ -2,7 +2,6 @@ package net.whydah.identity.repository;
 
 import com.google.inject.Inject;
 import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.exceptions.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 
 import java.sql.SQLException;
@@ -27,7 +26,7 @@ public class AuditLogRepository {
                     actionPerformed.getValue()
             );
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 }

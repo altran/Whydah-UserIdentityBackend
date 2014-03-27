@@ -3,7 +3,6 @@ package net.whydah.identity.repository;
 import com.google.inject.Inject;
 import net.whydah.identity.domain.Application;
 import net.whydah.identity.domain.UserPropertyAndRole;
-import net.whydah.identity.exceptions.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.slf4j.Logger;
@@ -76,7 +75,7 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.getRoleValue()
             );
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -88,7 +87,7 @@ public class UserPropertyAndRoleRepository {
         try {
             queryRunner.update(DELETE_USER_SQL, uid);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -96,7 +95,7 @@ public class UserPropertyAndRoleRepository {
         try {
             queryRunner.update(DELETE_ROLE_SQL, uid, appid, orgid, rolename);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -104,7 +103,7 @@ public class UserPropertyAndRoleRepository {
         try {
             queryRunner.update(DELETE_APP_ROLES_SQL, uid, appid);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -112,7 +111,7 @@ public class UserPropertyAndRoleRepository {
         try {
             queryRunner.update(UPDATE_SQL, rolevalue, uid, appid, orgid, rolename);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 

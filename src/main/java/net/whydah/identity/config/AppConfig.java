@@ -1,6 +1,5 @@
 package net.whydah.identity.config;
 
-import net.whydah.identity.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

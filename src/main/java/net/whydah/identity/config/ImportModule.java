@@ -1,7 +1,6 @@
 package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
-import net.whydah.identity.exceptions.ConfigurationException;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.search.Indexer;
 import org.apache.commons.dbcp.BasicDataSource;

@@ -1,4 +1,4 @@
-package net.whydah.identity.exceptions;
+package net.whydah.identity.config;
 
 public class ConfigurationException extends RuntimeException {
     public ConfigurationException() {

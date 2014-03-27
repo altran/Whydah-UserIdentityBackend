@@ -2,7 +2,6 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import net.whydah.identity.exceptions.ConfigurationException;
 import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.search.Indexer;
@@ -17,9 +16,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class UserIdentityBackendModule extends AbstractModule {
-	
-
-	
     @Override
     protected void configure() {
         //datasource

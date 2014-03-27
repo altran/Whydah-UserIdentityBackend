@@ -2,7 +2,6 @@ package net.whydah.identity.repository;
 
 import com.google.inject.Inject;
 import net.whydah.identity.domain.Application;
-import net.whydah.identity.exceptions.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 
@@ -29,7 +28,7 @@ public class BackendConfigDataRepository {
         try {
             return queryRunner.query(APPLICATION_SQL, new ApplicationResultSetHandler(), appid);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -37,7 +36,7 @@ public class BackendConfigDataRepository {
         try {
             return queryRunner.query(APPLICATIONS_SQL, new ApplicationsResultSetHandler());
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
     }
 
@@ -45,7 +44,7 @@ public class BackendConfigDataRepository {
         try {
         return queryRunner.query(ORG_SQL, new OrgnameResultSetHandler(), orgid);
         } catch (SQLException e) {
-            throw new DatastoreException(e.getLocalizedMessage(), e);
+            throw new DatastoreException(e);
         }
 
     }
