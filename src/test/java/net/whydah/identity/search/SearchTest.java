@@ -1,7 +1,7 @@
 package net.whydah.identity.search;
 
 import junit.framework.TestCase;
-import net.whydah.identity.domain.WhydahUserIdentity;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package net.whydah.identity.security;
+package net.whydah.identity.user;
 
 public class UserRole {
     private final String appId;

@@ -1,6 +1,7 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.user;
 
-import net.whydah.identity.user.UserPropertyAndRole;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.role.UserPropertyAndRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,6 @@ public class WhydahUser {
     }
 
     public WhydahUser() {
-		// TODO Auto-generated constructor stub
 	}
 
    

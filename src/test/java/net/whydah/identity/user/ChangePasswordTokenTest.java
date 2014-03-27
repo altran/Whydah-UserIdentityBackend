@@ -1,4 +1,4 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.user;
 
 import org.junit.Test;
 

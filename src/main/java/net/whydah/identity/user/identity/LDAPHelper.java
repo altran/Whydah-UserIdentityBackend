@@ -1,7 +1,6 @@
-package net.whydah.identity.ldap;
+package net.whydah.identity.user.identity;
 
 
-import net.whydah.identity.domain.WhydahUserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +13,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
- * Created by IntelliJ IDEA.
- * User: totto
- * Date: 1/12/11
- * Time: 1:36 PM
+ * @author totto
  */
 public class LDAPHelper {
     private static final Logger logger = LoggerFactory.getLogger(LDAPHelper.class);

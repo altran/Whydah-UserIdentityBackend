@@ -1,6 +1,6 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.domain.WhydahUserIdentity;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.junit.Test;
 
 import java.util.List;

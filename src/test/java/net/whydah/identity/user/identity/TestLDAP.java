@@ -1,8 +1,7 @@
-package net.whydah.identity.instrastructure;
+package net.whydah.identity.user.identity;
 
 import junit.framework.TestCase;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.ldap.EmbeddedADS;
 
 import javax.naming.Context;
 import javax.naming.NameAlreadyBoundException;

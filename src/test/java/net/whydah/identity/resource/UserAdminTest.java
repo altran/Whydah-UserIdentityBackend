@@ -1,9 +1,10 @@
-package net.whydah.identity;
+package net.whydah.identity.resource;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
+import net.whydah.identity.Main;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.mail.MockMail;
 import net.whydah.identity.util.FileUtils;
@@ -50,7 +51,7 @@ public class UserAdminTest {
 
         }
 
-            FileUtils.deleteDirectory(new File("target/ssotest/"));
+        FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
 
     @Test

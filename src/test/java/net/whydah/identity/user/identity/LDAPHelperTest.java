@@ -1,7 +1,6 @@
-package net.whydah.identity.ldap;
+package net.whydah.identity.user.identity;
 
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

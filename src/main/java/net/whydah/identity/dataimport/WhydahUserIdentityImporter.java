@@ -1,9 +1,9 @@
 package net.whydah.identity.dataimport;
 
 import com.google.inject.Inject;
-import net.whydah.identity.domain.WhydahUserIdentity;
-import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.search.Indexer;
+import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;

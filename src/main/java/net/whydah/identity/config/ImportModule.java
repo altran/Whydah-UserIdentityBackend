@@ -1,8 +1,8 @@
 package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
-import net.whydah.identity.ldap.LDAPHelper;
 import net.whydah.identity.search.Indexer;
+import net.whydah.identity.user.identity.LDAPHelper;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;

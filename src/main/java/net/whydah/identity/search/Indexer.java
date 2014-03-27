@@ -1,7 +1,7 @@
 package net.whydah.identity.search;
 
-import net.whydah.identity.domain.WhydahUserIdentity;
 import net.whydah.identity.resource.UserAdminResource;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;

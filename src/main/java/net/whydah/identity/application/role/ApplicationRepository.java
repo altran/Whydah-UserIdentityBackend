@@ -1,8 +1,7 @@
-package net.whydah.identity.application;
+package net.whydah.identity.application.role;
 
 import com.google.inject.Inject;
-import net.whydah.identity.domain.Application;
-import net.whydah.identity.user.DatastoreException;
+import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 

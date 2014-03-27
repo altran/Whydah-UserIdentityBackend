@@ -1,4 +1,4 @@
-package net.whydah.identity.security;
+package net.whydah.identity.user;
 
 import org.junit.Test;
 

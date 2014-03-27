@@ -1,6 +1,5 @@
-package net.whydah.identity.ldap;
+package net.whydah.identity.user.identity;
 
-import net.whydah.identity.domain.WhydahUserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

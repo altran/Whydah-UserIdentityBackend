@@ -4,6 +4,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import net.whydah.identity.user.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,10 +13,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by IntelliJ IDEA.
  * User: asbkar
- * Date: 3/10/11
- * Time: 2:16 PM
  */
 public class SecurityTokenHelper {
     private static final Logger logger = LoggerFactory.getLogger(SecurityTokenHelper.class);

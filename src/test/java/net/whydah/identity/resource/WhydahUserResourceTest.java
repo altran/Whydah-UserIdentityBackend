@@ -1,18 +1,18 @@
 package net.whydah.identity.resource;
 
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
-import net.whydah.identity.domain.WhydahUser;
-import net.whydah.identity.domain.WhydahUserIdentity;
-import net.whydah.identity.ldap.EmbeddedADS;
-import net.whydah.identity.ldap.LDAPHelper;
-import net.whydah.identity.ldap.LdapAuthenticatorImpl;
 import net.whydah.identity.search.Indexer;
-import net.whydah.identity.user.UserPropertyAndRole;
-import net.whydah.identity.user.UserPropertyAndRoleRepository;
+import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.identity.EmbeddedADS;
+import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
+import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;

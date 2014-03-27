@@ -1,5 +1,6 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.user;
 
+//Not in use. Totto was sceptical to delete it, so maybe it will be used in the future.
 public class UserCredential {
 
     private int credentialType;

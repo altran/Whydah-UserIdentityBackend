@@ -1,7 +1,7 @@
 package net.whydah.identity.audit;
 
 import com.google.inject.Inject;
-import net.whydah.identity.user.DatastoreException;
+import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 
 import java.sql.SQLException;

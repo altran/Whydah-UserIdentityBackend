@@ -1,4 +1,4 @@
-package net.whydah.identity.domain;
+package net.whydah.identity.user.identity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +8,8 @@ import java.io.Serializable;
 /**
  * A class representing the identity of a User - backed by LDAP scheme.
  * See getLdapAttributes in LDAPHelper for mapping to LDAP attributes.
- * User: totto
- * Date: 1/11/11
+ *
+ * @author totto
  */
 public class WhydahUserIdentity implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(WhydahUserIdentity.class);

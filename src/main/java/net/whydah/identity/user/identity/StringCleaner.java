@@ -1,4 +1,4 @@
-package net.whydah.identity.ldap;
+package net.whydah.identity.user.identity;
 
 /**
 
