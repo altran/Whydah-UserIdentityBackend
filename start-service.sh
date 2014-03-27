@@ -3,7 +3,7 @@
 export IAM_MODE=TEST
 
 A=UserIdentityBackend
-V=0.6
+V=LATEST
 JARFILE=$A-$V.jar
 
 pkill -f $A
