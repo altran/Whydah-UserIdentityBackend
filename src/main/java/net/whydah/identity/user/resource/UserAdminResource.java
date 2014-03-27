@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

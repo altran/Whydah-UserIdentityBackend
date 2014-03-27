@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.application.resource;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;

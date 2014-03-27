@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.user.resource;
 
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.user.resource;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

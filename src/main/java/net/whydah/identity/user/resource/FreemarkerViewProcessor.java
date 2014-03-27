@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.user.resource;
 
 import com.sun.jersey.api.view.Viewable;
 import com.sun.jersey.spi.template.ViewProcessor;

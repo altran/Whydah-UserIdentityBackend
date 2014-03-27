@@ -1,4 +1,4 @@
-package net.whydah.identity.resource;
+package net.whydah.identity.user.resource;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
