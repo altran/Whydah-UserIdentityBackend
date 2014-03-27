@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.HashMap;
 
 public class Main {
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private EmbeddedADS ads;
     private HttpServer httpServer;
@@ -38,7 +38,6 @@ public class Main {
 
 
     public static void main(String[] args) {
-
         final Main main = new Main();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -59,7 +58,7 @@ public class Main {
             try {
                 main.startEmbeddedDS();
             } catch (Exception e) {
-                logger.error("Could not start embedded ApacheDS. Shutting down UserIdentityBackend.", e);
+                log.error("Could not start embedded ApacheDS. Shutting down UserIdentityBackend.", e);
                 System.exit(1);
             }
         }
@@ -74,7 +73,7 @@ public class Main {
         try {
             main.startHttpServer();
         } catch (Exception e) {
-            logger.error("Could not start HTTP Server. Shutting down UserIdentityBackend.", e);
+            log.error("Could not start HTTP Server. Shutting down UserIdentityBackend.", e);
             System.exit(2);
         }
 
@@ -83,14 +82,13 @@ public class Main {
                 // wait forever...
                 Thread.currentThread().join();
             } catch (InterruptedException ie) {
-                logger.warn("Thread was interrupted.", ie);
+                log.warn("Thread was interrupted.", ie);
             }
             main.stop();
         }
     }
 
     public void importUsersAndRoles() {
-        
         Injector injector = Guice.createInjector(new ImportModule());
         
         IamDataImporter iamDataImporter = injector.getInstance(IamDataImporter.class);
@@ -104,7 +102,7 @@ public class Main {
         File dbfile = new File(dbpath);
         boolean shouldImport = !dbfile.exists();    //TODO - When we have prod. and dev enviroment should be dbfile.exists()
 
-        logger.debug("dbpath=" + dbfile.getAbsolutePath() + ", exists=" + dbfile.exists() + ", shouldImport is set to " + shouldImport);
+        log.debug("dbpath=" + dbfile.getAbsolutePath() + ", exists=" + dbfile.exists() + ", shouldImport is set to " + shouldImport);
         return shouldImport;
     }
 
@@ -114,11 +112,11 @@ public class Main {
     }
 
     public void startHttpServer() throws Exception {
-        logger.trace("Starting UserIdentityBackend");
+        log.trace("Starting UserIdentityBackend");
 
         ServletHandler servletHandler = new ServletHandler();
         servletHandler.setContextPath("/uib");
-        servletHandler.addInitParameter("com.sun.jersey.config.property.packages", "net.whydah.identity.resource,net.whydah.identity.view");
+        servletHandler.addInitParameter("com.sun.jersey.config.property.packages", "net.whydah.identity.resource"); //,net.whydah.identity.view
         servletHandler.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
         servletHandler.setProperty(ServletHandler.LOAD_ON_STARTUP, "1");
 
@@ -136,7 +134,7 @@ public class Main {
         //URI baseUri = UriBuilder.fromUri("http://localhost").port(webappPort).build();
         URI baseUri =  new URI(AppConfig.appConfig.getProperty("myuri"));
         httpServer = GrizzlyServerFactory.createHttpServer(baseUri, servletHandler);
-        logger.info("UserIdentityBackend started with baseUri=", baseUri);
+        log.info("UserIdentityBackend started with baseUri=", baseUri);
         */
         webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("service.port"));
         httpServer = new HttpServer();
@@ -145,14 +143,14 @@ public class Main {
         NetworkListener listener = new NetworkListener("grizzly", NetworkListener.DEFAULT_NETWORK_HOST, webappPort);
         httpServer.addListener(listener);
         httpServer.start();
-        logger.info("UserIdentityBackend started on port {}", webappPort);
+        log.info("UserIdentityBackend started on port {}", webappPort);
     }
 
 
 	private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
 		String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
 		if (StringUtils.isEmpty(requiredRoleName)) {
-			logger.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
+			log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
 		}
 		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class));
         HashMap<String, String> initParams = new HashMap<>(1);
@@ -166,7 +164,7 @@ public class Main {
     }
 
     public void startEmbeddedDS() throws Exception {
-        logger.info("Starting embedded ApacheDS");
+        log.info("Starting embedded ApacheDS");
         String ldappath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
         ads = new EmbeddedADS(ldappath);
 
@@ -175,12 +173,12 @@ public class Main {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            logger.error("Thread interrupted.", e);
+            log.error("Thread interrupted.", e);
         }
     }
 
     public void stop() {
-        logger.info("Stopping http server and embedded Apache DS.");    //TODO ED: What about hsqldb?
+        log.info("Stopping http server and embedded Apache DS.");    //TODO ED: What about hsqldb?
         if (httpServer != null) {
             httpServer.stop();
         }
