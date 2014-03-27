@@ -1,7 +1,7 @@
 package net.whydah.identity;
 
 import junit.framework.TestCase;
-import net.whydah.identity.helper.FileUtils;
+import net.whydah.identity.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

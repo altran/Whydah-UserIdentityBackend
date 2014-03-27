@@ -2,7 +2,6 @@ package net.whydah.identity.ldap;
 
 
 import net.whydah.identity.domain.WhydahUserIdentity;
-import net.whydah.identity.helper.StringCleaner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
