@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,11 +52,10 @@ public class UserTokenResource {
     private static final Logger log = LoggerFactory.getLogger(UserTokenResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
-
-    private UserPropertyAndRoleRepository roleRepository;
-    private UserAdminHelper userAdminHelper;
-    private UserAuthenticationService userAuthenticationService;
-    private Map<String, Object> welcomeModel;
+    private final UserPropertyAndRoleRepository roleRepository;
+    private final UserAdminHelper userAdminHelper;
+    private final UserAuthenticationService userAuthenticationService;
+    private final String hostname;
 
     @Inject
     private PasswordSender passwordSender;
@@ -63,23 +63,32 @@ public class UserTokenResource {
     @Inject
     private AuditLogRepository auditLogRepository;
 
-
-
     @Inject
     public UserTokenResource(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,
                              UserAuthenticationService userAuthenticationService) {
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
         this.userAuthenticationService = userAuthenticationService;
-        createWelcomeModel();
+        this.hostname = getLocalhostName();
     }
+
+    private String getLocalhostName()  {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            log.warn("", e);
+        }
+        return "unknown host";
+    }
+
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response info() {
+        Map<String, String> welcomeModel = new HashMap<>(1);
+        welcomeModel.put("hostname", hostname);
         return Response.ok(new Viewable("/welcome", welcomeModel)).build();
     }
-
 
     /**
      * Authentication using XML. XML must contain an element with name username, and an element with name password.
@@ -119,7 +128,7 @@ public class UserTokenResource {
         }
     }
 
-    Response authenticateUser(String username, String password) {
+    private Response authenticateUser(String username, String password) {
         WhydahUserIdentity id = userAuthenticationService.auth(username, password);
 
         if (id == null)  {
@@ -133,6 +142,36 @@ public class UserTokenResource {
         Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
         return Response.ok(entity).build();
     }
+
+    /**
+     * Form/html-based authentication.
+     * @param username Username to be authenticated.
+     * @param password Users password.
+     * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
+     */
+    @Path("logon")
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
+    public Response authenticateUserForm(@FormParam("username") String username, @FormParam("password") String password) {
+        log.debug("authenticateUserForm: user=" + username + ", password=" + password);
+        WhydahUserIdentity id = null;
+        if (username != null && password != null) {
+            id = userAuthenticationService.auth(username, password);
+//            if(id == null) {
+//                System.out.println("Prøver intern ldap");
+//                id = internalLdapAuthenticator.auth(username, password);
+//            }
+        } else {
+            log.warn("Missing user or password");
+        }
+        if (id == null) {
+            return Response.ok(new Viewable("/logonFailed.ftl")).build();
+        }
+        WhydahUser whydahUser = new WhydahUser(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
+        return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
+    }
+
 
     //TODO Move to UserAdminService (the separate application)
     @Path("createandlogon")
@@ -159,6 +198,7 @@ public class UserTokenResource {
         return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
     }
 
+    //TODO Move to UserAdminService (the separate application)
     public static String getFacebookDataAsXmlString(Document fbUserDoc) {
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -176,7 +216,7 @@ public class UserTokenResource {
         }
     }
 
-    public static String getFacebookDataAsString(InputStream input) {
+    static String getFacebookDataAsString(InputStream input) {
         String facebookUserAsString = null;
         InputStreamReader reader = null;
         try {
@@ -197,7 +237,7 @@ public class UserTokenResource {
         return facebookUserAsString;
     }
 
-    Document parse(InputStream input) {
+    private Document parse(InputStream input) {
         Document fbUserDoc;
         try {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -229,49 +269,7 @@ public class UserTokenResource {
         }
     }
 
-    /**
-     * Form/html-based authentication.
-     * @param username Username to be authenticated.
-     * @param password Users password.
-     * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
-     */
-    @Path("logon")
-    @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    public Response authenticateUserForm(@FormParam("username") String username, @FormParam("password") String password) {
-        log.debug("authenticateUserForm: user=" + username + ", password=" + password);
-        WhydahUserIdentity id = null;
-        if (username != null && password != null) {
-            id = userAuthenticationService.auth(username, password);
-//            if(id == null) {
-//                System.out.println("Prøver intern ldap");
-//                id = internalLdapAuthenticator.auth(username, password);
-//            }
-        } else {
-            log.warn("Missing user or password");
-        }
-        if (id == null) {
-            return Response.ok(new Viewable("/logonFailed.ftl")).build();
-        }
-        WhydahUser whydahUser = new WhydahUser(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
-
-
-        return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
-
-    }
-
-    private void createWelcomeModel() {
-        welcomeModel = new HashMap<>(1);
-        try {
-            final String hostname = java.net.InetAddress.getLocalHost().getHostName();
-            welcomeModel.put("hostname", hostname);
-        } catch (UnknownHostException e) {
-            log.warn("", e);
-        }
-    }
-
-
+    //TODO Discuss with Totto. Should be in UserResource only?
     @GET
     @Path("users/{username}/resetpassword")
     public Response resetPassword(@PathParam("username") String username) {
@@ -298,6 +296,7 @@ public class UserTokenResource {
         auditLogRepository.store(actionPerformed);
     }
 
+    //TODO Discuss with Totto. Should be in UserResource only?
     //Copy of changePasswordForUser in UserResource
     @POST
     @Path("users/{username}/newpassword/{token}")
