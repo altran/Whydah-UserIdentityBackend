@@ -11,8 +11,6 @@ import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -165,6 +163,7 @@ public class UserTokenResource {
         return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
     }
 
+    /*
     //TODO Move to UserResource
     @GET
     @Path("users/{username}/resetpassword")
@@ -218,7 +217,7 @@ public class UserTokenResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
-
+    */
 
     //TODO Move to UserAdminService (the separate application)
     @Path("createandlogon")
