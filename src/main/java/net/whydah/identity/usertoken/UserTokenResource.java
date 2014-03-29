@@ -1,4 +1,4 @@
-package net.whydah.identity.user.resource;
+package net.whydah.identity.usertoken;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
@@ -13,6 +13,7 @@ import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.LDAPHelper;
 import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import org.json.JSONException;
@@ -158,7 +159,7 @@ public class UserTokenResource {
         return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
     }
 
-    static String getFacebookDataAsXmlString(Document fbUserDoc) {
+    public static String getFacebookDataAsXmlString(Document fbUserDoc) {
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transformer = transFactory.newTransformer();
@@ -175,7 +176,7 @@ public class UserTokenResource {
         }
     }
 
-    static String getFacebookDataAsString(InputStream input) {
+    public static String getFacebookDataAsString(InputStream input) {
         String facebookUserAsString = null;
         InputStreamReader reader = null;
         try {
@@ -210,7 +211,7 @@ public class UserTokenResource {
     }
 
 
-    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue,boolean reuse) {
+    public Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {

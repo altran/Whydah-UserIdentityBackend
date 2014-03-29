@@ -1,6 +1,6 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.user.UserToken;
+import net.whydah.identity.usertoken.UserToken;
 
 /**
  * Holds current authenticated user in a threadlocal.

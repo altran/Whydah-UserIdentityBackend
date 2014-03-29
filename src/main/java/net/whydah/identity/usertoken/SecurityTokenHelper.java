@@ -1,10 +1,9 @@
-package net.whydah.identity.security;
+package net.whydah.identity.usertoken;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import net.whydah.identity.user.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,6 @@
-package net.whydah.identity.user;
+package net.whydah.identity.usertoken;
 
+import net.whydah.identity.user.UserRole;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -19,10 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: asbkar
- * Date: 3/23/11
- * Time: 10:55 AM
+ * @author asbkar
  */
 public class UserToken {
     private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

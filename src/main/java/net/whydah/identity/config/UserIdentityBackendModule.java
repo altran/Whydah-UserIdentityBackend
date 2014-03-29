@@ -2,11 +2,11 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import net.whydah.identity.security.SecurityTokenHelper;
 import net.whydah.identity.user.identity.LDAPHelper;
 import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
 import net.whydah.identity.user.search.Indexer;
 import net.whydah.identity.user.search.Search;
+import net.whydah.identity.usertoken.SecurityTokenHelper;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
