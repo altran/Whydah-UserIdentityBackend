@@ -6,10 +6,7 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.*;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -52,11 +49,11 @@ public class UserTokenResourceTest {
     private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
-    private static LDAPHelper ldapHelper;
-    private static LdapAuthenticatorImpl ldapAuthenticator;
     private static UserPropertyAndRoleRepository roleRepository;
     private static UserAdminHelper userAdminHelper;
     private static QueryRunner queryRunner;
+
+    private static UserAuthenticationService userAuthenticationService;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -75,8 +72,9 @@ public class UserTokenResourceTest {
         } catch (Exception e){
 
         }
-        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper);
 
 
         roleRepository = new UserPropertyAndRoleRepository();
@@ -119,7 +117,7 @@ public class UserTokenResourceTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        UserTokenResource resource = new UserTokenResource(roleRepository, userAdminHelper);
+        UserTokenResource resource = new UserTokenResource(roleRepository, userAdminHelper, userAuthenticationService);
 
 
         String roleValue = "roleValue";
