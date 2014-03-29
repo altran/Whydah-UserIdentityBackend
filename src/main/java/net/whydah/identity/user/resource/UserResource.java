@@ -292,6 +292,7 @@ public class UserResource {
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
+
             byte[] saltAsBytes = null;
             try {
                 String salt = ldapHelper.getSalt(username);
@@ -303,7 +304,9 @@ public class UserResource {
             logger.debug("salt=" + new String(saltAsBytes));
             ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
             logger.info("Passwordtoken for {} ok.", username);
-            boolean ok = externalLdapAuthenticator.authWithTemp(username, changePasswordToken.getPassword());
+            boolean ok = externalLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
+
+
             if (!ok) {
                 logger.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -344,7 +347,7 @@ public class UserResource {
             logger.debug("salt=" + new String(salt));
             ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, salt);
             logger.info("Passwordtoken for {} ok.", username);
-            boolean ok = externalLdapAuthenticator.authWithTemp(username, changePasswordToken.getPassword());
+            boolean ok = externalLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
             if (!ok) {
                 logger.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();

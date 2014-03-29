@@ -119,7 +119,7 @@ public class UserTokenResourceTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        UserTokenResource resource = new UserTokenResource(ldapAuthenticator, roleRepository, userAdminHelper);
+        UserTokenResource resource = new UserTokenResource(roleRepository, userAdminHelper);
 
 
         String roleValue = "roleValue";
