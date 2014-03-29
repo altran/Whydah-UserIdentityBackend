@@ -1,5 +1,6 @@
 package net.whydah.identity.application;
 
+import net.whydah.identity.applicationtoken.ApplicationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

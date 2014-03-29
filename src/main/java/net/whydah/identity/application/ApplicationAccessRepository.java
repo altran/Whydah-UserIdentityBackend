@@ -1,5 +1,7 @@
 package net.whydah.identity.application;
 
+import net.whydah.identity.applicationtoken.ApplicationToken;
+
 /**
  * Created by baardl on 22.03.14.
  */
