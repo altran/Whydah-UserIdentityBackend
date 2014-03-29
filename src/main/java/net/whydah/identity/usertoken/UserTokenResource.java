@@ -319,8 +319,7 @@ public class UserTokenResource {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
                 log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();

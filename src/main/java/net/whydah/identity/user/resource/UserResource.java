@@ -297,8 +297,7 @@ public class UserResource {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
                 logger.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -338,8 +337,7 @@ public class UserResource {
                     user.setUsername(newusername);
                     userAuthenticationService.updateUser(username, user);
                 }
-                userAuthenticationService.changePassword(newusername, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(newusername, user.getUid(), newpassword);
             } catch (JSONException e) {
                 logger.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -529,7 +527,7 @@ public class UserResource {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            logger.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {

@@ -2,12 +2,16 @@ package net.whydah.identity.user.identity;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import net.whydah.identity.audit.ActionPerformed;
+import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 29.03.14
@@ -15,16 +19,20 @@ import java.io.UnsupportedEncodingException;
 public class UserAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(UserAuthenticationService.class);
 
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
+
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
     private LdapAuthenticatorImpl externalLdapAuthenticator;
     private LDAPHelper ldapHelper;
+    private AuditLogRepository auditLogRepository;
 
 
     @Inject
     public UserAuthenticationService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
-                                     LDAPHelper ldapHelper) {
+                                     LDAPHelper ldapHelper, AuditLogRepository auditLogRepository) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.ldapHelper = ldapHelper;
+        this.auditLogRepository = auditLogRepository;
     }
 
     public WhydahUserIdentity getUserinfo(String username) throws NamingException {
@@ -53,8 +61,15 @@ public class UserAuthenticationService {
     }
 
 
-    public void changePassword(String username, String newpassword) {
-        ldapHelper.changePassword(username, newpassword);
+    public void changePassword(String username, String userUid, String newPassword) {
+        ldapHelper.changePassword(username, newPassword);
+        audit(ActionPerformed.MODIFIED, "password", userUid);
+    }
+
+    private void audit(String action, String what, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
     }
 
     public void deleteUser(String username) {
