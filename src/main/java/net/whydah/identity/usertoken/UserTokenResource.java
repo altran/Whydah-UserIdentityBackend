@@ -42,7 +42,7 @@ import java.util.Map;
 /**
  * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.   
  */
-@Path("/")
+@Path("/{applicationTokenId}/usertoken")
 public class UserTokenResource {
     private static final Logger log = LoggerFactory.getLogger(UserTokenResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
@@ -86,7 +86,7 @@ public class UserTokenResource {
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    @Path("logon")
+    @Path("/")
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
@@ -134,13 +134,15 @@ public class UserTokenResource {
         return Response.ok(entity).build();
     }
 
-    /**
+
+    /*
      * Form/html-based authentication.
      * @param username Username to be authenticated.
      * @param password Users password.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    @Path("logon")
+    /*
+    @Path("/")
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
@@ -162,6 +164,7 @@ public class UserTokenResource {
         WhydahUser whydahUser = new WhydahUser(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
         return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
     }
+    */
 
     /*
     //TODO Move to UserResource

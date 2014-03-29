@@ -1,11 +1,13 @@
 package net.whydah.identity.applicationtoken;
 
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
 /**
  * Created by baardl on 22.03.14.
  */
+@Path("/applicationtoken")
 public class ApplicationTokenResource {
 
     //TODO baardl preparing for Application Authorization.
