@@ -46,8 +46,8 @@ import java.util.Map;
  * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.   
  */
 @Path("/")
-public class WhydahUserResource {
-    private static final Logger logger = LoggerFactory.getLogger(WhydahUserResource.class);
+public class UserTokenResource {
+    private static final Logger logger = LoggerFactory.getLogger(UserTokenResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
 
@@ -66,8 +66,8 @@ public class WhydahUserResource {
     private AuditLogRepository auditLogRepository;
 
     @Inject
-    public WhydahUserResource(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator, UserPropertyAndRoleRepository roleRepository,
-                              UserAdminHelper userAdminHelper) {
+    public UserTokenResource(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator, UserPropertyAndRoleRepository roleRepository,
+                             UserAdminHelper userAdminHelper) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
@@ -296,7 +296,7 @@ public class WhydahUserResource {
         auditLogRepository.store(actionPerformed);
     }
 
-    //Copy of changePasswordForUser in UserAdminResource
+    //Copy of changePasswordForUser in UserResource
     @POST
     @Path("users/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)

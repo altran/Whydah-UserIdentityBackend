@@ -41,8 +41,8 @@ import java.util.*;
  * Grensesnitt for brukeradministrasjon.
  */
 @Path("/useradmin/{usertokenid}/")
-public class UserAdminResource {
-    private static final Logger logger = LoggerFactory.getLogger(UserAdminResource.class);
+public class UserResource {
+    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     @Inject

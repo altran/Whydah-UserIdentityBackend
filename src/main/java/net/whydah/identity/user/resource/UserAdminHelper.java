@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Helper class to avoid code duplication between UserAdminResource and WhydahUserResource.
+ * Helper class to avoid code duplication between UserResource and UserTokenResource.
  *
  * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/4/12

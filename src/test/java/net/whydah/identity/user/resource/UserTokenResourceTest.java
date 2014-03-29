@@ -43,8 +43,8 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/18/12
  */
-public class WhydahUserResourceTest {
-    private final static String basepath = "target/WhydahUserResourceTest/";
+public class UserTokenResourceTest {
+    private final static String basepath = "target/UserTokenResourceTest/";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
 //    private final static int LDAP_PORT = 10937;
@@ -118,7 +118,7 @@ public class WhydahUserResourceTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        WhydahUserResource resource = new WhydahUserResource(ldapAuthenticator, roleRepository, userAdminHelper);
+        UserTokenResource resource = new UserTokenResource(ldapAuthenticator, roleRepository, userAdminHelper);
 
 
         String roleValue = "roleValue";
@@ -178,7 +178,7 @@ public class WhydahUserResourceTest {
         strb.append("</user>");
 
         InputStream input = new ByteArrayInputStream(strb.toString().getBytes());
-        String facebookDataAsString = WhydahUserResource.getFacebookDataAsString(input);
+        String facebookDataAsString = UserTokenResource.getFacebookDataAsString(input);
         assertNotNull(facebookDataAsString);
     }
 
@@ -205,7 +205,7 @@ public class WhydahUserResourceTest {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document fbUserDoc = builder.parse(input);
 
-        String fbDataValueWithCdata = WhydahUserResource.getFacebookDataAsXmlString(fbUserDoc);
+        String fbDataValueWithCdata = UserTokenResource.getFacebookDataAsXmlString(fbUserDoc);
         assertNotNull(fbDataValueWithCdata);
 
         //Strip cdata wrapper
