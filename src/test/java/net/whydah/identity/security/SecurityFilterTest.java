@@ -4,6 +4,8 @@ import net.whydah.identity.usertoken.SecurityTokenHelper;
 import net.whydah.identity.usertoken.UserToken;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import static org.mockito.Mockito.*;
 
 public class SecurityFilterTest {
+    private static final Logger log = LoggerFactory.getLogger(SecurityFilterTest.class);
+    private static final String CONTEXT_PATH = "/uib";
     private SecurityFilter securityFilter;
     private SecurityTokenHelper tokenHelper;
     private HttpServletRequest request;
@@ -74,6 +78,17 @@ public class SecurityFilterTest {
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
+
+    @Test
+    public void verifyApplicationTokenUrl() throws Exception {
+        when(request.getPathInfo()).thenReturn(CONTEXT_PATH +"/applicationtoken/");
+        //when(tokenHelper.getUserToken("thetoken")).thenReturn(new A(tokenBrukeradmin));
+        securityFilter.doFilter(request, response,chain);
+        verify(chain).doFilter(request, response);
+        log.debug("Status {}", response.getStatus());
+    }
+
+
 
     private final static String tokenOther = "<application ID=\"1\"><organization ID=\"2\"><role name=\"Vaktmester\"/></organization></application>";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application>";
