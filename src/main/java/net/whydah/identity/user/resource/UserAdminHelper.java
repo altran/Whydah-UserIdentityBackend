@@ -5,12 +5,12 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.UserToken;
 import net.whydah.identity.user.identity.LDAPHelper;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.usertoken.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Helper class to avoid code duplication between UserAdminResource and WhydahUserResource.
+ * Helper class to avoid code duplication between UserResource and UserTokenResource.
  *
  * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/4/12
@@ -104,7 +104,7 @@ public class UserAdminHelper {
         }
     }
 
-    static String calculateFacebookPassword(String fbId) {
+    public static String calculateFacebookPassword(String fbId) {
         return fbId + fbId;
     }
 

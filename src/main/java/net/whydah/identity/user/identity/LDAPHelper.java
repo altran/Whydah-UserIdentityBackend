@@ -17,7 +17,6 @@ import java.util.Hashtable;
  */
 public class LDAPHelper {
     private static final Logger logger = LoggerFactory.getLogger(LDAPHelper.class);
-
     static final String ATTRIBUTE_NAME_TEMPPWD_SALT = "destinationIndicator";
     /**
      * The OU (organizational unit) to add users to
@@ -221,14 +220,14 @@ public class LDAPHelper {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        logger.debug("No attributes found for username=" + username + " trying using uid");
+        logger.info("No attributes found for username=" + username + " trying uid");
         String uid = username;
         results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
         if (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        logger.debug("No attributes found for username=" + uid);
+        logger.debug("No attributes found for uid=" + uid);
         return null;
     }
 
@@ -245,11 +244,11 @@ public class LDAPHelper {
             try {
             ctx.destroySubcontext(createUserDN(username));
         } catch (NamingException ne) {
-            logger.error(ne.getLocalizedMessage(), ne);
+            logger.error("", ne);
         }
     }
 
-    public void changePassword(String username, String newpassword) {
+    public void changePassword(String username, String newPassword) {
         if (!connected) {
             setUp();
         }
@@ -261,13 +260,15 @@ public class LDAPHelper {
                 ModificationItem[] mis = {mif};
                 ctx.modifyAttributes(userDN, mis);
             }
-            ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newpassword));
+            ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
             ModificationItem[] mis = {mi};
             ctx.modifyAttributes(userDN, mis);
         } catch (NamingException ne) {
-            logger.error(ne.getLocalizedMessage(), ne);
+            logger.error("", ne);
         }
     }
+
+
 
     public void setTempPassword(String username, String password, String salt) {
         if (!connected) {

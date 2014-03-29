@@ -1,5 +1,6 @@
-package net.whydah.identity.user;
+package net.whydah.identity.usertoken;
 
+import net.whydah.identity.user.UserRole;
 import org.junit.Test;
 
 import java.util.List;

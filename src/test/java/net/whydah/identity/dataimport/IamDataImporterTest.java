@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class IamDataImporterTest {
 
-    private final static String basepath = "target/WhydahUserResourceTest/";
+    private final static String basepath = "target/UserTokenResourceTest/";
 	private static final String lucenePath = basepath + "lucene";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
@@ -72,8 +72,8 @@ public class IamDataImporterTest {
         databaseHelper.initDB();
 
         roleRepository.setQueryRunner(queryRunner);
-        ApplicationRepository configDataRepository = new ApplicationRepository();
-        configDataRepository.setQueryRunner(queryRunner);
+        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        //configDataRepository.setQueryRunner(queryRunner);
         roleRepository.setApplicationRepository(configDataRepository);
         Directory index = new NIOFSDirectory(new File(lucenePath));
 

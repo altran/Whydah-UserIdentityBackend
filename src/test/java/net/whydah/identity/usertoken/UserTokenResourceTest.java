@@ -1,4 +1,4 @@
-package net.whydah.identity.user.resource;
+package net.whydah.identity.usertoken;
 
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.ApplicationRepository;
@@ -6,10 +6,8 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.*;
+import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -43,19 +41,19 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/18/12
  */
-public class WhydahUserResourceTest {
-    private final static String basepath = "target/WhydahUserResourceTest/";
+public class UserTokenResourceTest {
+    private final static String basepath = "target/UserTokenResourceTest/";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
 //    private final static int LDAP_PORT = 10937;
     private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
-    private static LDAPHelper ldapHelper;
-    private static LdapAuthenticatorImpl ldapAuthenticator;
     private static UserPropertyAndRoleRepository roleRepository;
     private static UserAdminHelper userAdminHelper;
     private static QueryRunner queryRunner;
+
+    private static UserAuthenticationService userAuthenticationService;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -74,9 +72,6 @@ public class WhydahUserResourceTest {
         } catch (Exception e){
 
         }
-        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-
 
         roleRepository = new UserPropertyAndRoleRepository();
         BasicDataSource dataSource = new BasicDataSource();
@@ -86,14 +81,21 @@ public class WhydahUserResourceTest {
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
         queryRunner = new QueryRunner(dataSource);
 
+        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+
+        LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper, auditLogRepository);
+
+
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB();
 
         roleRepository.setQueryRunner(queryRunner);
-        ApplicationRepository configDataRepository = new ApplicationRepository();
-        configDataRepository.setQueryRunner(queryRunner);
+        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        //configDataRepository.setQueryRunner(queryRunner);
         roleRepository.setApplicationRepository(configDataRepository);
-        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
     }
@@ -118,7 +120,7 @@ public class WhydahUserResourceTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        WhydahUserResource resource = new WhydahUserResource(ldapAuthenticator, roleRepository, userAdminHelper);
+        UserTokenResource resource = new UserTokenResource(roleRepository, userAdminHelper, userAuthenticationService);
 
 
         String roleValue = "roleValue";
@@ -178,7 +180,7 @@ public class WhydahUserResourceTest {
         strb.append("</user>");
 
         InputStream input = new ByteArrayInputStream(strb.toString().getBytes());
-        String facebookDataAsString = WhydahUserResource.getFacebookDataAsString(input);
+        String facebookDataAsString = UserTokenResource.getFacebookDataAsString(input);
         assertNotNull(facebookDataAsString);
     }
 
@@ -205,7 +207,7 @@ public class WhydahUserResourceTest {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document fbUserDoc = builder.parse(input);
 
-        String fbDataValueWithCdata = WhydahUserResource.getFacebookDataAsXmlString(fbUserDoc);
+        String fbDataValueWithCdata = UserTokenResource.getFacebookDataAsXmlString(fbUserDoc);
         assertNotNull(fbDataValueWithCdata);
 
         //Strip cdata wrapper
