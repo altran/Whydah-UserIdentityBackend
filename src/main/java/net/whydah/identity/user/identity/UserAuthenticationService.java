@@ -1,6 +1,7 @@
 package net.whydah.identity.user.identity;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
@@ -16,6 +17,7 @@ import java.util.Date;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 29.03.14
  */
+@Singleton
 public class UserAuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(UserAuthenticationService.class);
 
@@ -79,7 +81,4 @@ public class UserAuthenticationService {
     public void updateUser(String username, WhydahUserIdentity newuser) {
         ldapHelper.updateUser(username, newuser);
     }
-
-
-
 }
