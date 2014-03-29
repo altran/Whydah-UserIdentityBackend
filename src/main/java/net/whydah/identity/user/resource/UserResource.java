@@ -64,6 +64,25 @@ public class UserResource {
 
     //////////////// Users
 
+    @GET
+    @Path("users/{username}/resetpassword")
+    public Response resetPassword(@PathParam("username") String username) {
+        logger.info("Reset password for user {}", username);
+        try {
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
+            return Response.ok().build();
+        } catch (Exception e) {
+            logger.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     /**
      * Get user details.
      *
@@ -95,7 +114,7 @@ public class UserResource {
 
     //Add user and add default roles
     @POST
-    @Path("users/add")      //TODO should be user/
+    @Path("users/add")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String userJson) {
         logger.debug("addUser: {}", userJson);
@@ -158,8 +177,7 @@ public class UserResource {
         auditLogRepository.store(actionPerformed);
     }
 
-
-    @Path("users/{username}/exists")    //TODO Remove
+    @Path("users/{username}/exists")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response exists(@PathParam("username") String username) {
@@ -170,13 +188,13 @@ public class UserResource {
             logger.debug("exists: " + result);
             return Response.ok(result).build();
         } catch (NamingException e) {
-            logger.error("", e);
+            logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @POST   //DELETE
-    @Path("users/{username}/delete")    //user/{username}
+    @POST
+    @Path("users/{username}/delete")
     public Response deleteUser(@PathParam("username") String username) {
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
@@ -232,26 +250,39 @@ public class UserResource {
         return Response.ok().build();
     }
 
-    //TODO Should be POST, how to make this RESTFUL?
-    @GET
-    @Path("users/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        logger.info("Reset password for user {}", username);
+
+    @POST
+    @Path("users/{username}/newpassword/{token}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
+        logger.info("Changing password for {}", username);
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
 
-            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
+            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
+            if (!ok) {
+                logger.info("Authentication failed while changing password for user {}", username);
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            try {
+                JSONObject jsonobj = new JSONObject(passwordJson);
+                String newpassword = jsonobj.getString("newpassword");
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
+            } catch (JSONException e) {
+                logger.error("Bad json", e);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
             return Response.ok().build();
         } catch (Exception e) {
-            logger.error("resetPassword failed", e);
+            logger.error("changePasswordForUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @POST   //Merge with change password
+    @POST
     @Path("users/{username}/newuser/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
@@ -295,37 +326,6 @@ public class UserResource {
         }
     }
 
-    @POST
-    @Path("users/{username}/newpassword/{token}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        logger.info("Changing password for {}", username);
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
-            if (!ok) {
-                logger.info("Authentication failed while changing password for user {}", username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            try {
-                JSONObject jsonobj = new JSONObject(passwordJson);
-                String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
-            } catch (JSONException e) {
-                logger.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            logger.error("changePasswordForUser failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     /////////// Roles
 
     /**
@@ -342,7 +342,7 @@ public class UserResource {
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
-            logger.error("", e);
+            logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
