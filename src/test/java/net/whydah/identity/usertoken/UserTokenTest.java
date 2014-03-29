@@ -37,7 +37,7 @@ public class UserTokenTest {
             "    <etternavn>Admin</etternavn>\n" +
             "    <timestamp>1299848579653</timestamp>\n" +
             "    <lifespan>200000</lifespan>\n" +
-            "    <issuer>http://10.10.3.88:9998/iam/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
+            "    <issuer>http://10.10.3.88:9998/token/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
             "    <application ID=\"1\">\n" +
             "        <applicationName>WhydahUserAdmin</applicationName>\n" +
             "        <organization ID=\"9999\">\n" +

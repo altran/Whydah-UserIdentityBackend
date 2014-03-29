@@ -1,4 +1,4 @@
-package net.whydah.identity.application.resource;
+package net.whydah.identity.applicationtoken;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * Created by baardl on 22.03.14.
  */
-public class WhydahApplicationResource {
+public class ApplicationTokenResource {
 
     //TODO baardl preparing for Application Authorization.
 
@@ -18,8 +18,4 @@ public class WhydahApplicationResource {
         return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("<error>Server error, not implemented.</error>").build();
     }
 
-    Response createApplication(InputStream input){
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("<error>Server error, not implemented.</error>").build();
-
-    }
 }

@@ -8,7 +8,6 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -54,8 +53,6 @@ public class UserResource {
     @Inject
     private PasswordGenerator passwordGenerator;
     @Inject
-    private PasswordSender passwordSender;
-    @Inject
     private UserAdminHelper userAdminHelper;
 
     private UserAuthenticationService userAuthenticationService;
@@ -100,8 +97,7 @@ public class UserResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
             logger.error("resetPassword failed", e);
@@ -185,8 +181,8 @@ public class UserResource {
             return email;
         }
         email  = "";
-        for(int i = 0; i < words.length; i++){
-            email += words[i];
+        for (String word : words) {
+            email += word;
         }
         return email;
     }
@@ -297,8 +293,7 @@ public class UserResource {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
                 logger.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -338,8 +333,7 @@ public class UserResource {
                     user.setUsername(newusername);
                     userAuthenticationService.updateUser(username, user);
                 }
-                userAuthenticationService.changePassword(newusername, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(newusername, user.getUid(), newpassword);
             } catch (JSONException e) {
                 logger.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -529,7 +523,7 @@ public class UserResource {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            logger.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {

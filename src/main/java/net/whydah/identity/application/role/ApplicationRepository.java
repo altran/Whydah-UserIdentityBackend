@@ -17,8 +17,12 @@ public class ApplicationRepository {
     private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgid from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 
-    @Inject
     private QueryRunner queryRunner;
+
+    @Inject
+    public ApplicationRepository(QueryRunner queryRunner) {
+        this.queryRunner = queryRunner;
+    }
 
     public Application getApplication(String appid) {
         try {

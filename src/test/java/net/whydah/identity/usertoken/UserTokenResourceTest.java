@@ -1,4 +1,4 @@
-package net.whydah.identity.user.resource;
+package net.whydah.identity.usertoken;
 
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.ApplicationRepository;
@@ -6,12 +6,14 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
+import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
-import net.whydah.identity.usertoken.UserTokenResource;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
@@ -72,10 +74,6 @@ public class UserTokenResourceTest {
         } catch (Exception e){
 
         }
-        LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper);
-
 
         roleRepository = new UserPropertyAndRoleRepository();
         BasicDataSource dataSource = new BasicDataSource();
@@ -85,14 +83,23 @@ public class UserTokenResourceTest {
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
         queryRunner = new QueryRunner(dataSource);
 
+        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+
+        LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+
+        PasswordGenerator pwg = new PasswordGenerator();
+        PasswordSender passwordSender = new PasswordSender(null, null);
+        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender);
+
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
 
         roleRepository.setQueryRunner(queryRunner);
-        ApplicationRepository configDataRepository = new ApplicationRepository();
-        configDataRepository.setQueryRunner(queryRunner);
+        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        //configDataRepository.setQueryRunner(queryRunner);
         roleRepository.setApplicationRepository(configDataRepository);
-        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
     }

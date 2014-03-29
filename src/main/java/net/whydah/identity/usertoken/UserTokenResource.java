@@ -4,10 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.resource.UserAdminHelper;
@@ -36,9 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,19 +49,13 @@ public class UserTokenResource {
     private static final Logger log = LoggerFactory.getLogger(UserTokenResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
-
-    private UserPropertyAndRoleRepository roleRepository;
-    private UserAdminHelper userAdminHelper;
-    private UserAuthenticationService userAuthenticationService;
-    private Map<String, Object> welcomeModel;
-
-    @Inject
-    private PasswordSender passwordSender;
+    private final UserPropertyAndRoleRepository roleRepository;
+    private final UserAdminHelper userAdminHelper;
+    private final UserAuthenticationService userAuthenticationService;
+    private final String hostname;
 
     @Inject
     private AuditLogRepository auditLogRepository;
-
-
 
     @Inject
     public UserTokenResource(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,
@@ -71,15 +63,25 @@ public class UserTokenResource {
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
         this.userAuthenticationService = userAuthenticationService;
-        createWelcomeModel();
+        this.hostname = getLocalhostName();
+    }
+
+    private String getLocalhostName()  {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            log.warn("", e);
+        }
+        return "unknown host";
     }
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response info() {
+        Map<String, String> welcomeModel = new HashMap<>(1);
+        welcomeModel.put("hostname", hostname);
         return Response.ok(new Viewable("/welcome", welcomeModel)).build();
     }
-
 
     /**
      * Authentication using XML. XML must contain an element with name username, and an element with name password.
@@ -119,7 +121,7 @@ public class UserTokenResource {
         }
     }
 
-    Response authenticateUser(String username, String password) {
+    private Response authenticateUser(String username, String password) {
         WhydahUserIdentity id = userAuthenticationService.auth(username, password);
 
         if (id == null)  {
@@ -132,101 +134,6 @@ public class UserTokenResource {
         log.info("Authentication ok for user {}", username);
         Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
         return Response.ok(entity).build();
-    }
-
-
-    @Path("createandlogon")
-    @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    @Produces(MediaType.APPLICATION_XML)
-    public Response createAndAuthenticateUser(InputStream input) {
-        log.trace("createAndAuthenticateUser");
-
-        Document fbUserDoc = parse(input);
-        if (fbUserDoc == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
-        }
-
-        WhydahUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
-
-        if (userIdentity == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
-        }
-
-
-        String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
-        //String facebookUserAsString = getFacebookDataAsXmlString(input);
-        return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
-    }
-
-    public static String getFacebookDataAsXmlString(Document fbUserDoc) {
-        try {
-            TransformerFactory transFactory = TransformerFactory.newInstance();
-            Transformer transformer = transFactory.newTransformer();
-            StringWriter buffer = new StringWriter();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.transform(new DOMSource(fbUserDoc), new StreamResult(buffer));
-            String original = buffer.toString();
-
-            // Wrap everything in CDATA
-            return "<![CDATA[" + original + "]]>";
-        } catch (Exception e) {
-            log.error("Could not convert Document to string.", e);
-            return null;
-        }
-    }
-
-    public static String getFacebookDataAsString(InputStream input) {
-        String facebookUserAsString = null;
-        InputStreamReader reader = null;
-        try {
-            reader = new InputStreamReader(input, Charsets.UTF_8);
-            facebookUserAsString = CharStreams.toString(reader);
-        } catch (IOException e) {
-            log.warn("Error parsing inputStream as string.", e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    log.info("Could not close reader.");
-                }
-            }
-        }
-        log.debug("facebookUserAsString=" + facebookUserAsString);
-        return facebookUserAsString;
-    }
-
-    Document parse(InputStream input) {
-        Document fbUserDoc;
-        try {
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            fbUserDoc = builder.parse(input);
-        } catch (Exception e) {
-            log.error("Error when creating WhydahUserIdentity from incoming xml stream.", e);
-            return null;
-        }
-        return fbUserDoc;
-    }
-
-
-    public Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
-        try {
-            Response response = userAdminHelper.addUser(userIdentity);
-            if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
-                return response;
-            }
-            if (userIdentity!= null){
-
-                userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
-            }
-
-            return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
-        } catch (Exception e) {
-            log.error("createAndAuthenticateUser failed " + userIdentity.toString(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
-        }
     }
 
     /**
@@ -255,23 +162,10 @@ public class UserTokenResource {
             return Response.ok(new Viewable("/logonFailed.ftl")).build();
         }
         WhydahUser whydahUser = new WhydahUser(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
-
-
         return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
-
     }
 
-    private void createWelcomeModel() {
-        welcomeModel = new HashMap<>(1);
-        try {
-            final String hostname = java.net.InetAddress.getLocalHost().getHostName();
-            welcomeModel.put("hostname", hostname);
-        } catch (UnknownHostException e) {
-            log.warn("", e);
-        }
-    }
-
-
+    //TODO Move to UserResource
     @GET
     @Path("users/{username}/resetpassword")
     public Response resetPassword(@PathParam("username") String username) {
@@ -283,8 +177,7 @@ public class UserTokenResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
@@ -292,12 +185,7 @@ public class UserTokenResource {
         }
     }
 
-    private void audit(String action, String what, String value) {
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
-    }
-
+    //TODO Move to UserResource
     //Copy of changePasswordForUser in UserResource
     @POST
     @Path("users/{username}/newpassword/{token}")
@@ -319,8 +207,7 @@ public class UserTokenResource {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, newpassword);
-                audit(ActionPerformed.MODIFIED, "password", user.getUid());
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
                 log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -329,6 +216,103 @@ public class UserTokenResource {
         } catch (Exception e) {
             log.error("changePassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    //TODO Move to UserAdminService (the separate application)
+    @Path("createandlogon")
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response createAndAuthenticateUser(InputStream input) {
+        log.trace("createAndAuthenticateUser");
+
+        Document fbUserDoc = parse(input);
+        if (fbUserDoc == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
+        }
+
+        WhydahUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+
+        if (userIdentity == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
+        }
+
+
+        String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
+        //String facebookUserAsString = getFacebookDataAsXmlString(input);
+        return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
+    }
+
+    //TODO Move to UserAdminService (the separate application)
+    static String getFacebookDataAsXmlString(Document fbUserDoc) {
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            StringWriter buffer = new StringWriter();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.transform(new DOMSource(fbUserDoc), new StreamResult(buffer));
+            String original = buffer.toString();
+
+            // Wrap everything in CDATA
+            return "<![CDATA[" + original + "]]>";
+        } catch (Exception e) {
+            log.error("Could not convert Document to string.", e);
+            return null;
+        }
+    }
+
+    static String getFacebookDataAsString(InputStream input) {
+        String facebookUserAsString = null;
+        InputStreamReader reader = null;
+        try {
+            reader = new InputStreamReader(input, Charsets.UTF_8);
+            facebookUserAsString = CharStreams.toString(reader);
+        } catch (IOException e) {
+            log.warn("Error parsing inputStream as string.", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    log.info("Could not close reader.");
+                }
+            }
+        }
+        log.debug("facebookUserAsString=" + facebookUserAsString);
+        return facebookUserAsString;
+    }
+
+    private Document parse(InputStream input) {
+        Document fbUserDoc;
+        try {
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            fbUserDoc = builder.parse(input);
+        } catch (Exception e) {
+            log.error("Error when creating WhydahUserIdentity from incoming xml stream.", e);
+            return null;
+        }
+        return fbUserDoc;
+    }
+
+
+    //TODO Move to UserAdminService (the separate application)
+    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
+        try {
+            Response response = userAdminHelper.addUser(userIdentity);
+            if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
+                return response;
+            }
+            if (userIdentity!= null){
+                userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
+            }
+
+            return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
+        } catch (Exception e) {
+            log.error("createAndAuthenticateUser failed " + userIdentity.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
         }
     }
 }

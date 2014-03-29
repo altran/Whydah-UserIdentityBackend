@@ -87,8 +87,8 @@ public class LogonServiceTest {
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
 
         roleRepository.setQueryRunner(queryRunner);
-        ApplicationRepository configDataRepository = new ApplicationRepository();
-        configDataRepository.setQueryRunner(queryRunner);
+        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        //configDataRepository.setQueryRunner(queryRunner);
         roleRepository.setApplicationRepository(configDataRepository);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
