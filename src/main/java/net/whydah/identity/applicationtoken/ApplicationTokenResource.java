@@ -18,8 +18,4 @@ public class ApplicationTokenResource {
         return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("<error>Server error, not implemented.</error>").build();
     }
 
-    Response createApplication(InputStream input){
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("<error>Server error, not implemented.</error>").build();
-
-    }
 }
