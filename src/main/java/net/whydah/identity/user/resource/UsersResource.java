@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Endpoint for collection of users.
  */
-@Path("/useradmin/{usertokenid}/")
+@Path("/{usertokenid}/users")
 public class UsersResource {
     private static final Logger logger = LoggerFactory.getLogger(UsersResource.class);
 
@@ -42,7 +42,7 @@ public class UsersResource {
      * @return json response.
      */
     @GET
-    @Path("find/{q}")
+    @Path("/find/{q}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response find(@PathParam("q") String query) {
         logger.debug("find with query=" + query);

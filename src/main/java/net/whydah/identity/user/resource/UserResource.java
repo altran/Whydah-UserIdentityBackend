@@ -32,9 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Grensesnitt for brukeradministrasjon.
+ * Administration of users and their data.
  */
-@Path("/useradmin/{usertokenid}/")
+@Path("/{userTokenId}/user")
 public class UserResource {
     private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
@@ -62,59 +62,9 @@ public class UserResource {
         this.userAuthenticationService = userAuthenticationService;
     }
 
-    //////////////// Users
-
-    @GET
-    @Path("users/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        logger.info("Reset password for user {}", username);
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
-        } catch (Exception e) {
-            logger.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-
-    /**
-     * Get user details.
-     *
-     * @param username Username
-     * @return user details and roles.
-     */
-    @Path("users/{username}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("username") String username) {
-        logger.debug("getUser with username=" + username);
-
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-        } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        HashMap<String, Object> model = new HashMap<>(2);
-        model.put("user", whydahUser);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
-    }
-
     //Add user and add default roles
     @POST
-    @Path("users/add")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String userJson) {
         logger.debug("addUser: {}", userJson);
@@ -177,44 +127,38 @@ public class UserResource {
         auditLogRepository.store(actionPerformed);
     }
 
-    @Path("users/{username}/exists")
+
+    /**
+     * Get user details.
+     *
+     * @param username Username
+     * @return user details and roles.
+     */
     @GET
+    @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response exists(@PathParam("username") String username) {
-        logger.debug("does {} exist?");
+    public Response getUser(@PathParam("username") String username) {
+        logger.debug("getUser with username=" + username);
+
+        WhydahUserIdentity whydahUserIdentity;
         try {
-            WhydahUserIdentity id = userAuthenticationService.getUserinfo(username);
-            String result = (id != null) ? "{\"exists\" : true}" : "{\"exists\" : false}";
-            logger.debug("exists: " + result);
-            return Response.ok(result).build();
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    @POST
-    @Path("users/{username}/delete")
-    public Response deleteUser(@PathParam("username") String username) {
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-            userAuthenticationService.deleteUser(username);
-            String uid = user.getUid();
-            userPropertyAndRoleRepository.deleteUser(uid);
-            indexer.removeFromIndex(uid);
-            audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
-            return Response.ok().build();
-        } catch (NamingException e) {
-            logger.error("deleteUser failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        if (whydahUserIdentity == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
+        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("user", whydahUser);
+        model.put("userbaseurl", uriInfo.getBaseUri());
+        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
     }
 
     @PUT
-    @Path("users/{username}")
+    @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response modifyUser(@PathParam("username") String username, String userJson) {
         logger.debug("modifyUser: ", userJson);
@@ -250,9 +194,47 @@ public class UserResource {
         return Response.ok().build();
     }
 
+    @DELETE
+    @Path("/{username}")
+    public Response deleteUser(@PathParam("username") String username) {
+        try {
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+            userAuthenticationService.deleteUser(username);
+            String uid = user.getUid();
+            userPropertyAndRoleRepository.deleteUser(uid);
+            indexer.removeFromIndex(uid);
+            audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
+            return Response.ok().build();
+        } catch (NamingException e) {
+            logger.error("deleteUser failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     @POST
-    @Path("users/{username}/newpassword/{token}")
+    @Path("/{username}/resetpassword")
+    public Response resetPassword(@PathParam("username") String username) {
+        logger.info("Reset password for user {}", username);
+        try {
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
+            return Response.ok().build();
+        } catch (Exception e) {
+            logger.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @POST
+    @Path("/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         logger.info("Changing password for {}", username);
@@ -282,6 +264,7 @@ public class UserResource {
         }
     }
 
+    /*
     @POST
     @Path("users/{username}/newuser/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -325,8 +308,38 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+    */
 
-    /////////// Roles
+
+    /////////// User-application relation
+
+    @POST
+    @Path("/{username}/application")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addApplication(@PathParam("username") String username) {
+        throw new UnsupportedOperationException("not implemented yet!");
+    }
+
+    @GET
+    @Path("/{username}/application//{applicationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
+        throw new UnsupportedOperationException("not implemented yet!");
+    }
+
+    @PUT
+     @Path("/{username}/application//{applicationId}")
+     @Produces(MediaType.APPLICATION_JSON)
+     public Response modifyApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
+        throw new UnsupportedOperationException("not implemented yet!");
+    }
+
+    @DELETE
+    @Path("/{username}/application//{applicationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUserApplicationRelation(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
+        throw new UnsupportedOperationException("not implemented yet!");
+    }
 
     /**
      * Lister alle applikasjoner, samt angir om brukeren har noen roller her.
@@ -334,8 +347,8 @@ public class UserResource {
      * @param username user id
      * @return app-liste.
      */
-    @Path("users/{username}/applications")
     @GET
+    @Path("/{username}/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApplications(@PathParam("username") String username) {
         WhydahUserIdentity whydahUserIdentity;
@@ -350,21 +363,113 @@ public class UserResource {
         }
         WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
         List<Application> allApps = applicationRepository.getApplications();
-        Set<String> myApps = new HashSet<String>();
+        Set<String> myApps = new HashSet<>();
         for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
             myApps.add(role.getAppId());
         }
 
-        HashMap<String, Object> model = new HashMap<String, Object>(3);
+        HashMap<String, Object> model = new HashMap<>(3);
         model.put("allApps", allApps);
         model.put("myApps", myApps);
         return Response.ok(new Viewable("/useradmin/userapps.json.ftl", model)).build();
     }
 
+    @DELETE
+    @Path("/{username}/applications")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteApplications(@PathParam("username") String username) {
+        throw new UnsupportedOperationException("not implemented yet!");
+    }
+
+    /////////// Roles
+
+    /*
+    @GET
+    @Path("users/{username}/{appid}/deleteall")
+    public Response deleteAllUserRolesForApp(@PathParam("username") String username, @PathParam("appid") String appid) {
+        logger.debug("Fjern alle roller for {}: {}", username, appid);
+        WhydahUserIdentity whydahUserIdentity;
+        try {
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            logger.debug("fant8 {}", whydahUserIdentity);
+        } catch (NamingException e) {
+            logger.error(e.getLocalizedMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        if (whydahUserIdentity == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+        }
+        String uid = whydahUserIdentity.getUid();
+        userPropertyAndRoleRepository.deleteUserAppRoles(uid, appid);
+        audit(ActionPerformed.DELETED, "role", "uid=" + uid + ", appid=" + appid + ", roles=all");
+        return Response.ok().build();
+    }
+    */
+
+
+    /*
     @Path("users/{username}/{appid}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserRoles(@PathParam("username") String username, @PathParam("appid") String appid) {
+        WhydahUserIdentity whydahUserIdentity;
+        try {
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+        } catch (NamingException e) {
+            logger.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        if (whydahUserIdentity == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+        }
+        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
+        List<UserPropertyAndRole> rolesForApp = new ArrayList<>();
+        for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
+            if (role.getAppId().equals(appid)) {
+                rolesForApp.add(role);
+            }
+        }
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("roller", rolesForApp);
+        return Response.ok(new Viewable("/useradmin/roles.json.ftl", model)).build();
+    }
+
+    @POST
+    @Path("users/{username}/{appid}/delete")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteUserRole(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
+        logger.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
+        WhydahUserIdentity whydahUserIdentity;
+        try {
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            logger.debug("fant bruker: {}", whydahUserIdentity);
+        } catch (NamingException e) {
+            logger.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        if (whydahUserIdentity == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+        }
+        try {
+            JSONObject jsonobj = new JSONObject(jsonrole);
+            String orgid = jsonobj.getString("orgID");
+            String rolename = jsonobj.getString("roleName");
+            String uid = whydahUserIdentity.getUid();
+            userPropertyAndRoleRepository.deleteUserRole(uid, appid, orgid, rolename);
+            audit(ActionPerformed.DELETED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
+        } catch (JSONException e) {
+            logger.error("Bad json", e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return Response.ok().build();
+    }
+    */
+
+    /*
+    @PUT
+    @Path("users/{username}/{appid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
@@ -375,18 +480,23 @@ public class UserResource {
         if (whydahUserIdentity == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
-        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        List<UserPropertyAndRole> rolesForApp = new ArrayList<UserPropertyAndRole>();
-        for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
-            if (role.getAppId().equals(appid)) {
-                rolesForApp.add(role);
-            }
+        try {
+            JSONObject jsonobj = new JSONObject(jsonrole);
+            String orgid = jsonobj.getString("orgID");
+            String rolename = jsonobj.getString("roleName");
+            String rolevalue = jsonobj.getString("roleValue");
+            String uid = whydahUserIdentity.getUid();
+            userPropertyAndRoleRepository.updateUserRoleValue(uid, appid, orgid, rolename, rolevalue);
+            audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
+        } catch (JSONException e) {
+            logger.error("bad json", e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        HashMap<String, Object> model = new HashMap<String, Object>(2);
-        model.put("roller", rolesForApp);
-        return Response.ok(new Viewable("/useradmin/roles.json.ftl", model)).build();
+        return Response.ok().build();
     }
+    */
 
+     /*
     @POST
     @Path("users/{username}/{appid}/add")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -440,7 +550,9 @@ public class UserResource {
         audit(ActionPerformed.ADDED, "role", "uid=" + uid + ", username=" + username + ", appid=" + appid + ", role=" + jsonrole);
         return Response.ok().build();
     }
+    */
 
+    /*
     @GET
     @Path("users/{username}/{appid}/adddefaultrole")
     @Produces(MediaType.APPLICATION_JSON)
@@ -489,86 +601,6 @@ public class UserResource {
         model.put("rolle", role);
         return Response.ok(new Viewable("/useradmin/role.json.ftl", model)).build();
     }
-
-    @POST
-    @Path("users/{username}/{appid}/delete")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteUserRole(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
-        logger.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant bruker: {}", whydahUserIdentity);
-        } catch (NamingException e) {
-            logger.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        try {
-            JSONObject jsonobj = new JSONObject(jsonrole);
-            String orgid = jsonobj.getString("orgID");
-            String rolename = jsonobj.getString("roleName");
-            String uid = whydahUserIdentity.getUid();
-            userPropertyAndRoleRepository.deleteUserRole(uid, appid, orgid, rolename);
-            audit(ActionPerformed.DELETED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
-        } catch (JSONException e) {
-            logger.error("Bad json", e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        return Response.ok().build();
-    }
-
-    @GET
-    @Path("users/{username}/{appid}/deleteall")
-    public Response deleteAllUserRolesForApp(@PathParam("username") String username, @PathParam("appid") String appid) {
-        logger.debug("Fjern alle roller for {}: {}", username, appid);
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant8 {}", whydahUserIdentity);
-        } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        String uid = whydahUserIdentity.getUid();
-        userPropertyAndRoleRepository.deleteUserAppRoles(uid, appid);
-        audit(ActionPerformed.DELETED, "role", "uid=" + uid + ", appid=" + appid + ", roles=all");
-        return Response.ok().build();
-    }
-
-
-    @PUT
-    @Path("users/{username}/{appid}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-        } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        try {
-            JSONObject jsonobj = new JSONObject(jsonrole);
-            String orgid = jsonobj.getString("orgID");
-            String rolename = jsonobj.getString("roleName");
-            String rolevalue = jsonobj.getString("roleValue");
-            String uid = whydahUserIdentity.getUid();
-            userPropertyAndRoleRepository.updateUserRoleValue(uid, appid, orgid, rolename, rolevalue);
-            audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
-        } catch (JSONException e) {
-            logger.error("bad json", e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        return Response.ok().build();
-    }
+    */
 
 }
