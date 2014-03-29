@@ -12,56 +12,46 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 /**
- * User: asbkar
+ * @author asbkar
  */
 public class SecurityTokenHelper {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityTokenHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(SecurityTokenHelper.class);
     private final WebResource wr;
     private String myAppTokenId;
     private String myAppTokenXML;
-    private final boolean mock;
 
     public SecurityTokenHelper(String usertokenserviceUri) {
-        if(!"mock".equals(usertokenserviceUri)) {
-            Client client = Client.create();
-            wr = client.resource(usertokenserviceUri);
-            mock = false;
-        } else {
-            wr = null;
-            mock = true;
-        }
+        Client client = Client.create();
+        wr = client.resource(usertokenserviceUri);
     }
 
     public UserToken getUserToken(String usertokenid) {
-        if(mock) {
-            return new UserToken("<token><fornavn>Stand</fornavn><etternavn>Alone</etternavn><application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application></token>");
-        }
         String appTokenId = getAppTokenId();
-        logger.debug("usertokenid={}", usertokenid);
+        log.debug("usertokenid={}", usertokenid);
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);
         ClientResponse response = wr.path("iam/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        logger.info("Accessing:"+"iam/" + appTokenId + "/getusertokenbytokenid");
-        if(response.getStatus() == Response.Status.OK.getStatusCode()) {
+        log.info("Accessing:" + "iam/" + appTokenId + "/getusertokenbytokenid");
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             String usertoken = response.getEntity(String.class);
-            logger.debug("usertoken: {}", usertoken);
+            log.debug("usertoken: {}", usertoken);
             return new UserToken(usertoken);
         }
-        logger.info("User token NOT ok: {}", response.getStatus()+response.toString());
+        log.info("User token NOT ok: {}", response.getStatus() + response.toString());
         return null;
 
     }
 
     private String getAppTokenId() {
-        if(myAppTokenId != null) {
+        if (myAppTokenId != null) {
             ClientResponse response = wr.path(myAppTokenId + "/validate").get(ClientResponse.class);
             if(response.getStatus() == Response.Status.OK.getStatusCode()) {
-                logger.debug("Prev token ok");
+                log.debug("Prev token ok");
                 return myAppTokenId;
             }
         }
-        logger.info("Must reauthenticate myself");
+        log.info("Must reauthenticate myself");
         authenticateme();
         return myAppTokenId;
     }
@@ -72,7 +62,7 @@ public class SecurityTokenHelper {
         formData.add("applicationcredential", auth);
         String apptoken = wr.path("logon").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, formData);
         myAppTokenXML = apptoken;
-        logger.info("apptoken={}", apptoken);
+        log.info("apptoken={}", apptoken);
         myAppTokenId = getTokenIdFromAppToken(apptoken);
     }
 
