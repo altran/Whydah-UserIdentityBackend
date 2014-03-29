@@ -134,7 +134,7 @@ public class UserTokenResource {
         return Response.ok(entity).build();
     }
 
-
+    //TODO Move to UserAdminService (the separate application)
     @Path("createandlogon")
     @POST
     @Consumes(MediaType.APPLICATION_XML)
@@ -211,6 +211,7 @@ public class UserTokenResource {
     }
 
 
+    //TODO Move to UserAdminService (the separate application)
     public Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
@@ -218,7 +219,6 @@ public class UserTokenResource {
                 return response;
             }
             if (userIdentity!= null){
-
                 userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
             }
 
