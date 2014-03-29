@@ -81,7 +81,6 @@ public class UserTokenResource {
         return "unknown host";
     }
 
-
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response info() {
@@ -172,6 +171,67 @@ public class UserTokenResource {
         return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
     }
 
+    //TODO Move to UserResource
+    @GET
+    @Path("users/{username}/resetpassword")
+    public Response resetPassword(@PathParam("username") String username) {
+        log.info("Reset password for user {}", username);
+        try {
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            passwordSender.resetPassword(username, user.getEmail());
+            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private void audit(String action, String what, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
+    }
+
+    //TODO Move to UserResource
+    //Copy of changePasswordForUser in UserResource
+    @POST
+    @Path("users/{username}/newpassword/{token}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
+        log.info("Changing password for {}", username);
+        try {
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+
+            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
+
+            if (!ok) {
+                log.info("Authentication failed while changing password for user {}", username);
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            try {
+                JSONObject jsonobj = new JSONObject(passwordJson);
+                String newpassword = jsonobj.getString("newpassword");
+                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
+            } catch (JSONException e) {
+                log.error("Bad json", e);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("changePassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     //TODO Move to UserAdminService (the separate application)
     @Path("createandlogon")
@@ -199,7 +259,7 @@ public class UserTokenResource {
     }
 
     //TODO Move to UserAdminService (the separate application)
-    public static String getFacebookDataAsXmlString(Document fbUserDoc) {
+    static String getFacebookDataAsXmlString(Document fbUserDoc) {
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transformer = transFactory.newTransformer();
@@ -252,7 +312,7 @@ public class UserTokenResource {
 
 
     //TODO Move to UserAdminService (the separate application)
-    public Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
+    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -266,67 +326,6 @@ public class UserTokenResource {
         } catch (Exception e) {
             log.error("createAndAuthenticateUser failed " + userIdentity.toString(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
-        }
-    }
-
-    //TODO Discuss with Totto. Should be in UserResource only?
-    @GET
-    @Path("users/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        log.info("Reset password for user {}", username);
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    private void audit(String action, String what, String value) {
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
-    }
-
-    //TODO Discuss with Totto. Should be in UserResource only?
-    //Copy of changePasswordForUser in UserResource
-    @POST
-    @Path("users/{username}/newpassword/{token}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        log.info("Changing password for {}", username);
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
-
-            if (!ok) {
-                log.info("Authentication failed while changing password for user {}", username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            try {
-                JSONObject jsonobj = new JSONObject(passwordJson);
-                String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
-            } catch (JSONException e) {
-                log.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("changePassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
