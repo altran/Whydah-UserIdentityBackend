@@ -13,7 +13,6 @@ import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
-import net.whydah.identity.user.search.Search;
 import net.whydah.identity.usertoken.UserToken;
 import net.whydah.identity.util.PasswordGenerator;
 import org.json.JSONException;
@@ -45,8 +44,6 @@ public class UserResource {
     @Inject
     private ApplicationRepository applicationRepository;
     @Inject
-    private Search search;
-    @Inject
     private Indexer indexer;
     @Inject
     private AuditLogRepository auditLogRepository;
@@ -66,26 +63,6 @@ public class UserResource {
     }
 
     //////////////// Users
-
-    /**
-     * Find users.
-     *
-     * @param query User query.
-     * @return json response.
-     */
-    @GET
-    @Path("find/{q}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response find(@PathParam("q") String query) {
-        logger.debug("find with query=" + query);
-        List<WhydahUserIdentity> result = search.search(query);
-
-        HashMap<String, Object> model = new HashMap<String, Object>(2);
-        model.put("users", result);
-        logger.info("users", result);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
-    }
 
     /**
      * Get user details.
