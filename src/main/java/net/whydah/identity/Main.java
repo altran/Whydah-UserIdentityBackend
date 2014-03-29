@@ -115,7 +115,8 @@ public class Main {
 
         ServletHandler servletHandler = new ServletHandler();
         servletHandler.setContextPath("/uib");
-        servletHandler.addInitParameter("com.sun.jersey.config.property.packages", "net.whydah.identity.user.resource, net.whydah.identity.application.resource");
+        servletHandler.addInitParameter("com.sun.jersey.config.property.packages",
+                "net.whydah.identity.user.resource, net.whydah.identity.usertoken, net.whydah.identity.application.resource");
         servletHandler.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
         servletHandler.setProperty(ServletHandler.LOAD_ON_STARTUP, "1");
 
