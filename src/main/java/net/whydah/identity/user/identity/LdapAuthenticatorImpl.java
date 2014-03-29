@@ -75,6 +75,29 @@ public class LdapAuthenticatorImpl {
         }
     }
 
+    public boolean authenticateWithTemporaryPassword(String username, String password) {
+        try {
+            final String userDN = findUserDN(username);
+            if (userDN == null) {
+                logger.info("userDN not found for {}", username);
+                return false;
+            }
+            logger.debug("Found userND=" + userDN);
+            Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
+            myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
+            myEnv.put(Context.SECURITY_CREDENTIALS, password);
+            new InitialDirContext(myEnv);
+        } catch (AuthenticationException e) {
+            logger.info("Authentication failed for user {}", username);
+            return false;
+        } catch (NamingException e) {
+            logger.error(e.getLocalizedMessage(), e);
+            return false;
+        }
+        return true;
+    }
+
+
     private String findUserDN(String username) throws NamingException {
         InitialDirContext context;
         try {
@@ -129,27 +152,6 @@ public class LdapAuthenticatorImpl {
         return (String) attribute.get();
     }
 
-    public boolean authWithTemp(String user, String password) {
-        try {
-            final String userDN = findUserDN(user);
-            if (userDN == null) {
-                logger.info("userDN not found for 2 {}", user);
-                return false;
-            }
-            logger.debug("Found userND=" + userDN);
-            Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
-            myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-            myEnv.put(Context.SECURITY_CREDENTIALS, password);
-            new InitialDirContext(myEnv);
-        } catch (AuthenticationException e) {
-            logger.info("Authentication failed for user {}", user);
-            return false;
-        } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            return false;
-        }
-        return true;
-    }
 }
 
 

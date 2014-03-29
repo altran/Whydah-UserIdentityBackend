@@ -1,24 +1,21 @@
 package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.Application;
 import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.ChangePasswordToken;
-import net.whydah.identity.user.UserToken;
 import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.email.PasswordSender;
-import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
+import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
 import net.whydah.identity.user.search.Search;
+import net.whydah.identity.usertoken.UserToken;
 import net.whydah.identity.util.PasswordGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +30,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -41,19 +37,14 @@ import java.util.*;
  * Grensesnitt for brukeradministrasjon.
  */
 @Path("/useradmin/{usertokenid}/")
-public class UserAdminResource {
-    private static final Logger logger = LoggerFactory.getLogger(UserAdminResource.class);
+public class UserResource {
+    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     @Inject
     private UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     @Inject
     private ApplicationRepository applicationRepository;
-    @Inject
-    private LDAPHelper ldapHelper;
-    @Inject
-    @Named("external")
-    private LdapAuthenticatorImpl externalLdapAuthenticator;
     @Inject
     private Search search;
     @Inject
@@ -67,8 +58,15 @@ public class UserAdminResource {
     @Inject
     private UserAdminHelper userAdminHelper;
 
+    private UserAuthenticationService userAuthenticationService;
+
     @Context
     private UriInfo uriInfo;
+
+    @Inject
+    public UserResource(UserAuthenticationService userAuthenticationService) {
+        this.userAuthenticationService = userAuthenticationService;
+    }
 
     //////////////// Users
 
@@ -97,7 +95,7 @@ public class UserAdminResource {
     public Response resetPassword(@PathParam("username") String username) {
         logger.info("Reset password for user {}", username);
         try {
-            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -126,8 +124,7 @@ public class UserAdminResource {
 
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
-            logger.debug("fant1 {}", whydahUserIdentity);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -136,7 +133,7 @@ public class UserAdminResource {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
         WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        HashMap<String, Object> model = new HashMap<String, Object>(2);
+        HashMap<String, Object> model = new HashMap<>(2);
         model.put("user", whydahUser);
         model.put("userbaseurl", uriInfo.getBaseUri());
         return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
@@ -213,7 +210,7 @@ public class UserAdminResource {
     public Response exists(@PathParam("username") String username) {
         logger.debug("does {} exist?");
         try {
-            WhydahUserIdentity id = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity id = userAuthenticationService.getUserinfo(username);
             String result = (id != null) ? "{\"exists\" : true}" : "{\"exists\" : false}";
             logger.debug("exists: " + result);
             return Response.ok(result).build();
@@ -227,11 +224,11 @@ public class UserAdminResource {
     @Path("users/{username}/delete")
     public Response deleteUser(@PathParam("username") String username) {
         try {
-            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
-            ldapHelper.deleteUser(username);
+            userAuthenticationService.deleteUser(username);
             String uid = user.getUid();
             userPropertyAndRoleRepository.deleteUser(uid);
             indexer.removeFromIndex(uid);
@@ -249,12 +246,11 @@ public class UserAdminResource {
     public Response modifyUser(@PathParam("username") String username, String userJson) {
         logger.debug("modifyUser: ", userJson);
         try {
-            WhydahUserIdentity whydahUserIdentity = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             if (whydahUserIdentity == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
 
-            logger.debug("fant3 {}", whydahUserIdentity);
             try {
                 JSONObject jsonobj = new JSONObject(userJson);
                 //logger.debug("jsonstr:"+userJson);
@@ -271,7 +267,7 @@ public class UserAdminResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             logger.debug("Endret bruker: {}", whydahUserIdentity);
-            ldapHelper.updateUser(username, whydahUserIdentity);
+            userAuthenticationService.updateUser(username, whydahUserIdentity);
             indexer.update(whydahUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", whydahUserIdentity.toString());
         } catch (NamingException e) {
@@ -288,22 +284,12 @@ public class UserAdminResource {
     public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         logger.info("Changing password for {}", username);
         try {
-            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
-            byte[] saltAsBytes = null;
-            try {
-                String salt = ldapHelper.getSalt(username);
-                saltAsBytes = salt.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e1) {
-                logger.error("username=" + username, e1);
-            }
 
-            logger.debug("salt=" + new String(saltAsBytes));
-            ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
-            logger.info("Passwordtoken for {} ok.", username);
-            boolean ok = externalLdapAuthenticator.authWithTemp(username, changePasswordToken.getPassword());
+            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
             if (!ok) {
                 logger.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -311,7 +297,7 @@ public class UserAdminResource {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                ldapHelper.changePassword(username, newpassword);
+                userAuthenticationService.changePassword(username, newpassword);
                 audit(ActionPerformed.MODIFIED, "password", user.getUid());
             } catch (JSONException e) {
                 logger.error("Bad json", e);
@@ -330,21 +316,12 @@ public class UserAdminResource {
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         logger.info("Endrer data for ny bruker {}: {}", username, passwordJson);
         try {
-            WhydahUserIdentity user = ldapHelper.getUserinfo(username);
+            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
-            byte[] salt = null;
-            try {
-                salt = ldapHelper.getSalt(username).getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e1) {
-                e1.printStackTrace();
-            }
 
-            logger.debug("salt=" + new String(salt));
-            ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, salt);
-            logger.info("Passwordtoken for {} ok.", username);
-            boolean ok = externalLdapAuthenticator.authWithTemp(username, changePasswordToken.getPassword());
+            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
             if (!ok) {
                 logger.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -354,14 +331,14 @@ public class UserAdminResource {
                 String newpassword = jsonobj.getString("newpassword");
                 String newusername = jsonobj.getString("newusername");
                 if (!username.equals(newusername)) {
-                    WhydahUserIdentity newidexists = ldapHelper.getUserinfo(newusername);
+                    WhydahUserIdentity newidexists = userAuthenticationService.getUserinfo(newusername);
                     if (newidexists != null) {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
                     user.setUsername(newusername);
-                    ldapHelper.updateUser(username, user);
+                    userAuthenticationService.updateUser(username, user);
                 }
-                ldapHelper.changePassword(newusername, newpassword);
+                userAuthenticationService.changePassword(newusername, newpassword);
                 audit(ActionPerformed.MODIFIED, "password", user.getUid());
             } catch (JSONException e) {
                 logger.error("Bad json", e);
@@ -392,8 +369,7 @@ public class UserAdminResource {
     public Response getApplications(@PathParam("username") String username) {
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
-            logger.debug("fant4 {}", whydahUserIdentity);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -420,8 +396,7 @@ public class UserAdminResource {
     public Response getUserRoles(@PathParam("username") String username, @PathParam("appid") String appid) {
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
-            logger.debug("fant5 {}", whydahUserIdentity);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -452,7 +427,7 @@ public class UserAdminResource {
         }
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant6 {}", whydahUserIdentity);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -502,7 +477,7 @@ public class UserAdminResource {
         logger.debug("legg til default rolle for {}:{}", username, appid);
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant7 {}", whydahUserIdentity);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -551,7 +526,7 @@ public class UserAdminResource {
         logger.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -580,7 +555,7 @@ public class UserAdminResource {
         logger.debug("Fjern alle roller for {}: {}", username, appid);
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             logger.debug("fant8 {}", whydahUserIdentity);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -602,8 +577,7 @@ public class UserAdminResource {
     public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = ldapHelper.getUserinfo(username);
-            logger.debug("fant9 {}", whydahUserIdentity);
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
             logger.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

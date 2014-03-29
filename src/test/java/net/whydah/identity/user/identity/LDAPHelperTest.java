@@ -72,7 +72,7 @@ public class LDAPHelperTest {
     public void changePassword() throws NamingException {
         WhydahUserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
         ldapHelper.addWhydahUserIdentity(user);
-        assertNotNull(ldapAuthenticator.authWithTemp("stoven@hotmail.com", "pass"));
+        assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", "pass"));
         assertNull(ldapAuthenticator.auth("stoven@hotmail.com", "snafs"));
         ldapHelper.changePassword("stoven@hotmail.com", "snafs");
         assertNull(ldapAuthenticator.auth("stoven@hotmail.com", "pass"));

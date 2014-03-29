@@ -1,6 +1,7 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.user.UserToken;
+import net.whydah.identity.usertoken.SecurityTokenHelper;
+import net.whydah.identity.usertoken.UserToken;
 import org.junit.Before;
 import org.junit.Test;
 
