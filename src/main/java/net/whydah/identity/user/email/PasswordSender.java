@@ -27,10 +27,10 @@ public class PasswordSender {
         this.ssoLoginServiceUrl = AppConfig.appConfig.getProperty("ssologinservice");
     }
 
-    public void resetPassword(String username, String token, String userEmail) {
+    public void sendResetPasswordEmail(String username, String token, String userEmail) {
         String resetUrl = ssoLoginServiceUrl + CHANGE_PASSWORD_PATH + token;
+        log.info("Sending resetPassword email for user {} to {}, token={}", username, userEmail, token);
         String body = bodyGenerator.resetPassword(resetUrl, username);
         mailSender.send(userEmail, RESET_PASSWORD_SUBJECT, body);
-        log.info("Password reset for user {}, token={}", username, token);
     }
 }

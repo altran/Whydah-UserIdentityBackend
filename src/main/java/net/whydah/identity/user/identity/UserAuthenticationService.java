@@ -86,17 +86,17 @@ public class UserAuthenticationService {
 
     public void resetPassword(String username, String uid, String userEmail) {
         String newPassword = passwordGenerator.generate();
-        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
         String salt = passwordGenerator.generate();
         ldapHelper.setTempPassword(username, newPassword, salt);
+
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
         String token;
         try {
             token = changePasswordToken.generateTokenString(salt.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-
-        passwordSender.resetPassword(username, token, userEmail);
+        passwordSender.sendResetPasswordEmail(username, token, userEmail);
         audit(ActionPerformed.MODIFIED, "resetpassword", uid);
     }
 

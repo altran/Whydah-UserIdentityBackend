@@ -289,7 +289,7 @@ public class LDAPHelper {
             ModificationItem[] mis = {mip};
             ctx.modifyAttributes(createUserDN(username), mis);
         } catch (NamingException ne) {
-            logger.error(ne.getLocalizedMessage(), ne);
+            logger.error("", ne);
         }
     }
 
