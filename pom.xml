@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserIdentityBackend</artifactId>
@@ -49,8 +50,8 @@
         <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserIdentityBackend.git</developerConnection>
         <connection>scm:git:https://github.com/altran/Whydah-UserIdentityBackend.git</connection>
         <url>Whydah-UserIdentityBackend</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <jersey.version>1.6</jersey.version>
@@ -211,49 +212,20 @@
         </dependency>
 
 
-
-
-        <!-- Apache DS dependencies -->
+        <!-- TODO Use more fine-grained jars to reduce problem of overlapping classes when performing shade. -->
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
-            <version>${apache.ds.version}</version>
-            <scope>test</scope>
+            <version>1.5.7</version>
             <exclusions>
-                <!-- exclude additional LDIF schema files to avoid conflicts through
-                    multiple copies -->
+                <!-- shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath-->
                 <exclusion>
                     <groupId>org.apache.directory.shared</groupId>
                     <artifactId>shared-ldap-schema</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-server-integ</artifactId>
-            <version>${apache.ds.version}</version>
-            <exclusions>
-                <!-- exclude additional LDIF schema files to avoid conflicts through
-                    multiple copies -->
-                <exclusion>
-                    <groupId>org.apache.directory.shared</groupId>
-                    <artifactId>shared-ldap-schema</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-core-integ</artifactId>
-            <version>${apache.ds.version}</version>
-            <exclusions>
-                <!-- exclude additional LDIF schema files to avoid conflicts through
-                    multiple copies -->
-                <exclusion>
-                    <groupId>org.apache.directory.shared</groupId>
-                    <artifactId>shared-ldap-schema</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
 
 
         <!-- test dependencies -->
@@ -310,7 +282,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.1</version>  <!-- Override 2.0 set in parent -->
+                <version>2.1</version>
+                <!-- Override 2.0 set in parent -->
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -324,12 +297,14 @@
                                 </excludes>
                             </artifactSet>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>net.whydah.identity.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
