@@ -55,6 +55,7 @@
     <properties>
         <jersey.version>1.6</jersey.version>
         <grizzy.version>2.1</grizzy.version>
+        <apache.ds.version>2.0.0-M16</apache.ds.version>
     </properties>
 
     <repositories>
@@ -209,13 +210,44 @@
             <version>1.1.1</version>
         </dependency>
 
-        <!-- TODO Use more fine-grained jars to reduce problem of overlapping classes when performing shade. -->
+
+
+
+        <!-- Apache DS dependencies -->
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
-            <version>1.5.7</version>
+            <version>${apache.ds.version}</version>
+            <scope>test</scope>
             <exclusions>
-                <!-- shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath-->
+                <!-- exclude additional LDIF schema files to avoid conflicts through
+                    multiple copies -->
+                <exclusion>
+                    <groupId>org.apache.directory.shared</groupId>
+                    <artifactId>shared-ldap-schema</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-server-integ</artifactId>
+            <version>${apache.ds.version}</version>
+            <exclusions>
+                <!-- exclude additional LDIF schema files to avoid conflicts through
+                    multiple copies -->
+                <exclusion>
+                    <groupId>org.apache.directory.shared</groupId>
+                    <artifactId>shared-ldap-schema</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core-integ</artifactId>
+            <version>${apache.ds.version}</version>
+            <exclusions>
+                <!-- exclude additional LDIF schema files to avoid conflicts through
+                    multiple copies -->
                 <exclusion>
                     <groupId>org.apache.directory.shared</groupId>
                     <artifactId>shared-ldap-schema</artifactId>
