@@ -1,5 +1,6 @@
 package net.whydah.identity.security;
 
+import net.whydah.identity.applicationtoken.ApplicationTokenService;
 import net.whydah.identity.usertoken.SecurityTokenHelper;
 import net.whydah.identity.usertoken.UserToken;
 import org.junit.Before;
@@ -21,6 +22,7 @@ public class SecurityFilterTest {
     private static final String CONTEXT_PATH = "/uib";
     private SecurityFilter securityFilter;
     private SecurityTokenHelper tokenHelper;
+    private ApplicationTokenService applicationTokenService;
     private HttpServletRequest request;
     private HttpServletResponse response;
     FilterChain chain;
@@ -28,7 +30,9 @@ public class SecurityFilterTest {
     @Before
     public void init() throws ServletException {
         tokenHelper = mock(SecurityTokenHelper.class);
-        securityFilter = new SecurityFilter(tokenHelper);
+        applicationTokenService = mock(ApplicationTokenService.class);
+
+        securityFilter = new SecurityFilter(tokenHelper, applicationTokenService);
 
         FilterConfig filterConfig = mock(FilterConfig.class);
         when(filterConfig.getInitParameter(SecurityFilter.SECURED_PATHS_PARAM)).thenReturn("/admin,/secured,/uib");
@@ -99,7 +103,8 @@ public class SecurityFilterTest {
 
     @Test
     public void verifyUserTokenUrl() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + applicationTokenId +"/usertoken/");
+        when(request.getPathInfo()).thenReturn("/" + applicationTokenId + "/usertoken/");
+        when(applicationTokenService.verifyApplication(anyString())).thenReturn(true);
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());

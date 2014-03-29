@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import net.whydah.identity.applicationtoken.ApplicationTokenService;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.config.ImportModule;
 import net.whydah.identity.config.UserIdentityBackendModule;
@@ -152,7 +153,7 @@ public class Main {
 		if (StringUtils.isEmpty(requiredRoleName)) {
 			log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
 		}
-		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class));
+		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class), injector.getInstance(ApplicationTokenService.class));
         HashMap<String, String> initParams = new HashMap<>(1);
         initParams.put(SecurityFilter.SECURED_PATHS_PARAM, "/useradmin, /createandlogon");   //TODO verify
         initParams.put(SecurityFilter.REQUIRED_ROLE_PARAM, requiredRoleName);

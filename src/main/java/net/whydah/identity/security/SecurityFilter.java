@@ -1,5 +1,6 @@
 package net.whydah.identity.security;
 
+import net.whydah.identity.applicationtoken.ApplicationTokenService;
 import net.whydah.identity.usertoken.SecurityTokenHelper;
 import net.whydah.identity.usertoken.UserToken;
 import org.slf4j.Logger;
@@ -24,11 +25,13 @@ public class SecurityFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     private final SecurityTokenHelper securityTokenHelper;
+    private final ApplicationTokenService applicationTokenService;
     private List<String> securedPaths = new ArrayList<>();
     private String requiredRole;
 
-    public SecurityFilter(SecurityTokenHelper securityTokenHelper) {
+    public SecurityFilter(SecurityTokenHelper securityTokenHelper, ApplicationTokenService applicationTokenService) {
         this.securityTokenHelper = securityTokenHelper;
+        this.applicationTokenService = applicationTokenService;
     }
 
     @Override
@@ -44,7 +47,15 @@ public class SecurityFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             if (isUserTokenPath(pathInfo)) {
-                //FIXME
+                //Verify applicationTokenId
+                String applicationTokenId = findPathElement(pathInfo, 1);
+                if (applicationTokenService.verifyApplication(applicationTokenId)) {
+                    chain.doFilter(request,response);
+                } else {
+                    logger.info("Application not Authorized=" + applicationTokenId);
+                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
             } else {
                 String usertokenId = getTokenIDFromPath(pathInfo);
                 logger.debug("usertokenid: {} from path={} ", usertokenId, pathInfo);
@@ -67,8 +78,9 @@ public class SecurityFilter implements Filter {
                 }
                 logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
                 Authentication.setAuthenticatedUser(userToken);
+                chain.doFilter(request, response);
             }
-            chain.doFilter(request, response);
+
         }
         Authentication.clearAuthentication();
     }
