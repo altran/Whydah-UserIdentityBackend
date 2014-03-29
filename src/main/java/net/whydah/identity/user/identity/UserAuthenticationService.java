@@ -57,6 +57,14 @@ public class UserAuthenticationService {
         ldapHelper.changePassword(username, newpassword);
     }
 
+    public void deleteUser(String username) {
+        ldapHelper.deleteUser(username);
+    }
+
+    public void updateUser(String username, WhydahUserIdentity newuser) {
+        ldapHelper.updateUser(username, newuser);
+    }
+
 
 
 }
