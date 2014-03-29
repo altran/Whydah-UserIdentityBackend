@@ -6,6 +6,8 @@ import com.google.inject.name.Named;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
+import net.whydah.identity.user.email.PasswordSender;
+import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,17 +26,23 @@ public class UserAuthenticationService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
-    private LdapAuthenticatorImpl externalLdapAuthenticator;
-    private LDAPHelper ldapHelper;
-    private AuditLogRepository auditLogRepository;
+    private final LdapAuthenticatorImpl externalLdapAuthenticator;
+    private final LDAPHelper ldapHelper;
+    private final AuditLogRepository auditLogRepository;
+
+    private final PasswordGenerator passwordGenerator;
+    private final PasswordSender passwordSender;
 
 
     @Inject
     public UserAuthenticationService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
-                                     LDAPHelper ldapHelper, AuditLogRepository auditLogRepository) {
+                                     LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
+                                     PasswordSender passwordSender) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.ldapHelper = ldapHelper;
         this.auditLogRepository = auditLogRepository;
+        this.passwordGenerator = passwordGenerator;
+        this.passwordSender = passwordSender;
     }
 
     public WhydahUserIdentity getUserinfo(String username) throws NamingException {
@@ -68,17 +76,33 @@ public class UserAuthenticationService {
         audit(ActionPerformed.MODIFIED, "password", userUid);
     }
 
-    private void audit(String action, String what, String value) {
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
-    }
-
     public void deleteUser(String username) {
         ldapHelper.deleteUser(username);
     }
 
     public void updateUser(String username, WhydahUserIdentity newuser) {
         ldapHelper.updateUser(username, newuser);
+    }
+
+    public void resetPassword(String username, String uid, String userEmail) {
+        String newPassword = passwordGenerator.generate();
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
+        String salt = passwordGenerator.generate();
+        ldapHelper.setTempPassword(username, newPassword, salt);
+        String token;
+        try {
+            token = changePasswordToken.generateTokenString(salt.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        passwordSender.resetPassword(username, token, userEmail);
+        audit(ActionPerformed.MODIFIED, "resetpassword", uid);
+    }
+
+    private void audit(String action, String what, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
     }
 }

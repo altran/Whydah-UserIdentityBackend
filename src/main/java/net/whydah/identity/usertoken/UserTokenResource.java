@@ -4,10 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.resource.UserAdminHelper;
@@ -39,7 +37,6 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +53,6 @@ public class UserTokenResource {
     private final UserAdminHelper userAdminHelper;
     private final UserAuthenticationService userAuthenticationService;
     private final String hostname;
-
-    @Inject
-    private PasswordSender passwordSender;
 
     @Inject
     private AuditLogRepository auditLogRepository;
@@ -183,19 +177,12 @@ public class UserTokenResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private void audit(String action, String what, String value) {
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
     }
 
     //TODO Move to UserResource

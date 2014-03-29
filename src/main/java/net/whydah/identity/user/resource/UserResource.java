@@ -8,7 +8,6 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -54,8 +53,6 @@ public class UserResource {
     @Inject
     private PasswordGenerator passwordGenerator;
     @Inject
-    private PasswordSender passwordSender;
-    @Inject
     private UserAdminHelper userAdminHelper;
 
     private UserAuthenticationService userAuthenticationService;
@@ -100,8 +97,7 @@ public class UserResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            passwordSender.resetPassword(username, user.getEmail());
-            audit(ActionPerformed.MODIFIED, "resetpassword", user.getUid());
+            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
             logger.error("resetPassword failed", e);
@@ -185,8 +181,8 @@ public class UserResource {
             return email;
         }
         email  = "";
-        for(int i = 0; i < words.length; i++){
-            email += words[i];
+        for (String word : words) {
+            email += word;
         }
         return email;
     }
