@@ -84,7 +84,7 @@ public class LogonServiceTest {
         queryRunner = new QueryRunner(dataSource);
 
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
-        databaseHelper.initDB();
+        databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
 
         roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository();
