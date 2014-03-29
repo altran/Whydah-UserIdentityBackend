@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.whydah.identity</groupId>
     <artifactId>UserIdentityBackend</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <name>UserIdentityBackend</name>
     <url>https://wiki.cantara.no/display/iam/UserIdentityBackend</url>
 
@@ -49,7 +49,7 @@
         <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserIdentityBackend.git</developerConnection>
         <connection>scm:git:https://github.com/altran/Whydah-UserIdentityBackend.git</connection>
         <url>Whydah-UserIdentityBackend</url>
-      <tag>UserIdentityBackend-0.6</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
