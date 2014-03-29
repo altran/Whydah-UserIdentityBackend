@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class SecurityFilterTest {
@@ -30,7 +31,7 @@ public class SecurityFilterTest {
         securityFilter = new SecurityFilter(tokenHelper);
 
         FilterConfig filterConfig = mock(FilterConfig.class);
-        when(filterConfig.getInitParameter(SecurityFilter.SECURED_PATHS_PARAM)).thenReturn("/admin,/secured");
+        when(filterConfig.getInitParameter(SecurityFilter.SECURED_PATHS_PARAM)).thenReturn("/admin,/secured,/uib");
         when(filterConfig.getInitParameter(SecurityFilter.REQUIRED_ROLE_PARAM)).thenReturn("WhydahUserAdmin");
         securityFilter.init(filterConfig);
         request = mock(HttpServletRequest.class);
@@ -80,16 +81,40 @@ public class SecurityFilterTest {
     }
 
     @Test
+    public void findPathElement() throws Exception {
+        assertEquals("/usertoken", securityFilter.findPathElement("/123/usertoken/", 2));
+        assertEquals("/123", securityFilter.findPathElement("/123/usertoken/", 1));
+        assertEquals(null, securityFilter.findPathElement("/123/usertoken/", 3));
+        assertEquals(null, securityFilter.findPathElement("", 3));
+        assertEquals(null, securityFilter.findPathElement(null, 1));
+    }
+
+    @Test
     public void verifyApplicationTokenUrl() throws Exception {
-        when(request.getPathInfo()).thenReturn(CONTEXT_PATH +"/applicationtoken/");
-        //when(tokenHelper.getUserToken("thetoken")).thenReturn(new A(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/applicationtoken/");
         securityFilter.doFilter(request, response,chain);
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());
     }
 
-
+    @Test
+    public void verifyUserTokenUrl() throws Exception {
+        when(request.getPathInfo()).thenReturn("/" + applicationTokenId +"/usertoken/");
+        securityFilter.doFilter(request, response, chain);
+        verify(chain).doFilter(request, response);
+        log.debug("Status {}", response.getStatus());
+    }
+    @Test
+    public void verifyUserTokenUrlMissingApplicationTokenId() throws Exception {
+        when(request.getPathInfo()).thenReturn(CONTEXT_PATH +"/usertoken/");
+        securityFilter.doFilter(request, response,chain);
+        verify(chain).doFilter(request, response);
+        log.debug("Status {}", response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+    }
 
     private final static String tokenOther = "<application ID=\"1\"><organization ID=\"2\"><role name=\"Vaktmester\"/></organization></application>";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application>";
+    private final static String applicationToken = "<application ID=\"abcdefgid\"></application>";
+    private final static String applicationTokenId="abcdefgid";
 }

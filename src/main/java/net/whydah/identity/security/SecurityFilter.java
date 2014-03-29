@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,6 +17,8 @@ import java.util.List;
  * Secured paths are added as comma separated list in filterConfig. Required role is also configured with filterConfig.
  */
 public class SecurityFilter implements Filter {
+    public static final String OPEN_PATH = "/applicationtoken";
+    public static final String USER_TOKEN_PATH = "/usertoken";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
     public static final String REQUIRED_ROLE_PARAM = "requiredRole";
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
@@ -32,10 +33,6 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        String securedPathsParam = filterConfig.getInitParameter(SECURED_PATHS_PARAM);
-        if (securedPathsParam != null) {
-            securedPaths = Arrays.asList(securedPathsParam.split(","));
-        }
         requiredRole = filterConfig.getInitParameter(REQUIRED_ROLE_PARAM);
     }
 
@@ -43,31 +40,57 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         String pathInfo = servletRequest.getPathInfo();
-        if (isSecuredPath(pathInfo)) {
-            String usertokenId = getTokenIDFromPath(pathInfo);
-            logger.debug("usertokenid: {} from path={} ", usertokenId, pathInfo);
-            if (usertokenId == null) {
-                logger.info("Token not found");
-                setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-            UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
+        if (isOpenPath(pathInfo)) {
+            chain.doFilter(request, response);
+        } else {
+            if (isUserTokenPath(pathInfo)) {
+                //FIXME
+            } else {
+                String usertokenId = getTokenIDFromPath(pathInfo);
+                logger.debug("usertokenid: {} from path={} ", usertokenId, pathInfo);
+                if (usertokenId == null) {
+                    logger.info("Token not found");
+                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+                UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
 
-            if (userToken == null) {
-                logger.info("Could not find token with tokenID=" + usertokenId);
-                setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                if (userToken == null) {
+                    logger.info("Could not find token with tokenID=" + usertokenId);
+                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+                if (!userToken.hasRole(requiredRole)) {
+                    logger.info("Missing required role {}", requiredRole);
+                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+                logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
+                Authentication.setAuthenticatedUser(userToken);
             }
-            if (!userToken.hasRole(requiredRole)) {
-                logger.info("Missing required role {}", requiredRole);
-                setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
-            logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
-            Authentication.setAuthenticatedUser(userToken);
+            chain.doFilter(request, response);
         }
-        chain.doFilter(request, response);
         Authentication.clearAuthentication();
+    }
+
+    private boolean isUserTokenPath(String pathInfo) {
+        String pathElement = findPathElement(pathInfo,2);
+        return pathElement.startsWith(USER_TOKEN_PATH);
+    }
+
+    protected String findPathElement(String pathInfo, int elementNumber) {
+        String pathElement = null;
+        if (pathInfo != null) {
+            String[] pathElements = pathInfo.split("/");
+            if (pathElements.length > elementNumber) {
+                pathElement = "/" +pathElements[elementNumber];
+            }
+        }
+        return pathElement;
+    }
+
+    protected boolean isOpenPath(String pathInfo) {
+        return pathInfo.startsWith(OPEN_PATH);
     }
 
     private void setResponseStatus(HttpServletResponse response, int statuscode) {
