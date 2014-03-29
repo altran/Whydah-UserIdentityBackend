@@ -6,12 +6,14 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
@@ -85,8 +87,10 @@ public class UserTokenResourceTest {
 
         LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
         LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper, auditLogRepository);
 
+        PasswordGenerator pwg = new PasswordGenerator();
+        PasswordSender passwordSender = new PasswordSender(null, null);
+        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender);
 
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB();
