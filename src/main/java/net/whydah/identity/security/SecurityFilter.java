@@ -21,7 +21,8 @@ public class SecurityFilter implements Filter {
     public static final String OPEN_PATH = "/applicationtoken";
     public static final String USER_TOKEN_PATH = "/usertoken";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
-    public static final String REQUIRED_ROLE_PARAM = "requiredRole";
+    public static final String REQUIRED_ROLE_USERS = "WhydahUserAdmin";
+    public static final String REQUIRED_ROLE_APPLICATIONS = "WhydahUserAdmin";
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     private final SecurityTokenHelper securityTokenHelper;
@@ -36,7 +37,7 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        requiredRole = filterConfig.getInitParameter(REQUIRED_ROLE_PARAM);
+        requiredRole = REQUIRED_ROLE_USERS;
     }
 
     @Override
@@ -52,27 +53,28 @@ public class SecurityFilter implements Filter {
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
                     chain.doFilter(request,response);
                 } else {
-                    logger.info("Application not Authorized=" + applicationTokenId);
+                    logger.trace("Application not Authorized=" + applicationTokenId);
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
             } else {
-                String usertokenId = getTokenIDFromPath(pathInfo);
+                //Verify userTokenId
+                String usertokenId = findUserTokenId(pathInfo);
                 logger.debug("usertokenid: {} from path={} ", usertokenId, pathInfo);
                 if (usertokenId == null) {
-                    logger.info("Token not found");
+                    logger.trace("Token not found");
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
                 UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
 
                 if (userToken == null) {
-                    logger.info("Could not find token with tokenID=" + usertokenId);
+                    logger.trace("Could not find token with tokenID=" + usertokenId);
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
                 if (!userToken.hasRole(requiredRole)) {
-                    logger.info("Missing required role {}", requiredRole);
+                    logger.trace("Missing required role {}", requiredRole);
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
                     return;
                 }
@@ -86,8 +88,12 @@ public class SecurityFilter implements Filter {
     }
 
     private boolean isUserTokenPath(String pathInfo) {
+        boolean isUserTokenPath = false;
         String pathElement = findPathElement(pathInfo,2);
-        return pathElement.startsWith(USER_TOKEN_PATH);
+        if (pathElement != null) {
+            isUserTokenPath = pathElement.startsWith(USER_TOKEN_PATH);
+        }
+        return isUserTokenPath;
     }
 
     protected String findPathElement(String pathInfo, int elementNumber) {
@@ -114,16 +120,14 @@ public class SecurityFilter implements Filter {
      * @param pathInfo fra servletRequest.getPathInfo()
      * @return usertoken
      */
-    private String getTokenIDFromPath(String pathInfo) {
-        int start = pathInfo.indexOf('/', 1);
-        if(start < 0) {
-            return null;
+    protected String findUserTokenId(String pathInfo) {
+        String tokenIdPath = findPathElement(pathInfo, 1);
+        String tokenId = null;
+        if (tokenIdPath != null) {
+            tokenId = tokenIdPath.substring(1);
         }
-        int stop = pathInfo.indexOf('/', start + 1);
-        if(stop < 0) {
-            return null;
-        }
-        return pathInfo.substring(start + 1, stop);
+        return tokenId;
+
     }
 
     private boolean isSecuredPath(String pathInfo) {

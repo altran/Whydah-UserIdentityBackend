@@ -155,8 +155,6 @@ public class Main {
 		}
 		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class), injector.getInstance(ApplicationTokenService.class));
         HashMap<String, String> initParams = new HashMap<>(1);
-        initParams.put(SecurityFilter.SECURED_PATHS_PARAM, "/useradmin, /createandlogon");   //TODO verify
-        initParams.put(SecurityFilter.REQUIRED_ROLE_PARAM, requiredRoleName);
         servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
 	}
 

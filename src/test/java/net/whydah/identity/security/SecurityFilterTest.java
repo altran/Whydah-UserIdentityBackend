@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +18,6 @@ import static org.mockito.Mockito.*;
 
 public class SecurityFilterTest {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilterTest.class);
-    private static final String CONTEXT_PATH = "/uib";
     private SecurityFilter securityFilter;
     private SecurityTokenHelper tokenHelper;
     private ApplicationTokenService applicationTokenService;
@@ -34,34 +32,16 @@ public class SecurityFilterTest {
 
         securityFilter = new SecurityFilter(tokenHelper, applicationTokenService);
 
-        FilterConfig filterConfig = mock(FilterConfig.class);
-        when(filterConfig.getInitParameter(SecurityFilter.SECURED_PATHS_PARAM)).thenReturn("/admin,/secured,/uib");
-        when(filterConfig.getInitParameter(SecurityFilter.REQUIRED_ROLE_PARAM)).thenReturn("WhydahUserAdmin");
-        securityFilter.init(filterConfig);
+        securityFilter.init(null);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         chain = mock(FilterChain.class);
     }
 
     @Test
-    public void testNotSecured() throws Exception {
-        when(request.getPathInfo()).thenReturn("/get");
-        securityFilter.doFilter(request, response, chain);
-        verify(chain).doFilter(request, response);
-    }
-
-    @Test
-    public void testSecuredNoTokenid() throws Exception {
-        when(request.getPathInfo()).thenReturn("/admin/");
-        securityFilter.doFilter(request, response, chain);
-        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verifyNoMoreInteractions(chain);
-    }
-
-    @Test
     public void testSecuredTokenNotValid() throws Exception {
-        when(request.getPathInfo()).thenReturn("/admin/thetoken/users");
-        when(tokenHelper.getUserToken("thetoken")).thenReturn(null);
+        when(request.getPathInfo()).thenReturn("/" +userTokenInvalid +"/users");
+        when(tokenHelper.getUserToken(userTokenInvalid)).thenReturn(null);
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verifyNoMoreInteractions(chain);
@@ -69,8 +49,8 @@ public class SecurityFilterTest {
 
     @Test
     public void testSecuredTokenOkMissingGroup() throws Exception {
-        when(request.getPathInfo()).thenReturn("/admin/thetoken/users");
-        when(tokenHelper.getUserToken("thetoken")).thenReturn(new UserToken(tokenOther));
+        when(request.getPathInfo()).thenReturn("/" +userTokenMissingGroup +"/users");
+        when(tokenHelper.getUserToken(userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verifyNoMoreInteractions(chain);
@@ -78,8 +58,30 @@ public class SecurityFilterTest {
 
     @Test
     public void testSecuredTokenOkRoleOk() throws Exception {
-        when(request.getPathInfo()).thenReturn("/admin/thetoken/users");
-        when(tokenHelper.getUserToken("thetoken")).thenReturn(new UserToken(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/users");
+        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        securityFilter.doFilter(request, response, chain);
+        verify(chain).doFilter(request, response);
+    }
+
+    @Test
+    public void userOk() throws Exception {
+        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/user");
+        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        securityFilter.doFilter(request, response, chain);
+        verify(chain).doFilter(request, response);
+    }
+    @Test
+    public void applicationOk() throws Exception {
+        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/application");
+        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        securityFilter.doFilter(request, response, chain);
+        verify(chain).doFilter(request, response);
+    }
+    @Test
+    public void applicationsOk() throws Exception {
+        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/applications");
+        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
@@ -91,6 +93,13 @@ public class SecurityFilterTest {
         assertEquals(null, securityFilter.findPathElement("/123/usertoken/", 3));
         assertEquals(null, securityFilter.findPathElement("", 3));
         assertEquals(null, securityFilter.findPathElement(null, 1));
+    }
+
+    @Test
+    public void findUserTokenId() throws Exception {
+        assertEquals(null, securityFilter.findUserTokenId(null));
+        assertEquals("1234", securityFilter.findUserTokenId("/1234"));
+
     }
 
     @Test
@@ -111,15 +120,27 @@ public class SecurityFilterTest {
     }
     @Test
     public void verifyUserTokenUrlMissingApplicationTokenId() throws Exception {
-        when(request.getPathInfo()).thenReturn(CONTEXT_PATH +"/usertoken/");
+        when(request.getPathInfo()).thenReturn("//usertoken/");
         securityFilter.doFilter(request, response,chain);
-        verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());
-        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verifyNoMoreInteractions(chain);
+    }
+    @Test
+    public void verifyUserTokenUrlWrongUrl() throws Exception {
+        when(request.getPathInfo()).thenReturn("/usertoken/");
+        securityFilter.doFilter(request, response,chain);
+        log.debug("Status {}", response.getStatus());
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verifyNoMoreInteractions(chain);
     }
 
     private final static String tokenOther = "<application ID=\"1\"><organization ID=\"2\"><role name=\"Vaktmester\"/></organization></application>";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organization ID=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application>";
     private final static String applicationToken = "<application ID=\"abcdefgid\"></application>";
     private final static String applicationTokenId="abcdefgid";
+    private final static String userAdminUserTokenId ="au123";
+    private final static String userTokenInvalid ="uti123";
+    private final static String userTokenMissingGroup ="utig123";
+
 }
