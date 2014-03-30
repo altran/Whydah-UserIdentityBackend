@@ -53,7 +53,7 @@ public class SecurityFilter implements Filter {
                 //Verify applicationTokenId
                 String applicationTokenId = findPathElement(pathInfo, 1);
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
-                    logger.trace("verifyapplication {}", applicationTokenId);
+                    logger.trace("application verified {}. Trying to fetch UserToken.", applicationTokenId);
                     chain.doFilter(request,response);
                 } else {
                     logger.trace("Application not Authorized=" + applicationTokenId);

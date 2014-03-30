@@ -131,7 +131,8 @@ public class UserTokenResource {
         WhydahUser whydahUser = new WhydahUser(id, roles);
         log.info("Authentication ok for user {}", username);
         Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
-        return Response.ok(entity).build();
+        Response response = Response.ok(entity).build();
+        return response;
     }
 
 
