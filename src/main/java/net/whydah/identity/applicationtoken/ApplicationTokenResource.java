@@ -24,7 +24,7 @@ public class ApplicationTokenResource {
     public Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
         log.trace("authenticateApplication {}", appCredentialXml);
         //FIXME real implementation of ApplicationTokenResource.
-        ApplicationToken applicationToken = new ApplicationToken();
+        ApplicationToken applicationToken = new ApplicationToken(new MockApplicationCredential().toXML());
         log.warn("Accessing insecure mock. Application Validation is Ommited!");
         return Response.status(Response.Status.OK).entity(applicationToken.toXML()).build();
     }
