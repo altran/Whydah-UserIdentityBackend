@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class IamDataImporterTest {
 
-    private final static String basepath = "target/UserTokenResourceTest/";
+    private final static String basepath = "target/UserAuthenticationEndpointTest/";
 	private static final String lucenePath = basepath + "lucene";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";

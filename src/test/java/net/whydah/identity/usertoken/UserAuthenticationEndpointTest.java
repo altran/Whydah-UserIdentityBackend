@@ -43,8 +43,8 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:erik.drolshammer@altran.com">Erik Drolshammer</a>
  * @since 10/18/12
  */
-public class UserTokenResourceTest {
-    private final static String basepath = "target/UserTokenResourceTest/";
+public class UserAuthenticationEndpointTest {
+    private final static String basepath = "target/UserAuthenticationEndpointTest/";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
 //    private final static int LDAP_PORT = 10937;
@@ -124,7 +124,7 @@ public class UserTokenResourceTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        UserTokenResource resource = new UserTokenResource(roleRepository, userAdminHelper, userAuthenticationService);
+        UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(roleRepository, userAdminHelper, userAuthenticationService);
 
 
         String roleValue = "roleValue";
@@ -184,7 +184,7 @@ public class UserTokenResourceTest {
         strb.append("</user>");
 
         InputStream input = new ByteArrayInputStream(strb.toString().getBytes());
-        String facebookDataAsString = UserTokenResource.getFacebookDataAsString(input);
+        String facebookDataAsString = UserAuthenticationEndpoint.getFacebookDataAsString(input);
         assertNotNull(facebookDataAsString);
     }
 
@@ -211,7 +211,7 @@ public class UserTokenResourceTest {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document fbUserDoc = builder.parse(input);
 
-        String fbDataValueWithCdata = UserTokenResource.getFacebookDataAsXmlString(fbUserDoc);
+        String fbDataValueWithCdata = UserAuthenticationEndpoint.getFacebookDataAsXmlString(fbUserDoc);
         assertNotNull(fbDataValueWithCdata);
 
         //Strip cdata wrapper

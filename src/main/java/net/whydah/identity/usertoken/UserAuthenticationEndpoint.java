@@ -42,8 +42,8 @@ import java.util.Map;
  * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.   
  */
 @Path("/{applicationTokenId}/usertoken")
-public class UserTokenResource {
-    private static final Logger log = LoggerFactory.getLogger(UserTokenResource.class);
+public class UserAuthenticationEndpoint {
+    private static final Logger log = LoggerFactory.getLogger(UserAuthenticationEndpoint.class);
 
     private final UserPropertyAndRoleRepository roleRepository;
     private final UserAdminHelper userAdminHelper;
@@ -54,8 +54,8 @@ public class UserTokenResource {
     private AuditLogRepository auditLogRepository;
 
     @Inject
-    public UserTokenResource(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,
-                             UserAuthenticationService userAuthenticationService) {
+    public UserAuthenticationEndpoint(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,
+                                      UserAuthenticationService userAuthenticationService) {
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
         this.userAuthenticationService = userAuthenticationService;

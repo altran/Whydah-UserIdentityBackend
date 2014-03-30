@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
  * Created by baardl on 22.03.14.
  */
 @Path("/applicationtoken")
-public class ApplicationTokenResource {
-    private final static Logger log = LoggerFactory.getLogger(ApplicationTokenResource.class);
+public class ApplicationAuthenticationEndpoint {
+    private final static Logger log = LoggerFactory.getLogger(ApplicationAuthenticationEndpoint.class);
 
     //TODO baardl preparing for Application Authorization.
     @GET
@@ -23,7 +23,7 @@ public class ApplicationTokenResource {
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
         log.trace("authenticateApplication {}", appCredentialXml);
-        //FIXME real implementation of ApplicationTokenResource.
+        //FIXME real implementation of ApplicationAuthenticationEndpoint.
         ApplicationToken applicationToken = new ApplicationToken(new MockApplicationCredential().toXML());
         log.warn("Accessing insecure mock. Application Validation is Ommited!");
         return Response.status(Response.Status.OK).entity(applicationToken.toXML()).build();

@@ -193,7 +193,7 @@
             <version>2.0</version>
         </dependency>
 
-        <!-- Used by UserTokenResource -->
+        <!-- Used by UserAuthenticationEndpoint -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-io</artifactId>
