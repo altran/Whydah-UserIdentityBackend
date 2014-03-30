@@ -44,13 +44,16 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         String pathInfo = servletRequest.getPathInfo();
+        logger.trace("filter path {}", pathInfo);
         if (isOpenPath(pathInfo)) {
+            logger.trace("accessing open path {}", pathInfo);
             chain.doFilter(request, response);
         } else {
             if (isUserTokenPath(pathInfo)) {
                 //Verify applicationTokenId
                 String applicationTokenId = findPathElement(pathInfo, 1);
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
+                    logger.trace("verifyapplication {}", applicationTokenId);
                     chain.doFilter(request,response);
                 } else {
                     logger.trace("Application not Authorized=" + applicationTokenId);
