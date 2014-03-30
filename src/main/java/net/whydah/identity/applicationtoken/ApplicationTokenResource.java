@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -15,20 +17,15 @@ import javax.ws.rs.core.Response;
 public class ApplicationTokenResource {
     private final static Logger log = LoggerFactory.getLogger(ApplicationTokenResource.class);
 
-            //TODO baardl preparing for Application Authorization.
-
-            Response info()
-
-    {
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("<error>Server error, not implemented.</error>").build();
-    }
-
+    //TODO baardl preparing for Application Authorization.
     @GET
     @Path("/")
-    Response authenticateApplication(@PathParam("appCredentialXml") String appCredentialXml){
+    @Produces(MediaType.APPLICATION_XML)
+    Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
+        log.trace("authenticateApplication {}", appCredentialXml);
         //FIXME real implementation of ApplicationTokenResource.
         ApplicationToken applicationToken = new ApplicationToken();
         log.warn("Accessing insecure mock. Application Validation is Ommited!");
-        return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(applicationToken.toXML()).build();
+        return Response.status(Response.Status.OK).entity(applicationToken.toXML()).build();
     }
 }
