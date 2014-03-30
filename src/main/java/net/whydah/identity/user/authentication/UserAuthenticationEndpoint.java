@@ -16,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
@@ -85,7 +88,8 @@ public class UserAuthenticationEndpoint {
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    @GET
+    //TODO Convert to GET
+    @POST
     //@Path("/")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)

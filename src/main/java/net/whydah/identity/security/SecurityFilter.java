@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class SecurityFilter implements Filter {
     public static final String OPEN_PATH = "/authenticate";
-    public static final String USER_TOKEN_PATH = "/usertoken";
+    public static final String AUTHENTICATE_USER_PATH = "/authenticate";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
     public static final String REQUIRED_ROLE_USERS = "WhydahUserAdmin";
     public static final String REQUIRED_ROLE_APPLICATIONS = "WhydahUserAdmin";
@@ -49,7 +49,7 @@ public class SecurityFilter implements Filter {
             logger.trace("accessing open path {}", pathInfo);
             chain.doFilter(request, response);
         } else {
-            if (isUserTokenPath(pathInfo)) {
+            if (isAuthenticateUserPath(pathInfo)) {
                 //Verify applicationTokenId
                 String applicationTokenId = findPathElement(pathInfo, 1);
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
@@ -90,13 +90,13 @@ public class SecurityFilter implements Filter {
         Authentication.clearAuthentication();
     }
 
-    private boolean isUserTokenPath(String pathInfo) {
-        boolean isUserTokenPath = false;
+    private boolean isAuthenticateUserPath(String pathInfo) {
+        boolean isAuthenticateUserPath = false;
         String pathElement = findPathElement(pathInfo,2);
         if (pathElement != null) {
-            isUserTokenPath = pathElement.startsWith(USER_TOKEN_PATH);
+            isAuthenticateUserPath = pathElement.startsWith(AUTHENTICATE_USER_PATH);
         }
-        return isUserTokenPath;
+        return isAuthenticateUserPath;
     }
 
     protected String findPathElement(String pathInfo, int elementNumber) {
