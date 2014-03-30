@@ -18,7 +18,7 @@ import java.util.List;
  * Secured paths are added as comma separated list in filterConfig. Required role is also configured with filterConfig.
  */
 public class SecurityFilter implements Filter {
-    public static final String OPEN_PATH = "/applicationtoken";
+    public static final String OPEN_PATH = "/authenticate";
     public static final String USER_TOKEN_PATH = "/usertoken";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
     public static final String REQUIRED_ROLE_USERS = "WhydahUserAdmin";
