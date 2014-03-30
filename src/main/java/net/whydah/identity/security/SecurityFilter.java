@@ -1,6 +1,8 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.authentication.UserToken;
 import org.slf4j.Logger;
@@ -63,31 +65,45 @@ public class SecurityFilter implements Filter {
             } else {
                 //Verify userTokenId
                 String usertokenId = findUserTokenId(pathInfo);
+                String applicationTokenId = findApplicationTokenId(pathInfo);
                 logger.debug("usertokenid: {} from path={} ", usertokenId, pathInfo);
                 if (usertokenId == null) {
                     logger.trace("Token not found");
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
-                UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
+                logger.trace("ApplicationMode -{}-", ApplicationMode.getApplicationMode());
+                if (ApplicationMode.getApplicationMode().equals(ApplicationMode.DEV)) {
+                    logger.warn("Running in DEV mode, security is ommited for users.");
+                    Authentication.setAuthenticatedUser(buildMockedUserToken());
+                } else {
+                    UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
 
-                if (userToken == null) {
-                    logger.trace("Could not find token with tokenID=" + usertokenId);
-                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
+                    if (userToken == null) {
+                        logger.trace("Could not find token with tokenID=" + usertokenId);
+                        setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
+                    if (!userToken.hasRole(requiredRole)) {
+                        logger.trace("Missing required role {}", requiredRole);
+                        setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
+                        return;
+                    }
+                    logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
+                    Authentication.setAuthenticatedUser(userToken);
                 }
-                if (!userToken.hasRole(requiredRole)) {
-                    logger.trace("Missing required role {}", requiredRole);
-                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
-                    return;
-                }
-                logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
-                Authentication.setAuthenticatedUser(userToken);
                 chain.doFilter(request, response);
             }
 
         }
         Authentication.clearAuthentication();
+    }
+
+    private UserToken buildMockedUserToken() {
+
+        List<UserRole> roles = new ArrayList<>();
+        roles.add(new UserRole("9999","99999", "mockrole"));
+        return new UserToken("MockUserToken", roles);
     }
 
     private boolean isAuthenticateUserPath(String pathInfo) {
@@ -124,6 +140,16 @@ public class SecurityFilter implements Filter {
      * @return authentication
      */
     protected String findUserTokenId(String pathInfo) {
+        String tokenIdPath = findPathElement(pathInfo, 1);
+        String tokenId = null;
+        if (tokenIdPath != null) {
+            tokenId = tokenIdPath.substring(2);
+        }
+        return tokenId;
+
+    }
+
+    protected String findApplicationTokenId(String pathInfo) {
         String tokenIdPath = findPathElement(pathInfo, 1);
         String tokenId = null;
         if (tokenIdPath != null) {

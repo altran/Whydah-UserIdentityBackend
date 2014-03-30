@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Endpoint for collection of users.
  */
-@Path("/{usertokenid}/users")
+@Path("/{applicationtokenid}/{usertokenid}/users")
 public class UsersResource {
     private static final Logger logger = LoggerFactory.getLogger(UsersResource.class);
 

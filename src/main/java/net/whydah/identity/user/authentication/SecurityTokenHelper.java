@@ -25,8 +25,8 @@ public class SecurityTokenHelper {
         webResource = client.resource(usertokenserviceUri);
     }
 
-    public UserToken getUserToken(String usertokenid) {
-        String appTokenId = getAppTokenId();
+    public UserToken getUserToken(String appTokenId,String usertokenid) {
+        //String appTokenId = getAppTokenId();
         log.debug("usertokenid={}", usertokenid);
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);

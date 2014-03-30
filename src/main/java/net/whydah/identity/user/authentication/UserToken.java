@@ -28,6 +28,11 @@ public class UserToken {
     private final String name;
     private final List<UserRole> userRoles;
 
+    public UserToken(String name, List<UserRole> userRoles) {
+        this.name = name;
+        this.userRoles = userRoles;
+    }
+
     public UserToken(String userToken) {
         Document doc = parseXML(userToken);
         name = extractUsername(doc);

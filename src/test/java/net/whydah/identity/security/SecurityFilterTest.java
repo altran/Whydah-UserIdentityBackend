@@ -41,7 +41,7 @@ public class SecurityFilterTest {
     @Test
     public void testSecuredTokenNotValid() throws Exception {
         when(request.getPathInfo()).thenReturn("/" +userTokenInvalid +"/users");
-        when(tokenHelper.getUserToken(userTokenInvalid)).thenReturn(null);
+        when(tokenHelper.getUserToken("any",userTokenInvalid)).thenReturn(null);
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verifyNoMoreInteractions(chain);
@@ -50,7 +50,7 @@ public class SecurityFilterTest {
     @Test
     public void testSecuredTokenOkMissingGroup() throws Exception {
         when(request.getPathInfo()).thenReturn("/" +userTokenMissingGroup +"/users");
-        when(tokenHelper.getUserToken(userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
+        when(tokenHelper.getUserToken("any",userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verifyNoMoreInteractions(chain);
@@ -59,7 +59,7 @@ public class SecurityFilterTest {
     @Test
     public void testSecuredTokenOkRoleOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/users");
-        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
@@ -67,21 +67,21 @@ public class SecurityFilterTest {
     @Test
     public void userOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/user");
-        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/application");
-        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationsOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/applications");
-        when(tokenHelper.getUserToken(userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }

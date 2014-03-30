@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * Administration of users and their data.
  */
-@Path("/{userTokenId}/user")
+@Path("/{applicationtokenid}/{userTokenId}/user")
 public class UserResource {
     private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
