@@ -35,8 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -50,7 +48,7 @@ public class UserAuthenticationEndpoint {
     private final UserPropertyAndRoleRepository roleRepository;
     private final UserAdminHelper userAdminHelper;
     private final UserAuthenticationService userAuthenticationService;
-    private final String hostname;
+    //private final String hostname;
 
     @Inject
     private AuditLogRepository auditLogRepository;
@@ -61,9 +59,9 @@ public class UserAuthenticationEndpoint {
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
         this.userAuthenticationService = userAuthenticationService;
-        this.hostname = getLocalhostName();
+        //this.hostname = getLocalhostName();
     }
-
+    /*
     private String getLocalhostName()  {
         try {
             return InetAddress.getLocalHost().getHostName();
@@ -72,6 +70,7 @@ public class UserAuthenticationEndpoint {
         }
         return "unknown host";
     }
+    */
 
     /*
     @GET
@@ -126,9 +125,12 @@ public class UserAuthenticationEndpoint {
         List<UserPropertyAndRole> roles = roleRepository.getUserPropertyAndRoles(id.getUid());
         WhydahUser whydahUser = new WhydahUser(id, roles);
         log.info("Authentication ok for user with username={}", username);
-        log.debug("Returning WhydahUser TODO ADD XML here!");
-        Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
-        Response response = Response.ok(entity).build();
+
+        String userXml = whydahUser.toXML();
+        log.debug("User authentication ok. XML: {}", userXml);
+
+        //Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
+        Response response = Response.ok(userXml).build();
         return response;
     }
 
