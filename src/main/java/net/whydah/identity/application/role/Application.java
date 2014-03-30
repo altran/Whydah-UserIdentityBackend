@@ -2,6 +2,17 @@ package net.whydah.identity.application.role;
 
 /**
  * Application.
+ *
+ * Erik's notes:
+ *
+ * applications
+ *      application, applicationID, name
+ *          relations   (organisation)
+ *              relation1, id, name
+ *                  properties / hashmap (mappet tidligere til roller)
+ *              relation2, id, name
+ *                  properties / hashmap
+ *
  */
 public class Application {
     private String appId;
