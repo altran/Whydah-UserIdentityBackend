@@ -47,7 +47,7 @@ public class LdapAuthenticatorImpl {
      * @param password  user password
      * @return  a authenticated WhydahUserIdentity
      */
-    public WhydahUserIdentity auth(final String username, final String password) {
+    public WhydahUserIdentity authenticate(final String username, final String password) {
         logger.debug("Trying to authenticate with username and password. username=" + username);
 
         if (username == null || password == null) {

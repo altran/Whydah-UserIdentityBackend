@@ -8,7 +8,7 @@ import java.util.List;
 
 public class WhydahUser {
     private WhydahUserIdentity identity = null;
-    private List<UserPropertyAndRole> propsandroles = new ArrayList<UserPropertyAndRole>();
+    private List<UserPropertyAndRole> propsandroles = new ArrayList<>();
 
     public WhydahUser(WhydahUserIdentity identity, List<UserPropertyAndRole> propsandroles) {
         this.identity = identity;

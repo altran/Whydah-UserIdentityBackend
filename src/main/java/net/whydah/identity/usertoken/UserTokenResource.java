@@ -14,27 +14,26 @@ import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import java.util.Map;
 @Path("/{applicationTokenId}/usertoken")
 public class UserTokenResource {
     private static final Logger log = LoggerFactory.getLogger(UserTokenResource.class);
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final UserPropertyAndRoleRepository roleRepository;
     private final UserAdminHelper userAdminHelper;
@@ -86,50 +84,44 @@ public class UserTokenResource {
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    @Path("/")
     @POST
+    @Path("/")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateUser(InputStream input) {
-        log.trace("authenticateUser XML");
-        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        log.trace("authenticateUser from XML InputStream");
+        UserAuthenticationCredentialDTO dto;
         try {
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
-            Document dDoc = builder.parse(input);
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            String username = (String) xPath.evaluate("//username", dDoc, XPathConstants.STRING);
-            String password = (String) xPath.evaluate("//password", dDoc, XPathConstants.STRING);
-            String fbId = (String) xPath.evaluate("//fbId", dDoc, XPathConstants.STRING);
-
-            String passwordCredentials;
-            if (password != null && !password.equals("")) {
-                passwordCredentials =  password;
-            } else if (fbId != null && !fbId.equals("")) {
-                passwordCredentials =  UserAdminHelper.calculateFacebookPassword(fbId);
-            } else {
-                log.info("Neither password nor facebookId is set. Returning " + Response.Status.FORBIDDEN);
-                String entity = "<error>Error in input<error>";
-                return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
-            }
-
-            return authenticateUser(username, passwordCredentials);
-        } catch (Exception e) {
-            log.error("", e);
+            dto = UserAuthenticationCredentialDTO.fromXml(input);
+        } catch (ParserConfigurationException e) {
+            log.error("authenticateUser failed due to internal server error. Returning {}", Response.Status.INTERNAL_SERVER_ERROR, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
+        } catch (IOException|SAXException |XPathExpressionException e) {
+            log.info("authenticateUser failed due to invald client request. Returning {}", Response.Status.BAD_REQUEST, e);
+            return Response.status(Response.Status.BAD_REQUEST).entity("<error>Bad request, check client request</error>").build();
         }
+
+        String passwordCredential = dto.getPasswordCredential();
+        if (passwordCredential == null) {
+            log.trace("Neither password nor facebookId is set. Returning " + Response.Status.FORBIDDEN);
+            Viewable entity = new Viewable("/logonFailed.xml.ftl");
+            return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
+        }
+        return authenticateUser(dto.getUsername(), passwordCredential);
     }
 
     private Response authenticateUser(String username, String password) {
-        WhydahUserIdentity id = userAuthenticationService.auth(username, password);
-
+        WhydahUserIdentity id = userAuthenticationService.authenticate(username, password);
         if (id == null)  {
+            log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
             return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
         }
 
         List<UserPropertyAndRole> roles = roleRepository.getUserPropertyAndRoles(id.getUid());
         WhydahUser whydahUser = new WhydahUser(id, roles);
-        log.info("Authentication ok for user {}", username);
+        log.info("Authentication ok for user with username={}", username);
+        log.debug("Returning WhydahUser TODO ADD XML here!");
         Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
         Response response = Response.ok(entity).build();
         return response;

@@ -50,8 +50,8 @@ public class UserAuthenticationService {
     }
 
 
-    public WhydahUserIdentity auth(final String username, final String password) {
-        return externalLdapAuthenticator.auth(username, password);
+    public WhydahUserIdentity authenticate(final String username, final String password) {
+        return externalLdapAuthenticator.authenticate(username, password);
     }
 
     public boolean authenticateWithTemporaryPassword(String username, String token) {
