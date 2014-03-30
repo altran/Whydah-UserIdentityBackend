@@ -15,12 +15,12 @@ import javax.ws.rs.core.Response;
  * This not a RESTful endpoint. This is a http RPC endpoint.
  */
 
+@Path("/authenticate/application")
 public class ApplicationAuthenticationEndpoint {
     private final static Logger log = LoggerFactory.getLogger(ApplicationAuthenticationEndpoint.class);
 
     //TODO baardl preparing for Application Authorization.
     @GET
-    @Path("/authenticate/application")
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
         log.trace("authenticateApplication {}", appCredentialXml);

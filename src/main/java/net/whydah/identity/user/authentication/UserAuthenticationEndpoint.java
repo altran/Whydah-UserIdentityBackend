@@ -34,9 +34,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.
@@ -72,6 +70,7 @@ public class UserAuthenticationEndpoint {
         return "unknown host";
     }
 
+    /*
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response info() {
@@ -79,14 +78,15 @@ public class UserAuthenticationEndpoint {
         welcomeModel.put("hostname", hostname);
         return Response.ok(new Viewable("/welcome", welcomeModel)).build();
     }
+    */
 
     /**
      * Authentication using XML. XML must contain an element with name username, and an element with name password.
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    @POST
-    @Path("/")
+    @GET
+    //@Path("/")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateUser(InputStream input) {
@@ -217,8 +217,8 @@ public class UserAuthenticationEndpoint {
     */
 
     //TODO Move to UserAdminService (the separate application)
-    @Path("createandlogon")
     @POST
+    @Path("createandlogon")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response createAndAuthenticateUser(InputStream input) {
