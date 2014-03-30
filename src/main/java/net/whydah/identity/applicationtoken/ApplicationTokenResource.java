@@ -21,7 +21,7 @@ public class ApplicationTokenResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_XML)
-    Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
+    public Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
         log.trace("authenticateApplication {}", appCredentialXml);
         //FIXME real implementation of ApplicationTokenResource.
         ApplicationToken applicationToken = new ApplicationToken();
