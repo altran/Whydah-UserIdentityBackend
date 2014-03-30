@@ -19,18 +19,26 @@ public class Application {
         this.defaultOrgid = defaultOrgid;
     }
 
+    public String toXML() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n " +
+                " <application>\n" +
+                "   <applicationid>" + appId + "</applicationid>\n" +
+                "   <applicationname>" + name + "</applicationname>\n" +
+                "   <defaultrole>" + defaultrole + "</defaultrole>\n" +
+                "   <defaultorgid>" + defaultOrgid + "</defaultorgid>\n" +
+                " </application>\n";
+    }
+
+
     public String getAppId() {
         return appId;
     }
-
     public String getName() {
         return name;
     }
-
     public String getDefaultrole() {
         return defaultrole;
     }
-
     public String getDefaultOrgid() {
         return defaultOrgid;
     }
