@@ -54,31 +54,31 @@ public class ApplicationToken {
                 return templateToken;
             } else {
                 return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n " +
-                        " <token>\n" +
+                        " <applicationtoken>\n" +
                         "     <params>\n" +
-                        "         <applicationtoken>" + applicationTokenId + "</applicationtoken>\n" +
+                        "         <applicationtokenid>" + applicationTokenId + "</applicationtokenid>\n" +
                         "         <applicationid>" + "23" + "</applicationid>\n" +
                         "         <applicationname>" + applicationName + "</applicationname>\n" +
                         "         <expires>" + expires + "</expires>\n" +
                         "     </params> \n" +
                         "     <Url type=\"application/xml\" method=\"POST\" " +
                         "                template=\"" + baseuri + "/token/" + applicationTokenId + "/getusertokenbytokenid\"/> \n" +
-                        " </token>\n";
+                        " </applicationtoken>\n";
             }
         }
 
         private final String templateToken = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n " +
 
-                "    <token>\n" +
+                "    <applicationtoken>\n" +
                 "        <params>\n" +
-                "            <applicationtoken>" + applicationTokenId + "</applicationtoken>\n" +
+                "            <applicationtokenid>" + applicationTokenId + "</applicationtokenid>\n" +
                 "            <applicationid>" + "23" + "</applicationid>\n" +
                 "            <applicationname>" + applicationName + "</applicationname>\n" +
                 "            <expires>" + expires + "</expires>\n" +
                 "        </params> \n" +
                 "           <Url type=\"application/xml\"" +
                 "                template=\"http://example.com/token/{applicationtoken}/getusertokenbytokenid\"/>" +
-                "    </token>\n";
+                "    </applicationtoken>\n";
 
         public String getApplicationTokenId() {
             return applicationTokenId;
