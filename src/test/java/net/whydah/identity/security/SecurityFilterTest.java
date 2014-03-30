@@ -1,9 +1,12 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.authentication.UserToken;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,22 @@ public class SecurityFilterTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
     FilterChain chain;
+    private static String iamMode = null;
+
+    @BeforeClass
+    public static void fetchProperties() throws Exception {
+        iamMode = System.getenv(ApplicationMode.IAM_MODE_KEY);
+        log.info("Fetching original property {}, value {}", ApplicationMode.IAM_MODE_KEY, iamMode);
+        System.setProperty(ApplicationMode.IAM_MODE_KEY, ApplicationMode.TEST);
+    }
+
+    @AfterClass
+    public static void setOriginalProperties() throws Exception {
+        log.info("Setting original property {}, value {}", ApplicationMode.IAM_MODE_KEY, iamMode);
+        if (iamMode != null) {
+            System.setProperty(ApplicationMode.IAM_MODE_KEY, iamMode);
+        }
+    }
 
     @Before
     public void init() throws ServletException {
@@ -36,12 +55,13 @@ public class SecurityFilterTest {
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         chain = mock(FilterChain.class);
+
     }
 
     @Test
     public void testSecuredTokenNotValid() throws Exception {
         when(request.getPathInfo()).thenReturn("/" +userTokenInvalid +"/users");
-        when(tokenHelper.getUserToken("any",userTokenInvalid)).thenReturn(null);
+        when(tokenHelper.getUserToken("apptoken", userTokenInvalid)).thenReturn(null);
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verifyNoMoreInteractions(chain);
@@ -49,8 +69,8 @@ public class SecurityFilterTest {
 
     @Test
     public void testSecuredTokenOkMissingGroup() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" +userTokenMissingGroup +"/users");
-        when(tokenHelper.getUserToken("any",userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
+        when(request.getPathInfo()).thenReturn("/apptoken/" +userTokenMissingGroup +"/users");
+        when(tokenHelper.getUserToken("apptoken", userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verifyNoMoreInteractions(chain);
@@ -58,30 +78,30 @@ public class SecurityFilterTest {
 
     @Test
     public void testSecuredTokenOkRoleOk() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/users");
-        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/users");
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
 
     @Test
     public void userOk() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/user");
-        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/user");
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationOk() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/application");
-        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/application");
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationsOk() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + userAdminUserTokenId +"/applications");
-        when(tokenHelper.getUserToken("any",userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/user/admin/applications");
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
@@ -98,28 +118,28 @@ public class SecurityFilterTest {
     @Test
     public void findUserTokenId() throws Exception {
         assertEquals(null, securityFilter.findUserTokenId(null));
-        assertEquals("1234", securityFilter.findUserTokenId("/1234"));
+        assertEquals("1234", securityFilter.findUserTokenId("/appd/1234"));
 
     }
 
     @Test
-    public void verifyApplicationTokenUrl() throws Exception {
-        when(request.getPathInfo()).thenReturn("/applicationtoken/");
+    public void verifyAuthenticateApplicationUrl() throws Exception {
+        when(request.getPathInfo()).thenReturn("/authenticate/application");
         securityFilter.doFilter(request, response,chain);
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());
     }
 
     @Test
-    public void verifyUserTokenUrl() throws Exception {
-        when(request.getPathInfo()).thenReturn("/" + applicationTokenId + "/usertoken/");
+    public void verifyAuthenticateUserUrl() throws Exception {
+        when(request.getPathInfo()).thenReturn("/" +applicationTokenId + "/authenticate/user");
         when(applicationTokenService.verifyApplication(anyString())).thenReturn(true);
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());
     }
     @Test
-    public void verifyUserTokenUrlMissingApplicationTokenId() throws Exception {
+    public void verifyAuthenticateUserMissingApplicationTokenId() throws Exception {
         when(request.getPathInfo()).thenReturn("//usertoken/");
         securityFilter.doFilter(request, response,chain);
         log.debug("Status {}", response.getStatus());
@@ -131,7 +151,7 @@ public class SecurityFilterTest {
         when(request.getPathInfo()).thenReturn("/usertoken/");
         securityFilter.doFilter(request, response,chain);
         log.debug("Status {}", response.getStatus());
-        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
         verifyNoMoreInteractions(chain);
     }
 

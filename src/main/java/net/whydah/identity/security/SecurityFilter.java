@@ -140,10 +140,10 @@ public class SecurityFilter implements Filter {
      * @return authentication
      */
     protected String findUserTokenId(String pathInfo) {
-        String tokenIdPath = findPathElement(pathInfo, 1);
+        String tokenIdPath = findPathElement(pathInfo, 2);
         String tokenId = null;
         if (tokenIdPath != null) {
-            tokenId = tokenIdPath.substring(2);
+            tokenId = tokenIdPath.substring(1);
         }
         return tokenId;
 
