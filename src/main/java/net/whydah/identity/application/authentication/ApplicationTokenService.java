@@ -1,4 +1,4 @@
-package net.whydah.identity.applicationtoken;
+package net.whydah.identity.application.authentication;
 
 /**
  * Created by baardl on 29.03.14.

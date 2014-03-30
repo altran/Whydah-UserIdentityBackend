@@ -1,4 +1,4 @@
-package net.whydah.identity.usertoken;
+package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.user.UserRole;
 import org.w3c.dom.Document;

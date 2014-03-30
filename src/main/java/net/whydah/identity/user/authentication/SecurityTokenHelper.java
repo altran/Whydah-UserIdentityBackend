@@ -1,4 +1,4 @@
-package net.whydah.identity.usertoken;
+package net.whydah.identity.user.authentication;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

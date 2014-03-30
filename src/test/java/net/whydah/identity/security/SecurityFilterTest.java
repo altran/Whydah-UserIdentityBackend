@@ -1,8 +1,8 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.applicationtoken.ApplicationTokenService;
-import net.whydah.identity.usertoken.SecurityTokenHelper;
-import net.whydah.identity.usertoken.UserToken;
+import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.user.authentication.SecurityTokenHelper;
+import net.whydah.identity.user.authentication.UserToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

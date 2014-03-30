@@ -1,6 +1,6 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.applicationtoken.ApplicationToken;
+import net.whydah.identity.application.authentication.ApplicationToken;
 
 /**
  * Created by baardl on 22.03.14.

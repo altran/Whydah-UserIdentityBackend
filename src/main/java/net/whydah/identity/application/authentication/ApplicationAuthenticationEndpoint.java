@@ -1,4 +1,4 @@
-package net.whydah.identity.applicationtoken;
+package net.whydah.identity.application.authentication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +12,15 @@ import javax.ws.rs.core.Response;
 
 /**
  * Created by baardl on 22.03.14.
+ * This not a RESTful endpoint. This is a http RPC endpoint.
  */
-@Path("/applicationtoken")
+
 public class ApplicationAuthenticationEndpoint {
     private final static Logger log = LoggerFactory.getLogger(ApplicationAuthenticationEndpoint.class);
 
     //TODO baardl preparing for Application Authorization.
     @GET
-    @Path("/")
+    @Path("/authenticate/application")
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateApplication(@QueryParam("appCredentialXml") String appCredentialXml){
         log.trace("authenticateApplication {}", appCredentialXml);

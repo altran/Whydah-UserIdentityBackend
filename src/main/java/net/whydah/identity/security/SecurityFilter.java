@@ -1,8 +1,8 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.applicationtoken.ApplicationTokenService;
-import net.whydah.identity.usertoken.SecurityTokenHelper;
-import net.whydah.identity.usertoken.UserToken;
+import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.user.authentication.SecurityTokenHelper;
+import net.whydah.identity.user.authentication.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sjekker om request path krever autentisering, og i såfall sjekkes usertoken.
+ * Sjekker om request path krever autentisering, og i såfall sjekkes authentication.
  * Secured paths are added as comma separated list in filterConfig. Required role is also configured with filterConfig.
  */
 public class SecurityFilter implements Filter {
@@ -121,7 +121,7 @@ public class SecurityFilter implements Filter {
     /**
      * Plukker element 2 fra path som usertokenid. F.eks. /useradmin/1kj2h1j12jh/users/add gir 1kj2h1j12jh.
      * @param pathInfo fra servletRequest.getPathInfo()
-     * @return usertoken
+     * @return authentication
      */
     protected String findUserTokenId(String pathInfo) {
         String tokenIdPath = findPathElement(pathInfo, 1);

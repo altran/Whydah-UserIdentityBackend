@@ -37,8 +37,8 @@ public class UserAdminTest {
         uib.startHttpServer();
         URI baseUri = UriBuilder.fromUri("http://localhost/uib/useradmin/").port(uib.getPort()).build();
         URI logonUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();
-        //String usertoken = "usrtk1";
-        baseResource = Client.create().resource(baseUri)/*.path(usertoken + '/')*/;
+        //String authentication = "usrtk1";
+        baseResource = Client.create().resource(baseUri)/*.path(authentication + '/')*/;
         logonResource = Client.create().resource(logonUri);
     }
 

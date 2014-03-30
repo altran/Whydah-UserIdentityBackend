@@ -1,4 +1,4 @@
-package net.whydah.identity.usertoken;
+package net.whydah.identity.user.authentication;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
@@ -39,9 +39,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.   
+ * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.
+ * This not a RESTful endpoint. This is a http RPC endpoint.
  */
-@Path("/{applicationTokenId}/usertoken")
+@Path("/{applicationTokenId}/authenticate/user")
 public class UserAuthenticationEndpoint {
     private static final Logger log = LoggerFactory.getLogger(UserAuthenticationEndpoint.class);
 

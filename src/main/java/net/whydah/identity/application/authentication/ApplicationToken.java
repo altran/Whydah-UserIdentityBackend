@@ -1,4 +1,4 @@
-package net.whydah.identity.applicationtoken;
+package net.whydah.identity.application.authentication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class ApplicationToken {
             return templateToken;
         } else {
             return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n " +
-                    " <applicationtoken>\n" +
+                    " <authentication>\n" +
                     "     <params>\n" +
                     "         <applicationtokenid>" + applicationTokenId + "</applicationtokenid>\n" +
                     "         <applicationid>" + "23" + "</applicationid>\n" +
@@ -55,13 +55,13 @@ public class ApplicationToken {
                     "     </params> \n" +
                     "     <Url type=\"application/xml\" method=\"POST\" " +
                     "                template=\"" + baseuri + "/token/" + applicationTokenId + "/getusertokenbytokenid\"/> \n" +
-                    " </applicationtoken>\n";
+                    " </authentication>\n";
         }
     }
 
     private final String templateToken = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n " +
 
-            "    <applicationtoken>\n" +
+            "    <authentication>\n" +
             "        <params>\n" +
             "            <applicationtokenid>" + applicationTokenId + "</applicationtokenid>\n" +
             "            <applicationid>" + "23" + "</applicationid>\n" +
@@ -69,8 +69,8 @@ public class ApplicationToken {
             "            <expires>" + expires + "</expires>\n" +
             "        </params> \n" +
             "           <Url type=\"application/xml\"" +
-            "                template=\"http://example.com/token/{applicationtoken}/getusertokenbytokenid\"/>" +
-            "    </applicationtoken>\n";
+            "                template=\"http://example.com/token/{authentication}/getusertokenbytokenid\"/>" +
+            "    </authentication>\n";
 
     public String getApplicationTokenId() {
         return applicationTokenId;
