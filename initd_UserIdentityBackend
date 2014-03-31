@@ -1,0 +1,84 @@
+ption: Starts and stops UserIdentityBackend
+#
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 0
+fi
+
+# Avoid using root's TMPDIR
+unset TMPDIR
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="UserIdentityBackend Server"
+NAME=UserIdentityBackend
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+LOCKFILE=/var/lock/subsys/$NAME
+
+export ENV_CONFIG=PROD
+
+do_start()
+{
+	echo "Starting UserIdentityBackend  (background)..."
+        cd /home/UserIdentityBackend
+	daemon --user=UserIdentityBackend "/home/UserIdentityBackend/start-service.sh" >/dev/null 2>&1 &
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $LOCKFILE
+	return $RETVAL
+}
+
+
+do_stop()
+{
+	echo "Stopping UserIdentityBackend"
+	pkill -f UserIdentityBackend
+	rm -f $PIDFILE
+	return 0
+}
+
+do_reload() {
+	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME
+	return 0
+}
+
+case "$1" in
+  start)
+	do_start
+	;;
+  stop)
+	do_stop
+	;;
+  restart)
+	do_stop
+	sleep 5
+	case "$?" in
+	  0|1)
+		do_start
+		;;
+	  *)
+		echo "Failed to restart"
+		;;
+	esac
+	;;
+  *)
+	echo $"Usage: $SCRIPTNAME {start|stop|restart}"
+	exit 1
+	;;
+esac
+
+exit $?
+
+
