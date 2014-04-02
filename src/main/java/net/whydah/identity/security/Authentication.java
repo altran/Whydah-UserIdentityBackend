@@ -1,23 +1,23 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.identity.user.authentication.UserTokenID;
 
 /**
  * Holds current authenticated user in a threadlocal.
  */
 public final class Authentication {
-    private static final ThreadLocal<UserToken> authenticatedUser = new ThreadLocal<UserToken>();
+    private static final ThreadLocal<UserTokenID> authenticatedUserID = new ThreadLocal<UserTokenID>();
 
-    public static void setAuthenticatedUser(UserToken user) {
-        authenticatedUser.set(user);
+    public static void setAuthenticatedUserID(UserTokenID user) {
+        authenticatedUserID.set(user);
     }
 
-    public static UserToken getAuthenticatedUser() {
-        return authenticatedUser.get();
+    public static UserTokenID getAuthenticatedUserID() {
+        return authenticatedUserID.get();
     }
 
     public static void clearAuthentication() {
-        authenticatedUser.remove();
+        authenticatedUserID.remove();
     }
 
     private Authentication(){

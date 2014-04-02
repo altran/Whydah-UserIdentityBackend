@@ -5,6 +5,7 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.identity.user.authentication.UserTokenID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Sjekker om request path krever autentisering, og i såfall sjekkes authentication.
@@ -75,7 +77,7 @@ public class SecurityFilter implements Filter {
                 logger.trace("ApplicationMode -{}-", ApplicationMode.getApplicationMode());
                 if (ApplicationMode.getApplicationMode().equals(ApplicationMode.DEV)) {
                     logger.warn("Running in DEV mode, security is ommited for users.");
-                    Authentication.setAuthenticatedUser(buildMockedUserToken());
+                    Authentication.setAuthenticatedUserID(new UserTokenID(UUID.randomUUID().toString()));
                 } else {
                     UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
 
@@ -91,8 +93,8 @@ public class SecurityFilter implements Filter {
                         return;
                     }
                      */
-                    logger.debug("setAuthenticatedUser with usertokenId: {}", usertokenId);
-                    Authentication.setAuthenticatedUser(usertokenId);
+                    logger.debug("setAuthenticatedUserID with usertokenId: {}", usertokenId);
+                    Authentication.setAuthenticatedUserID(new UserTokenID(usertokenId));
                 }
                 chain.doFilter(request, response);
             }
