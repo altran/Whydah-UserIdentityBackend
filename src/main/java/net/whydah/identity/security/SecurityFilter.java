@@ -79,6 +79,7 @@ public class SecurityFilter implements Filter {
                 } else {
                     UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
 
+                    /**
                     if (userToken == null) {
                         logger.trace("Could not find token with tokenID=" + usertokenId);
                         setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
@@ -89,6 +90,7 @@ public class SecurityFilter implements Filter {
                         setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
                         return;
                     }
+                     */
                     logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
                     Authentication.setAuthenticatedUser(userToken);
                 }
