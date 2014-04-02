@@ -25,7 +25,8 @@ public class UserAuthenticationServiceTest {
     @BeforeClass
     public static void setUp() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        int LDAP_PORT = 19389;
         ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         ldapHelper = new LDAPHelper(ldapUrl, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(ldapUrl, "uid=admin,ou=system", "secret", "uid");
