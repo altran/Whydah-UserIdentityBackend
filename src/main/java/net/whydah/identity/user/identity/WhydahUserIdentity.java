@@ -1,8 +1,12 @@
 package net.whydah.identity.user.identity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.Serializable;
 
 /**
@@ -154,4 +158,51 @@ public class WhydahUserIdentity implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public static WhydahUserIdentity fromJson(String userJson) {
+        try {
+            WhydahUserIdentity userIdentity = new WhydahUserIdentity();
+
+            JSONObject jsonobj = new JSONObject(userJson);
+
+            String username = jsonobj.getString("username");
+            InternetAddress internetAddress = new InternetAddress();
+            String email = jsonobj.getString("email");
+            if (email.contains("+")){
+                email = replacePlusWithEmpty(email);
+            }
+            internetAddress.setAddress(email);
+            try {
+                internetAddress.validate();
+                userIdentity.setEmail(email);
+            } catch (AddressException e) {
+                //log.error(String.format("E-mail: %s is of wrong format.", email));
+                //return Response.status(Response.Status.BAD_REQUEST).build();
+                throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+            }
+            userIdentity.setUsername(username);
+            userIdentity.setFirstName(jsonobj.getString("firstName"));
+            userIdentity.setLastName(jsonobj.getString("lastName"));
+
+            userIdentity.setCellPhone(jsonobj.getString("cellPhone"));
+            userIdentity.setPersonRef(jsonobj.getString("personRef"));
+            //userIdentity.setUid(UUID.randomUUID().toString());
+            return userIdentity;
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Error parsing json", e);
+        }
+    }
+
+    private static String replacePlusWithEmpty(String email){
+        String[] words = email.split("[+]");
+        if (words.length == 1) {
+            return email;
+        }
+        email  = "";
+        for (String word : words) {
+            email += word;
+        }
+        return email;
+    }
+
 }

@@ -7,6 +7,7 @@ import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.security.Authentication;
+import net.whydah.identity.user.UserService;
 import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserAuthenticationService;
@@ -20,8 +21,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -52,14 +51,16 @@ public class UserResource {
     @Inject
     private UserAdminHelper userAdminHelper;
 
-    private UserAuthenticationService userAuthenticationService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserService userService;
 
     @Context
     private UriInfo uriInfo;
 
     @Inject
-    public UserResource(UserAuthenticationService userAuthenticationService) {
+    public UserResource(UserAuthenticationService userAuthenticationService, UserService userService) {
         this.userAuthenticationService = userAuthenticationService;
+        this.userService = userService;
     }
 
     //Add user and add default roles
@@ -67,6 +68,23 @@ public class UserResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String userJson) {
+        logger.trace("addUser is called with userJson={}", userJson);
+        try {
+            WhydahUserIdentity whydahUserIdentity = userService.addUser(userJson);
+            return Response.ok().build();   //TODO return whydahUserIdentity
+        } catch (IllegalArgumentException iae) {
+            logger.error("addUser: Invalid json={}", userJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (IllegalStateException ise) {
+            logger.error(ise.getMessage());
+            return Response.status(Response.Status.CONFLICT).build();
+        } catch (RuntimeException e) {
+            logger.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+
+        /*
         logger.debug("addUser: {}", userJson);
         try {
             JSONObject jsonobj = new JSONObject(userJson);
@@ -101,7 +119,9 @@ public class UserResource {
             logger.error("Bad json: " + userJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        */
     }
+    /*
     private String replacePlusWithEmpty(String email){
         String[] words = email.split("[+]");
         if(words.length == 1){
@@ -113,6 +133,7 @@ public class UserResource {
         }
         return email;
     }
+    */
 
     private void audit(String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
@@ -328,9 +349,9 @@ public class UserResource {
     }
 
     @PUT
-     @Path("/{username}/application//{applicationId}")
-     @Produces(MediaType.APPLICATION_JSON)
-     public Response modifyApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
+    @Path("/{username}/application//{applicationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response modifyApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
         throw new UnsupportedOperationException("not implemented yet!");
     }
 
