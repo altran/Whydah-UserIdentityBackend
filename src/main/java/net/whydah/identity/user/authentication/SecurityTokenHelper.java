@@ -33,8 +33,8 @@ public class SecurityTokenHelper {
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);
-        ClientResponse response = webResource.path("token/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        log.info("Accessing:" + "token/" + appTokenId + "/getusertokenbytokenid");
+        ClientResponse response = webResource.path("tokenservice/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+        log.info("Accessing:" + "tokenservice/" + appTokenId + "/getusertokenbytokenid");
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             String usertoken = response.getEntity(String.class);
             log.debug("usertoken: {}", usertoken);
