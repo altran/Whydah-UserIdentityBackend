@@ -4,31 +4,27 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.Application;
 import net.whydah.identity.application.role.ApplicationRepository;
-import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogRepository;
-import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.UserService;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import net.whydah.identity.user.search.Indexer;
-import net.whydah.identity.util.PasswordGenerator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Administration of users and their data.
@@ -42,14 +38,6 @@ public class UserResource {
     private UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     @Inject
     private ApplicationRepository applicationRepository;
-    @Inject
-    private Indexer indexer;
-    @Inject
-    private AuditLogRepository auditLogRepository;
-    @Inject
-    private PasswordGenerator passwordGenerator;
-    @Inject
-    private UserAdminHelper userAdminHelper;
 
     private final UserAuthenticationService userAuthenticationService;
     private final UserService userService;
@@ -135,6 +123,7 @@ public class UserResource {
     }
     */
 
+    /*
     private void audit(String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
         if (authenticatedUser == null) {
@@ -147,6 +136,7 @@ public class UserResource {
         ActionPerformed actionPerformed = new ActionPerformed(user, now, action, what, value);
         auditLogRepository.store(actionPerformed);
     }
+    */
 
 
     /**
@@ -417,7 +407,19 @@ public class UserResource {
     @GET
     @Path("/{username}/applications")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getApplications(@PathParam("username") String username) {
+    public Response getUsersApplications(@PathParam("username") String username) {
+        WhydahUser user;
+        try {
+            user = userService.getUser(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        /*
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
@@ -429,9 +431,12 @@ public class UserResource {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
         WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
+        */
+
+
         List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<>();
-        for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
+        for (UserPropertyAndRole role : user.getPropsAndRoles()) {
             myApps.add(role.getAppId());
         }
 

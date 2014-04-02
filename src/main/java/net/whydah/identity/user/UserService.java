@@ -104,6 +104,7 @@ public class UserService {
             throw new RuntimeException("userAuthenticationService.getUserinfo with username=" + username, e);
         }
         if (whydahUserIdentity == null) {
+            log.trace("getUser could not find user with username={}", username);
             return null;
         }
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
