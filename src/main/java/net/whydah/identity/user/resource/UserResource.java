@@ -9,7 +9,6 @@ import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,23 +30,19 @@ import java.util.Set;
 @Path("/{applicationtokenid}/{userTokenId}/user")
 public class UserResource {
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
-
-    @Inject
-    private UserPropertyAndRoleRepository userPropertyAndRoleRepository;
-    @Inject
-    private ApplicationRepository applicationRepository;
 
     private final UserAuthenticationService userAuthenticationService;
     private final UserService userService;
+    private final ApplicationRepository applicationRepository;
 
     @Context
     private UriInfo uriInfo;
 
     @Inject
-    public UserResource(UserAuthenticationService userAuthenticationService, UserService userService) {
+    public UserResource(UserAuthenticationService userAuthenticationService, UserService userService, ApplicationRepository applicationRepository) {
         this.userAuthenticationService = userAuthenticationService;
         this.userService = userService;
+        this.applicationRepository = applicationRepository;
     }
 
     //Add user and add default roles
@@ -70,74 +64,7 @@ public class UserResource {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
-
-        /*
-        log.debug("addUser: {}", userJson);
-        try {
-            JSONObject jsonobj = new JSONObject(userJson);
-            WhydahUserIdentity userIdentity = new WhydahUserIdentity();
-            String username = jsonobj.getString("username");
-            log.debug("Username is : " + username);
-            InternetAddress internetAddress = new InternetAddress();
-            String email = jsonobj.getString("email");
-            if(email.contains("+")){
-                email = replacePlusWithEmpty(email);
-            }
-            internetAddress.setAddress(email);
-            try {
-                internetAddress.validate();
-                userIdentity.setEmail(jsonobj.getString("email"));
-            } catch (AddressException e) {
-
-                log.error(String.format("E-mail: %s is of wrong format.", email));
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            userIdentity.setUsername(username);
-            userIdentity.setFirstName(jsonobj.getString("firstName"));
-            userIdentity.setLastName(jsonobj.getString("lastName"));
-
-            userIdentity.setCellPhone(jsonobj.getString("cellPhone"));
-            userIdentity.setPersonRef(jsonobj.getString("personRef"));
-            //userIdentity.setUid(UUID.randomUUID().toString());
-            userIdentity.setPassword(passwordGenerator.generate());
-
-            return userAdminHelper.addUser(userIdentity);
-        } catch (JSONException e) {
-            log.error("Bad json: " + userJson, e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        */
     }
-    /*
-    private String replacePlusWithEmpty(String email){
-        String[] words = email.split("[+]");
-        if(words.length == 1){
-            return email;
-        }
-        email  = "";
-        for (String word : words) {
-            email += word;
-        }
-        return email;
-    }
-    */
-
-    /*
-    private void audit(String action, String what, String value) {
-        UserToken authenticatedUser = Authentication.getAuthenticatedUser();
-        if (authenticatedUser == null) {
-            log.error("Audit log was not updated because authenticatedUser is not set. Check SecurityFilter.SECURED_PATHS_PARAM.");
-            return;
-        }
-
-        String user = authenticatedUser.getName();
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(user, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
-    }
-    */
-
 
     /**
      * Get user details.
@@ -150,23 +77,6 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("username") String username) {
         log.trace("getUser with username=" + username);
-        /*
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-        } catch (NamingException e) {
-            log.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        HashMap<String, Object> model = new HashMap<>(2);
-        model.put("user", whydahUser);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
-        */
 
         WhydahUser user;
         try {
@@ -240,24 +150,6 @@ public class UserResource {
     @DELETE
     @Path("/{username}")
     public Response deleteUser(@PathParam("username") String username) {
-        /*
-        try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-            userAuthenticationService.deleteUser(username);
-            String uid = user.getUid();
-            userPropertyAndRoleRepository.deleteUser(uid);
-            indexer.removeFromIndex(uid);
-            audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
-            return Response.ok().build();
-        } catch (NamingException e) {
-            log.error("deleteUser failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        */
-
         try {
             userService.deleteUser(username);
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -418,21 +310,6 @@ public class UserResource {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
-        /*
-        WhydahUserIdentity whydahUserIdentity;
-        try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-        } catch (NamingException e) {
-            log.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        if (whydahUserIdentity == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-        }
-        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
-        */
-
 
         List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<>();
