@@ -110,6 +110,27 @@ public class UserService {
         return new WhydahUser(whydahUserIdentity, userPropertyAndRoles);
     }
 
+    public WhydahUserIdentity modifyUserIdentity(String username, String userJson) {
+        WhydahUserIdentity newUserIdentity = WhydahUserIdentity.fromJson(userJson);
+
+        try {
+            WhydahUserIdentity whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            if (whydahUserIdentity == null) {
+                return null;
+            }
+
+            userAuthenticationService.updateUser(username, newUserIdentity);
+            indexer.update(newUserIdentity);
+            audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
+        } catch (NamingException e) {
+            throw new RuntimeException("updateUser failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
+        }
+        return newUserIdentity;
+    }
+
+
+
+
 
     private void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();

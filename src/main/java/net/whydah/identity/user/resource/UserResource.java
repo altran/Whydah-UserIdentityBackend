@@ -199,7 +199,21 @@ public class UserResource {
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response modifyUser(@PathParam("username") String username, String userJson) {
-        log.debug("modifyUser: ", userJson);
+        log.trace("modifyUserIdentity: username={}, userJson={}", username, userJson);
+
+        try {
+            WhydahUserIdentity newUserIdentity = userService.modifyUserIdentity(username, userJson);
+            return Response.ok().build();   //TODO return whydahUserIdentity
+        } catch (IllegalArgumentException iae) {
+            log.error("modifyUser: Invalid json={}", userJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+
+        /*
         try {
             WhydahUserIdentity whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             if (whydahUserIdentity == null) {
@@ -230,6 +244,7 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok().build();
+        */
     }
 
     @DELETE
