@@ -91,8 +91,8 @@ public class SecurityFilter implements Filter {
                         return;
                     }
                      */
-                    logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
-                    Authentication.setAuthenticatedUser(userToken);
+                    logger.debug("setAuthenticatedUser with usertokenId: {}", usertokenId);
+                    Authentication.setAuthenticatedUser(usertokenId);
                 }
                 chain.doFilter(request, response);
             }
