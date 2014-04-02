@@ -99,10 +99,10 @@ public class UserResource {
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response modifyUser(@PathParam("username") String username, String userJson) {
-        log.trace("modifyUserIdentity: username={}, userJson={}", username, userJson);
+        log.trace("updateUserIdentity: username={}, userJson={}", username, userJson);
 
         try {
-            WhydahUserIdentity newUserIdentity = userService.modifyUserIdentity(username, userJson);
+            WhydahUserIdentity newUserIdentity = userService.updateUserIdentity(username, userJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
             log.error("modifyUser: Invalid json={}", userJson, iae);
