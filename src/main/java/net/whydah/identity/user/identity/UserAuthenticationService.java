@@ -79,9 +79,6 @@ public class UserAuthenticationService {
 
 
     public void addUserToLdap(WhydahUserIdentity userIdentity) {
-        userIdentity.setPassword(passwordGenerator.generate());
-        userIdentity.setUid(UUID.randomUUID().toString());
-
         String username = userIdentity.getUsername();
         try {
             if (ldapHelper.usernameExist(username)) {
@@ -91,6 +88,9 @@ public class UserAuthenticationService {
         } catch (NamingException e) {
             throw new RuntimeException("usernameExist failed for username=" + username, e);
         }
+
+        userIdentity.setPassword(passwordGenerator.generate());
+        userIdentity.setUid(UUID.randomUUID().toString());
 
         try {
             ldapHelper.addWhydahUserIdentity(userIdentity);
