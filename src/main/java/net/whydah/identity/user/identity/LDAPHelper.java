@@ -16,7 +16,7 @@ import java.util.Hashtable;
  * @author totto
  */
 public class LDAPHelper {
-    private static final Logger logger = LoggerFactory.getLogger(LDAPHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(LDAPHelper.class);
     static final String ATTRIBUTE_NAME_TEMPPWD_SALT = "destinationIndicator";
     /**
      * The OU (organizational unit) to add users to
@@ -28,7 +28,7 @@ public class LDAPHelper {
     private static final String ATTRIBUTE_NAME_GIVENNAME = "givenName";
     private static final String ATTRIBUTE_NAME_MAIL = "mail";
     private static final String ATTRIBUTE_NAME_MOBILE = "mobile";
-    private static final String ATTRIBUTE_NAME_PASSWORD = "userpassword";
+    private static final String ATTRIBUTE_NAME_PASSWORD = "userpassword";   //TODO Should this be userPassword?
     private static final String ATTRIBUTE_NAME_PERSONREF = "employeeNumber";
 
     private static final StringCleaner stringCleaner = new StringCleaner();
@@ -54,11 +54,11 @@ public class LDAPHelper {
         try {
             ctx = new InitialDirContext(admenv);
         } catch (NamingException ne) {
-            logger.error("NamingException in setUP()" +ne.getLocalizedMessage(), ne);
+            log.error("NamingException in setUP()" + ne.getLocalizedMessage(), ne);
             connected = false;
             
         } catch (Exception e) {
-            logger.error("Exception in setUP()"+e.getLocalizedMessage(), e);
+            log.error("Exception in setUP()" + e.getLocalizedMessage(), e);
             connected = false;
         }
         connected = true;
@@ -66,7 +66,7 @@ public class LDAPHelper {
 
     public void addWhydahUserIdentity(WhydahUserIdentity userIdentity) throws NamingException {
         if (!userIdentity.validate()) {
-            logger.error("Error validating WhydahUserIdentity: {}", userIdentity);
+            log.error("Error validating WhydahUserIdentity: {}", userIdentity);
             return;
         }
 
@@ -80,11 +80,18 @@ public class LDAPHelper {
         try {
             String userdn = ATTRIBUTE_NAME_UID + '=' + userIdentity.getUid() + "," + USERS_OU;
             ctx.createSubcontext(userdn, container);
-            logger.debug("Added {} with dn={}", userIdentity, userdn);
+            log.debug("Added {} with dn={}", userIdentity, userdn);
         } catch (NameAlreadyBoundException nabe) {
-            logger.info("User already exist in LDAP: {}", userIdentity);
+            log.info("User already exist in LDAP: {}", userIdentity);
         } catch (InvalidAttributeValueException iave){
-            logger.info("LDAP user with illegal state: {}: {}", userIdentity, iave.getLocalizedMessage());
+            StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
+            strb.append(userIdentity.toString());
+            if (log.isDebugEnabled()) {
+                strb.append("\n").append(iave);
+            } else {
+                strb.append("ExceptionMessage: ").append(iave.getMessage());
+            }
+            log.warn(strb.toString());
         }
     }
 
@@ -118,7 +125,7 @@ public class LDAPHelper {
 
     public void updateUser(String username, WhydahUserIdentity newuser) {
         if (!newuser.validate()) {
-            logger.warn("{} is not valid", newuser);
+            log.warn("{} is not valid", newuser);
             return;
         }
         if (!connected) {
@@ -140,21 +147,21 @@ public class LDAPHelper {
 
             ctx.modifyAttributes(createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()]));
         } catch (NamingException ne) {
-            logger.error(ne.getLocalizedMessage(), ne);
+            log.error("", ne);
         }
     }
 
     private void addModificationItem(ArrayList<ModificationItem> modificationItems, String attributeName, String oldValue, String newValue) {
         if((oldValue != null && oldValue.equals(newValue)) || (oldValue == null && newValue == null)) {
-            logger.debug("Endrer ikke " + attributeName + "=" + newValue);
+            log.debug("Endrer ikke " + attributeName + "=" + newValue);
         } else if(oldValue == null) {
-            logger.debug("Legger til " + attributeName + "=" + newValue);
+            log.debug("Legger til " + attributeName + "=" + newValue);
             modificationItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(attributeName, newValue)));
         } else if(newValue == null) {
-            logger.debug("Fjerner til " + attributeName);
+            log.debug("Fjerner til " + attributeName);
             modificationItems.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attributeName, oldValue)));
         } else {
-            logger.debug("Endrer til " + attributeName + "=" + oldValue + " til " + newValue);
+            log.debug("Endrer til " + attributeName + "=" + oldValue + " til " + newValue);
             modificationItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(attributeName, newValue)));
         }
     }
@@ -172,11 +179,11 @@ public class LDAPHelper {
         Attributes attributes = getUserAttributes(username);
         if(attributes == null)
         {
-        	logger.debug("Atributes/User are null");
+        	log.debug("Atributes/User are null");
             return null;
         }
         String uid = getAttribValue(attributes, ATTRIBUTE_NAME_UID);
-        logger.debug("UID is "+uid);
+        log.debug("UID is " + uid);
         return createUserDNFromUID(uid);
     }
 
@@ -212,7 +219,7 @@ public class LDAPHelper {
 
 
     private Attributes getUserAttributes(String username) throws NamingException {
-        logger.debug("getUserAttributes for username=" + username);
+        log.debug("getUserAttributes for username=" + username);
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
@@ -220,14 +227,14 @@ public class LDAPHelper {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        logger.info("No attributes found for username=" + username + " trying uid");
+        log.info("No attributes found for username=" + username + " trying uid");
         String uid = username;
         results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
         if (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        logger.debug("No attributes found for uid=" + uid);
+        log.debug("No attributes found for uid=" + uid);
         return null;
     }
 
@@ -244,7 +251,7 @@ public class LDAPHelper {
             try {
             ctx.destroySubcontext(createUserDN(username));
         } catch (NamingException ne) {
-            logger.error("", ne);
+            log.error("", ne);
         }
     }
 
@@ -264,7 +271,7 @@ public class LDAPHelper {
             ModificationItem[] mis = {mi};
             ctx.modifyAttributes(userDN, mis);
         } catch (NamingException ne) {
-            logger.error("", ne);
+            log.error("", ne);
         }
     }
 
@@ -289,7 +296,7 @@ public class LDAPHelper {
             ModificationItem[] mis = {mip};
             ctx.modifyAttributes(createUserDN(username), mis);
         } catch (NamingException ne) {
-            logger.error("", ne);
+            log.error("", ne);
         }
     }
 
@@ -298,7 +305,7 @@ public class LDAPHelper {
             Attributes attributes = getUserAttributes(user);
             return getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT);
         } catch (NamingException ne) {
-            logger.error(ne.getLocalizedMessage(), ne);
+            log.error(ne.getLocalizedMessage(), ne);
         }
         return null;
     }

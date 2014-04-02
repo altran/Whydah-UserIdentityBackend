@@ -29,6 +29,21 @@ public class WhydahUserIdentity implements Serializable {
 
     private transient String password;
 
+    public WhydahUserIdentity() {
+    }
+
+    public WhydahUserIdentity(String uid, String username, String firstName, String lastName, String personRef,
+                              String email, String cellPhone, String password) {
+        this.uid = uid;
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.personRef = personRef;
+        this.email = email;
+        this.cellPhone = cellPhone; //TODO Validate valid cellPhone
+        this.password = password;
+    }
+
     public boolean validate() {
         if (uid == null || uid.length() < 2) {
             logger.error("UID {} not valid", uid);
