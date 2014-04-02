@@ -5,7 +5,6 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.authentication.UserToken;
-import net.whydah.identity.user.authentication.UserTokenID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Sjekker om request path krever autentisering, og i såfall sjekkes authentication.
@@ -77,11 +75,10 @@ public class SecurityFilter implements Filter {
                 logger.trace("ApplicationMode -{}-", ApplicationMode.getApplicationMode());
                 if (ApplicationMode.getApplicationMode().equals(ApplicationMode.DEV)) {
                     logger.warn("Running in DEV mode, security is ommited for users.");
-                    Authentication.setAuthenticatedUserID(new UserTokenID(UUID.randomUUID().toString()));
+                    Authentication.setAuthenticatedUser(buildMockedUserToken());
                 } else {
                     UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
 
-                    /**
                     if (userToken == null) {
                         logger.trace("Could not find token with tokenID=" + usertokenId);
                         setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
@@ -92,9 +89,8 @@ public class SecurityFilter implements Filter {
                         setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
                         return;
                     }
-                     */
-                    logger.debug("setAuthenticatedUserID with usertokenId: {}", usertokenId);
-                    Authentication.setAuthenticatedUserID(new UserTokenID(usertokenId));
+                    logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
+                    Authentication.setAuthenticatedUser(userToken);
                 }
                 chain.doFilter(request, response);
             }
