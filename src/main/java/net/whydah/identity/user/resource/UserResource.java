@@ -250,6 +250,7 @@ public class UserResource {
     @DELETE
     @Path("/{username}")
     public Response deleteUser(@PathParam("username") String username) {
+        /*
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
@@ -263,6 +264,18 @@ public class UserResource {
             return Response.ok().build();
         } catch (NamingException e) {
             log.error("deleteUser failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        */
+
+        try {
+            userService.deleteUser(username);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("deleteUser failed username={}", username + ". " + iae.getMessage());
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+        } catch (RuntimeException e) {
+            log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

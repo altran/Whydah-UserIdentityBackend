@@ -128,6 +128,25 @@ public class UserService {
         return newUserIdentity;
     }
 
+    public void deleteUser(String username) {
+        WhydahUserIdentity whydahUserIdentity;
+        try {
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+        } catch (NamingException e) {
+            throw new RuntimeException("userAuthenticationService.getUserinfo with username=" + username, e);
+        }
+        if (whydahUserIdentity == null) {
+            throw new IllegalArgumentException("UserIdentity not found. username=" + username);
+        }
+
+        userAuthenticationService.deleteUser(username);
+        String uid = whydahUserIdentity.getUid();
+        userPropertyAndRoleRepository.deleteUser(uid);
+        indexer.removeFromIndex(uid);
+        audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
+    }
+
+
 
 
 
