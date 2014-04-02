@@ -299,6 +299,7 @@ public class UserResource {
         }
     }
 
+    //TODO Can modifyUser be used instead?
     @POST
     @Path("/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
