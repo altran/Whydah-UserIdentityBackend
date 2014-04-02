@@ -35,7 +35,7 @@ import java.util.*;
  */
 @Path("/{applicationtokenid}/{userTokenId}/user")
 public class UserResource {
-    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
+    private static final Logger log = LoggerFactory.getLogger(UserResource.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     @Inject
@@ -68,29 +68,29 @@ public class UserResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String userJson) {
-        logger.trace("addUser is called with userJson={}", userJson);
+        log.trace("addUser is called with userJson={}", userJson);
         try {
             WhydahUserIdentity whydahUserIdentity = userService.addUser(userJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
-            logger.error("addUser: Invalid json={}", userJson, iae);
+            log.error("addUser: Invalid json={}", userJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (IllegalStateException ise) {
-            logger.error(ise.getMessage());
+            log.error(ise.getMessage());
             return Response.status(Response.Status.CONFLICT).build();
         } catch (RuntimeException e) {
-            logger.error("", e);
+            log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
 
         /*
-        logger.debug("addUser: {}", userJson);
+        log.debug("addUser: {}", userJson);
         try {
             JSONObject jsonobj = new JSONObject(userJson);
             WhydahUserIdentity userIdentity = new WhydahUserIdentity();
             String username = jsonobj.getString("username");
-            logger.debug("Username is : " + username);
+            log.debug("Username is : " + username);
             InternetAddress internetAddress = new InternetAddress();
             String email = jsonobj.getString("email");
             if(email.contains("+")){
@@ -102,7 +102,7 @@ public class UserResource {
                 userIdentity.setEmail(jsonobj.getString("email"));
             } catch (AddressException e) {
 
-                logger.error(String.format("E-mail: %s is of wrong format.", email));
+                log.error(String.format("E-mail: %s is of wrong format.", email));
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             userIdentity.setUsername(username);
@@ -116,7 +116,7 @@ public class UserResource {
 
             return userAdminHelper.addUser(userIdentity);
         } catch (JSONException e) {
-            logger.error("Bad json: " + userJson, e);
+            log.error("Bad json: " + userJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         */
@@ -138,7 +138,7 @@ public class UserResource {
     private void audit(String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
         if (authenticatedUser == null) {
-            logger.error("Audit log was not updated because authenticatedUser is not set. Check SecurityFilter.SECURED_PATHS_PARAM.");
+            log.error("Audit log was not updated because authenticatedUser is not set. Check SecurityFilter.SECURED_PATHS_PARAM.");
             return;
         }
 
@@ -159,13 +159,13 @@ public class UserResource {
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("username") String username) {
-        logger.debug("getUser with username=" + username);
-
+        log.trace("getUser with username=" + username);
+        /*
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -176,13 +176,30 @@ public class UserResource {
         model.put("user", whydahUser);
         model.put("userbaseurl", uriInfo.getBaseUri());
         return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
+        */
+
+        WhydahUser user;
+        try {
+            user = userService.getUser(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("user", user);
+        model.put("userbaseurl", uriInfo.getBaseUri());
+        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
     }
 
     @PUT
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response modifyUser(@PathParam("username") String username, String userJson) {
-        logger.debug("modifyUser: ", userJson);
+        log.debug("modifyUser: ", userJson);
         try {
             WhydahUserIdentity whydahUserIdentity = userAuthenticationService.getUserinfo(username);
             if (whydahUserIdentity == null) {
@@ -191,25 +208,25 @@ public class UserResource {
 
             try {
                 JSONObject jsonobj = new JSONObject(userJson);
-                //logger.debug("jsonstr:"+userJson);
-                //logger.debug("json:"+jsonobj.toString());
+                //log.debug("jsonstr:"+userJson);
+                //log.debug("json:"+jsonobj.toString());
                 whydahUserIdentity.setFirstName(jsonobj.getString("firstName"));
                 whydahUserIdentity.setLastName(jsonobj.getString("lastName"));
                 whydahUserIdentity.setEmail(jsonobj.getString("email"));
                 whydahUserIdentity.setCellPhone(jsonobj.getString("cellPhone"));
                 whydahUserIdentity.setPersonRef(jsonobj.getString("personRef"));
                 whydahUserIdentity.setUsername(jsonobj.getString("username"));
-                logger.debug("json:" + jsonobj.toString());
+                log.debug("json:" + jsonobj.toString());
             } catch (JSONException e) {
-                logger.error("Bad json", e);
+                log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-            logger.debug("Endret bruker: {}", whydahUserIdentity);
+            log.debug("Endret bruker: {}", whydahUserIdentity);
             userAuthenticationService.updateUser(username, whydahUserIdentity);
             indexer.update(whydahUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", whydahUserIdentity.toString());
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok().build();
@@ -230,7 +247,7 @@ public class UserResource {
             audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
             return Response.ok().build();
         } catch (NamingException e) {
-            logger.error("deleteUser failed", e);
+            log.error("deleteUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -239,7 +256,7 @@ public class UserResource {
     @POST
     @Path("/{username}/resetpassword")
     public Response resetPassword(@PathParam("username") String username) {
-        logger.info("Reset password for user {}", username);
+        log.info("Reset password for user {}", username);
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
@@ -249,7 +266,7 @@ public class UserResource {
             userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
-            logger.error("resetPassword failed", e);
+            log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -258,7 +275,7 @@ public class UserResource {
     @Path("/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        logger.info("Changing password for {}", username);
+        log.info("Changing password for {}", username);
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
@@ -267,7 +284,7 @@ public class UserResource {
 
             boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
             if (!ok) {
-                logger.info("Authentication failed while changing password for user {}", username);
+                log.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
             try {
@@ -275,12 +292,12 @@ public class UserResource {
                 String newpassword = jsonobj.getString("newpassword");
                 userAuthenticationService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
-                logger.error("Bad json", e);
+                log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             return Response.ok().build();
         } catch (Exception e) {
-            logger.error("changePasswordForUser failed", e);
+            log.error("changePasswordForUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -290,7 +307,7 @@ public class UserResource {
     @Path("users/{username}/newuser/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        logger.info("Endrer data for ny bruker {}: {}", username, passwordJson);
+        log.info("Endrer data for ny bruker {}: {}", username, passwordJson);
         try {
             WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
             if (user == null) {
@@ -299,7 +316,7 @@ public class UserResource {
 
             boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
             if (!ok) {
-                logger.info("Authentication failed while changing password for user {}", username);
+                log.info("Authentication failed while changing password for user {}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
             try {
@@ -316,16 +333,16 @@ public class UserResource {
                 }
                 userAuthenticationService.changePassword(newusername, user.getUid(), newpassword);
             } catch (JSONException e) {
-                logger.error("Bad json", e);
+                log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-            logger.info("Nye brukerdata lagret");
+            log.info("Nye brukerdata lagret");
             return Response.ok().build();
         } catch (IllegalArgumentException e) {
-            logger.error("newUser failed", e);
+            log.error("newUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (NamingException e) {
-            logger.error("newUser failed", e);
+            log.error("newUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -376,7 +393,7 @@ public class UserResource {
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -408,13 +425,13 @@ public class UserResource {
     @GET
     @Path("users/{username}/{appid}/deleteall")
     public Response deleteAllUserRolesForApp(@PathParam("username") String username, @PathParam("appid") String appid) {
-        logger.debug("Fjern alle roller for {}: {}", username, appid);
+        log.debug("Fjern alle roller for {}: {}", username, appid);
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant8 {}", whydahUserIdentity);
+            log.debug("fant8 {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -437,7 +454,7 @@ public class UserResource {
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
-            logger.error("", e);
+            log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -459,13 +476,13 @@ public class UserResource {
     @Path("users/{username}/{appid}/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteUserRole(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
-        logger.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
+        log.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant bruker: {}", whydahUserIdentity);
+            log.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error("", e);
+            log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -479,7 +496,7 @@ public class UserResource {
             userPropertyAndRoleRepository.deleteUserRole(uid, appid, orgid, rolename);
             audit(ActionPerformed.DELETED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
         } catch (JSONException e) {
-            logger.error("Bad json", e);
+            log.error("Bad json", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
@@ -495,7 +512,7 @@ public class UserResource {
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -510,7 +527,7 @@ public class UserResource {
             userPropertyAndRoleRepository.updateUserRoleValue(uid, appid, orgid, rolename, rolevalue);
             audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + appid + ", role=" + jsonrole);
         } catch (JSONException e) {
-            logger.error("bad json", e);
+            log.error("bad json", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
@@ -522,17 +539,17 @@ public class UserResource {
     @Path("users/{username}/{appid}/add")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUserRole(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
-        logger.debug("legg til rolle for uid={}, appid={}, rollejson={}", new String[]{username, appid, jsonrole});
+        log.debug("legg til rolle for uid={}, appid={}, rollejson={}", new String[]{username, appid, jsonrole});
         if (jsonrole == null || jsonrole.trim().length() == 0) {
-            logger.warn("Empty json payload");
+            log.warn("Empty json payload");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant6 {}", whydahUserIdentity);
+            log.debug("fant6 {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -547,23 +564,23 @@ public class UserResource {
             role.setRoleName(jsonobj.getString("roleName"));
             role.setRoleValue(jsonobj.getString("roleValue"));
         } catch (JSONException e) {
-            logger.error("Bad json", e);
+            log.error("Bad json", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        logger.debug("Role: {}", role);
+        log.debug("Role: {}", role);
 //        if(appid.equals(PstyrImporter.APPID_INVOICE) && !PstyrImporter.invoiceRoles.contains(role.getRoleName())) {
-//            logger.warn("Ugyldig rolle for invoice");
+//            log.warn("Ugyldig rolle for invoice");
 //            return Response.status(Response.Status.CONFLICT).build();
 //        }
 //        if(!appid.equals(PstyrImporter.APPID_INVOICE) && PstyrImporter.invoiceRoles.contains(role.getRoleName())) {
-//            logger.warn("App og rolle matcher ikke");
+//            log.warn("App og rolle matcher ikke");
 //            return Response.status(Response.Status.CONFLICT).build();
 //        }
         String uid = whydahUserIdentity.getUid();
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
             if (existingRole.getAppId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
-                logger.warn("App og rolle finnes fra før");
+                log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }
         }
@@ -578,13 +595,13 @@ public class UserResource {
     @Path("users/{username}/{appid}/adddefaultrole")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addDefaultRole(@PathParam("username") String username, @PathParam("appid") String appid) {
-        logger.debug("legg til default rolle for {}:{}", username, appid);
+        log.debug("legg til default rolle for {}:{}", username, appid);
         WhydahUserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userAuthenticationService.getUserinfo(username);
-            logger.debug("fant7 {}", whydahUserIdentity);
+            log.debug("fant7 {}", whydahUserIdentity);
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         if (whydahUserIdentity == null) {
@@ -606,11 +623,11 @@ public class UserResource {
         role.setOrgId(app.getDefaultOrgid());
         role.setOrganizationName(orgName);
         role.setRoleName(app.getDefaultrole());
-        logger.debug("Role: {}", role);
+        log.debug("Role: {}", role);
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
         for (UserPropertyAndRole existingRole : existingRoles) {
             if (existingRole.getAppId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
-                logger.warn("App og rolle finnes fra før");
+                log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }
         }

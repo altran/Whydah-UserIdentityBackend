@@ -8,6 +8,7 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.UserAuthenticationService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.NamingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -32,18 +34,21 @@ public class UserService {
     private final LDAPHelper ldapHelper;
     private final Indexer indexer;
     private final AuditLogRepository auditLogRepository;
-    private final UserPropertyAndRoleRepository roleRepository;
+    private final UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     private final PasswordGenerator passwordGenerator;
+    private final UserAuthenticationService userAuthenticationService;
 
 
     @Inject
     public UserService(LDAPHelper ldapHelper, Indexer indexer, AuditLogRepository auditLogRepository,
-                       UserPropertyAndRoleRepository roleRepository, PasswordGenerator passwordGenerator) {
+                       UserPropertyAndRoleRepository userPropertyAndRoleRepository, PasswordGenerator passwordGenerator,
+                       UserAuthenticationService userAuthenticationService) {
         this.ldapHelper = ldapHelper;
         this.indexer = indexer;
         this.auditLogRepository = auditLogRepository;
-        this.roleRepository = roleRepository;
+        this.userPropertyAndRoleRepository = userPropertyAndRoleRepository;
         this.passwordGenerator = passwordGenerator;
+        this.userAuthenticationService = userAuthenticationService;
     }
 
     public WhydahUserIdentity addUser(String userJson) {
@@ -91,8 +96,22 @@ public class UserService {
         return userIdentity;
     }
 
+    public WhydahUser getUser(String username) {
+        WhydahUserIdentity whydahUserIdentity;
+        try {
+            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+        } catch (NamingException e) {
+            throw new RuntimeException("userAuthenticationService.getUserinfo with username=" + username, e);
+        }
+        if (whydahUserIdentity == null) {
+            return null;
+        }
+        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
+        return new WhydahUser(whydahUserIdentity, userPropertyAndRoles);
+    }
 
-    public void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
+
+    private void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
@@ -112,12 +131,12 @@ public class UserService {
         role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         log.debug("Adding Role: {}", role);
 
-        if (roleRepository.hasRole(userIdentity.getUid(), role)) {
+        if (userPropertyAndRoleRepository.hasRole(userIdentity.getUid(), role)) {
             log.warn("Role already exist. " + role.toString());
             return;
         }
 
-        roleRepository.addUserPropertyAndRole(role);
+        userPropertyAndRoleRepository.addUserPropertyAndRole(role);
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
     }
