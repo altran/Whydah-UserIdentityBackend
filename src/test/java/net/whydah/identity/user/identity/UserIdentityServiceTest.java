@@ -60,7 +60,7 @@ public class UserIdentityServiceTest {
                 "email", "12345678", "password");
         userIdentityService.addUserToLdap(userIdentity);
 
-        UserIdentity fromLdap = userIdentityService.getUserinfo(username);
+        UserIdentity fromLdap = userIdentityService.getUserIndentity(username);
 
         assertEquals(userIdentity, fromLdap);
 

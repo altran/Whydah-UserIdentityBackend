@@ -88,9 +88,9 @@ public class UserAggregateService {
     public WhydahUser getUser(String username) {
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserinfo(username);
+            userIdentity = userIdentityService.getUserIndentity(username);
         } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
         }
         if (userIdentity == null) {
             log.trace("getUser could not find user with username={}", username);
@@ -105,7 +105,7 @@ public class UserAggregateService {
         UserIdentity newUserIdentity = UserIdentity.fromJson(userJson);
 
         try {
-            UserIdentity userIdentity = userIdentityService.getUserinfo(username);
+            UserIdentity userIdentity = userIdentityService.getUserIndentity(username);
             if (userIdentity == null) {
                 return null;
             }
@@ -122,9 +122,9 @@ public class UserAggregateService {
     public void deleteUser(String username) {
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserinfo(username);
+            userIdentity = userIdentityService.getUserIndentity(username);
         } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
         }
         if (userIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. username=" + username);

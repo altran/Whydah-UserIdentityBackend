@@ -115,7 +115,7 @@ public class UserResource {
 
         /*
         try {
-            UserIdentity whydahUserIdentity = userIdentityService.getUserinfo(username);
+            UserIdentity whydahUserIdentity = userIdentityService.getUserIndentity(username);
             if (whydahUserIdentity == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -168,7 +168,7 @@ public class UserResource {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserIndentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -188,7 +188,7 @@ public class UserResource {
     public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserIndentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -220,7 +220,7 @@ public class UserResource {
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Endrer data for ny bruker {}: {}", username, passwordJson);
         try {
-            UserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserIndentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -235,7 +235,7 @@ public class UserResource {
                 String newpassword = jsonobj.getString("newpassword");
                 String newusername = jsonobj.getString("newusername");
                 if (!username.equals(newusername)) {
-                    UserIdentity newidexists = userIdentityService.getUserinfo(newusername);
+                    UserIdentity newidexists = userIdentityService.getUserIndentity(newusername);
                     if (newidexists != null) {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
@@ -339,7 +339,7 @@ public class UserResource {
         log.debug("Fjern alle roller for {}: {}", username, appid);
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
             log.debug("fant8 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
@@ -363,7 +363,7 @@ public class UserResource {
     public Response getUserRoles(@PathParam("username") String username, @PathParam("appid") String appid) {
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
         } catch (NamingException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -390,7 +390,7 @@ public class UserResource {
         log.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
             log.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error("", e);
@@ -421,7 +421,7 @@ public class UserResource {
     public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -457,7 +457,7 @@ public class UserResource {
         }
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
             log.debug("fant6 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
@@ -509,7 +509,7 @@ public class UserResource {
         log.debug("legg til default rolle for {}:{}", username, appid);
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserIndentity(username);
             log.debug("fant7 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);

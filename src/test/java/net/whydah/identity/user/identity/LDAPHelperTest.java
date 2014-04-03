@@ -4,18 +4,14 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.naming.NamingException;
 import java.io.File;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class LDAPHelperTest {
-//    private final static int serverPort = 10363;
     private static String ldapUrl; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
@@ -23,7 +19,10 @@ public class LDAPHelperTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
+
+        //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+        int LDAP_PORT = 18389;
         ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         ldapHelper = new LDAPHelper(ldapUrl, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(ldapUrl, "uid=admin,ou=system", "secret", "uid");
@@ -42,63 +41,72 @@ public class LDAPHelperTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        ads.stopServer();
+        if (ads != null) {
+            ads.stopServer();
+        }
     }
 
     @Test
-    public void addUser() throws NamingException {
+    public void testAddUser() throws Exception {
         UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
         ldapHelper.addWhydahUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserinfo("jan");
+        UserIdentity gotUser = ldapHelper.getUserIndentity("jan");
         assertNotNull(gotUser);
     }
 
     @Test
-    public void deleteUser() throws NamingException {
+    public void testUpdateUser() throws Exception {
+        String uid = UUID.randomUUID().toString();
+        String username = "nalle";
+        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
+        ldapHelper.addWhydahUserIdentity(user);
+        UserIdentity gotUser = ldapHelper.getUserIndentity(username);
+        assertNull(gotUser.getCellPhone());
+
+        String cellPhone = "32323232";
+        gotUser.setCellPhone(cellPhone);
+        ldapHelper.updateUser(username, gotUser);
+        UserIdentity gotUpdatedUser = ldapHelper.getUserIndentity(username);
+        assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
+
+        gotUpdatedUser.setCellPhone(null);
+        String firstName = "Emil";
+        gotUpdatedUser.setFirstName(firstName);
+        ldapHelper.updateUser(username, gotUpdatedUser);
+        gotUpdatedUser = ldapHelper.getUserIndentity(username);
+        assertEquals(firstName, gotUpdatedUser.getFirstName());
+        assertNull(gotUpdatedUser.getCellPhone());
+    }
+
+    @Test
+    public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
         UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
         ldapHelper.addWhydahUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserinfo(user.getUsername());
+        UserIdentity gotUser = ldapHelper.getUserIndentity(user.getUsername());
         //System.out.println("gotUser " + gotUser);
         assertNotNull(gotUser);
         ldapHelper.deleteUser(username);
-        UserIdentity gotUser2 = ldapHelper.getUserinfo(user.getUsername());
+        UserIdentity gotUser2 = ldapHelper.getUserIndentity(user.getUsername());
         //System.out.println(gotUser2);
         assertNull(gotUser2);
     }
 
     @Test
-    public void changePassword() throws NamingException {
+    public void testChangePassword() throws Exception {
         UserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
         ldapHelper.addWhydahUserIdentity(user);
-        assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", "pass"));
-        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", "snafs"));
-        ldapHelper.changePassword("stoven@hotmail.com", "snafs");
-        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", "pass"));
-        assertNotNull(ldapAuthenticator.authenticate("stoven@hotmail.com", "snafs"));
-    }
 
-    @Test
-    public void updateUser() throws NamingException {
-        String uid = UUID.randomUUID().toString();
-        String username = "nalle";
-        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
-        ldapHelper.addWhydahUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserinfo(username);
-        assertNull(gotUser.getCellPhone());
-        gotUser.setCellPhone("32323232");
-        ldapHelper.updateUser(username, gotUser);
-        UserIdentity gotUpdatedUser = ldapHelper.getUserinfo(username);
-        assertEquals("32323232", gotUpdatedUser.getCellPhone());
-        gotUpdatedUser.setCellPhone(null);
-        gotUpdatedUser.setFirstName("Emil");
-        ldapHelper.updateUser(username, gotUpdatedUser);
-        gotUpdatedUser = ldapHelper.getUserinfo(username);
-        assertEquals("Emil", gotUpdatedUser.getFirstName());
-        assertNull(gotUpdatedUser.getCellPhone());
-    }
+        String firstPassword = "pass";
+        assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", firstPassword));
+        String secondPassword = "snafs";
+        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", secondPassword));
 
+        ldapHelper.changePassword("stoven@hotmail.com", secondPassword);
+        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", firstPassword));
+        assertNotNull(ldapAuthenticator.authenticate("stoven@hotmail.com", secondPassword));
+    }
 
     private static UserIdentity createUser(String username, String firstName, String lastName, String email, String uid) {
         UserIdentity userIdentity = new UserIdentity();

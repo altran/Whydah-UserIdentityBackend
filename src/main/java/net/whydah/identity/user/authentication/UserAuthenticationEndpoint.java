@@ -173,7 +173,7 @@ public class UserAuthenticationEndpoint {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserIndentity(username);
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
@@ -195,7 +195,7 @@ public class UserAuthenticationEndpoint {
     public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserIndentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }

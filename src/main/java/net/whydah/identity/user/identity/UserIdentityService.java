@@ -46,11 +46,6 @@ public class UserIdentityService {
         this.passwordSender = passwordSender;
     }
 
-    public UserIdentity getUserinfo(String username) throws NamingException {
-        return ldapHelper.getUserinfo(username);
-    }
-
-
     public UserIdentity authenticate(final String username, final String password) {
         return externalLdapAuthenticator.authenticate(username, password);
     }
@@ -77,6 +72,9 @@ public class UserIdentityService {
         audit(ActionPerformed.MODIFIED, "password", userUid);
     }
 
+    public UserIdentity getUserIndentity(String username) throws NamingException {
+        return ldapHelper.getUserIndentity(username);
+    }
 
     public void addUserToLdap(UserIdentity userIdentity) {
         String username = userIdentity.getUsername();

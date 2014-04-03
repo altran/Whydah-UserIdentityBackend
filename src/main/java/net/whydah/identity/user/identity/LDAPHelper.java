@@ -132,7 +132,7 @@ public class LDAPHelper {
             setUp();
         }
         try {
-            UserIdentity olduser = getUserinfo(username);
+            UserIdentity olduser = getUserIndentity(username);
             if(olduser == null) {
                 throw new IllegalArgumentException("User " + username + " not found");
             }
@@ -153,15 +153,15 @@ public class LDAPHelper {
 
     private void addModificationItem(ArrayList<ModificationItem> modificationItems, String attributeName, String oldValue, String newValue) {
         if((oldValue != null && oldValue.equals(newValue)) || (oldValue == null && newValue == null)) {
-            log.debug("Endrer ikke " + attributeName + "=" + newValue);
+            log.debug("Not changing " + attributeName + "=" + newValue);
         } else if(oldValue == null) {
-            log.debug("Legger til " + attributeName + "=" + newValue);
+            log.debug("Adding attribute " + attributeName + "=" + newValue);
             modificationItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(attributeName, newValue)));
         } else if(newValue == null) {
-            log.debug("Fjerner til " + attributeName);
+            log.debug("Removing attribute '" + attributeName + "'");
             modificationItems.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attributeName, oldValue)));
         } else {
-            log.debug("Endrer til " + attributeName + "=" + oldValue + " til " + newValue);
+            log.debug("Changing from " + attributeName + "=" + oldValue + " to " + newValue);
             modificationItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(attributeName, newValue)));
         }
     }
@@ -177,8 +177,7 @@ public class LDAPHelper {
 
     private String createUserDN(String username) throws NamingException {
         Attributes attributes = getUserAttributes(username);
-        if(attributes == null)
-        {
+        if (attributes == null) {
         	log.debug("Atributes/User are null");
             return null;
         }
@@ -191,7 +190,7 @@ public class LDAPHelper {
         return new StringBuilder(ATTRIBUTE_NAME_UID).append('=').append(uid).append(",").append(USERS_OU).toString();
     }
 
-    public UserIdentity getUserinfo(String username) throws NamingException {
+    public UserIdentity getUserIndentity(String username) throws NamingException {
         if (!connected) {
             setUp();
         }
@@ -214,7 +213,7 @@ public class LDAPHelper {
     }
 
     public boolean usernameExist(String username) throws NamingException {
-        return getUserinfo(username) != null;
+        return getUserIndentity(username) != null;
     }
 
 
@@ -283,18 +282,19 @@ public class LDAPHelper {
         }
         try {
             Attributes attributes = getUserAttributes(username);
-            if(getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
+            String userDN = createUserDN(username);
+            if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
-                ctx.modifyAttributes(createUserDN(username), mis);
+                ctx.modifyAttributes(userDN, mis);
             } else {
                 ModificationItem mif = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
-                ctx.modifyAttributes(createUserDN(username), mis);
+                ctx.modifyAttributes(userDN, mis);
             }
             ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
             ModificationItem[] mis = {mip};
-            ctx.modifyAttributes(createUserDN(username), mis);
+            ctx.modifyAttributes(userDN, mis);
         } catch (NamingException ne) {
             log.error("", ne);
         }

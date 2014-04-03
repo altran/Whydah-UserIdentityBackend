@@ -14,7 +14,7 @@ import java.util.Hashtable;
  * LDAP-autentisering.
  */
 public class LdapAuthenticatorImpl {
-    private static final Logger logger = LoggerFactory.getLogger(LdapAuthenticatorImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(LdapAuthenticatorImpl.class);
 
     private final String usernameAttribute;
     private final Hashtable<String,String> baseenv;
@@ -22,7 +22,7 @@ public class LdapAuthenticatorImpl {
 
 
     public LdapAuthenticatorImpl(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
-        logger.debug("Initialize LdapAuthenticatorImpl with ldapUrl=" + ldapUrl + ", admPrincipal=" + admPrincipal +
+        log.debug("Initialize LdapAuthenticatorImpl with ldapUrl=" + ldapUrl + ", admPrincipal=" + admPrincipal +
                 ", admCredentials=" + admCredentials + ", usernameAttribute=" + usernameAttribute);
         baseenv = new Hashtable<>();
         baseenv.put(Context.PROVIDER_URL, ldapUrl);
@@ -48,7 +48,7 @@ public class LdapAuthenticatorImpl {
      * @return  a authenticated UserIdentity
      */
     public UserIdentity authenticate(final String username, final String password) {
-        logger.debug("Trying to authenticate with username and password. username=" + username);
+        log.debug("Trying to authenticate with username and password. username=" + username);
 
         if (username == null || password == null) {
             return null;
@@ -57,10 +57,10 @@ public class LdapAuthenticatorImpl {
         try {
             final String userDN = findUserDN(username);
             if (userDN == null) {
-                logger.info("userDN not found for {}", username);
+                log.info("userDN not found for {}", username);
                 return null;
             }
-            logger.debug("Found userDN=" + userDN);
+            log.debug("Found userDN=" + userDN);
 
             Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
             myEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -70,7 +70,7 @@ public class LdapAuthenticatorImpl {
             UserIdentity userIdentity = getUserinfo(username, context);
             return userIdentity;
         } catch (Exception e) {
-            logger.info("Authentication failed for user " + username, e);
+            log.debug("Authentication failed for user " + username, e);
             return null;
         }
     }
@@ -79,19 +79,19 @@ public class LdapAuthenticatorImpl {
         try {
             final String userDN = findUserDN(username);
             if (userDN == null) {
-                logger.info("userDN not found for {}", username);
+                log.info("userDN not found for {}", username);
                 return false;
             }
-            logger.debug("Found userND=" + userDN);
+            log.debug("Found userND=" + userDN);
             Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
             myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
             myEnv.put(Context.SECURITY_CREDENTIALS, password);
             new InitialDirContext(myEnv);
         } catch (AuthenticationException e) {
-            logger.info("Authentication failed for user {}", username);
+            log.info("Authentication failed for user {}", username);
             return false;
         } catch (NamingException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
             return false;
         }
         return true;
@@ -103,7 +103,7 @@ public class LdapAuthenticatorImpl {
         try {
             context = new InitialDirContext(admenv);
         } catch (AuthenticationException e) {
-            logger.error("Error authenticating as superuser, check configuration", e);
+            log.error("Error authenticating as superuser, check configuration", e);
             throw e;
         }
         SearchControls constraints = new SearchControls();
@@ -129,7 +129,7 @@ public class LdapAuthenticatorImpl {
         SearchResult searchResult = (SearchResult) results.next();
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get(LDAPHelper.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
-            logger.info("User has temp password, must change before logon");
+            log.info("User has temp password, must change before logon");
             return null;
         }
 

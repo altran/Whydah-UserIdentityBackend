@@ -96,12 +96,12 @@ public class IamDataImporterTest {
 		IamDataImporter iamDataImporter = new IamDataImporter(databaseHelper, applicationImporter, organizationImporter, userImporter, roleMappingImporter);
         iamDataImporter.importIamData();
         
-        UserIdentity thomaspUserIdentity = ldapHelper.getUserinfo("thomasp");
+        UserIdentity thomaspUserIdentity = ldapHelper.getUserIndentity("thomasp");
         assertEquals("Name must be set", "Thomas", thomaspUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Pringle", thomaspUserIdentity.getLastName());
         assertEquals("UserId must be set", "thomas.pringle@altran.com", thomaspUserIdentity.getUid());
 
-        UserIdentity erikdUserIdentity = ldapHelper.getUserinfo("erikd");
+        UserIdentity erikdUserIdentity = ldapHelper.getUserIndentity("erikd");
         assertEquals("Name must be set", "Erik", erikdUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("UserId must be set", "erik.drolshammer", erikdUserIdentity.getUid());
