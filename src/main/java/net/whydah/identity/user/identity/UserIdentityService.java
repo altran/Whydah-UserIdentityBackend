@@ -51,19 +51,45 @@ public class UserIdentityService {
         return externalLdapAuthenticator.authenticate(username, password);
     }
 
-    public boolean authenticateWithTemporaryPassword(String username, String token) {
+
+    public void resetPassword(String username, String uid, String userEmail) {
+        String token = setTempPassword(username, uid);
+        passwordSender.sendResetPasswordEmail(username, token, userEmail);
+    }
+    private String setTempPassword(String username, String uid) {
+        String newPassword = passwordGenerator.generate();
+        String salt = passwordGenerator.generate();
+        ldapHelper.setTempPassword(username, newPassword, salt);
+        audit(ActionPerformed.MODIFIED, "resetpassword", uid);
+
+        byte[] saltAsBytes;
+        try {
+            saltAsBytes = salt.getBytes(SALT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
+        return changePasswordToken.generateTokenString(saltAsBytes);
+    }
+
+    /**
+     * Authenticate using token generated when resetting the password
+     * @param username  username to authenticate
+     * @param token with temporary access
+     * @return  true if authentication OK
+     */
+    public boolean authenticateWithChangePasswordToken(String username, String token) {
         String salt = ldapHelper.getSalt(username);
 
-        byte[] saltAsBytes = null;
+        byte[] saltAsBytes;
         try {
             saltAsBytes = salt.getBytes(SALT_ENCODING);
         } catch (UnsupportedEncodingException e1) {
-            log.error("Error with salt for username={}", username, e1);
+            throw new RuntimeException("Error with salt for username=" + username, e1);
         }
-
         ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
         boolean ok = externalLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
-        log.info("authenticateWithTemporaryPassword for username={} was ok={}", username, ok);
+        log.info("authenticateWithChangePasswordToken was ok={} for username={}", username, ok);
         return ok;
     }
 
@@ -71,10 +97,6 @@ public class UserIdentityService {
     public void changePassword(String username, String userUid, String newPassword) {
         ldapHelper.changePassword(username, newPassword);
         audit(ActionPerformed.MODIFIED, "password", userUid);
-    }
-
-    public UserIdentity getUserIndentity(String username) throws NamingException {
-        return ldapHelper.getUserIndentity(username);
     }
 
     public void addUserToLdap(UserIdentity userIdentity) {
@@ -99,31 +121,16 @@ public class UserIdentityService {
         log.info("Added new user to LDAP: {}", username);
     }
 
+    public UserIdentity getUserIndentity(String username) throws NamingException {
+        return ldapHelper.getUserIndentity(username);
+    }
+
     public void updateUser(String username, UserIdentity newuser) {
         ldapHelper.updateUser(username, newuser);
     }
 
-
     public void deleteUser(String username) {
         ldapHelper.deleteUser(username);
-    }
-
-    public void resetPassword(String username, String uid, String userEmail) {
-        String newPassword = passwordGenerator.generate();
-        String salt = passwordGenerator.generate();
-        ldapHelper.setTempPassword(username, newPassword, salt);
-
-        byte[] bytes;
-        try {
-            bytes = salt.getBytes(SALT_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
-        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
-        String token = changePasswordToken.generateTokenString(bytes);
-        passwordSender.sendResetPasswordEmail(username, token, userEmail);
-        audit(ActionPerformed.MODIFIED, "resetpassword", uid);
     }
 
     private void audit(String action, String what, String value) {

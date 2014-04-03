@@ -308,7 +308,7 @@ public class LDAPHelper {
             Attributes attributes = getUserAttributes(user);
             return getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT);
         } catch (NamingException ne) {
-            log.error(ne.getLocalizedMessage(), ne);
+            log.error("", ne);
         }
         return null;
     }

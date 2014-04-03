@@ -200,7 +200,7 @@ public class UserAuthenticationEndpoint {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
 
-            boolean ok = userIdentityService.authenticateWithTemporaryPassword(username, token);
+            boolean ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
 
             if (!ok) {
                 log.info("Authentication failed while changing password for user {}", username);
