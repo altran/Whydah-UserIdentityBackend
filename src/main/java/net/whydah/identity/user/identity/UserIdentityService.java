@@ -21,8 +21,8 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 29.03.14
  */
 @Singleton
-public class UserAuthenticationService {
-    private static final Logger log = LoggerFactory.getLogger(UserAuthenticationService.class);
+public class UserIdentityService {
+    private static final Logger log = LoggerFactory.getLogger(UserIdentityService.class);
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
@@ -36,9 +36,9 @@ public class UserAuthenticationService {
 
 
     @Inject
-    public UserAuthenticationService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
-                                     LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
-                                     PasswordSender passwordSender) {
+    public UserIdentityService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
+                               LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
+                               PasswordSender passwordSender) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.ldapHelper = ldapHelper;
         this.auditLogRepository = auditLogRepository;

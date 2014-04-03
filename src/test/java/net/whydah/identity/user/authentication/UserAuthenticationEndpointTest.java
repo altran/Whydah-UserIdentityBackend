@@ -51,7 +51,7 @@ public class UserAuthenticationEndpointTest {
     private static UserAdminHelper userAdminHelper;
     private static QueryRunner queryRunner;
 
-    private static UserAuthenticationService userAuthenticationService;
+    private static UserIdentityService userIdentityService;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -86,7 +86,7 @@ public class UserAuthenticationEndpointTest {
 
         PasswordGenerator pwg = new PasswordGenerator();
         PasswordSender passwordSender = new PasswordSender(null, null);
-        userAuthenticationService = new UserAuthenticationService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender);
 
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
@@ -120,7 +120,7 @@ public class UserAuthenticationEndpointTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(roleRepository, userAdminHelper, userAuthenticationService);
+        UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(roleRepository, userAdminHelper, userIdentityService);
 
         String roleValue = "roleValue";
         Response response = resource.createAndAuthenticateUser(newIdentity, roleValue, false);

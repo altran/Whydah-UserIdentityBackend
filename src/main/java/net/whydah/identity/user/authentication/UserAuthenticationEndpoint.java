@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.WhydahUser;
-import net.whydah.identity.user.identity.UserAuthenticationService;
+import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -47,7 +47,7 @@ public class UserAuthenticationEndpoint {
 
     private final UserPropertyAndRoleRepository roleRepository;
     private final UserAdminHelper userAdminHelper;
-    private final UserAuthenticationService userAuthenticationService;
+    private final UserIdentityService userIdentityService;
     //private final String hostname;
 
     @Inject
@@ -55,10 +55,10 @@ public class UserAuthenticationEndpoint {
 
     @Inject
     public UserAuthenticationEndpoint(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,
-                                      UserAuthenticationService userAuthenticationService) {
+                                      UserIdentityService userIdentityService) {
         this.roleRepository = roleRepository;
         this.userAdminHelper = userAdminHelper;
-        this.userAuthenticationService = userAuthenticationService;
+        this.userIdentityService = userIdentityService;
         //this.hostname = getLocalhostName();
     }
     /*
@@ -115,7 +115,7 @@ public class UserAuthenticationEndpoint {
     }
 
     private Response authenticateUser(String username, String password) {
-        WhydahUserIdentity id = userAuthenticationService.authenticate(username, password);
+        WhydahUserIdentity id = userIdentityService.authenticate(username, password);
         if (id == null)  {
             log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
@@ -150,7 +150,7 @@ public class UserAuthenticationEndpoint {
         log.debug("authenticateUserForm: user=" + username + ", password=" + password);
         WhydahUserIdentity id = null;
         if (username != null && password != null) {
-            id = userAuthenticationService.auth(username, password);
+            id = userIdentityService.auth(username, password);
 //            if(id == null) {
 //                System.out.println("Prøver intern ldap");
 //                id = internalLdapAuthenticator.auth(username, password);
@@ -173,13 +173,13 @@ public class UserAuthenticationEndpoint {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            userAuthenticationService.resetPassword(username, user.getUid(), user.getEmail());
+            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
             return Response.ok().build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
@@ -195,12 +195,12 @@ public class UserAuthenticationEndpoint {
     public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            WhydahUserIdentity user = userAuthenticationService.getUserinfo(username);
+            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
 
-            boolean ok = userAuthenticationService.authenticateWithTemporaryPassword(username, token);
+            boolean ok = userIdentityService.authenticateWithTemporaryPassword(username, token);
 
             if (!ok) {
                 log.info("Authentication failed while changing password for user {}", username);
@@ -209,7 +209,7 @@ public class UserAuthenticationEndpoint {
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
-                userAuthenticationService.changePassword(username, user.getUid(), newpassword);
+                userIdentityService.changePassword(username, user.getUid(), newpassword);
             } catch (JSONException e) {
                 log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();

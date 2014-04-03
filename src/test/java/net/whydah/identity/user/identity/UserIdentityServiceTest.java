@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
-public class UserAuthenticationServiceTest {
+public class UserIdentityServiceTest {
     private static String ldapUrl; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
     private static LDAPHelper ldapHelper; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
@@ -31,7 +31,7 @@ public class UserAuthenticationServiceTest {
         ldapHelper = new LDAPHelper(ldapUrl, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(ldapUrl, "uid=admin,ou=system", "secret", "uid");
 
-        String workDirPath = "target/" + UserAuthenticationServiceTest.class.getSimpleName();
+        String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
@@ -52,20 +52,20 @@ public class UserAuthenticationServiceTest {
 
     @Test
     public void testAddUserToLdap() throws Exception {
-        UserAuthenticationService userAuthenticationService =
-                new UserAuthenticationService(null, ldapHelper, null, passwordGenerator, null);
+        UserIdentityService userIdentityService =
+                new UserIdentityService(null, ldapHelper, null, passwordGenerator, null);
 
         String username = "username123";
         WhydahUserIdentity userIdentity = new WhydahUserIdentity("uid", username, "firstName", "lastName", "personRef",
                 "email", "12345678", "password");
-        userAuthenticationService.addUserToLdap(userIdentity);
+        userIdentityService.addUserToLdap(userIdentity);
 
-        WhydahUserIdentity fromLdap = userAuthenticationService.getUserinfo(username);
+        WhydahUserIdentity fromLdap = userIdentityService.getUserinfo(username);
 
         assertEquals(userIdentity, fromLdap);
 
         try {
-            userAuthenticationService.addUserToLdap(userIdentity);
+            userIdentityService.addUserToLdap(userIdentity);
             fail("Expected IllegalStateException because user should already exist.");
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains(username));

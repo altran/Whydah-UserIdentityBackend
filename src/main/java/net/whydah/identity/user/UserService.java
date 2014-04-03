@@ -7,7 +7,7 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
-import net.whydah.identity.user.identity.UserAuthenticationService;
+import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -28,24 +28,24 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
-    private final UserAuthenticationService userAuthenticationService;
+    private final UserIdentityService userIdentityService;
     private final UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     private final Indexer indexer;
     private final AuditLogRepository auditLogRepository;
 
     @Inject
-    public UserService(UserAuthenticationService userAuthenticationService, UserPropertyAndRoleRepository userPropertyAndRoleRepository,
+    public UserService(UserIdentityService userIdentityService, UserPropertyAndRoleRepository userPropertyAndRoleRepository,
                        Indexer indexer, AuditLogRepository auditLogRepository) {
         this.indexer = indexer;
         this.auditLogRepository = auditLogRepository;
         this.userPropertyAndRoleRepository = userPropertyAndRoleRepository;
-        this.userAuthenticationService = userAuthenticationService;
+        this.userIdentityService = userIdentityService;
     }
 
     public WhydahUserIdentity addUser(String userJson) {
         WhydahUserIdentity userIdentity = WhydahUserIdentity.fromJson(userJson);
 
-        userAuthenticationService.addUserToLdap(userIdentity);
+        userIdentityService.addUserToLdap(userIdentity);
 
         addDefaultWhydahUserRole(userIdentity);
 
@@ -88,9 +88,9 @@ public class UserService {
     public WhydahUser getUser(String username) {
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
-            throw new RuntimeException("userAuthenticationService.getUserinfo with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
         }
         if (whydahUserIdentity == null) {
             log.trace("getUser could not find user with username={}", username);
@@ -105,12 +105,12 @@ public class UserService {
         WhydahUserIdentity newUserIdentity = WhydahUserIdentity.fromJson(userJson);
 
         try {
-            WhydahUserIdentity whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            WhydahUserIdentity whydahUserIdentity = userIdentityService.getUserinfo(username);
             if (whydahUserIdentity == null) {
                 return null;
             }
 
-            userAuthenticationService.updateUser(username, newUserIdentity);
+            userIdentityService.updateUser(username, newUserIdentity);
             indexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
@@ -122,15 +122,15 @@ public class UserService {
     public void deleteUser(String username) {
         WhydahUserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userAuthenticationService.getUserinfo(username);
+            whydahUserIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
-            throw new RuntimeException("userAuthenticationService.getUserinfo with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
         }
         if (whydahUserIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. username=" + username);
         }
 
-        userAuthenticationService.deleteUser(username);
+        userIdentityService.deleteUser(username);
 
         String uid = whydahUserIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
