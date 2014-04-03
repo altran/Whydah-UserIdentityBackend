@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.Application;
 import net.whydah.identity.application.role.ApplicationRepository;
-import net.whydah.identity.user.UserService;
+import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.identity.WhydahUserIdentity;
@@ -32,16 +32,16 @@ public class UserResource {
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
 
     private final UserIdentityService userIdentityService;
-    private final UserService userService;
+    private final UserAggregateService userAggregateService;
     private final ApplicationRepository applicationRepository;
 
     @Context
     private UriInfo uriInfo;
 
     @Inject
-    public UserResource(UserIdentityService userIdentityService, UserService userService, ApplicationRepository applicationRepository) {
+    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ApplicationRepository applicationRepository) {
         this.userIdentityService = userIdentityService;
-        this.userService = userService;
+        this.userAggregateService = userAggregateService;
         this.applicationRepository = applicationRepository;
     }
 
@@ -52,7 +52,7 @@ public class UserResource {
     public Response addUser(String userJson) {
         log.trace("addUser is called with userJson={}", userJson);
         try {
-            WhydahUserIdentity whydahUserIdentity = userService.addUser(userJson);
+            WhydahUserIdentity whydahUserIdentity = userAggregateService.addUser(userJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
             log.error("addUser: Invalid json={}", userJson, iae);
@@ -80,7 +80,7 @@ public class UserResource {
 
         WhydahUser user;
         try {
-            user = userService.getUser(username);
+            user = userAggregateService.getUser(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -102,7 +102,7 @@ public class UserResource {
         log.trace("updateUserIdentity: username={}, userJson={}", username, userJson);
 
         try {
-            WhydahUserIdentity newUserIdentity = userService.updateUserIdentity(username, userJson);
+            WhydahUserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
             log.error("modifyUser: Invalid json={}", userJson, iae);
@@ -151,7 +151,7 @@ public class UserResource {
     @Path("/{username}")
     public Response deleteUser(@PathParam("username") String username) {
         try {
-            userService.deleteUser(username);
+            userAggregateService.deleteUser(username);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException iae) {
             log.error("deleteUser failed username={}", username + ". " + iae.getMessage());
@@ -302,7 +302,7 @@ public class UserResource {
     public Response getUsersApplications(@PathParam("username") String username) {
         WhydahUser user;
         try {
-            user = userService.getUser(username);
+            user = userAggregateService.getUser(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
