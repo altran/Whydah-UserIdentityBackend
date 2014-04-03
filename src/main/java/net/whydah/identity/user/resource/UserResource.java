@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.application.role.Application;
 import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -75,12 +75,12 @@ public class UserResource {
     @GET
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("username") String username) {
-        log.trace("getUser with username=" + username);
+    public Response getUserAggregate(@PathParam("username") String username) {
+        log.trace("getUserAggregate with username=" + username);
 
-        WhydahUser user;
+        UserAggregate user;
         try {
-            user = userAggregateService.getUser(username);
+            user = userAggregateService.getUserAggregate(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -98,14 +98,14 @@ public class UserResource {
     @PUT
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response modifyUser(@PathParam("username") String username, String userJson) {
-        log.trace("updateUserIdentity: username={}, userJson={}", username, userJson);
+    public Response updateUserIdentity(@PathParam("username") String username, String userIdentityJson) {
+        log.trace("updateUserIdentity: username={}, userJson={}", username, userIdentityJson);
 
         try {
-            UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userJson);
+            UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userIdentityJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
-            log.error("modifyUser: Invalid json={}", userJson, iae);
+            log.error("updateUserIdentity: Invalid json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (RuntimeException e) {
             log.error("", e);
@@ -136,7 +136,7 @@ public class UserResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             log.debug("Endret bruker: {}", whydahUserIdentity);
-            userIdentityService.updateUser(username, whydahUserIdentity);
+            userIdentityService.updateUserIdentity(username, whydahUserIdentity);
             indexer.update(whydahUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", whydahUserIdentity.toString());
         } catch (NamingException e) {
@@ -154,7 +154,7 @@ public class UserResource {
             userAggregateService.deleteUser(username);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException iae) {
-            log.error("deleteUser failed username={}", username + ". " + iae.getMessage());
+            log.error("deleteUserIdentity failed username={}", username + ". " + iae.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         } catch (RuntimeException e) {
             log.error("", e);
@@ -181,7 +181,7 @@ public class UserResource {
         }
     }
 
-    //TODO Can modifyUser be used instead?
+    //TODO Can updateUserIdentity be used instead?
     @POST
     @Path("/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -247,7 +247,7 @@ public class UserResource {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
                     user.setUsername(newusername);
-                    userIdentityService.updateUser(username, user);
+                    userIdentityService.updateUserIdentity(username, user);
                 }
                 userIdentityService.changePassword(newusername, user.getUid(), newpassword);
             } catch (JSONException e) {
@@ -307,9 +307,9 @@ public class UserResource {
     @Path("/{username}/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersApplications(@PathParam("username") String username) {
-        WhydahUser user;
+        UserAggregate user;
         try {
-            user = userAggregateService.getUser(username);
+            user = userAggregateService.getUserAggregate(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -378,7 +378,7 @@ public class UserResource {
         if (whydahUserIdentity == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
         }
-        WhydahUser whydahUser = new WhydahUser(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
+        UserAggregate whydahUser = new UserAggregate(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
         List<UserPropertyAndRole> rolesForApp = new ArrayList<>();
         for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
             if (role.getAppId().equals(appid)) {

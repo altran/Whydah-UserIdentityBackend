@@ -99,7 +99,7 @@ public class UserIdentityService {
         audit(ActionPerformed.MODIFIED, "password", userUid);
     }
 
-    public void addUserToLdap(UserIdentity userIdentity) {
+    public void addUserIdentity(UserIdentity userIdentity) {
         String username = userIdentity.getUsername();
         try {
             if (ldapHelper.usernameExist(username)) {
@@ -114,9 +114,9 @@ public class UserIdentityService {
         userIdentity.setUid(UUID.randomUUID().toString());
 
         try {
-            ldapHelper.addWhydahUserIdentity(userIdentity);
+            ldapHelper.addUserIdentity(userIdentity);
         } catch (NamingException e) {
-            throw new RuntimeException("addWhydahUserIdentity failed for " + userIdentity.toString(), e);
+            throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
         log.info("Added new user to LDAP: {}", username);
     }
@@ -125,12 +125,12 @@ public class UserIdentityService {
         return ldapHelper.getUserIndentity(username);
     }
 
-    public void updateUser(String username, UserIdentity newuser) {
-        ldapHelper.updateUser(username, newuser);
+    public void updateUserIdentity(String username, UserIdentity newuser) {
+        ldapHelper.updateUserIdentity(username, newuser);
     }
 
-    public void deleteUser(String username) {
-        ldapHelper.deleteUser(username);
+    public void deleteUserIdentity(String username) {
+        ldapHelper.deleteUserIdentity(username);
     }
 
     private void audit(String action, String what, String value) {

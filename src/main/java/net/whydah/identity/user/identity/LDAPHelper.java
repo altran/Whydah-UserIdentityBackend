@@ -64,7 +64,7 @@ public class LDAPHelper {
         connected = true;
     }
 
-    public void addWhydahUserIdentity(UserIdentity userIdentity) throws NamingException {
+    public void addUserIdentity(UserIdentity userIdentity) throws NamingException {
         if (!userIdentity.validate()) {
             log.error("Error validating UserIdentity: {}", userIdentity);
             return;
@@ -123,7 +123,7 @@ public class LDAPHelper {
         return container;
     }
 
-    public void updateUser(String username, UserIdentity newuser) {
+    public void updateUserIdentity(String username, UserIdentity newuser) {
         if (!newuser.validate()) {
             log.warn("{} is not valid", newuser);
             return;
@@ -245,14 +245,14 @@ public class LDAPHelper {
         }
     }
 
-    public boolean deleteUser(String username) {
-        log.info("Deleting user with username={}", username);
+    public boolean deleteUserIdentity(String username) {
+        log.info("deleteUserIdentity with username={}", username);
         try {
             String userDN = createUserDN(username);
             ctx.destroySubcontext(userDN);
             return true;
         } catch (NamingException ne) {
-            log.error("deleteUser failed! username=" + username, ne);
+            log.error("deleteUserIdentity failed! username=" + username, ne);
             return false;
         }
     }

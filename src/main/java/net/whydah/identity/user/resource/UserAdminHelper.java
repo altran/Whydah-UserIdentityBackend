@@ -59,7 +59,7 @@ public class UserAdminHelper {
             }
 
             newIdentity.setUid(UUID.randomUUID().toString());
-            ldapHelper.addWhydahUserIdentity(newIdentity);
+            ldapHelper.addUserIdentity(newIdentity);
             logger.info("Added new user: {}", username);
         } catch (Exception e) {
             logger.error("Could not create user " + username, e);

@@ -4,7 +4,7 @@ import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
-import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
 import net.whydah.identity.user.resource.UserAdminHelper;
@@ -129,14 +129,14 @@ public class UserAuthenticationEndpointTest {
 
 
         String userXml = (String) response.getEntity();
-        WhydahUser whydahUser = WhydahUser.fromXML(userXml);
+        UserAggregate userAggregate = UserAggregate.fromXML(userXml);
 
         /*
         Viewable entity = (Viewable) response.getEntity();
-        WhydahUser model = (WhydahUser) entity.getModel();
+        UserAggregate model = (UserAggregate) entity.getModel();
         UserIdentity identity = model.getIdentity();
         */
-        UserIdentity identity = whydahUser.getIdentity();
+        UserIdentity identity = userAggregate.getIdentity();
         assertEquals(username, identity.getUsername());
         assertEquals(identity.getPersonRef(), "");
         assertEquals(email, identity.getEmail());

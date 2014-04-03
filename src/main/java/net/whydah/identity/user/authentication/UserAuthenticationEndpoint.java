@@ -5,7 +5,7 @@ import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.audit.AuditLogRepository;
-import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.UserAdminHelper;
@@ -38,7 +38,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * Service for authorization of users and finding WhydahUser with corresponding applications, organizations and roles.
+ * Service for authorization of users and finding UserAggregate with corresponding applications, organizations and roles.
  * This not a RESTful endpoint. This is a http RPC endpoint.
  */
 @Path("/{applicationTokenId}/authenticate/user")
@@ -123,13 +123,13 @@ public class UserAuthenticationEndpoint {
         }
 
         List<UserPropertyAndRole> roles = roleRepository.getUserPropertyAndRoles(id.getUid());
-        WhydahUser whydahUser = new WhydahUser(id, roles);
+        UserAggregate userAggregate = new UserAggregate(id, roles);
         log.info("Authentication ok for user with username={}", username);
 
-        String userXml = whydahUser.toXML();
+        String userXml = userAggregate.toXML();
         log.debug("User authentication ok. XML: {}", userXml);
 
-        //Viewable entity = new Viewable("/user.xml.ftl", whydahUser);
+        //Viewable entity = new Viewable("/user.xml.ftl", userAggregate);
         Response response = Response.ok(userXml).build();
         return response;
     }
@@ -161,7 +161,7 @@ public class UserAuthenticationEndpoint {
         if (id == null) {
             return Response.ok(new Viewable("/logonFailed.ftl")).build();
         }
-        WhydahUser whydahUser = new WhydahUser(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
+        UserAggregate whydahUser = new UserAggregate(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
         return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
     }
     */

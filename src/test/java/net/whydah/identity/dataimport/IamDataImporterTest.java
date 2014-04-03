@@ -2,7 +2,7 @@ package net.whydah.identity.dataimport;
 
 import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.EmbeddedADS;
 import net.whydah.identity.user.identity.LDAPHelper;
 import net.whydah.identity.user.identity.UserIdentity;
@@ -106,16 +106,16 @@ public class IamDataImporterTest {
         assertEquals("Lastname must be set", "Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("UserId must be set", "erik.drolshammer", erikdUserIdentity.getUid());
         
-        WhydahUser whydahUser1 = new WhydahUser(thomaspUserIdentity, roleRepository.getUserPropertyAndRoles(thomaspUserIdentity.getUid()));
+        UserAggregate userAggregate1 = new UserAggregate(thomaspUserIdentity, roleRepository.getUserPropertyAndRoles(thomaspUserIdentity.getUid()));
         
-        List<UserPropertyAndRole> propsAndRoles = whydahUser1.getPropsAndRoles();
+        List<UserPropertyAndRole> propsAndRoles = userAggregate1.getPropsAndRoles();
         assertEquals("All roles must be found", 3, propsAndRoles.size());
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "2", "Mobilefirst", "5", "Altran", "developer", "30"));
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "3", "Whydah", "1", "Whydah", "developer", "20"));
 
-        WhydahUser whydahUser2 = new WhydahUser(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
+        UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
-        List<UserPropertyAndRole> propsAndRoles2 = whydahUser2.getPropsAndRoles();
+        List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getPropsAndRoles();
         assertEquals("All roles must be found", 1, propsAndRoles2.size());
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2", "Mobilefirst", "5", "Altran", "admin", "70"));
 

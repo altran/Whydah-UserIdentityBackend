@@ -52,7 +52,7 @@ public class WhydahUserIdentityImporter {
 			Indexer indexer = new Indexer(index);
 			final IndexWriter indexWriter = indexer.getWriter();
 			for (UserIdentity userIdentity : users) {
-				ldapHelper.addWhydahUserIdentity(userIdentity);
+				ldapHelper.addUserIdentity(userIdentity);
 				indexer.addToIndex(indexWriter, userIdentity);
 			}
 	        indexWriter.optimize();

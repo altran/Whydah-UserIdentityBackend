@@ -49,7 +49,7 @@ public class LDAPHelperTest {
     @Test
     public void testAddUser() throws Exception {
         UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
-        ldapHelper.addWhydahUserIdentity(user);
+        ldapHelper.addUserIdentity(user);
         UserIdentity gotUser = ldapHelper.getUserIndentity("jan");
         assertNotNull(gotUser);
     }
@@ -59,20 +59,20 @@ public class LDAPHelperTest {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
         UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
-        ldapHelper.addWhydahUserIdentity(user);
+        ldapHelper.addUserIdentity(user);
         UserIdentity gotUser = ldapHelper.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
         gotUser.setCellPhone(cellPhone);
-        ldapHelper.updateUser(username, gotUser);
+        ldapHelper.updateUserIdentity(username, gotUser);
         UserIdentity gotUpdatedUser = ldapHelper.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
 
         gotUpdatedUser.setCellPhone(null);
         String firstName = "Emil";
         gotUpdatedUser.setFirstName(firstName);
-        ldapHelper.updateUser(username, gotUpdatedUser);
+        ldapHelper.updateUserIdentity(username, gotUpdatedUser);
         gotUpdatedUser = ldapHelper.getUserIndentity(username);
         assertEquals(firstName, gotUpdatedUser.getFirstName());
         assertNull(gotUpdatedUser.getCellPhone());
@@ -83,11 +83,11 @@ public class LDAPHelperTest {
         String uid = UUID.randomUUID().toString();
         String username = "usernameToBeDeleted";
         UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
-        ldapHelper.addWhydahUserIdentity(user);
+        ldapHelper.addUserIdentity(user);
         UserIdentity gotUser = ldapHelper.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
-        boolean deleteSuccessful = ldapHelper.deleteUser(username);
+        boolean deleteSuccessful = ldapHelper.deleteUserIdentity(username);
         assertTrue(deleteSuccessful);
 
         //Thread.sleep(3000);
@@ -99,7 +99,7 @@ public class LDAPHelperTest {
     @Test
     public void testChangePassword() throws Exception {
         UserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
-        ldapHelper.addWhydahUserIdentity(user);
+        ldapHelper.addUserIdentity(user);
 
         String firstPassword = "pass";
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", firstPassword));

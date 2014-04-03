@@ -58,14 +58,14 @@ public class UserIdentityServiceTest {
         String username = "username123";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",
                 "email", "12345678", "password");
-        userIdentityService.addUserToLdap(userIdentity);
+        userIdentityService.addUserIdentity(userIdentity);
 
         UserIdentity fromLdap = userIdentityService.getUserIndentity(username);
 
         assertEquals(userIdentity, fromLdap);
 
         try {
-            userIdentityService.addUserToLdap(userIdentity);
+            userIdentityService.addUserIdentity(userIdentity);
             fail("Expected IllegalStateException because user should already exist.");
         } catch (IllegalStateException e) {
             assertTrue(e.getMessage().contains(username));

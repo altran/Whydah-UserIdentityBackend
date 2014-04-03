@@ -14,16 +14,16 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WhydahUser {
+public class UserAggregate {
     private UserIdentity identity = null;
     private List<UserPropertyAndRole> propsandroles = new ArrayList<>();
 
-    public WhydahUser(UserIdentity identity, List<UserPropertyAndRole> propsandroles) {
+    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> propsandroles) {
         this.identity = identity;
         this.propsandroles = propsandroles;
     }
 
-    public WhydahUser() {
+    public UserAggregate() {
     }
 
     public String toXML() {
@@ -63,7 +63,7 @@ public class WhydahUser {
     /**
      * Copy from UserToken.parseAndUpdatefromUserIdentity from SecurityTokenService
      */
-    public static WhydahUser fromXML(String userIdentityXML) {
+    public static UserAggregate fromXML(String userIdentityXML) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
@@ -93,7 +93,7 @@ public class WhydahUser {
                 //putApplicationCompanyRoleValue(values.get("appId"), values.get("applicationName"), values.get("orgID"), values.get("organizationName"), values.get("roleName"), values.get("roleValue"));
             }
             */
-            return new WhydahUser(identity, null);
+            return new UserAggregate(identity, null);
         } catch (Exception e) {
             //log.error("Error parsing userIdentityXML " + userIdentityXML, e);
         }

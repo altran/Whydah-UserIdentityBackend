@@ -45,7 +45,7 @@ public class UserAggregateService {
     public UserIdentity addUser(String userJson) {
         UserIdentity userIdentity = UserIdentity.fromJson(userJson);
 
-        userIdentityService.addUserToLdap(userIdentity);
+        userIdentityService.addUserIdentity(userIdentity);
 
         addDefaultWhydahUserRole(userIdentity);
 
@@ -85,7 +85,7 @@ public class UserAggregateService {
     }
 
 
-    public WhydahUser getUser(String username) {
+    public UserAggregate getUserAggregate(String username) {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentity(username);
@@ -93,11 +93,11 @@ public class UserAggregateService {
             throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
         }
         if (userIdentity == null) {
-            log.trace("getUser could not find user with username={}", username);
+            log.trace("getUserAggregate could not find user with username={}", username);
             return null;
         }
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
-        return new WhydahUser(userIdentity, userPropertyAndRoles);
+        return new UserAggregate(userIdentity, userPropertyAndRoles);
     }
 
 
@@ -110,11 +110,11 @@ public class UserAggregateService {
                 return null;
             }
 
-            userIdentityService.updateUser(username, newUserIdentity);
+            userIdentityService.updateUserIdentity(username, newUserIdentity);
             indexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
-            throw new RuntimeException("updateUser failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
+            throw new RuntimeException("updateUserIdentity failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
         }
         return newUserIdentity;
     }
@@ -130,7 +130,7 @@ public class UserAggregateService {
             throw new IllegalArgumentException("UserIdentity not found. username=" + username);
         }
 
-        userIdentityService.deleteUser(username);
+        userIdentityService.deleteUserIdentity(username);
 
         String uid = userIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
