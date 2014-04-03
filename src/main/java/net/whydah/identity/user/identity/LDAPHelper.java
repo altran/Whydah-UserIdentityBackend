@@ -56,7 +56,7 @@ public class LDAPHelper {
         } catch (NamingException ne) {
             log.error("NamingException in setUP()" + ne.getLocalizedMessage(), ne);
             connected = false;
-            
+
         } catch (Exception e) {
             log.error("Exception in setUP()" + e.getLocalizedMessage(), e);
             connected = false;
@@ -178,7 +178,7 @@ public class LDAPHelper {
     private String createUserDN(String username) throws NamingException {
         Attributes attributes = getUserAttributes(username);
         if (attributes == null) {
-        	log.debug("Atributes/User are null");
+            log.debug("Atributes/User are null");
             return null;
         }
         String uid = getAttribValue(attributes, ATTRIBUTE_NAME_UID);
@@ -197,7 +197,6 @@ public class LDAPHelper {
 
         Attributes attributes = getUserAttributes(username);
         if (attributes == null) {
-
             return null;
         }
 
@@ -226,7 +225,7 @@ public class LDAPHelper {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        log.info("No attributes found for username=" + username + " trying uid");
+        log.info("No attributes found for username=" + username + ", trying uid");
         String uid = username;
         results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
         if (results.hasMore()) {
@@ -246,11 +245,15 @@ public class LDAPHelper {
         }
     }
 
-    public void deleteUser(String username) {
-            try {
-            ctx.destroySubcontext(createUserDN(username));
+    public boolean deleteUser(String username) {
+        log.info("Deleting user with username={}", username);
+        try {
+            String userDN = createUserDN(username);
+            ctx.destroySubcontext(userDN);
+            return true;
         } catch (NamingException ne) {
-            log.error("", ne);
+            log.error("deleteUser failed! username=" + username, ne);
+            return false;
         }
     }
 

@@ -10,11 +10,11 @@ public class ChangePasswordTokenTest {
         String user = "bentesolvang@hotmail.org";
         String password = "N34jh87a";
         byte[] salt = "jdhUhj\\?".getBytes();
-        ChangePasswordToken t = new ChangePasswordToken(user, password);
-        String token = t.generateTokenString(salt);
-        ChangePasswordToken t2 = ChangePasswordToken.fromTokenString(token, salt);
-        assertEquals(user, t2.getUserid());
-        assertEquals(password, t2.getPassword());
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(user, password);
+        String token = changePasswordToken.generateTokenString(salt);
+        ChangePasswordToken changePasswordToken2 = ChangePasswordToken.fromTokenString(token, salt);
+        assertEquals(user, changePasswordToken2.getUserid());
+        assertEquals(password, changePasswordToken2.getPassword());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -22,8 +22,8 @@ public class ChangePasswordTokenTest {
         String user = "bentesolvang@hotmail.org";
         String password = "N34jh87a";
         byte[] salt = "jdhUhj\\?".getBytes();
-        ChangePasswordToken t = new ChangePasswordToken(user, password);
-        String token = t.generateTokenString(salt);
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(user, password);
+        String token = changePasswordToken.generateTokenString(salt);
         ChangePasswordToken.fromTokenString(token, "salt".getBytes());
     }
 

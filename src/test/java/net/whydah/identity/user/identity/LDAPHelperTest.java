@@ -26,8 +26,8 @@ public class LDAPHelperTest {
         ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         ldapHelper = new LDAPHelper(ldapUrl, "uid=admin,ou=system", "secret", "initials");
         ldapAuthenticator = new LdapAuthenticatorImpl(ldapUrl, "uid=admin,ou=system", "secret", "uid");
-        
-        String workDirPath = "target/testldap";
+
+        String workDirPath = "target/" + LDAPHelperTest.class.getSimpleName();
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
@@ -81,16 +81,19 @@ public class LDAPHelperTest {
     @Test
     public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
-        String username = "nalle";
+        String username = "usernameToBeDeleted";
         UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
         ldapHelper.addWhydahUserIdentity(user);
         UserIdentity gotUser = ldapHelper.getUserIndentity(user.getUsername());
-        //System.out.println("gotUser " + gotUser);
         assertNotNull(gotUser);
-        ldapHelper.deleteUser(username);
-        UserIdentity gotUser2 = ldapHelper.getUserIndentity(user.getUsername());
-        //System.out.println(gotUser2);
-        assertNull(gotUser2);
+
+        boolean deleteSuccessful = ldapHelper.deleteUser(username);
+        assertTrue(deleteSuccessful);
+
+        //Thread.sleep(3000);
+
+        UserIdentity gotUser2 = ldapHelper.getUserIndentity(username);
+        assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
     }
 
     @Test

@@ -25,6 +25,7 @@ public class UserIdentityService {
     private static final Logger log = LoggerFactory.getLogger(UserIdentityService.class);
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
+    private static final String SALT_ENCODING = "UTF-8";
 
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
     private final LdapAuthenticatorImpl externalLdapAuthenticator;
@@ -51,18 +52,18 @@ public class UserIdentityService {
     }
 
     public boolean authenticateWithTemporaryPassword(String username, String token) {
+        String salt = ldapHelper.getSalt(username);
+
         byte[] saltAsBytes = null;
         try {
-            String salt = ldapHelper.getSalt(username);
-            saltAsBytes = salt.getBytes("UTF-8");
+            saltAsBytes = salt.getBytes(SALT_ENCODING);
         } catch (UnsupportedEncodingException e1) {
-            log.error("Could not generate salt with username={}", username, e1);
+            log.error("Error with salt for username={}", username, e1);
         }
 
-        log.debug("salt=" + new String(saltAsBytes));
         ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
-        log.info("Passwordtoken for {} ok.", username);
         boolean ok = externalLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
+        log.info("authenticateWithTemporaryPassword for username={} was ok={}", username, ok);
         return ok;
     }
 
@@ -112,13 +113,15 @@ public class UserIdentityService {
         String salt = passwordGenerator.generate();
         ldapHelper.setTempPassword(username, newPassword, salt);
 
-        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
-        String token;
+        byte[] bytes;
         try {
-            token = changePasswordToken.generateTokenString(salt.getBytes("UTF-8"));
+            bytes = salt.getBytes(SALT_ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+
+        ChangePasswordToken changePasswordToken = new ChangePasswordToken(username, newPassword);
+        String token = changePasswordToken.generateTokenString(bytes);
         passwordSender.sendResetPasswordEmail(username, token, userEmail);
         audit(ActionPerformed.MODIFIED, "resetpassword", uid);
     }
