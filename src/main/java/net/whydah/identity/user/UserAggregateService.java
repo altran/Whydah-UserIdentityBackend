@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,20 +43,20 @@ public class UserAggregateService {
         this.userIdentityService = userIdentityService;
     }
 
-    public UserIdentity addUser(String userJson) {
-        UserIdentity userIdentity = UserIdentity.fromJson(userJson);
+    public UserAggregate addUserAndSetDefaultRoles(String userIdentityJson) {
+        UserIdentity userIdentity = UserIdentity.fromJson(userIdentityJson);
 
         userIdentityService.addUserIdentity(userIdentity);
 
-        addDefaultWhydahUserRole(userIdentity);
+        List<UserPropertyAndRole> roles = addDefaultUserRole(userIdentity);
 
         indexer.addToIndex(userIdentity);
 
         audit(ActionPerformed.ADDED, "user", userIdentity.toString());
-        return userIdentity;
+        return new UserAggregate(userIdentity, roles);
     }
-    private void addDefaultWhydahUserRole(UserIdentity userIdentity) {
-        UserPropertyAndRole role = new UserPropertyAndRole();
+    private List<UserPropertyAndRole> addDefaultUserRole(UserIdentity userIdentity) {
+        UserPropertyAndRole defaultRole = new UserPropertyAndRole();
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
@@ -64,24 +65,28 @@ public class UserAggregateService {
         String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
 
-        role.setUid(userIdentity.getUid());
-        role.setAppId(applicationId);
-        role.setApplicationName(applicationName);
-        role.setOrgId(organizationId);
-        role.setOrganizationName(organizationName);
-        role.setRoleName(roleName);
+        defaultRole.setUid(userIdentity.getUid());
+        defaultRole.setAppId(applicationId);
+        defaultRole.setApplicationName(applicationName);
+        defaultRole.setOrgId(organizationId);
+        defaultRole.setOrganizationName(organizationName);
+        defaultRole.setRoleName(roleName);
         //role.setRoleValue(roleValue);
-        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
-        log.debug("Adding Role: {}", role);
+        defaultRole.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        //log.debug("Adding default role: {}", defaultRole);
 
-        if (userPropertyAndRoleRepository.hasRole(userIdentity.getUid(), role)) {
-            log.warn("Role already exist. " + role.toString());
-            return;
+        if (userPropertyAndRoleRepository.hasRole(userIdentity.getUid(), defaultRole)) {
+            log.warn("Role already exist. Skip adding default role. Return existing roles instead. DefaultRole: " + defaultRole.toString());
+            return userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
         }
 
-        userPropertyAndRoleRepository.addUserPropertyAndRole(role);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
+        userPropertyAndRoleRepository.addUserPropertyAndRole(defaultRole);
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getAppId() + ", role=" + defaultRole.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
+
+        List<UserPropertyAndRole> roles = new ArrayList<>(1);
+        roles.add(defaultRole);
+        return roles;
     }
 
 
@@ -119,7 +124,7 @@ public class UserAggregateService {
         return newUserIdentity;
     }
 
-    public void deleteUser(String username) {
+    public void deleteUserAggregate(String username) {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentity(username);
@@ -129,7 +134,6 @@ public class UserAggregateService {
         if (userIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. username=" + username);
         }
-
         userIdentityService.deleteUserIdentity(username);
 
         String uid = userIdentity.getUid();

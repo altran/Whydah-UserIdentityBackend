@@ -45,17 +45,23 @@ public class UserResource {
         this.applicationRepository = applicationRepository;
     }
 
-    //Add user and add default roles
+    /**
+     * Add user from json
+     * Add default roles to new user
+     *
+     * @param userIdentityJson  json representing a UserIdentity
+     * @return  UserAggregate with default roles
+     */
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addUser(String userJson) {
-        log.trace("addUser is called with userJson={}", userJson);
+    public Response addUserAndSetDefaultRoles(String userIdentityJson) {
+        log.trace("addUserAndSetDefaultRoles is called with userIdentityJson={}", userIdentityJson);
         try {
-            UserIdentity userIdentity = userAggregateService.addUser(userJson);
-            return Response.ok().build();   //TODO return userIdentity
+            UserAggregate userAggregate = userAggregateService.addUserAndSetDefaultRoles(userIdentityJson);
+            return Response.ok().build();   //TODO return userAggregate or UserIdentity?
         } catch (IllegalArgumentException iae) {
-            log.error("addUser: Invalid json={}", userJson, iae);
+            log.error("addUserAndSetDefaultRoles: Invalid json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (IllegalStateException ise) {
             log.error(ise.getMessage());
@@ -95,6 +101,7 @@ public class UserResource {
         return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
     }
 
+    //TODO Change implementation to handle UserAggregate. Introduce Jackson?
     @PUT
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -149,9 +156,9 @@ public class UserResource {
 
     @DELETE
     @Path("/{username}")
-    public Response deleteUser(@PathParam("username") String username) {
+    public Response deleteUserAggregate(@PathParam("username") String username) {
         try {
-            userAggregateService.deleteUser(username);
+            userAggregateService.deleteUserAggregate(username);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException iae) {
             log.error("deleteUserIdentity failed username={}", username + ". " + iae.getMessage());
