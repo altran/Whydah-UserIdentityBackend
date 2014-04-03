@@ -1,6 +1,6 @@
 package net.whydah.identity.user;
 
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WhydahUser {
-    private WhydahUserIdentity identity = null;
+    private UserIdentity identity = null;
     private List<UserPropertyAndRole> propsandroles = new ArrayList<>();
 
-    public WhydahUser(WhydahUserIdentity identity, List<UserPropertyAndRole> propsandroles) {
+    public WhydahUser(UserIdentity identity, List<UserPropertyAndRole> propsandroles) {
         this.identity = identity;
         this.propsandroles = propsandroles;
     }
@@ -76,7 +76,7 @@ public class WhydahUser {
             String email = (String) xPath.evaluate("//email", doc, XPathConstants.STRING);
             String personRef = (String) xPath.evaluate("//personRef", doc, XPathConstants.STRING);
 
-            WhydahUserIdentity identity = new WhydahUserIdentity();
+            UserIdentity identity = new UserIdentity();
             identity.setUid(uid);
             identity.setUsername(userName);
             identity.setFirstName(firstName);
@@ -148,11 +148,11 @@ public class WhydahUser {
 
 
 
-    public WhydahUserIdentity getIdentity() {
+    public UserIdentity getIdentity() {
         return identity;
     }
 
-    public void setIdentity(WhydahUserIdentity identity) {
+    public void setIdentity(UserIdentity identity) {
         this.identity = identity;
     }
 

@@ -15,8 +15,8 @@ import java.io.Serializable;
  *
  * @author totto
  */
-public class WhydahUserIdentity implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(WhydahUserIdentity.class);
+public class UserIdentity implements Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
     private static final long serialVersionUID = 1;
 
     private String uid;
@@ -29,11 +29,11 @@ public class WhydahUserIdentity implements Serializable {
 
     private transient String password;
 
-    public WhydahUserIdentity() {
+    public UserIdentity() {
     }
 
-    public WhydahUserIdentity(String uid, String username, String firstName, String lastName, String personRef,
-                              String email, String cellPhone, String password) {
+    public UserIdentity(String uid, String username, String firstName, String lastName, String personRef,
+                        String email, String cellPhone, String password) {
         this.uid = uid;
         this.username = username;
         this.firstName = firstName;
@@ -66,7 +66,7 @@ public class WhydahUserIdentity implements Serializable {
 
     @Override
     public String toString() {
-        return "WhydahUserIdentity{" +
+        return "UserIdentity{" +
                 "uid='" + uid + '\'' +
                 ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
@@ -86,7 +86,7 @@ public class WhydahUserIdentity implements Serializable {
             return false;
         }
 
-        WhydahUserIdentity that = (WhydahUserIdentity) o;
+        UserIdentity that = (UserIdentity) o;
 
         if (uid != null ? !uid.equals(that.uid) : that.uid != null) {
             return false;
@@ -174,9 +174,9 @@ public class WhydahUserIdentity implements Serializable {
         this.password = password;
     }
 
-    public static WhydahUserIdentity fromJson(String userJson) {
+    public static UserIdentity fromJson(String userJson) {
         try {
-            WhydahUserIdentity userIdentity = new WhydahUserIdentity();
+            UserIdentity userIdentity = new UserIdentity();
 
             JSONObject jsonobj = new JSONObject(userJson);
 

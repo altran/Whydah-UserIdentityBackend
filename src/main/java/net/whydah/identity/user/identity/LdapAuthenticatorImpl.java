@@ -45,9 +45,9 @@ public class LdapAuthenticatorImpl {
      *
      * @param username  username
      * @param password  user password
-     * @return  a authenticated WhydahUserIdentity
+     * @return  a authenticated UserIdentity
      */
-    public WhydahUserIdentity authenticate(final String username, final String password) {
+    public UserIdentity authenticate(final String username, final String password) {
         logger.debug("Trying to authenticate with username and password. username=" + username);
 
         if (username == null || password == null) {
@@ -67,7 +67,7 @@ public class LdapAuthenticatorImpl {
             myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
             myEnv.put(Context.SECURITY_CREDENTIALS, password);
             InitialDirContext context = new InitialDirContext(myEnv);
-            WhydahUserIdentity userIdentity = getUserinfo(username, context);
+            UserIdentity userIdentity = getUserinfo(username, context);
             return userIdentity;
         } catch (Exception e) {
             logger.info("Authentication failed for user " + username, e);
@@ -117,7 +117,7 @@ public class LdapAuthenticatorImpl {
         return searchResult.getNameInNamespace();
     }
 
-    private WhydahUserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
+    private UserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = context.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
@@ -133,7 +133,7 @@ public class LdapAuthenticatorImpl {
             return null;
         }
 
-        WhydahUserIdentity userIdentity = new WhydahUserIdentity();
+        UserIdentity userIdentity = new UserIdentity();
         userIdentity.setUid((String) attributes.get("uid").get());
         userIdentity.setUsername((String) attributes.get(usernameAttribute).get());
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));

@@ -6,8 +6,8 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -115,7 +115,7 @@ public class UserAuthenticationEndpoint {
     }
 
     private Response authenticateUser(String username, String password) {
-        WhydahUserIdentity id = userIdentityService.authenticate(username, password);
+        UserIdentity id = userIdentityService.authenticate(username, password);
         if (id == null)  {
             log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
@@ -148,7 +148,7 @@ public class UserAuthenticationEndpoint {
     @Produces(MediaType.TEXT_HTML)
     public Response authenticateUserForm(@FormParam("username") String username, @FormParam("password") String password) {
         log.debug("authenticateUserForm: user=" + username + ", password=" + password);
-        WhydahUserIdentity id = null;
+        UserIdentity id = null;
         if (username != null && password != null) {
             id = userIdentityService.auth(username, password);
 //            if(id == null) {
@@ -173,7 +173,7 @@ public class UserAuthenticationEndpoint {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserinfo(username);
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
@@ -195,7 +195,7 @@ public class UserAuthenticationEndpoint {
     public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -235,7 +235,7 @@ public class UserAuthenticationEndpoint {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
         }
 
-        WhydahUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+        UserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
 
         if (userIdentity == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
@@ -293,7 +293,7 @@ public class UserAuthenticationEndpoint {
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             fbUserDoc = builder.parse(input);
         } catch (Exception e) {
-            log.error("Error when creating WhydahUserIdentity from incoming xml stream.", e);
+            log.error("Error when creating UserIdentity from incoming xml stream.", e);
             return null;
         }
         return fbUserDoc;
@@ -301,7 +301,7 @@ public class UserAuthenticationEndpoint {
 
 
     //TODO Move to UserAdminService (the separate application)
-    Response createAndAuthenticateUser(WhydahUserIdentity userIdentity, String roleValue, boolean reuse) {
+    Response createAndAuthenticateUser(UserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {

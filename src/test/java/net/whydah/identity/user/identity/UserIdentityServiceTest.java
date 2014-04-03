@@ -56,11 +56,11 @@ public class UserIdentityServiceTest {
                 new UserIdentityService(null, ldapHelper, null, passwordGenerator, null);
 
         String username = "username123";
-        WhydahUserIdentity userIdentity = new WhydahUserIdentity("uid", username, "firstName", "lastName", "personRef",
+        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",
                 "email", "12345678", "password");
         userIdentityService.addUserToLdap(userIdentity);
 
-        WhydahUserIdentity fromLdap = userIdentityService.getUserinfo(username);
+        UserIdentity fromLdap = userIdentityService.getUserinfo(username);
 
         assertEquals(userIdentity, fromLdap);
 

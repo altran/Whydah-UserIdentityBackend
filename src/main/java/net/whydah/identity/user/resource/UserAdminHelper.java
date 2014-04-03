@@ -7,7 +7,7 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -48,7 +48,7 @@ public class UserAdminHelper {
         this.roleRepository = roleRepository;
     }
 
-    public Response addUser(WhydahUserIdentity newIdentity) {
+    public Response addUser(UserIdentity newIdentity) {
         String username = newIdentity.getUsername();
         logger.trace("Adding new user: {}", username);
 
@@ -78,7 +78,7 @@ public class UserAdminHelper {
         return Response.ok().build();
     }
 
-    public static WhydahUserIdentity createWhydahUserIdentity(Document fbUserDoc) {
+    public static UserIdentity createWhydahUserIdentity(Document fbUserDoc) {
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         try {
@@ -89,15 +89,15 @@ public class UserAdminHelper {
             String email = (String) xPath.evaluate("//email", fbUserDoc, XPathConstants.STRING);
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
-            WhydahUserIdentity whydahUserIdentity = new WhydahUserIdentity();
-            whydahUserIdentity.setUsername(username);
-            whydahUserIdentity.setFirstName(firstName);
-            whydahUserIdentity.setLastName(lastName);
-            whydahUserIdentity.setEmail(email);
+            UserIdentity userIdentity = new UserIdentity();
+            userIdentity.setUsername(username);
+            userIdentity.setFirstName(firstName);
+            userIdentity.setLastName(lastName);
+            userIdentity.setEmail(email);
 
             String password = calculateFacebookPassword(fbUserId);
-            whydahUserIdentity.setPassword(password);
-            return whydahUserIdentity;
+            userIdentity.setPassword(password);
+            return userIdentity;
         } catch (XPathExpressionException e) {
             logger.error("", e);
             return null;
@@ -108,7 +108,7 @@ public class UserAdminHelper {
         return fbId + fbId;
     }
 
-    public void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
+    public void addDefaultWhydahUserRole(UserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
@@ -138,7 +138,7 @@ public class UserAdminHelper {
         audit(ActionPerformed.ADDED, "role", value);
     }
 
-    public void addFacebookDataRole(WhydahUserIdentity userIdentity, String roleValue) {
+    public void addFacebookDataRole(UserIdentity userIdentity, String roleValue) {
         boolean facebook = true;
         boolean netiq = false;
         if (roleValue.indexOf("netIQAccessToken") > 0) {

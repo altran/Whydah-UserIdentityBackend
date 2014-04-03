@@ -1,6 +1,6 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -47,7 +47,7 @@ public class Indexer {
         }
     }
 
-    public void update(WhydahUserIdentity user) {
+    public void update(UserIdentity user) {
         try {
             IndexWriter w = getWriter();
             w.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
@@ -58,7 +58,7 @@ public class Indexer {
         }
     }
 
-    public void addToIndex(WhydahUserIdentity user) {
+    public void addToIndex(UserIdentity user) {
         try {
             IndexWriter writer = getWriter();
             addToIndex(writer, user);
@@ -69,9 +69,9 @@ public class Indexer {
         }
     }
 
-    public void addToIndex(List<WhydahUserIdentity> users) throws IOException {
+    public void addToIndex(List<UserIdentity> users) throws IOException {
         IndexWriter w = new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
-        for (WhydahUserIdentity user : users) {
+        for (UserIdentity user : users) {
             Document doc = createLuceneDocument(user);
             addDocument(doc, w);
         }
@@ -94,7 +94,7 @@ public class Indexer {
         return new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
     }
 
-    public void addToIndex(IndexWriter writer, WhydahUserIdentity user) {
+    public void addToIndex(IndexWriter writer, UserIdentity user) {
         try {
             Document doc = createLuceneDocument(user);
             addDocument(doc, writer);
@@ -107,7 +107,7 @@ public class Indexer {
         w.addDocument(doc);
     }
 
-    private Document createLuceneDocument(WhydahUserIdentity user) {
+    private Document createLuceneDocument(UserIdentity user) {
         Document doc = new Document();
         doc.add(new Field(FIELD_FIRSTNAME, user.getFirstName(), Field.Store.YES, Field.Index.ANALYZED));
         doc.add(new Field(FIELD_LASTNAME, user.getLastName(), Field.Store.YES, Field.Index.ANALYZED));

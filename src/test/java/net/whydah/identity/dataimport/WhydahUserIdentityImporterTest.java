@@ -1,6 +1,6 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,11 +13,11 @@ public class WhydahUserIdentityImporterTest {
 	public void parseUsers() {
 		String userImportSource = "testusers.csv";
 		
-		List<WhydahUserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportSource);
+		List<UserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportSource);
 		
 		assertEquals("All users must be found.", 2, users.size());
 		
-		WhydahUserIdentity user1 = users.get(0);
+		UserIdentity user1 = users.get(0);
 		assertEquals("UserId must be set.", "thomas.pringle@altran.com", user1.getUid());
 		assertEquals("UserName must be set.", "thomasp", user1.getUsername());
 		assertEquals("Password must be set.", "logMeInPlease", user1.getPassword());
@@ -27,7 +27,7 @@ public class WhydahUserIdentityImporterTest {
 		assertEquals("cellPhone must be set.", "+46707771841", user1.getCellPhone());
 		assertEquals("personRef must be set.", "1", user1.getPersonRef());
 		
-		WhydahUserIdentity user2 = users.get(1);
+		UserIdentity user2 = users.get(1);
 		assertEquals("UserId must be set.", "erik.drolshammer", user2.getUid());
 		assertEquals("UserName must be set.", "erikd", user2.getUsername());
 		assertEquals("cellPhone must be set.", "+47123456", user2.getCellPhone());

@@ -7,8 +7,8 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -42,8 +42,8 @@ public class UserAggregateService {
         this.userIdentityService = userIdentityService;
     }
 
-    public WhydahUserIdentity addUser(String userJson) {
-        WhydahUserIdentity userIdentity = WhydahUserIdentity.fromJson(userJson);
+    public UserIdentity addUser(String userJson) {
+        UserIdentity userIdentity = UserIdentity.fromJson(userJson);
 
         userIdentityService.addUserToLdap(userIdentity);
 
@@ -54,7 +54,7 @@ public class UserAggregateService {
         audit(ActionPerformed.ADDED, "user", userIdentity.toString());
         return userIdentity;
     }
-    private void addDefaultWhydahUserRole(WhydahUserIdentity userIdentity) {
+    private void addDefaultWhydahUserRole(UserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
@@ -86,27 +86,27 @@ public class UserAggregateService {
 
 
     public WhydahUser getUser(String username) {
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity userIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            userIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
             throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
         }
-        if (whydahUserIdentity == null) {
+        if (userIdentity == null) {
             log.trace("getUser could not find user with username={}", username);
             return null;
         }
-        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
-        return new WhydahUser(whydahUserIdentity, userPropertyAndRoles);
+        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
+        return new WhydahUser(userIdentity, userPropertyAndRoles);
     }
 
 
-    public WhydahUserIdentity updateUserIdentity(String username, String userJson) {
-        WhydahUserIdentity newUserIdentity = WhydahUserIdentity.fromJson(userJson);
+    public UserIdentity updateUserIdentity(String username, String userJson) {
+        UserIdentity newUserIdentity = UserIdentity.fromJson(userJson);
 
         try {
-            WhydahUserIdentity whydahUserIdentity = userIdentityService.getUserinfo(username);
-            if (whydahUserIdentity == null) {
+            UserIdentity userIdentity = userIdentityService.getUserinfo(username);
+            if (userIdentity == null) {
                 return null;
             }
 
@@ -120,19 +120,19 @@ public class UserAggregateService {
     }
 
     public void deleteUser(String username) {
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity userIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserinfo(username);
+            userIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
             throw new RuntimeException("userIdentityService.getUserinfo with username=" + username, e);
         }
-        if (whydahUserIdentity == null) {
+        if (userIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. username=" + username);
         }
 
         userIdentityService.deleteUser(username);
 
-        String uid = whydahUserIdentity.getUid();
+        String uid = userIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
         indexer.removeFromIndex(uid);
         audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);

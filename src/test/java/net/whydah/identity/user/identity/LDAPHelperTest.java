@@ -47,9 +47,9 @@ public class LDAPHelperTest {
 
     @Test
     public void addUser() throws NamingException {
-        WhydahUserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
+        UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
         ldapHelper.addWhydahUserIdentity(user);
-        WhydahUserIdentity gotUser = ldapHelper.getUserinfo("jan");
+        UserIdentity gotUser = ldapHelper.getUserinfo("jan");
         assertNotNull(gotUser);
     }
 
@@ -57,20 +57,20 @@ public class LDAPHelperTest {
     public void deleteUser() throws NamingException {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        WhydahUserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
+        UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
         ldapHelper.addWhydahUserIdentity(user);
-        WhydahUserIdentity gotUser = ldapHelper.getUserinfo(user.getUsername());
+        UserIdentity gotUser = ldapHelper.getUserinfo(user.getUsername());
         //System.out.println("gotUser " + gotUser);
         assertNotNull(gotUser);
         ldapHelper.deleteUser(username);
-        WhydahUserIdentity gotUser2 = ldapHelper.getUserinfo(user.getUsername());
+        UserIdentity gotUser2 = ldapHelper.getUserinfo(user.getUsername());
         //System.out.println(gotUser2);
         assertNull(gotUser2);
     }
 
     @Test
     public void changePassword() throws NamingException {
-        WhydahUserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
+        UserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
         ldapHelper.addWhydahUserIdentity(user);
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", "pass"));
         assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", "snafs"));
@@ -83,13 +83,13 @@ public class LDAPHelperTest {
     public void updateUser() throws NamingException {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        WhydahUserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
+        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
         ldapHelper.addWhydahUserIdentity(user);
-        WhydahUserIdentity gotUser = ldapHelper.getUserinfo(username);
+        UserIdentity gotUser = ldapHelper.getUserinfo(username);
         assertNull(gotUser.getCellPhone());
         gotUser.setCellPhone("32323232");
         ldapHelper.updateUser(username, gotUser);
-        WhydahUserIdentity gotUpdatedUser = ldapHelper.getUserinfo(username);
+        UserIdentity gotUpdatedUser = ldapHelper.getUserinfo(username);
         assertEquals("32323232", gotUpdatedUser.getCellPhone());
         gotUpdatedUser.setCellPhone(null);
         gotUpdatedUser.setFirstName("Emil");
@@ -100,8 +100,8 @@ public class LDAPHelperTest {
     }
 
 
-    private static WhydahUserIdentity createUser(String username, String firstName, String lastName, String email, String uid) {
-        WhydahUserIdentity userIdentity = new WhydahUserIdentity();
+    private static UserIdentity createUser(String username, String firstName, String lastName, String email, String uid) {
+        UserIdentity userIdentity = new UserIdentity();
         userIdentity.setUsername(username);
         userIdentity.setFirstName(firstName);
         userIdentity.setLastName(lastName);

@@ -5,7 +5,7 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.user.WhydahUser;
 import net.whydah.identity.user.identity.EmbeddedADS;
 import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
@@ -96,12 +96,12 @@ public class IamDataImporterTest {
 		IamDataImporter iamDataImporter = new IamDataImporter(databaseHelper, applicationImporter, organizationImporter, userImporter, roleMappingImporter);
         iamDataImporter.importIamData();
         
-        WhydahUserIdentity thomaspUserIdentity = ldapHelper.getUserinfo("thomasp");
+        UserIdentity thomaspUserIdentity = ldapHelper.getUserinfo("thomasp");
         assertEquals("Name must be set", "Thomas", thomaspUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Pringle", thomaspUserIdentity.getLastName());
         assertEquals("UserId must be set", "thomas.pringle@altran.com", thomaspUserIdentity.getUid());
 
-        WhydahUserIdentity erikdUserIdentity = ldapHelper.getUserinfo("erikd");
+        UserIdentity erikdUserIdentity = ldapHelper.getUserinfo("erikd");
         assertEquals("Name must be set", "Erik", erikdUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("UserId must be set", "erik.drolshammer", erikdUserIdentity.getUid());

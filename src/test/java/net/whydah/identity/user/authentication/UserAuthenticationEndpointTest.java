@@ -110,7 +110,7 @@ public class UserAuthenticationEndpointTest {
 
     @Test
     public void testAuthenticateUsingFacebookCredentials() throws NamingException {
-        WhydahUserIdentity newIdentity = new WhydahUserIdentity();
+        UserIdentity newIdentity = new UserIdentity();
         String username = "facebookUsername";
         newIdentity.setUsername(username);
         String facebookId = "1234";
@@ -134,9 +134,9 @@ public class UserAuthenticationEndpointTest {
         /*
         Viewable entity = (Viewable) response.getEntity();
         WhydahUser model = (WhydahUser) entity.getModel();
-        WhydahUserIdentity identity = model.getIdentity();
+        UserIdentity identity = model.getIdentity();
         */
-        WhydahUserIdentity identity = whydahUser.getIdentity();
+        UserIdentity identity = whydahUser.getIdentity();
         assertEquals(username, identity.getUsername());
         assertEquals(identity.getPersonRef(), "");
         assertEquals(email, identity.getEmail());

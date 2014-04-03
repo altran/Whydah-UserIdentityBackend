@@ -2,7 +2,7 @@ package net.whydah.identity.dataimport;
 
 import com.google.inject.Inject;
 import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.search.Indexer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
@@ -39,19 +39,19 @@ public class WhydahUserIdentityImporter {
 		this.index = index;
 	}
     
-    public List<WhydahUserIdentity> importUsers(String userImportSource) {
-    	List<WhydahUserIdentity> users = parseUsers(userImportSource);
+    public List<UserIdentity> importUsers(String userImportSource) {
+    	List<UserIdentity> users = parseUsers(userImportSource);
     	
     	saveUsers(users);
 
     	return users;
     }
 
-	private void saveUsers(List<WhydahUserIdentity> users) {
+	private void saveUsers(List<UserIdentity> users) {
 		try {
 			Indexer indexer = new Indexer(index);
 			final IndexWriter indexWriter = indexer.getWriter();
-			for (WhydahUserIdentity userIdentity : users) {
+			for (UserIdentity userIdentity : users) {
 				ldapHelper.addWhydahUserIdentity(userIdentity);
 				indexer.addToIndex(indexWriter, userIdentity);
 			}
@@ -63,10 +63,10 @@ public class WhydahUserIdentityImporter {
 		}
 	}
 
-	protected static List<WhydahUserIdentity> parseUsers(String userImportSource) {
+	protected static List<UserIdentity> parseUsers(String userImportSource) {
 		BufferedReader reader = null;
 		try {
-			List<WhydahUserIdentity> users = new ArrayList<>();
+			List<UserIdentity> users = new ArrayList<>();
 			logger.info("Importing data from {}", userImportSource);
 			InputStream classpathStream = WhydahUserIdentityImporter.class.getClassLoader().getResourceAsStream(userImportSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
@@ -80,20 +80,20 @@ public class WhydahUserIdentityImporter {
 	        	String[] lineArray = line.split(",");
 	        	validateLine(line, lineArray);
 	        	
-	        	WhydahUserIdentity whydahUserIdentity;
+	        	UserIdentity userIdentity;
 	        	
-	        	whydahUserIdentity = new WhydahUserIdentity();
-	        	whydahUserIdentity.setUid(cleanString(lineArray[USERID]));
-	        	whydahUserIdentity.setUsername(cleanString(lineArray[USERNAME]));
-	        	whydahUserIdentity.setPassword(cleanString(lineArray[PASSWORD]));
+	        	userIdentity = new UserIdentity();
+	        	userIdentity.setUid(cleanString(lineArray[USERID]));
+	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
+	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
 	        	
-	            whydahUserIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
-	            whydahUserIdentity.setLastName(cleanString(lineArray[LASTNAME]));
-	            whydahUserIdentity.setEmail(cleanString(lineArray[EMAIL]));
-	            whydahUserIdentity.setCellPhone(cleanString(lineArray[CELLPHONE]));
-	            whydahUserIdentity.setPersonRef(cleanString(lineArray[PERSONREF]));
+	            userIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
+	            userIdentity.setLastName(cleanString(lineArray[LASTNAME]));
+	            userIdentity.setEmail(cleanString(lineArray[EMAIL]));
+	            userIdentity.setCellPhone(cleanString(lineArray[CELLPHONE]));
+	            userIdentity.setPersonRef(cleanString(lineArray[PERSONREF]));
 	            
-	            users.add(whydahUserIdentity);
+	            users.add(userIdentity);
 	        }
 			return users;
 		

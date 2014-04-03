@@ -64,9 +64,9 @@ public class LDAPHelper {
         connected = true;
     }
 
-    public void addWhydahUserIdentity(WhydahUserIdentity userIdentity) throws NamingException {
+    public void addWhydahUserIdentity(UserIdentity userIdentity) throws NamingException {
         if (!userIdentity.validate()) {
-            log.error("Error validating WhydahUserIdentity: {}", userIdentity);
+            log.error("Error validating UserIdentity: {}", userIdentity);
             return;
         }
 
@@ -98,7 +98,7 @@ public class LDAPHelper {
     /**
      * Schemas: http://www.zytrax.com/books/ldap/ape/
      */
-    private Attributes getLdapAttributes(WhydahUserIdentity userIdentity) {
+    private Attributes getLdapAttributes(UserIdentity userIdentity) {
         // Create a container set of attributes
         Attributes container = new BasicAttributes();
         // Create the objectclass to add
@@ -123,7 +123,7 @@ public class LDAPHelper {
         return container;
     }
 
-    public void updateUser(String username, WhydahUserIdentity newuser) {
+    public void updateUser(String username, UserIdentity newuser) {
         if (!newuser.validate()) {
             log.warn("{} is not valid", newuser);
             return;
@@ -132,7 +132,7 @@ public class LDAPHelper {
             setUp();
         }
         try {
-            WhydahUserIdentity olduser = getUserinfo(username);
+            UserIdentity olduser = getUserinfo(username);
             if(olduser == null) {
                 throw new IllegalArgumentException("User " + username + " not found");
             }
@@ -191,7 +191,7 @@ public class LDAPHelper {
         return new StringBuilder(ATTRIBUTE_NAME_UID).append('=').append(uid).append(",").append(USERS_OU).toString();
     }
 
-    public WhydahUserIdentity getUserinfo(String username) throws NamingException {
+    public UserIdentity getUserinfo(String username) throws NamingException {
         if (!connected) {
             setUp();
         }
@@ -202,7 +202,7 @@ public class LDAPHelper {
             return null;
         }
 
-        WhydahUserIdentity id = new WhydahUserIdentity();
+        UserIdentity id = new UserIdentity();
         id.setUid((String) attributes.get(ATTRIBUTE_NAME_UID).get());
         id.setUsername((String) attributes.get(usernameAttribute).get());
         id.setFirstName(getAttribValue(attributes, ATTRIBUTE_NAME_GIVENNAME));

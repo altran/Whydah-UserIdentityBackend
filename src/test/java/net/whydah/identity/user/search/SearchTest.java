@@ -1,7 +1,7 @@
 package net.whydah.identity.user.search;
 
 import junit.framework.TestCase;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class SearchTest extends TestCase{
         Directory index = new RAMDirectory();
 
         Indexer indexer = new Indexer(index);
-        List<WhydahUserIdentity> users = new ArrayList<WhydahUserIdentity>(){{
+        List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
@@ -25,7 +25,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<WhydahUserIdentity> result = search.search("Sunil");
+        List<UserIdentity> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Vuppala");
         assertEquals(1, result.size());
@@ -42,7 +42,7 @@ public class SearchTest extends TestCase{
         RAMDirectory index = new RAMDirectory();
 
         Indexer indexer = new Indexer(index);
-        List<WhydahUserIdentity> users = new ArrayList<WhydahUserIdentity>(){{
+        List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
@@ -50,7 +50,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<WhydahUserIdentity> result = search.search("Sunil");
+        List<UserIdentity> result = search.search("Sunil");
         assertEquals(1, result.size());
         indexer.removeFromIndex("sunil@freecode.no");
         result = search.search("Sunil");
@@ -62,14 +62,14 @@ public class SearchTest extends TestCase{
     public void testmodifyuser() throws IOException {
         RAMDirectory index = new RAMDirectory();
         Indexer indexer = new Indexer(index);
-        List<WhydahUserIdentity> users = new ArrayList<WhydahUserIdentity>(){{
+        List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<WhydahUserIdentity> result = search.search("Sunil");
+        List<UserIdentity> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Sunil");
         assertEquals(1, result.size());
@@ -85,7 +85,7 @@ public class SearchTest extends TestCase{
     public void testwildcardsearch() throws IOException {
         Directory index = new RAMDirectory();
         Indexer indexer = new Indexer(index);
-        List<WhydahUserIdentity> users = new ArrayList<WhydahUserIdentity>(){{
+        List<UserIdentity> users = new ArrayList<UserIdentity>(){{
           	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
@@ -93,7 +93,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<WhydahUserIdentity> result = search.search("Sunil");
+        List<UserIdentity> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Sunil");
         assertEquals(1, result.size());
@@ -106,7 +106,7 @@ public class SearchTest extends TestCase{
         Directory index = new RAMDirectory();
 
         Indexer indexer = new Indexer(index);
-        List<WhydahUserIdentity> users = new ArrayList<WhydahUserIdentity>(){{
+        List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
@@ -114,14 +114,14 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<WhydahUserIdentity> result = search.search("Vuppala");
+        List<UserIdentity> result = search.search("Vuppala");
         assertEquals(1, result.size());
         assertEquals("sunil@freecode.no", result.get(0).getUsername());
     }
 
 
-    private static WhydahUserIdentity createUser(String username, String fornavn, String etternavn, String email, String uid) {
-        WhydahUserIdentity user1 = new WhydahUserIdentity();
+    private static UserIdentity createUser(String username, String fornavn, String etternavn, String email, String uid) {
+        UserIdentity user1 = new UserIdentity();
         user1.setUsername(username);
         user1.setFirstName(fornavn);
         user1.setLastName(etternavn);

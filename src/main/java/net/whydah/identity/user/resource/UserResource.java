@@ -6,8 +6,8 @@ import net.whydah.identity.application.role.Application;
 import net.whydah.identity.application.role.ApplicationRepository;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.WhydahUser;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,8 +52,8 @@ public class UserResource {
     public Response addUser(String userJson) {
         log.trace("addUser is called with userJson={}", userJson);
         try {
-            WhydahUserIdentity whydahUserIdentity = userAggregateService.addUser(userJson);
-            return Response.ok().build();   //TODO return whydahUserIdentity
+            UserIdentity userIdentity = userAggregateService.addUser(userJson);
+            return Response.ok().build();   //TODO return userIdentity
         } catch (IllegalArgumentException iae) {
             log.error("addUser: Invalid json={}", userJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -102,7 +102,7 @@ public class UserResource {
         log.trace("updateUserIdentity: username={}, userJson={}", username, userJson);
 
         try {
-            WhydahUserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userJson);
+            UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userJson);
             return Response.ok().build();   //TODO return whydahUserIdentity
         } catch (IllegalArgumentException iae) {
             log.error("modifyUser: Invalid json={}", userJson, iae);
@@ -115,7 +115,7 @@ public class UserResource {
 
         /*
         try {
-            WhydahUserIdentity whydahUserIdentity = userIdentityService.getUserinfo(username);
+            UserIdentity whydahUserIdentity = userIdentityService.getUserinfo(username);
             if (whydahUserIdentity == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -168,7 +168,7 @@ public class UserResource {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -188,7 +188,7 @@ public class UserResource {
     public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -220,7 +220,7 @@ public class UserResource {
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Endrer data for ny bruker {}: {}", username, passwordJson);
         try {
-            WhydahUserIdentity user = userIdentityService.getUserinfo(username);
+            UserIdentity user = userIdentityService.getUserinfo(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -235,7 +235,7 @@ public class UserResource {
                 String newpassword = jsonobj.getString("newpassword");
                 String newusername = jsonobj.getString("newusername");
                 if (!username.equals(newusername)) {
-                    WhydahUserIdentity newidexists = userIdentityService.getUserinfo(newusername);
+                    UserIdentity newidexists = userIdentityService.getUserinfo(newusername);
                     if (newidexists != null) {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
@@ -337,7 +337,7 @@ public class UserResource {
     @Path("users/{username}/{appid}/deleteall")
     public Response deleteAllUserRolesForApp(@PathParam("username") String username, @PathParam("appid") String appid) {
         log.debug("Fjern alle roller for {}: {}", username, appid);
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
             log.debug("fant8 {}", whydahUserIdentity);
@@ -361,7 +361,7 @@ public class UserResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserRoles(@PathParam("username") String username, @PathParam("appid") String appid) {
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
@@ -388,7 +388,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteUserRole(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
         log.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
             log.debug("fant bruker: {}", whydahUserIdentity);
@@ -419,7 +419,7 @@ public class UserResource {
     @Path("users/{username}/{appid}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
         } catch (NamingException e) {
@@ -455,7 +455,7 @@ public class UserResource {
             log.warn("Empty json payload");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
             log.debug("fant6 {}", whydahUserIdentity);
@@ -507,7 +507,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addDefaultRole(@PathParam("username") String username, @PathParam("appid") String appid) {
         log.debug("legg til default rolle for {}:{}", username, appid);
-        WhydahUserIdentity whydahUserIdentity;
+        UserIdentity whydahUserIdentity;
         try {
             whydahUserIdentity = userIdentityService.getUserinfo(username);
             log.debug("fant7 {}", whydahUserIdentity);

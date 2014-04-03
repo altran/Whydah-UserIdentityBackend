@@ -46,12 +46,12 @@ public class UserIdentityService {
         this.passwordSender = passwordSender;
     }
 
-    public WhydahUserIdentity getUserinfo(String username) throws NamingException {
+    public UserIdentity getUserinfo(String username) throws NamingException {
         return ldapHelper.getUserinfo(username);
     }
 
 
-    public WhydahUserIdentity authenticate(final String username, final String password) {
+    public UserIdentity authenticate(final String username, final String password) {
         return externalLdapAuthenticator.authenticate(username, password);
     }
 
@@ -78,7 +78,7 @@ public class UserIdentityService {
     }
 
 
-    public void addUserToLdap(WhydahUserIdentity userIdentity) {
+    public void addUserToLdap(UserIdentity userIdentity) {
         String username = userIdentity.getUsername();
         try {
             if (ldapHelper.usernameExist(username)) {
@@ -100,7 +100,7 @@ public class UserIdentityService {
         log.info("Added new user to LDAP: {}", username);
     }
 
-    public void updateUser(String username, WhydahUserIdentity newuser) {
+    public void updateUser(String username, UserIdentity newuser) {
         ldapHelper.updateUser(username, newuser);
     }
 

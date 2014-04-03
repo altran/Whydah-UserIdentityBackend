@@ -2,7 +2,7 @@ package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.user.identity.WhydahUserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.search.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response find(@PathParam("q") String query) {
         logger.debug("find with query=" + query);
-        List<WhydahUserIdentity> result = search.search(query);
+        List<UserIdentity> result = search.search(query);
 
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("users", result);
