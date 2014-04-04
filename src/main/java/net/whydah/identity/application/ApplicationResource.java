@@ -38,7 +38,7 @@ public class ApplicationResource {
         log.trace("createApplication is called with applicationJson={}", applicationJson);
         try {
             Application application = applicationService.createApplication(applicationJson);
-            return Response.ok().build();   //TODO return userAggregate or UserIdentity?
+            return Response.status(Response.Status.OK).build();
         } catch (IllegalArgumentException iae) {
             log.error("createApplication: Invalid json={}", applicationJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
