@@ -1,7 +1,13 @@
 package net.whydah.identity.application;
 
 import com.google.common.base.Joiner;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +26,15 @@ import java.util.List;
  *
  */
 public class Application {
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
     private String id;
     private String name;
     private String defaultrole;
     private String defaultOrgid;
     private List<String> availableOrgIds;
+
+    private Application() {
+    }
 
     public Application(String id, String name) {
         this(id, name, null, null);
@@ -42,6 +52,36 @@ public class Application {
         this.defaultrole = defaultrole;
         this.defaultOrgid = defaultOrgid;
         this.availableOrgIds = availableOrgIds;
+    }
+
+    public static Application fromJson(String applicationJson) {
+        try {
+            Application application;
+
+            JSONObject jsonobj = new JSONObject(applicationJson);
+
+            String id = jsonobj.getString("username");
+            String name =  jsonobj.getString("username");
+            String defaultrole = jsonobj.getString("username");
+            String defaultOrgid = jsonobj.getString("username");
+            List<String> availableOrgIds = null; //TODOjsonobj.getString("username");
+
+            application = new Application(id, name, defaultrole, defaultOrgid, availableOrgIds);
+            return application;
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Error parsing json", e);
+        }
+    }
+
+    public String toJson() {
+        String applicationJson = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            applicationJson =  mapper.writeValueAsString(this);
+        } catch (IOException e) {
+            log.info("Could not create json from this object {}", toString(), e);
+        }
+        return applicationJson;
     }
 
     public String toXML() {
