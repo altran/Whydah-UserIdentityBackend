@@ -48,7 +48,7 @@ public class ApplicationRepository {
 
     private static class ApplicationsResultSetHandler implements ResultSetHandler<List<Application>> {
         public List<Application> handle(ResultSet rs) throws SQLException {
-            ArrayList<Application> apps = new ArrayList<Application>();
+            ArrayList<Application> apps = new ArrayList<>();
             while(rs.next()) {
                 apps.add(new Application(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
             }

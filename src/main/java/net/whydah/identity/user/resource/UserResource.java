@@ -328,7 +328,7 @@ public class UserResource {
         List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<>();
         for (UserPropertyAndRole role : user.getPropsAndRoles()) {
-            myApps.add(role.getAppId());
+            myApps.add(role.getApplicationId());
         }
 
         HashMap<String, Object> model = new HashMap<>(3);
@@ -388,7 +388,7 @@ public class UserResource {
         UserAggregate whydahUser = new UserAggregate(whydahUserIdentity, userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid()));
         List<UserPropertyAndRole> rolesForApp = new ArrayList<>();
         for (UserPropertyAndRole role : whydahUser.getPropsAndRoles()) {
-            if (role.getAppId().equals(appid)) {
+            if (role.getApplicationId().equals(appid)) {
                 rolesForApp.add(role);
             }
         }
@@ -482,7 +482,7 @@ public class UserResource {
         }
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(whydahUserIdentity.getUid());
-        role.setAppId(appid);
+        role.setApplicationId(appid);
         try {
             JSONObject jsonobj = new JSONObject(jsonrole);
             role.setOrgId(jsonobj.getString("orgID"));
@@ -504,7 +504,7 @@ public class UserResource {
         String uid = whydahUserIdentity.getUid();
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
-            if (existingRole.getAppId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
+            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
                 log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -543,7 +543,7 @@ public class UserResource {
         String orgName = userPropertyAndRoleRepository.getOrgname(app.getDefaultOrgid());
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(whydahUserIdentity.getUid());
-        role.setAppId(appid);
+        role.setApplicationId(appid);
         role.setApplicationName(app.getName());
         role.setOrgId(app.getDefaultOrgid());
         role.setOrganizationName(orgName);
@@ -551,7 +551,7 @@ public class UserResource {
         log.debug("Role: {}", role);
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
         for (UserPropertyAndRole existingRole : existingRoles) {
-            if (existingRole.getAppId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
+            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
                 log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }

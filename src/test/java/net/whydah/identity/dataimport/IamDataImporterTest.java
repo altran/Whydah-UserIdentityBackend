@@ -123,7 +123,7 @@ public class IamDataImporterTest {
 
 	private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid,  String appId, String appName, String orgId, String orgName, String roleName, String roleId) {
 		for (UserPropertyAndRole role : propsAndRoles) {
-			if(role.getAppId().equals(appId) && 
+			if(role.getApplicationId().equals(appId) &&
 			   role.getApplicationName().equals(appName) && 
 			   role.getOrganizationName().equals(orgName) && 
 			   role.getOrgId().equals(orgId) &&

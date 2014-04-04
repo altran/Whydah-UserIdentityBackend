@@ -1,17 +1,37 @@
 package net.whydah.identity.user.role;
 
 /**
- * A "holder"-class for a users various properties and roles. Backed by RDBMS scheme
- * User: totto
- * Date: 1/11/11
- * Time: 8:21 AM
+ * A Java representation for a user's properties and roles as it is stored in a RDBMS.
+ *
+ * A user (uid)
+ * has the role (roleName, roleValue)
+ * in this application (applicationId, applicationName)
+ * from the relation (orgId, organizationName).
+ *
+ * An example to illustrate why the context/relation/organization concept is needed:
+ *
+ * As an employee (relation: orgId, organizationName),
+ * a user (uid)
+ * has the "reader" role in
+ * application CompanyCMS.
+ *
+ * As technical writer in the Company (relation: orgId, organizationName),
+ * a user (uid)
+ * has the "writer" role in
+ * application CompanyCMS.
+ *
+ * @author totto
+ * @since 1/11/11
  */
 public class UserPropertyAndRole {
     private String uid;
-    private String appId;
+
+    private String applicationId;
     private transient String applicationName;
+
     private String orgId;
     private transient String organizationName;
+
     private String roleName;
     private String roleValue;
 
@@ -23,12 +43,12 @@ public class UserPropertyAndRole {
         this.uid = uid;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getApplicationId() {
+        return applicationId;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     public String getApplicationName() {
@@ -82,7 +102,7 @@ public class UserPropertyAndRole {
 
         UserPropertyAndRole that = (UserPropertyAndRole) o;
 
-        if (appId != null ? !appId.equals(that.appId) : that.appId != null) {
+        if (applicationId != null ? !applicationId.equals(that.applicationId) : that.applicationId != null) {
             return false;
         }
         if (applicationName != null ? !applicationName.equals(that.applicationName) : that.applicationName != null) {
@@ -110,7 +130,7 @@ public class UserPropertyAndRole {
     @Override
     public int hashCode() {
         int result = uid != null ? uid.hashCode() : 0;
-        result = 31 * result + (appId != null ? appId.hashCode() : 0);
+        result = 31 * result + (applicationId != null ? applicationId.hashCode() : 0);
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
         result = 31 * result + (orgId != null ? orgId.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
@@ -123,7 +143,7 @@ public class UserPropertyAndRole {
     public String toString() {
         return "UserPropertyAndRole{" +
                 "uid='" + uid + '\'' +
-                ", appId='" + appId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", orgId='" + orgId + '\'' +
                 ", organizationName='" + organizationName + '\'' +

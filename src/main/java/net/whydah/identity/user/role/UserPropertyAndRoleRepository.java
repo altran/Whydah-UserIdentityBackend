@@ -15,7 +15,6 @@ import java.util.List;
 
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
-    @Inject private ApplicationRepository applicationRepository;
 
     private static final String GET_USERROLES_SQL = "SELECT UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
     private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (UserID, AppID, OrganizationId, RoleName, RoleValues) values (?, ?, ?, ?, ?)";
@@ -24,6 +23,8 @@ public class UserPropertyAndRoleRepository {
     private static final String DELETE_APP_ROLES_SQL = "DELETE FROM UserRoles WHERE UserID=? AND AppID=?";
     private static final String UPDATE_SQL = "UPDATE UserRoles set RoleValues=? WHERE UserID=? AND AppID=? AND OrganizationId=? AND RoleName=?";
 
+    @Inject
+    private ApplicationRepository applicationRepository;
     @Inject
     private QueryRunner queryRunner;
 
@@ -54,7 +55,7 @@ public class UserPropertyAndRoleRepository {
     public boolean hasRole(String uid, UserPropertyAndRole role) {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
-            boolean roleExist = existingRole.getAppId().equals(role.getAppId())
+            boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
                     && existingRole.getOrgId().equals(role.getOrgId())
                     && existingRole.getRoleName().equals(role.getRoleName());
             if (roleExist) {
@@ -69,7 +70,7 @@ public class UserPropertyAndRoleRepository {
         try {
             queryRunner.update(INSERT_USERROLE_SQL,
                     userPropertyAndRole.getUid(),
-                    userPropertyAndRole.getAppId(),
+                    userPropertyAndRole.getApplicationId(),
                     userPropertyAndRole.getOrgId(),
                     userPropertyAndRole.getRoleName(),
                     userPropertyAndRole.getRoleValue()
@@ -147,15 +148,15 @@ public class UserPropertyAndRoleRepository {
     private class UserRolesResultsetHandler implements ResultSetHandler<List<UserPropertyAndRole>> {
         @Override
         public List<UserPropertyAndRole> handle(ResultSet rs) throws SQLException {
-            ArrayList<UserPropertyAndRole> result = new ArrayList<UserPropertyAndRole>();
+            ArrayList<UserPropertyAndRole> result = new ArrayList<>();
             while(rs.next()) {
                 UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
                 userPropertyAndRole.setUid(rs.getString(1));
-                userPropertyAndRole.setAppId(rs.getString(2));
+                userPropertyAndRole.setApplicationId(rs.getString(2));
                 userPropertyAndRole.setOrgId(rs.getString(3));
                 userPropertyAndRole.setRoleName(rs.getString(4));
                 userPropertyAndRole.setRoleValue(null2empty(rs.getString(5)));
-                Application application = applicationRepository.getApplication(userPropertyAndRole.getAppId());
+                Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
                 }

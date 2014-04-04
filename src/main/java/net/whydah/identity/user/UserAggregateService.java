@@ -66,7 +66,7 @@ public class UserAggregateService {
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
 
         defaultRole.setUid(userIdentity.getUid());
-        defaultRole.setAppId(applicationId);
+        defaultRole.setApplicationId(applicationId);
         defaultRole.setApplicationName(applicationName);
         defaultRole.setOrgId(organizationId);
         defaultRole.setOrganizationName(organizationName);
@@ -81,7 +81,7 @@ public class UserAggregateService {
         }
 
         userPropertyAndRoleRepository.addUserPropertyAndRole(defaultRole);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getAppId() + ", role=" + defaultRole.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getApplicationId() + ", role=" + defaultRole.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
 
         List<UserPropertyAndRole> roles = new ArrayList<>(1);

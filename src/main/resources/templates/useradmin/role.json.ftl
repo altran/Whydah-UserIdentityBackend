@@ -1,5 +1,5 @@
    {
-        "appId": "${rolle.appId?js_string}",
+        "appId": "${rolle.applicationId?js_string}",
         "applicationName": "${rolle.applicationName?js_string}",
         "orgID": "${rolle.orgId?js_string}",
         "organizationName": "${rolle.organizationName!?js_string}",

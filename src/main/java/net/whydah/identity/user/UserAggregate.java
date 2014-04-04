@@ -45,7 +45,7 @@ public class UserAggregate {
         for (UserPropertyAndRole u : propsandroles) {
                     strb.append(
                     "        <application>\n" +
-                    "            <appId>" + u.getAppId() + "</appId>\n" +
+                    "            <appId>" + u.getApplicationId() + "</appId>\n" +
                     "            <applicationName>" + u.getApplicationName() + "</applicationName>\n" +
                     "            <orgID>" + u.getOrgId() + "</orgID>\n" +
                     "            <roleName>" + u.getRoleName() + "</roleName>\n" +

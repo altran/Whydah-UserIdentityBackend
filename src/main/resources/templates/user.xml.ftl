@@ -10,13 +10,13 @@
         <UID>${it.identity.uid?xml}</UID>
     </identity>
     <applications>
-<#list it.propsAndRoles as rolle>
+<#list it.propsAndRoles as role>
         <application>
-            <appId>${rolle.appId?xml}</appId>
-            <applicationName>${rolle.applicationName?xml}</applicationName>
-            <orgID>${rolle.orgId?xml}</orgID>
-            <roleName>${rolle.roleName?xml}</roleName>
-            <roleValue>${rolle.roleValue!?xml}</roleValue>
+            <appId>${role.applicationId?xml}</appId>
+            <applicationName>${role.applicationName?xml}</applicationName>
+            <orgID>${role.orgId?xml}</orgID>
+            <roleName>${role.roleName?xml}</roleName>
+            <roleValue>${role.roleValue!?xml}</roleValue>
         </application>
 </#list>
     </applications>

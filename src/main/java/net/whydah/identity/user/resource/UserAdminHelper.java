@@ -119,7 +119,7 @@ public class UserAdminHelper {
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
 
         role.setUid(userIdentity.getUid());
-        role.setAppId(applicationId);
+        role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
@@ -134,7 +134,7 @@ public class UserAdminHelper {
         }
 
         roleRepository.addUserPropertyAndRole(role);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
     }
 
@@ -155,7 +155,7 @@ public class UserAdminHelper {
         String netIQRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.netiq.name");
 
         role.setUid(userIdentity.getUid());
-        role.setAppId(applicationId);
+        role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
@@ -170,10 +170,10 @@ public class UserAdminHelper {
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
             logger.warn("Role already exist. " + role.toString());
-            // roleRepository.deleteUserRole(userIdentity.getUid(), role.getAppId(), role.getOrgId(), role.getRoleName());
+            // roleRepository.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrgId(), role.getRoleName());
         }
 
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getAppId() + ", role=" + role.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         try {
             if (userIdentity!= null){
             roleRepository.addUserPropertyAndRole(role);

@@ -1,7 +1,7 @@
 <html>
 <head><title>Logon ok</title></head>
 <body>
-<b>Brukerinfo:</b><br>
+<b>User info:</b><br>
 <table style="border: 1px solid black;" border="1">
     <tr>
         <th>Username</th>
@@ -36,13 +36,13 @@
 <b>Roller:</b><br>
 <table style="border: 1px solid black;" border="1">
 <tr>
-    <th>Applikasjon</th>
-    <th>Organisasjon</th>
-    <th>Rolle</th>
-    <th>Rolleverdi</th>
+    <th>Application</th>
+    <th>Organization</th>
+    <th>Role</th>
+    <th>Role value</th>
 <#list it.propsAndRoles as rolle>
     <tr>
-        <td>${rolle.applicationName!} (${rolle.appId!})</td>
+        <td>${rolle.applicationName!} (${rolle.applicationId!})</td>
         <td>${rolle.organizationName!} (${rolle.orgId!})</td>
         <td>${rolle.roleName}</td>
         <td>${rolle.roleValue!}</td>

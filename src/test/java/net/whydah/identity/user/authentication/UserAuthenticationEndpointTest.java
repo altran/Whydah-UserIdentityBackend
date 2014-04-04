@@ -155,7 +155,7 @@ public class UserAuthenticationEndpointTest {
         List<UserPropertyAndRole> propsAndRoles = model.getPropsAndRoles();
 
         for (UserPropertyAndRole role : propsAndRoles) {
-            assertEquals(applicationId, role.getAppId());
+            assertEquals(applicationId, role.getApplicationId());
 //            assertEquals(applicationName, role.getApplicationName());
 //            assertEquals(organizationId, role.getOrgId());
 //            assertEquals(organizationName, role.getOrganizationName()); //TODO figure out why orgName is not set.
