@@ -57,7 +57,7 @@ public class UserPropertyAndRoleRepository {
         for (UserPropertyAndRole existingRole : existingRoles) {
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
                     && existingRole.getOrgId().equals(role.getOrgId())
-                    && existingRole.getRoleName().equals(role.getRoleName());
+                    && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
             if (roleExist) {
                 return true;
             }
@@ -72,8 +72,8 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
                     userPropertyAndRole.getOrgId(),
-                    userPropertyAndRole.getRoleName(),
-                    userPropertyAndRole.getRoleValue()
+                    userPropertyAndRole.getApplicationRoleName(),
+                    userPropertyAndRole.getApplicationRoleValue()
             );
         } catch (SQLException e) {
             throw new DatastoreException(e);
@@ -154,8 +154,8 @@ public class UserPropertyAndRoleRepository {
                 userPropertyAndRole.setUid(rs.getString(1));
                 userPropertyAndRole.setApplicationId(rs.getString(2));
                 userPropertyAndRole.setOrgId(rs.getString(3));
-                userPropertyAndRole.setRoleName(rs.getString(4));
-                userPropertyAndRole.setRoleValue(null2empty(rs.getString(5)));
+                userPropertyAndRole.setApplicationRoleName(rs.getString(4));
+                userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(5)));
                 Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());

@@ -70,9 +70,9 @@ public class UserAggregateService {
         defaultRole.setApplicationName(applicationName);
         defaultRole.setOrgId(organizationId);
         defaultRole.setOrganizationName(organizationName);
-        defaultRole.setRoleName(roleName);
+        defaultRole.setApplicationRoleName(roleName);
         //role.setRoleValue(roleValue);
-        defaultRole.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        defaultRole.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         //log.debug("Adding default role: {}", defaultRole);
 
         if (userPropertyAndRoleRepository.hasRole(userIdentity.getUid(), defaultRole)) {
@@ -81,7 +81,7 @@ public class UserAggregateService {
         }
 
         userPropertyAndRoleRepository.addUserPropertyAndRole(defaultRole);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getApplicationId() + ", role=" + defaultRole.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getApplicationId() + ", role=" + defaultRole.getApplicationRoleName();
         audit(ActionPerformed.ADDED, "role", value);
 
         List<UserPropertyAndRole> roles = new ArrayList<>(1);

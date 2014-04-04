@@ -32,8 +32,8 @@ public class UserPropertyAndRole {
     private String orgId;
     private transient String organizationName;
 
-    private String roleName;
-    private String roleValue;
+    private String applicationRoleName;
+    private String applicationRoleValue;
 
     public String getUid() {
         return uid;
@@ -75,20 +75,20 @@ public class UserPropertyAndRole {
         this.organizationName = organizationName;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getApplicationRoleName() {
+        return applicationRoleName;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    public void setApplicationRoleName(String applicationRoleName) {
+        this.applicationRoleName = applicationRoleName;
     }
 
-    public String getRoleValue() {
-        return roleValue;
+    public String getApplicationRoleValue() {
+        return applicationRoleValue;
     }
 
-    public void setRoleValue(String roleValue) {
-        this.roleValue = roleValue;
+    public void setApplicationRoleValue(String applicationRoleValue) {
+        this.applicationRoleValue = applicationRoleValue;
     }
 
     @Override
@@ -114,10 +114,10 @@ public class UserPropertyAndRole {
         if (organizationName != null ? !organizationName.equals(that.organizationName) : that.organizationName != null) {
             return false;
         }
-        if (roleName != null ? !roleName.equals(that.roleName) : that.roleName != null) {
+        if (applicationRoleName != null ? !applicationRoleName.equals(that.applicationRoleName) : that.applicationRoleName != null) {
             return false;
         }
-        if (roleValue != null ? !roleValue.equals(that.roleValue) : that.roleValue != null) {
+        if (applicationRoleValue != null ? !applicationRoleValue.equals(that.applicationRoleValue) : that.applicationRoleValue != null) {
             return false;
         }
         if (uid != null ? !uid.equals(that.uid) : that.uid != null) {
@@ -134,8 +134,8 @@ public class UserPropertyAndRole {
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
         result = 31 * result + (orgId != null ? orgId.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
-        result = 31 * result + (roleName != null ? roleName.hashCode() : 0);
-        result = 31 * result + (roleValue != null ? roleValue.hashCode() : 0);
+        result = 31 * result + (applicationRoleName != null ? applicationRoleName.hashCode() : 0);
+        result = 31 * result + (applicationRoleValue != null ? applicationRoleValue.hashCode() : 0);
         return result;
     }
 
@@ -147,8 +147,8 @@ public class UserPropertyAndRole {
                 ", applicationName='" + applicationName + '\'' +
                 ", orgId='" + orgId + '\'' +
                 ", organizationName='" + organizationName + '\'' +
-                ", roleName='" + roleName + '\'' +
-                ", roleValue='" + roleValue + '\'' +
+                ", roleName='" + applicationRoleName + '\'' +
+                ", roleValue='" + applicationRoleValue + '\'' +
                 '}';
     }
 }

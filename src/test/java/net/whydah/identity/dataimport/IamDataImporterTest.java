@@ -127,8 +127,8 @@ public class IamDataImporterTest {
 			   role.getApplicationName().equals(appName) && 
 			   role.getOrganizationName().equals(orgName) && 
 			   role.getOrgId().equals(orgId) &&
-			   role.getRoleName().equals(roleName) && 
-			   role.getRoleValue().equals(roleId) && 
+			   role.getApplicationRoleName().equals(roleName) &&
+			   role.getApplicationRoleValue().equals(roleId) &&
 			   role.getUid().equals(uid)) {
 				
 				return true;

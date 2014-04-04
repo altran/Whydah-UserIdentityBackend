@@ -123,9 +123,9 @@ public class UserAdminHelper {
         role.setApplicationName(applicationName);
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
-        role.setRoleName(roleName);
+        role.setApplicationRoleName(roleName);
 //        role.setRoleValue(roleValue);
-        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
@@ -134,7 +134,7 @@ public class UserAdminHelper {
         }
 
         roleRepository.addUserPropertyAndRole(role);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         audit(ActionPerformed.ADDED, "role", value);
     }
 
@@ -160,11 +160,11 @@ public class UserAdminHelper {
         role.setOrgId(organizationId);
         role.setOrganizationName(organizationName);
         if (facebook) {
-            role.setRoleName(facebookRoleName);
-            role.setRoleValue(roleValue);
+            role.setApplicationRoleName(facebookRoleName);
+            role.setApplicationRoleValue(roleValue);
         } else if (netiq) {
-            role.setRoleName(netIQRoleName);
-            role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+            role.setApplicationRoleName(netIQRoleName);
+            role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         }
         logger.debug("Adding Role: {}", role);
 
@@ -173,7 +173,7 @@ public class UserAdminHelper {
             // roleRepository.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrgId(), role.getRoleName());
         }
 
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         try {
             if (userIdentity!= null){
             roleRepository.addUserPropertyAndRole(role);

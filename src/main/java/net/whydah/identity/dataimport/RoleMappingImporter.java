@@ -72,8 +72,8 @@ public class RoleMappingImporter {
 	        	
 	            userPropertyAndRole.setOrgId(cleanString(lineArray[ORGANIZATIONID]));
 	            userPropertyAndRole.setOrganizationName(cleanString(lineArray[ORGANIZATIONNAME]));
-	            userPropertyAndRole.setRoleName(cleanString(lineArray[ROLENAME]));
-	            userPropertyAndRole.setRoleValue(cleanString(lineArray[ROLEVALUE]));
+	            userPropertyAndRole.setApplicationRoleName(cleanString(lineArray[ROLENAME]));
+	            userPropertyAndRole.setApplicationRoleValue(cleanString(lineArray[ROLEVALUE]));
 	            
 	            roleMappings.add(userPropertyAndRole);
 	        }
