@@ -1,24 +1,41 @@
 package net.whydah.identity.application;
 
+import net.whydah.identity.audit.ActionPerformed;
+import net.whydah.identity.audit.AuditLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by baardl on 29.03.14.
  */
 public class ApplicationService {
-    public Application createApplication(String applicationJson) {
-        return null;
+    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
+
+    private final ApplicationRepository applicationRepository;
+    private final AuditLogRepository auditLogRepository;
+
+    public ApplicationService(ApplicationRepository applicationRepository, AuditLogRepository auditLogRepository) {
+        this.applicationRepository = applicationRepository;
+        this.auditLogRepository = auditLogRepository;
     }
-//    public Application createApplication(String applicationJson) {
-//        UserIdentity userIdentity = UserIdentity.fromJson(userIdentityJson);
-//
-//        userIdentityService.addUserIdentity(userIdentity);
-//
-//        List<UserPropertyAndRole> roles = addDefaultUserRole(userIdentity);
-//
-//        indexer.addToIndex(userIdentity);
-//
-//        audit(ActionPerformed.ADDED, "user", userIdentity.toString());
-//        return new UserAggregate(userIdentity, roles);
-//    }
+
+    public Application createApplication(String applicationJson) {
+        Application application = Application.fromJson(applicationJson);
+        //TODO update repository
+        //TODO update application.id
+        audit(ActionPerformed.ADDED, "application", application.toString());
+        return application;
+    }
+
+    private void audit(String action, String what, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
+    }
 
 
 }

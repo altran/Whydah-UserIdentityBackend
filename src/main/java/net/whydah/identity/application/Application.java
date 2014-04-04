@@ -1,7 +1,7 @@
 package net.whydah.identity.application;
 
-import com.google.common.base.Joiner;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     private String id;
     private String name;
-    private String defaultrole;
+    private String defaultRole;
     private String defaultOrgid;
     private List<String> availableOrgIds;
 
@@ -39,34 +39,51 @@ public class Application {
     public Application(String id, String name) {
         this(id, name, null, null);
     }
-    public Application(String id, String name, String defaultrole, String defaultOrgid) {
+    public Application(String id, String name, String defaultRole, String defaultOrgid) {
         this.id = id;
         this.name = name;
-        this.defaultrole = defaultrole;
+        this.defaultRole = defaultRole;
         this.defaultOrgid = defaultOrgid;
     }
 
-    public Application(String id, String name, String defaultrole, String defaultOrgid, List<String> availableOrgIds) {
+    public Application(String id, String name, String defaultRole, String defaultOrgid, List<String> availableOrgIds) {
         this.id = id;
         this.name = name;
-        this.defaultrole = defaultrole;
+        this.defaultRole = defaultRole;
         this.defaultOrgid = defaultOrgid;
         this.availableOrgIds = availableOrgIds;
     }
 
+    /**
+     * {
+     "id": "id1",
+     "name": "test",
+     "defaultRole": "default1role",
+     "defaultOrgid": "defaultorgid",
+     "availableOrgIds": [
+     "developer@customer",
+     "consultant@customer"
+     ]
+     }
+     * @param applicationJson
+     * @return
+     */
     public static Application fromJson(String applicationJson) {
         try {
             Application application;
 
             JSONObject jsonobj = new JSONObject(applicationJson);
 
-            String id = jsonobj.getString("username");
-            String name =  jsonobj.getString("username");
-            String defaultrole = jsonobj.getString("username");
-            String defaultOrgid = jsonobj.getString("username");
-            List<String> availableOrgIds = null; //TODOjsonobj.getString("username");
+            String id = jsonobj.getString("id");
+            String name =  jsonobj.getString("name");
+            String defaultrole = jsonobj.getString("defaultRole");
+            String defaultOrgid = jsonobj.getString("defaultOrgid");
+            JSONArray availableOrgIds = jsonobj.getJSONArray("availableOrgIds");
 
-            application = new Application(id, name, defaultrole, defaultOrgid, availableOrgIds);
+            application = new Application(id, name, defaultrole, defaultOrgid);
+            for (int i = 0; i < availableOrgIds.length(); i++) {
+                application.addAvailableOrgId((String)availableOrgIds.get(i));
+            }
             return application;
         } catch (JSONException e) {
             throw new IllegalArgumentException("Error parsing json", e);
@@ -89,7 +106,7 @@ public class Application {
                 " <application>\n" +
                 "   <applicationid>" + id + "</applicationid>\n" +
                 "   <applicationname>" + name + "</applicationname>\n" +
-                "   <defaultrole>" + defaultrole + "</defaultrole>\n" +
+                "   <defaultrole>" + defaultRole + "</defaultrole>\n" +
                 "   <defaultorgid>" + defaultOrgid + "</defaultorgid>\n" +
                 "  " + buildAvailableOrgIsXml() + "\n" +
                 " </application>\n";
@@ -111,8 +128,8 @@ public class Application {
     public String getName() {
         return name;
     }
-    public String getDefaultrole() {
-        return defaultrole;
+    public String getDefaultRole() {
+        return defaultRole;
     }
     public String getDefaultOrgid() {
         return defaultOrgid;
@@ -147,17 +164,17 @@ public class Application {
         this.defaultOrgid = defaultOrgid;
     }
 
-    public void setDefaultrole(String defaultrole) {
-        this.defaultrole = defaultrole;
+    public void setDefaultRole(String defaultRole) {
+        this.defaultRole = defaultRole;
     }
 
     @Override
     public String toString() {
-        String availableIds = Joiner.on(", ").join(this.availableOrgIds);
+        String availableIds = "ToDO"; //Joiner.on(", ").join(this.availableOrgIds);
         return "Application{" +
                 "appId='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", defaultrole='" + defaultrole + '\'' +
+                ", defaultrole='" + defaultRole + '\'' +
                 ", defaultOrgid='" + defaultOrgid + '\'' +
                 ", availableOrgIds = '" + availableIds  + '\'' +
                 '}';
