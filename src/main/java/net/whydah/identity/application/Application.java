@@ -1,4 +1,4 @@
-package net.whydah.identity.application.role;
+package net.whydah.identity.application;
 
 /**
  * Application.

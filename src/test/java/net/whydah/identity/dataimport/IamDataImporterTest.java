@@ -1,6 +1,6 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.EmbeddedADS;

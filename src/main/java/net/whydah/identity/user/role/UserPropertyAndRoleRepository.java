@@ -1,8 +1,8 @@
 package net.whydah.identity.user.role;
 
 import com.google.inject.Inject;
-import net.whydah.identity.application.role.Application;
-import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.application.Application;
+import net.whydah.identity.application.ApplicationRepository;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.slf4j.Logger;

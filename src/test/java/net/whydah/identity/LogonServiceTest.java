@@ -5,7 +5,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.MediaTypes;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;

@@ -1,4 +1,4 @@
-package net.whydah.identity.application.role;
+package net.whydah.identity.application;
 
 import com.google.inject.Inject;
 import net.whydah.identity.user.role.DatastoreException;

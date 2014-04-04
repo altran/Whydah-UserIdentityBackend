@@ -1,6 +1,6 @@
 package net.whydah.identity.user.authentication;
 
-import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;

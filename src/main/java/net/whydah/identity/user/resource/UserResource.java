@@ -2,8 +2,8 @@ package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.application.role.Application;
-import net.whydah.identity.application.role.ApplicationRepository;
+import net.whydah.identity.application.Application;
+import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
