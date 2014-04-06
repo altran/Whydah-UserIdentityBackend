@@ -35,62 +35,6 @@ public class UserPropertyAndRole {
     private String applicationRoleName;
     private String applicationRoleValue;
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getApplicationName() {
-        return (applicationName == null ? "" : applicationName);
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    public String getOrgId() {
-        return (orgId == null ? "" : orgId);
-    }
-
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
-    }
-
-    public String getOrganizationName() {
-        return (organizationName == null ? "" : organizationName);
-    }
-
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
-    }
-
-    public String getApplicationRoleName() {
-        return applicationRoleName;
-    }
-
-    public void setApplicationRoleName(String applicationRoleName) {
-        this.applicationRoleName = applicationRoleName;
-    }
-
-    public String getApplicationRoleValue() {
-        return applicationRoleValue;
-    }
-
-    public void setApplicationRoleValue(String applicationRoleValue) {
-        this.applicationRoleValue = applicationRoleValue;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -150,5 +94,49 @@ public class UserPropertyAndRole {
                 ", roleName='" + applicationRoleName + '\'' +
                 ", roleValue='" + applicationRoleValue + '\'' +
                 '}';
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
+    }
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+    public void setApplicationRoleName(String applicationRoleName) {
+        this.applicationRoleName = applicationRoleName;
+    }
+    public void setApplicationRoleValue(String applicationRoleValue) {
+        this.applicationRoleValue = applicationRoleValue;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+    public String getApplicationId() {
+        return applicationId;
+    }
+    public String getApplicationName() {
+        return (applicationName == null ? "" : applicationName);
+    }
+    public String getOrgId() {
+        return (orgId == null ? "" : orgId);
+    }
+    public String getOrganizationName() {
+        return (organizationName == null ? "" : organizationName);
+    }
+    public String getApplicationRoleName() {
+        return applicationRoleName;
+    }
+    public String getApplicationRoleValue() {
+        return applicationRoleValue;
     }
 }
