@@ -16,11 +16,11 @@ import java.util.List;
 
 public class UserAggregate {
     private UserIdentity identity = null;
-    private List<UserPropertyAndRole> propsandroles = new ArrayList<>();
+    private List<UserPropertyAndRole> userPropertiesAndRolesList = new ArrayList<>();
 
-    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> propsandroles) {
+    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> userPropertiesAndRolesList) {
         this.identity = identity;
-        this.propsandroles = propsandroles;
+        this.userPropertiesAndRolesList = userPropertiesAndRolesList;
     }
 
     public UserAggregate() {
@@ -42,7 +42,7 @@ public class UserAggregate {
                 "    <applications>\n";
          strb.append(headAndIdentity);
 
-        for (UserPropertyAndRole u : propsandroles) {
+        for (UserPropertyAndRole u : userPropertiesAndRolesList) {
                     strb.append(
                     "        <application>\n" +
                     "            <appId>" + u.getApplicationId() + "</appId>\n" +
@@ -156,15 +156,15 @@ public class UserAggregate {
         this.identity = identity;
     }
 
-    public List<UserPropertyAndRole> getPropsAndRoles() {
-        return propsandroles;
+    public List<UserPropertyAndRole> getUserPropertiesAndRolesList() {
+        return userPropertiesAndRolesList;
     }
 
-    public void addPropsAndRoles(UserPropertyAndRole propsandrole) {
-        this.propsandroles.add(propsandrole);
+    public void addPropsAndRoles(UserPropertyAndRole userPropertyAndRole) {
+        this.userPropertiesAndRolesList.add(userPropertyAndRole);
     }
 
-    public void setPropsAndRoles(List<UserPropertyAndRole> propsandroles) {
-        this.propsandroles = propsandroles;
+    public void setPropsAndRoles(List<UserPropertyAndRole> userPropertiesAndRolesList) {
+        this.userPropertiesAndRolesList = userPropertiesAndRolesList;
     }
 }

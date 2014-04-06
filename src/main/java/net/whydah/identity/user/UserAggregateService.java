@@ -56,8 +56,6 @@ public class UserAggregateService {
         return new UserAggregate(userIdentity, roles);
     }
     private List<UserPropertyAndRole> addDefaultUserRole(UserIdentity userIdentity) {
-        UserPropertyAndRole defaultRole = new UserPropertyAndRole();
-
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
         String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
@@ -65,6 +63,7 @@ public class UserAggregateService {
         String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
 
+        UserPropertyAndRole defaultRole = new UserPropertyAndRole();
         defaultRole.setUid(userIdentity.getUid());
         defaultRole.setApplicationId(applicationId);
         defaultRole.setApplicationName(applicationName);
@@ -105,6 +104,32 @@ public class UserAggregateService {
         return new UserAggregate(userIdentity, userPropertyAndRoles);
     }
 
+    /*
+    public UserAggregate updateUserAggregate(String username, UserAggregate userAggregate) {
+        UserIdentity newUserIdentity = userAggregate.getIdentity();
+        try {
+            UserIdentity existingUserIdentity = userIdentityService.getUserIndentity(username);
+            if (existingUserIdentity == null) {
+                throw new NotFoundException("User not found. username=" + username);
+            }
+
+            userIdentityService.updateUserIdentity(username, newUserIdentity);
+            indexer.update(newUserIdentity);
+            audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
+        } catch (NamingException e) {
+            throw new RuntimeException("updateUserAggregate failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
+        }
+
+        deleteRolesForUser(newUserIdentity);
+        for(UserPropertyAndRole userPropertyAndRole : userAggregate.getUserPropertiesAndRolesList()) {
+            userPropertyAndRoleRepository.addUserPropertyAndRole(userPropertyAndRole);
+            String value = "uid=" + newUserIdentity.getUid() + ", username=" + newUserIdentity.getUsername() + ", appid=" + userPropertyAndRole.getApplicationId() + ", role=" + userPropertyAndRole.getApplicationRoleName();
+            audit(ActionPerformed.ADDED, "role", value);
+        }
+        return userAggregate;
+    }
+    */
+
 
     public UserIdentity updateUserIdentity(String username, String userJson) {
         UserIdentity newUserIdentity = UserIdentity.fromJson(userJson);
@@ -119,7 +144,7 @@ public class UserAggregateService {
             indexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
-            throw new RuntimeException("updateUserIdentity failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
+            throw new RuntimeException("updateUserAggregate failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
         }
         return newUserIdentity;
     }
@@ -136,10 +161,14 @@ public class UserAggregateService {
         }
         userIdentityService.deleteUserIdentity(username);
 
+        deleteRolesForUser(userIdentity);
+    }
+
+    private void deleteRolesForUser(UserIdentity userIdentity) {
         String uid = userIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
         indexer.removeFromIndex(uid);
-        audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + username);
+        audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + userIdentity.getUsername());
     }
 
     private void audit(String action, String what, String value) {

@@ -108,14 +108,14 @@ public class IamDataImporterTest {
         
         UserAggregate userAggregate1 = new UserAggregate(thomaspUserIdentity, roleRepository.getUserPropertyAndRoles(thomaspUserIdentity.getUid()));
         
-        List<UserPropertyAndRole> propsAndRoles = userAggregate1.getPropsAndRoles();
+        List<UserPropertyAndRole> propsAndRoles = userAggregate1.getUserPropertiesAndRolesList();
         assertEquals("All roles must be found", 3, propsAndRoles.size());
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "2", "Mobilefirst", "5", "Altran", "developer", "30"));
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "3", "Whydah", "1", "Whydah", "developer", "20"));
 
         UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
-        List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getPropsAndRoles();
+        List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getUserPropertiesAndRolesList();
         assertEquals("All roles must be found", 1, propsAndRoles2.size());
         assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2", "Mobilefirst", "5", "Altran", "admin", "70"));
 

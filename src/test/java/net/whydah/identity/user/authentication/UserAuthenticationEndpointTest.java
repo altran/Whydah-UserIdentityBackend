@@ -152,7 +152,7 @@ public class UserAuthenticationEndpointTest {
         String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
         */
         /*
-        List<UserPropertyAndRole> propsAndRoles = model.getPropsAndRoles();
+        List<UserPropertyAndRole> propsAndRoles = model.getUserPropertiesAndRolesList();
 
         for (UserPropertyAndRole role : propsAndRoles) {
             assertEquals(applicationId, role.getApplicationId());

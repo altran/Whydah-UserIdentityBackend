@@ -154,6 +154,45 @@ public class UserResource {
         */
     }
 
+    /*
+    @PUT
+    @Path("/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUserAggregate(@PathParam("username") String username, String json) {
+        log.trace("updateUserAggregate: username={}, json={}", username, json);
+
+        UserAggregate request;
+        try {
+            request = objectMapper.readValue(json, UserAggregate.class);
+        } catch (IOException e) {
+            log.error("Bad json: " + json, e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            //UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userIdentityJson);
+            //return Response.ok().build();   //TODO return whydahUserIdentity
+
+            UserAggregate userAggregate = userAggregateService.updateUserAggregate(username, request);
+
+            Writer strWriter = new StringWriter();
+            try {
+                objectMapper.writeValue(strWriter, userAggregate);
+            } catch (IOException e) {
+                log.error("Could not convert to JSON {}", userAggregate.toString(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error converting to requested format.").build();
+            }
+            return Response.ok(strWriter.toString()).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("updateUserAggregate: Invalid json={}", json, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+     */
+
+
     @DELETE
     @Path("/{username}")
     public Response deleteUserAggregate(@PathParam("username") String username) {
@@ -314,10 +353,10 @@ public class UserResource {
     @Path("/{username}/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersApplications(@PathParam("username") String username) {
-        UserAggregate user;
+        UserAggregate userAggregate;
         try {
-            user = userAggregateService.getUserAggregate(username);
-            if (user == null) {
+            userAggregate = userAggregateService.getUserAggregate(username);
+            if (userAggregate == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
         } catch (RuntimeException e) {
@@ -327,7 +366,7 @@ public class UserResource {
 
         List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<>();
-        for (UserPropertyAndRole role : user.getPropsAndRoles()) {
+        for (UserPropertyAndRole role : userAggregate.getUserPropertiesAndRolesList()) {
             myApps.add(role.getApplicationId());
         }
 
