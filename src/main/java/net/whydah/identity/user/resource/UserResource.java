@@ -59,7 +59,7 @@ public class UserResource {
         log.trace("addUserAndSetDefaultRoles is called with userIdentityJson={}", userIdentityJson);
         try {
             UserAggregate userAggregate = userAggregateService.addUserAndSetDefaultRoles(userIdentityJson);
-            return Response.ok().build();   //TODO return userAggregate or UserIdentity?
+            return Response.status(Response.Status.CREATED).build();   //TODO return userAggregate or UserIdentity?
         } catch (IllegalArgumentException iae) {
             log.error("addUserAndSetDefaultRoles: Invalid json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
