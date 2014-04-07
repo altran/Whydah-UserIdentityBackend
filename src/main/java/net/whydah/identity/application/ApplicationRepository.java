@@ -1,6 +1,7 @@
 package net.whydah.identity.application;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * @author asbkar
  */
+@Singleton
 public class ApplicationRepository {
     private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgid from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";

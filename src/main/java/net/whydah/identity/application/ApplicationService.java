@@ -1,5 +1,7 @@
 package net.whydah.identity.application;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import java.util.Date;
 /**
  * Created by baardl on 29.03.14.
  */
+@Singleton
 public class ApplicationService {
     private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
@@ -18,6 +21,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final AuditLogRepository auditLogRepository;
 
+    @Inject
     public ApplicationService(ApplicationRepository applicationRepository, AuditLogRepository auditLogRepository) {
         this.applicationRepository = applicationRepository;
         this.auditLogRepository = auditLogRepository;

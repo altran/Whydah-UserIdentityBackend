@@ -1,6 +1,7 @@
 package net.whydah.identity.user.authentication;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -33,17 +34,28 @@ public class SecurityTokenHelper {
         MultivaluedMap<String,String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);
-        ClientResponse response = webResource.path("token/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-        log.info("Accessing:" + "tokenservice/" + appTokenId + "/getusertokenbytokenid");
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            String usertoken = response.getEntity(String.class);
-            log.debug("usertoken: {}", usertoken);
-            return new UserToken(usertoken);
+        try {
+            ClientResponse response = webResource.path("token/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+            log.info("Accessing:" + "tokenservice/" + appTokenId + "/getusertokenbytokenid");
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                String usertoken = response.getEntity(String.class);
+                log.debug("usertoken: {}", usertoken);
+                return new UserToken(usertoken);
+            }
+            log.warn("User token NOT ok: {}", response.getStatus() + response.toString());
+            List<UserRole> roles = new ArrayList<>();
+            roles.add(new UserRole("9999","99999", "mockrole"));
+            return new UserToken("MockUserToken", roles);
+        } catch (ClientHandlerException che) {
+            if (che.getCause() instanceof java.net.ConnectException) {
+                log.error("Could not connect to SecurityTokenService to verify applicationTokenId {}, userTokenId {}", appTokenId, usertokenid);
+                return null;
+            } else {
+                throw che;
+            }
+
         }
-        log.warn("User token NOT ok: {}", response.getStatus() + response.toString());
-        List<UserRole> roles = new ArrayList<>();
-        roles.add(new UserRole("9999","99999", "mockrole"));
-        return new UserToken("MockUserToken", roles);
+
     }
 
     private String getAppTokenId() {
