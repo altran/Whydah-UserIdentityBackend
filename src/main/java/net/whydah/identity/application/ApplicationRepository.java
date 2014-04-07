@@ -5,6 +5,8 @@ import com.google.inject.Singleton;
 import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +18,7 @@ import java.util.List;
  */
 @Singleton
 public class ApplicationRepository {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationRepository.class);
     private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgid from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 
@@ -45,6 +48,28 @@ public class ApplicationRepository {
 
     public void setQueryRunner(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
+    }
+
+    /**
+     *
+     * @param application
+     * @return application, with new Id inserted.
+     */
+    public Application create(Application application) {
+        Application applicationStored = null;
+        int numRowsUpdated = -1;
+        //TODO Store availableOrdIds
+        try {
+            numRowsUpdated = queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRole, DefaultOrgid) VALUES (?,?,?,?)",
+                    application.getId(), application.getName(), application.getDefaultRole(), application.getDefaultOrgid());
+            if (numRowsUpdated > 0) {
+                applicationStored = getApplication(application.getId());
+                log.trace("Created application {}, numRowsUpdated {}", applicationStored.toString(), numRowsUpdated);
+            }
+        } catch (SQLException e) {
+            throw new DatastoreException(e);
+        }
+        return applicationStored;
     }
 
 

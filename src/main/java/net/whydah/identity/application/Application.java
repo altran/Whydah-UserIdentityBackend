@@ -183,4 +183,8 @@ public class Application {
                 ", availableOrgIds = '" + availableIdsString  + '\'' +
                 '}';
     }
+
+    public void setId(int id) {
+        this.id = new Integer(id).toString();
+    }
 }

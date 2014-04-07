@@ -29,6 +29,7 @@ public class ApplicationService {
 
     public Application createApplication(String applicationJson) {
         Application application = Application.fromJson(applicationJson);
+        applicationRepository.create(application);
         //TODO update repository
         //TODO update application.id
         audit(ActionPerformed.ADDED, "application", application.toString());
