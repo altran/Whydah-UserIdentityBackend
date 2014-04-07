@@ -1,5 +1,6 @@
 package net.whydah.identity.application;
 
+import com.google.common.base.Joiner;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -170,13 +171,16 @@ public class Application {
 
     @Override
     public String toString() {
-        String availableIds = "ToDO"; //Joiner.on(", ").join(this.availableOrgIds);
+        String availableIdsString = "";
+         if (this.availableOrgIds != null) {
+         availableIdsString = Joiner.on(", ").join(this.availableOrgIds);
+         }
         return "Application{" +
                 "appId='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", defaultrole='" + defaultRole + '\'' +
                 ", defaultOrgid='" + defaultOrgid + '\'' +
-                ", availableOrgIds = '" + availableIds  + '\'' +
+                ", availableOrgIds = '" + availableIdsString  + '\'' +
                 '}';
     }
 }
