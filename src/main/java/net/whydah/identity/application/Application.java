@@ -173,7 +173,7 @@ public class Application {
     public String toString() {
         String availableIdsString = "";
          if (this.availableOrgIds != null) {
-         availableIdsString = Joiner.on(", ").join(this.availableOrgIds);
+            availableIdsString = Joiner.on(", ").join(this.availableOrgIds);
          }
         return "Application{" +
                 "appId='" + id + '\'' +
