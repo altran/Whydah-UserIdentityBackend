@@ -6,16 +6,16 @@ package net.whydah.identity.user.role;
  * A user (uid)
  * has the role (roleName, roleValue)
  * in this application (applicationId, applicationName)
- * from the relation (orgId, organizationName).
+ * from the relation (organizationId, organizationName).
  *
  * An example to illustrate why the context/relation/organization concept is needed:
  *
- * As an employee (relation: orgId, organizationName),
+ * As an employee (relation: organizationId, organizationName),
  * a user (uid)
  * has the "reader" role in
  * application CompanyCMS.
  *
- * As technical writer in the Company (relation: orgId, organizationName),
+ * As technical writer in the Company (relation: organizationId, organizationName),
  * a user (uid)
  * has the "writer" role in
  * application CompanyCMS.
@@ -29,7 +29,7 @@ public class UserPropertyAndRole {
     private String applicationId;
     private transient String applicationName;
 
-    private String orgId;
+    private String organizationId;
     private transient String organizationName;
 
     private String applicationRoleName;
@@ -52,7 +52,7 @@ public class UserPropertyAndRole {
         if (applicationName != null ? !applicationName.equals(that.applicationName) : that.applicationName != null) {
             return false;
         }
-        if (orgId != null ? !orgId.equals(that.orgId) : that.orgId != null) {
+        if (organizationId != null ? !organizationId.equals(that.organizationId) : that.organizationId != null) {
             return false;
         }
         if (organizationName != null ? !organizationName.equals(that.organizationName) : that.organizationName != null) {
@@ -76,7 +76,7 @@ public class UserPropertyAndRole {
         int result = uid != null ? uid.hashCode() : 0;
         result = 31 * result + (applicationId != null ? applicationId.hashCode() : 0);
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
-        result = 31 * result + (orgId != null ? orgId.hashCode() : 0);
+        result = 31 * result + (organizationId != null ? organizationId.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
         result = 31 * result + (applicationRoleName != null ? applicationRoleName.hashCode() : 0);
         result = 31 * result + (applicationRoleValue != null ? applicationRoleValue.hashCode() : 0);
@@ -89,7 +89,7 @@ public class UserPropertyAndRole {
                 "uid='" + uid + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
-                ", orgId='" + orgId + '\'' +
+                ", organizationId='" + organizationId + '\'' +
                 ", organizationName='" + organizationName + '\'' +
                 ", roleName='" + applicationRoleName + '\'' +
                 ", roleValue='" + applicationRoleValue + '\'' +
@@ -105,8 +105,8 @@ public class UserPropertyAndRole {
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
     }
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
@@ -127,8 +127,8 @@ public class UserPropertyAndRole {
     public String getApplicationName() {
         return (applicationName == null ? "" : applicationName);
     }
-    public String getOrgId() {
-        return (orgId == null ? "" : orgId);
+    public String getOrganizationId() {
+        return (organizationId == null ? "" : organizationId);
     }
     public String getOrganizationName() {
         return (organizationName == null ? "" : organizationName);

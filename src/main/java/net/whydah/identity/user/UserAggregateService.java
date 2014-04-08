@@ -67,7 +67,7 @@ public class UserAggregateService {
         defaultRole.setUid(userIdentity.getUid());
         defaultRole.setApplicationId(applicationId);
         defaultRole.setApplicationName(applicationName);
-        defaultRole.setOrgId(organizationId);
+        defaultRole.setOrganizationId(organizationId);
         defaultRole.setOrganizationName(organizationName);
         defaultRole.setApplicationRoleName(roleName);
         //role.setRoleValue(roleValue);

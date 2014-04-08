@@ -55,7 +55,7 @@ public class UserAggregateServiceTest {
         role.setUid(userIdentity.getUid());
         role.setApplicationId("applicationId");
         role.setApplicationName("applicationName");
-        role.setOrgId("organizationId");
+        role.setOrganizationId("organizationId");
         role.setOrganizationName("organizationName");
         role.setApplicationRoleName("roleName");
         //role.setRoleValue(roleValue);

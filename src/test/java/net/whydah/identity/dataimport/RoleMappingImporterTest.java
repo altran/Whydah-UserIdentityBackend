@@ -27,7 +27,7 @@ public class RoleMappingImporterTest {
 		assertEquals("UserId must be set.", "thomas.pringle@altran.com", roleMapping1.getUid());
 		assertEquals("applicationId must be set.", "2", roleMapping1.getApplicationId());
 		assertEquals("applicationName must be set.", "Mobilefirst", roleMapping1.getApplicationName());
-		assertEquals("organizationId must be set.", "5", roleMapping1.getOrgId());
+		assertEquals("organizationId must be set.", "5", roleMapping1.getOrganizationId());
 		assertEquals("organizationName must be set.", "Altran", roleMapping1.getOrganizationName());
 		assertEquals("roleName must be set.", "developer", roleMapping1.getApplicationRoleName());
 		assertEquals("roleValue must be set.", "30", roleMapping1.getApplicationRoleValue());
@@ -36,7 +36,7 @@ public class RoleMappingImporterTest {
 		assertEquals("UserId must be set.", "erik.drolshammer", roleMapping4.getUid());
 		assertEquals("applicationId must be set.", "2", roleMapping4.getApplicationId());
 		assertEquals("applicationName must be set.", "Mobilefirst", roleMapping4.getApplicationName());
-		assertEquals("organizationId must be set.", "5", roleMapping4.getOrgId());
+		assertEquals("organizationId must be set.", "5", roleMapping4.getOrganizationId());
 		assertEquals("organizationName must be set.", "Altran", roleMapping4.getOrganizationName());
 		assertEquals("roleName must be set.", "admin", roleMapping4.getApplicationRoleName());
 		assertEquals("roleValue must be set.", "70", roleMapping4.getApplicationRoleValue());

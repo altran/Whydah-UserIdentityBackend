@@ -121,7 +121,7 @@ public class UserAdminHelper {
         role.setUid(userIdentity.getUid());
         role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
-        role.setOrgId(organizationId);
+        role.setOrganizationId(organizationId);
         role.setOrganizationName(organizationName);
         role.setApplicationRoleName(roleName);
 //        role.setRoleValue(roleValue);
@@ -157,7 +157,7 @@ public class UserAdminHelper {
         role.setUid(userIdentity.getUid());
         role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
-        role.setOrgId(organizationId);
+        role.setOrganizationId(organizationId);
         role.setOrganizationName(organizationName);
         if (facebook) {
             role.setApplicationRoleName(facebookRoleName);
@@ -170,7 +170,7 @@ public class UserAdminHelper {
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
             logger.warn("Role already exist. " + role.toString());
-            // roleRepository.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrgId(), role.getRoleName());
+            // roleRepository.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrganizationId(), role.getRoleName());
         }
 
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();

@@ -70,7 +70,7 @@ public class RoleMappingImporter {
 	            userPropertyAndRole.setApplicationId(cleanString(lineArray[APPLICATIONID]));
 	            userPropertyAndRole.setApplicationName(cleanString(lineArray[APPLICATIONNAME]));
 	        	
-	            userPropertyAndRole.setOrgId(cleanString(lineArray[ORGANIZATIONID]));
+	            userPropertyAndRole.setOrganizationId(cleanString(lineArray[ORGANIZATIONID]));
 	            userPropertyAndRole.setOrganizationName(cleanString(lineArray[ORGANIZATIONNAME]));
 	            userPropertyAndRole.setApplicationRoleName(cleanString(lineArray[ROLENAME]));
 	            userPropertyAndRole.setApplicationRoleValue(cleanString(lineArray[ROLEVALUE]));

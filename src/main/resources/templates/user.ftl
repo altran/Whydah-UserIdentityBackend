@@ -43,7 +43,7 @@
 <#list it.propsAndRoles as rolle>
     <tr>
         <td>${rolle.applicationName!} (${rolle.applicationId!})</td>
-        <td>${rolle.organizationName!} (${rolle.orgId!})</td>
+        <td>${rolle.organizationName!} (${rolle.organizationId!})</td>
         <td>${rolle.roleName}</td>
         <td>${rolle.roleValue!}</td>
     </tr>

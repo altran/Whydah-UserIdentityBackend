@@ -56,7 +56,7 @@ public class UserPropertyAndRoleRepository {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
-                    && existingRole.getOrgId().equals(role.getOrgId())
+                    && existingRole.getOrganizationId().equals(role.getOrganizationId())
                     && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
             if (roleExist) {
                 return true;
@@ -71,7 +71,7 @@ public class UserPropertyAndRoleRepository {
             queryRunner.update(INSERT_USERROLE_SQL,
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
-                    userPropertyAndRole.getOrgId(),
+                    userPropertyAndRole.getOrganizationId(),
                     userPropertyAndRole.getApplicationRoleName(),
                     userPropertyAndRole.getApplicationRoleValue()
             );
@@ -153,14 +153,14 @@ public class UserPropertyAndRoleRepository {
                 UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
                 userPropertyAndRole.setUid(rs.getString(1));
                 userPropertyAndRole.setApplicationId(rs.getString(2));
-                userPropertyAndRole.setOrgId(rs.getString(3));
+                userPropertyAndRole.setOrganizationId(rs.getString(3));
                 userPropertyAndRole.setApplicationRoleName(rs.getString(4));
                 userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(5)));
                 Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
                 }
-                String orgName = getOrgname(userPropertyAndRole.getOrgId());
+                String orgName = getOrgname(userPropertyAndRole.getOrganizationId());
                 if(orgName != null) {
                     userPropertyAndRole.setOrganizationName(orgName);
                 }

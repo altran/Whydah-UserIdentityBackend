@@ -524,7 +524,7 @@ public class UserResource {
         role.setApplicationId(appid);
         try {
             JSONObject jsonobj = new JSONObject(jsonrole);
-            role.setOrgId(jsonobj.getString("orgID"));
+            role.setOrganizationId(jsonobj.getString("orgID"));
             role.setRoleName(jsonobj.getString("roleName"));
             role.setRoleValue(jsonobj.getString("roleValue"));
         } catch (JSONException e) {
@@ -543,7 +543,7 @@ public class UserResource {
         String uid = whydahUserIdentity.getUid();
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
-            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
+            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrganizationId().equals(role.getOrganizationId()) && existingRole.getRoleName().equals(role.getRoleName())) {
                 log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -584,13 +584,13 @@ public class UserResource {
         role.setUid(whydahUserIdentity.getUid());
         role.setApplicationId(appid);
         role.setApplicationName(app.getName());
-        role.setOrgId(app.getDefaultOrgid());
+        role.setOrganizationId(app.getDefaultOrgid());
         role.setOrganizationName(orgName);
         role.setRoleName(app.getDefaultrole());
         log.debug("Role: {}", role);
         List<UserPropertyAndRole> existingRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(whydahUserIdentity.getUid());
         for (UserPropertyAndRole existingRole : existingRoles) {
-            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrgId().equals(role.getOrgId()) && existingRole.getRoleName().equals(role.getRoleName())) {
+            if (existingRole.getApplicationId().equals(appid) && existingRole.getOrganizationId().equals(role.getOrganizationId()) && existingRole.getRoleName().equals(role.getRoleName())) {
                 log.warn("App og rolle finnes fra før");
                 return Response.status(Response.Status.CONFLICT).build();
             }

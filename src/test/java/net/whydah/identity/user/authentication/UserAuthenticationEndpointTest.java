@@ -157,7 +157,7 @@ public class UserAuthenticationEndpointTest {
         for (UserPropertyAndRole role : propsAndRoles) {
             assertEquals(applicationId, role.getApplicationId());
 //            assertEquals(applicationName, role.getApplicationName());
-//            assertEquals(organizationId, role.getOrgId());
+//            assertEquals(organizationId, role.getOrganizationId());
 //            assertEquals(organizationName, role.getOrganizationName()); //TODO figure out why orgName is not set.
         }
 
