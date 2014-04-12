@@ -2,6 +2,7 @@ package net.whydah.identity.user;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
@@ -10,6 +11,7 @@ import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -187,7 +189,7 @@ public class UserAggregateService {
         deleteRolesForUser(userIdentity);
     }
 
-
+    /*
     public void deleteUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
         try {
@@ -202,6 +204,7 @@ public class UserAggregateService {
 
         deleteRolesForUser(userIdentity);
     }
+    */
 
     private void deleteRolesForUser(UserIdentity userIdentity) {
         String uid = userIdentity.getUid();
@@ -220,5 +223,46 @@ public class UserAggregateService {
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
         auditLogRepository.store(actionPerformed);
+    }
+
+    public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {
+        UserPropertyAndRole role = new UserPropertyAndRole();
+        role.setId("TODOharcodedId");
+        role.setUid(uid);
+        role.setApplicationId(request.getApplicationId());
+        role.setOrganizationId(request.getOrganizationId());
+        role.setApplicationRoleName(request.getApplicationRoleName());
+
+        if (userPropertyAndRoleRepository.hasRole(uid, role)) {
+            String msg = "User with uid=" + uid + " already has this role. " + role.toString();
+            throw new ConflictException(msg);
+        }
+
+        userPropertyAndRoleRepository.addUserPropertyAndRole(role);
+        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
+        audit(ActionPerformed.ADDED, "role", value);
+        return role;
+    }
+
+    public UserPropertyAndRole getRole(String uid, String roleid) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    public List<UserPropertyAndRole> getRoles(String uid) {
+        return userPropertyAndRoleRepository.getUserPropertyAndRoles(uid);
+    }
+
+    public UserPropertyAndRole updateRole(String uid, String roleId, UserPropertyAndRole role) {
+        //TODO do some checks here
+        role.setUid(uid);
+        role.setId(roleId);
+        userPropertyAndRoleRepository.updateUserRoleValue(role);
+
+        //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);
+        return role;
+    }
+
+    public void deleteRole(String uid, String roleid) {
+        userPropertyAndRoleRepository.deleteRole(roleid);
     }
 }

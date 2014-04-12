@@ -3,6 +3,7 @@ package net.whydah.identity.user.identity;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
@@ -106,7 +107,7 @@ public class UserIdentityService {
         try {
             if (ldapHelper.usernameExist(username)) {
                 //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-                throw new IllegalStateException("User already exists, could not create user " + username);
+                throw new ConflictException("User already exists, could not create user " + username);
             }
         } catch (NamingException e) {
             throw new RuntimeException("usernameExist failed for username=" + username, e);
@@ -123,6 +124,7 @@ public class UserIdentityService {
         } catch (AddressException e) {
             //log.error(String.format("E-mail: %s is of wrong format.", email));
             //return Response.status(Response.Status.BAD_REQUEST).build();
+            //TODO use BadRequestException from jersey 2.7
             throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
         }
 

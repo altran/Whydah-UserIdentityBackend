@@ -1,10 +1,8 @@
 package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
-import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.application.Application;
+import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.application.ApplicationRepository;
-import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
@@ -23,10 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Administration of users and their data.
@@ -56,6 +51,7 @@ public class UserResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response addUserIdentity(String userIdentityJson) {
         log.trace("addUserIdentity, userIdentityJson={}", userIdentityJson);
 
@@ -80,7 +76,7 @@ public class UserResource {
             }
             //UserAggregate userAggregate = userAggregateService.addUserAndSetDefaultRoles(userIdentityJson);
             return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
-        }  catch (IllegalStateException ise) {
+        }  catch (ConflictException ise) {
             log.error(ise.getMessage());
             return Response.status(Response.Status.CONFLICT).build();
         } catch (IllegalArgumentException iae) {
@@ -94,7 +90,7 @@ public class UserResource {
 
     @GET
     @Path("/{uid}")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getUserIdentity(@PathParam("uid") String uid) {
         log.trace("getUserIdentity, uid={}", uid);
 
@@ -122,6 +118,7 @@ public class UserResource {
     @PUT
     @Path("/{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateUserIdentity(@PathParam("uid") String uid, String userIdentityJson) {
         log.trace("updateUserIdentityForUsername: uid={}, userIdentityJson={}", uid, userIdentityJson);
 
@@ -156,8 +153,10 @@ public class UserResource {
     @DELETE
     @Path("/{uid}")
     public Response deleteUserAggregate(@PathParam("uid") String uid) {
+        log.trace("deleteUserAggregate: uid={}", uid);
+
         try {
-            userAggregateService.deleteUserAggregateByUsername(uid);
+            userAggregateService.deleteUserAggregateByUid(uid);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException iae) {
             log.error("deleteUserIdentity failed username={}", uid + ". " + iae.getMessage());
@@ -167,6 +166,191 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
+    // ROLES
+
+
+    @POST
+    @Path("/{uid}/role/")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addRole(@PathParam("uid") String uid, String roleJson) {
+        log.trace("addRole, roleJson={}", roleJson);
+
+        RoleRepresentationRequest request;
+        try {
+            request = mapper.readValue(roleJson, RoleRepresentationRequest.class);
+        } catch (IOException e) {
+            log.error("addRole, invalid json. roleJson={}", roleJson, e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, request);
+
+            String json;
+            try {
+                json = mapper.writeValueAsString(updatedRole);
+            } catch (IOException e) {
+                log.error("Error converting to json. {}", updatedRole.toString(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            return Response.status(Response.Status.CREATED).entity(json).build();
+        }  catch (ConflictException ce) {
+            log.error(ce.getMessage());
+            return Response.status(Response.Status.CONFLICT).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("/{uid}/roles")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRoles(@PathParam("uid") String uid) {
+        log.trace("getRoles, uid={}", uid);
+
+        List<UserPropertyAndRole> roles = userAggregateService.getRoles(uid);
+
+        String json;
+        try {
+            json = mapper.writeValueAsString(roles);
+        } catch (IOException e) {
+            log.error("Error converting List<UserPropertyAndRole> to json. ", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(json).build();
+    }
+
+    @GET
+    @Path("/{uid}/role/{roleid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid) {
+        log.trace("getRole, uid={}, roleid={}", uid, roleid);
+
+        UserPropertyAndRole role = userAggregateService.getRole(uid, roleid);
+        if (role == null) {
+            log.trace("getRole could not find role with roleid={}", roleid);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String json;
+        try {
+            json = mapper.writeValueAsString(role);
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", role.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(json).build();
+    }
+
+    @PUT
+    @Path("/{uid}/role/{roleid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid, String roleJson) {
+        log.trace("updateRole, uid={}, roleid={}", uid, roleid);
+
+        UserPropertyAndRole role;
+        try {
+            role = mapper.readValue(roleJson, UserPropertyAndRole.class);
+        } catch (IOException e) {
+            log.error("updateRole, invalid json. roleJson={}", roleJson, e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            String json;
+            UserPropertyAndRole updatedRole = userAggregateService.updateRole(uid, roleid, role);
+            try {
+                json = mapper.writeValueAsString(updatedRole);
+            } catch (IOException e) {
+                log.error("Error converting to json. {}", updatedRole.toString(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+
+            return Response.ok(json).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PUT
+    @Path("/{uid}/role/{roleid}")
+    public Response deleteRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid) {
+        log.trace("deleteRole, uid={}, roleid={}", uid, roleid);
+
+        try {
+            userAggregateService.deleteRole(uid, roleid);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @POST
+    @Path("/{username}/resetpassword")
+    public Response resetPassword(@PathParam("username") String username) {
+        log.info("Reset password for user {}", username);
+        try {
+            UserIdentity user = userIdentityService.getUserIndentity(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    //TODO Can updateUserIdentityForUsername be used instead?
+    @POST
+    @Path("/{username}/newpassword/{token}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
+        log.info("Changing password for {}", username);
+        try {
+            UserIdentity user = userIdentityService.getUserIndentity(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+
+            boolean ok;
+            try {
+                ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
+            } catch (RuntimeException re) {
+                log.error(re.getMessage(), re.getCause());
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            if (!ok) {
+                log.info("Authentication failed while changing password for user {}", username);
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            try {
+                JSONObject jsonobj = new JSONObject(passwordJson);
+                String newpassword = jsonobj.getString("newpassword");
+                userIdentityService.changePassword(username, user.getUid(), newpassword);
+            } catch (JSONException e) {
+                log.error("Bad json", e);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("changePasswordForUser failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
     /*
     @PUT
@@ -296,63 +480,6 @@ public class UserResource {
     */
 
 
-    @POST
-    @Path("/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        log.info("Reset password for user {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    //TODO Can updateUserIdentityForUsername be used instead?
-    @POST
-    @Path("/{username}/newpassword/{token}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        log.info("Changing password for {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            boolean ok;
-            try {
-                ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
-            } catch (RuntimeException re) {
-                log.error(re.getMessage(), re.getCause());
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-
-            if (!ok) {
-                log.info("Authentication failed while changing password for user {}", username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            try {
-                JSONObject jsonobj = new JSONObject(passwordJson);
-                String newpassword = jsonobj.getString("newpassword");
-                userIdentityService.changePassword(username, user.getUid(), newpassword);
-            } catch (JSONException e) {
-                log.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("changePasswordForUser failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     /*
     @POST
     @Path("users/{username}/newuser/{token}")
@@ -402,40 +529,14 @@ public class UserResource {
 
     /////////// User-application relation
 
-    @POST
-    @Path("/{username}/application")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addApplication(@PathParam("username") String username) {
-        throw new UnsupportedOperationException("not implemented yet!");
-    }
 
-    @GET
-    @Path("/{username}/application//{applicationId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
-        throw new UnsupportedOperationException("not implemented yet!");
-    }
-
-    @PUT
-    @Path("/{username}/application//{applicationId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response modifyApplication(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
-        throw new UnsupportedOperationException("not implemented yet!");
-    }
-
-    @DELETE
-    @Path("/{username}/application//{applicationId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteUserApplicationRelation(@PathParam("username") String username, @PathParam("applicationId") String applicationId) {
-        throw new UnsupportedOperationException("not implemented yet!");
-    }
-
-    /**
+    /*
      * Lister alle applikasjoner, samt angir om brukeren har noen roller her.
      *
      * @param username user id
      * @return app-liste.
      */
+    /*
     @GET
     @Path("/{username}/applications")
     @Produces(MediaType.APPLICATION_JSON)
@@ -462,13 +563,8 @@ public class UserResource {
         model.put("myApps", myApps);
         return Response.ok(new Viewable("/useradmin/userapps.json.ftl", model)).build();
     }
+    */
 
-    @DELETE
-    @Path("/{username}/applications")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteApplications(@PathParam("username") String username) {
-        throw new UnsupportedOperationException("not implemented yet!");
-    }
 
     /////////// Roles
 

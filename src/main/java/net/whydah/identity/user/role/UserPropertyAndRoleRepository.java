@@ -108,9 +108,13 @@ public class UserPropertyAndRoleRepository {
         }
     }
 
-    public void updateUserRoleValue(String uid, String appid, String orgid, String rolename, String rolevalue) {
+    public void updateUserRoleValue(UserPropertyAndRole role) {
+        updateUserRoleValue(role.getUid(), role.getApplicationId(), role.getOrganizationId(), role.getApplicationRoleName(), role.getApplicationRoleValue());
+    }
+
+    public void updateUserRoleValue(String uid, String applicationId, String organizationId, String rolename, String rolevalue) {
         try {
-            queryRunner.update(UPDATE_SQL, rolevalue, uid, appid, orgid, rolename);
+            queryRunner.update(UPDATE_SQL, rolevalue, uid, applicationId, organizationId, rolename);
         } catch (SQLException e) {
             throw new DatastoreException(e);
         }
@@ -124,6 +128,11 @@ public class UserPropertyAndRoleRepository {
             throw new DatastoreException(e);
         }
     }
+
+    public void deleteRole(String roleId) {
+        throw new UnsupportedOperationException("TODO implement delete role using roleId");
+    }
+
     private static class OrgnameResultSetHandler implements ResultSetHandler<String> {
         @Override
         public String handle(ResultSet rs) throws SQLException {
