@@ -1,6 +1,6 @@
 package net.whydah.identity.user.resource;
 
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -37,7 +37,7 @@ public class UserAdminHelperTest {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         fbUserDoc = builder.parse(inputStream);
 
-        UserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+        UserIdentityRepresentation userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
 
         assertEquals(firstName, userIdentity.getFirstName());
         assertEquals(lastName, userIdentity.getLastName());

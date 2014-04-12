@@ -7,18 +7,22 @@ import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +39,8 @@ public class UserResource {
     private final UserAggregateService userAggregateService;
     private final ApplicationRepository applicationRepository;
 
+    private final ObjectMapper mapper;
+
     @Context
     private UriInfo uriInfo;
 
@@ -43,15 +49,175 @@ public class UserResource {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
         this.applicationRepository = applicationRepository;
+        this.mapper = new ObjectMapper();
     }
 
-    /**
+
+    @POST
+    @Path("/")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addUserIdentity(String userIdentityJson) {
+        log.trace("addUserIdentity, userIdentityJson={}", userIdentityJson);
+
+        UserIdentityRepresentation representation;
+        try {
+            representation = mapper.readValue(userIdentityJson, UserIdentityRepresentation.class);
+        } catch (IOException e) {
+            log.error("addUserIdentity, invalid json. userIdentityJson={}", userIdentityJson, e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            //TODO decide if client is allowed to specify password
+            UserIdentity userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
+
+            String newUserAsJson;
+            try {
+                newUserAsJson = mapper.writeValueAsString(userIdentity);
+            } catch (IOException e) {
+                log.error("Error converting to json. {}", userIdentity.toString(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            //UserAggregate userAggregate = userAggregateService.addUserAndSetDefaultRoles(userIdentityJson);
+            return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
+        }  catch (IllegalStateException ise) {
+            log.error(ise.getMessage());
+            return Response.status(Response.Status.CONFLICT).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("addUserIdentity: Invalid request. json={}", userIdentityJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("/{uid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getUserIdentity(@PathParam("uid") String uid) {
+        log.trace("getUserIdentity, uid={}", uid);
+
+        UserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIndentityForUid(uid);
+        } catch (NamingException e) {
+            throw new RuntimeException("getUserIndentityForUid, uid=" + uid, e);
+        }
+        if (userIdentity == null) {
+            log.trace("getUserIndentityForUid could not find user with uid={}", uid);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String json;
+        try {
+            json = mapper.writeValueAsString(userIdentity);
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", userIdentity.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(json).build();
+    }
+
+    @PUT
+    @Path("/{uid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUserIdentity(@PathParam("uid") String uid, String userIdentityJson) {
+        log.trace("updateUserIdentityForUsername: uid={}, userIdentityJson={}", uid, userIdentityJson);
+
+        UserIdentity userIdentity;
+        try {
+            userIdentity = mapper.readValue(userIdentityJson, UserIdentity.class);
+        } catch (IOException e) {
+            log.error("updateUserIdentityForUsername, invalid json. userIdentityJson={}", userIdentityJson, e);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            String json;
+            UserIdentity updatedUserIdentity = userAggregateService.updateUserIdentity(uid, userIdentity);
+            try {
+                json = mapper.writeValueAsString(updatedUserIdentity);
+            } catch (IOException e) {
+                log.error("Error converting to json. {}", userIdentity.toString(), e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+
+            return Response.ok(json).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("updateUserIdentityForUsername: Invalid json={}", userIdentityJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DELETE
+    @Path("/{uid}")
+    public Response deleteUserAggregate(@PathParam("uid") String uid) {
+        try {
+            userAggregateService.deleteUserAggregateByUsername(uid);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("deleteUserIdentity failed username={}", uid + ". " + iae.getMessage());
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /*
+    @PUT
+    @Path("/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUserIdentityForUsername(@PathParam("username") String username, String userIdentityJson) {
+        log.trace("updateUserIdentityForUsername: username={}, userJson={}", username, userIdentityJson);
+
+        try {
+            UserIdentityRepresentation newUserIdentity = userAggregateService.updateUserIdentityForUsername(username, userIdentityJson);
+            return Response.ok().build();   //TODO return whydahUserIdentity
+        } catch (IllegalArgumentException iae) {
+            log.error("updateUserIdentityForUsername: Invalid json={}", userIdentityJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    */
+
+    /*
+    @GET
+    @Path("/{uid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getUserIdentity(@PathParam("uid") String uid) {
+        log.trace("getUserIdentity, uid={}", uid);
+
+        UserAggregate userAggregate = userAggregateService.getUserAggregateForUid(uid);
+
+        String json;
+        try {
+            json = mapper.writeValueAsString(userAggregate);
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", userAggregate.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        return Response.ok(json).build();
+    }
+    */
+
+
+
+    /*
      * Add user from json
      * Add default roles to new user
      *
      * @param userIdentityJson  json representing a UserIdentity
      * @return  UserAggregate with default roles
      */
+    /*
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -71,88 +237,8 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+    */
 
-    /**
-     * Get user details.
-     *
-     * @param username Username
-     * @return user details and roles.
-     */
-    @GET
-    @Path("/{username}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserAggregate(@PathParam("username") String username) {
-        log.trace("getUserAggregate with username=" + username);
-
-        UserAggregate user;
-        try {
-            user = userAggregateService.getUserAggregate(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-        } catch (RuntimeException e) {
-            log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-
-        HashMap<String, Object> model = new HashMap<>(2);
-        model.put("user", user);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
-    }
-
-    //TODO Change implementation to handle UserAggregate. Introduce Jackson?
-    @PUT
-    @Path("/{username}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateUserIdentity(@PathParam("username") String username, String userIdentityJson) {
-        log.trace("updateUserIdentity: username={}, userJson={}", username, userIdentityJson);
-
-        try {
-            UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userIdentityJson);
-            return Response.ok().build();   //TODO return whydahUserIdentity
-        } catch (IllegalArgumentException iae) {
-            log.error("updateUserIdentity: Invalid json={}", userIdentityJson, iae);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (RuntimeException e) {
-            log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-
-
-        /*
-        try {
-            UserIdentity whydahUserIdentity = userIdentityService.getUserIndentity(username);
-            if (whydahUserIdentity == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            try {
-                JSONObject jsonobj = new JSONObject(userJson);
-                //log.debug("jsonstr:"+userJson);
-                //log.debug("json:"+jsonobj.toString());
-                whydahUserIdentity.setFirstName(jsonobj.getString("firstName"));
-                whydahUserIdentity.setLastName(jsonobj.getString("lastName"));
-                whydahUserIdentity.setEmail(jsonobj.getString("email"));
-                whydahUserIdentity.setCellPhone(jsonobj.getString("cellPhone"));
-                whydahUserIdentity.setPersonRef(jsonobj.getString("personRef"));
-                whydahUserIdentity.setUsername(jsonobj.getString("username"));
-                log.debug("json:" + jsonobj.toString());
-            } catch (JSONException e) {
-                log.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            log.debug("Endret bruker: {}", whydahUserIdentity);
-            userIdentityService.updateUserIdentity(username, whydahUserIdentity);
-            indexer.update(whydahUserIdentity);
-            audit(ActionPerformed.MODIFIED, "user", whydahUserIdentity.toString());
-        } catch (NamingException e) {
-            log.error(e.getLocalizedMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        return Response.ok().build();
-        */
-    }
 
     /*
     @PUT
@@ -170,7 +256,7 @@ public class UserResource {
         }
 
         try {
-            //UserIdentity newUserIdentity = userAggregateService.updateUserIdentity(username, userIdentityJson);
+            //UserIdentity newUserIdentity = userAggregateService.updateUserIdentityForUsername(username, userIdentityJson);
             //return Response.ok().build();   //TODO return whydahUserIdentity
 
             UserAggregate userAggregate = userAggregateService.updateUserAggregate(username, request);
@@ -192,12 +278,12 @@ public class UserResource {
         }
      */
 
-
+    /*
     @DELETE
     @Path("/{username}")
     public Response deleteUserAggregate(@PathParam("username") String username) {
         try {
-            userAggregateService.deleteUserAggregate(username);
+            userAggregateService.deleteUserAggregateByUsername(username);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (IllegalArgumentException iae) {
             log.error("deleteUserIdentity failed username={}", username + ". " + iae.getMessage());
@@ -207,6 +293,7 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+    */
 
 
     @POST
@@ -227,7 +314,7 @@ public class UserResource {
         }
     }
 
-    //TODO Can updateUserIdentity be used instead?
+    //TODO Can updateUserIdentityForUsername be used instead?
     @POST
     @Path("/{username}/newpassword/{token}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -293,7 +380,7 @@ public class UserResource {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
                     user.setUsername(newusername);
-                    userIdentityService.updateUserIdentity(username, user);
+                    userIdentityService.updateUserIdentityForUsername(username, user);
                 }
                 userIdentityService.changePassword(newusername, user.getUid(), newpassword);
             } catch (JSONException e) {
@@ -355,7 +442,7 @@ public class UserResource {
     public Response getUsersApplications(@PathParam("username") String username) {
         UserAggregate userAggregate;
         try {
-            userAggregate = userAggregateService.getUserAggregate(username);
+            userAggregate = userAggregateService.getUserAggregateByUsername(username);
             if (userAggregate == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -366,7 +453,7 @@ public class UserResource {
 
         List<Application> allApps = applicationRepository.getApplications();
         Set<String> myApps = new HashSet<>();
-        for (UserPropertyAndRole role : userAggregate.getUserPropertiesAndRolesList()) {
+        for (UserPropertyAndRole role : userAggregate.getRoles()) {
             myApps.add(role.getApplicationId());
         }
 

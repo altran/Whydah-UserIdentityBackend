@@ -1,6 +1,7 @@
 package net.whydah.identity.user;
 
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.resource.UserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
@@ -17,6 +18,37 @@ import static junit.framework.Assert.assertNotNull;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 06/04/14
  */
 public class UserAggregateServiceTest {
+    /*
+{
+  "uid": "uid",
+  "username": "usernameABC",
+  "firstName": "firstName",
+  "lastName": "lastName",
+  "personRef": "personRef",
+  "email": "email",
+  "cellPhone": "12345678",
+  "password": "password",
+  "roles": [
+    {
+      "applicationId": "applicationId",
+      "applicationName": "applicationName",
+      "organizationId": "organizationId",
+      "organizationName": "organizationName",
+      "applicationRoleName": "roleName",
+      "applicationRoleValue": "email"
+    },
+    {
+      "applicationId": "applicationId123",
+      "applicationName": "applicationName123",
+      "organizationId": "organizationId123",
+      "organizationName": "organizationName123",
+      "applicationRoleName": "roleName123",
+      "applicationRoleValue": "roleValue123"
+    }
+  ]
+}
+     */
+
 
     /*
     {
@@ -47,7 +79,7 @@ public class UserAggregateServiceTest {
 
     @Test   //ED: In-progress
     public void testJsonFromUserAggregate() throws IOException {
-        String username = "username123";
+        String username = "usernameABC";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef", "email",
                 "12345678", "password");
 
@@ -61,14 +93,26 @@ public class UserAggregateServiceTest {
         //role.setRoleValue(roleValue);
         role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
 
-        List<UserPropertyAndRole> roles = new ArrayList<>(1);
+        UserPropertyAndRole role2 = new UserPropertyAndRole();
+        role2.setUid(userIdentity.getUid());
+        role2.setApplicationId("applicationId123");
+        role2.setApplicationName("applicationName123");
+        role2.setOrganizationId("organizationId123");
+        role2.setOrganizationName("organizationName123");
+        role2.setApplicationRoleName("roleName123");
+        //role.setRoleValue(roleValue);
+        role2.setApplicationRoleValue("roleValue123");
+
+        List<UserPropertyAndRole> roles = new ArrayList<>(2);
         roles.add(role);
+        roles.add(role2);
         UserAggregate userAggregate = new UserAggregate(userIdentity, roles);
 
+        UserAggregateRepresentation userRepresentation = UserAggregateRepresentation.fromUserAggregate(userAggregate);
 
         ObjectMapper objectMapper = new ObjectMapper();
         Writer strWriter = new StringWriter();
-        objectMapper.writeValue(strWriter, userAggregate);
+        objectMapper.writeValue(strWriter, userRepresentation);
         String json = strWriter.toString();
         assertNotNull(json);
     }

@@ -15,19 +15,11 @@ import java.io.Serializable;
  *
  * @author totto
  */
-public class UserIdentity implements Serializable {
+public class UserIdentity extends UserIdentityRepresentation implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
     private static final long serialVersionUID = 1;
 
     private String uid;
-    private String username;
-    private String firstName;
-    private String lastName;
-    private String personRef;
-    private String email;
-    private String cellPhone;
-
-    private transient String password;
 
     public UserIdentity() {
     }
@@ -121,57 +113,12 @@ public class UserIdentity implements Serializable {
         return result;
     }
 
-    public String getPersonName() {
-        return firstName + ' ' + lastName;
-    }
-    public String getPersonRef() {
-        return personRef;
-    }
     public String getUid() {
         return uid;
     }
-    public String getUsername() {
-        return username;
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getCellPhone() {
-        return cellPhone;
-    }
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPersonRef(String personRef) {
-        this.personRef = personRef;
-    }
     public void setUid(String uid) {
         this.uid = uid;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public void setCellPhone(String cellPhone) {
-        this.cellPhone = cellPhone;
-    }
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public static UserIdentity fromJson(String userJson) {
@@ -181,11 +128,13 @@ public class UserIdentity implements Serializable {
             JSONObject jsonobj = new JSONObject(userJson);
 
             String username = jsonobj.getString("username");
-            InternetAddress internetAddress = new InternetAddress();
+
             String email = jsonobj.getString("email");
             if (email.contains("+")){
                 email = replacePlusWithEmpty(email);
             }
+
+            InternetAddress internetAddress = new InternetAddress();
             internetAddress.setAddress(email);
             try {
                 internetAddress.validate();

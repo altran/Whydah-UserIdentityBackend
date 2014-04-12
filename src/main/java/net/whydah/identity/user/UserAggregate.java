@@ -16,11 +16,11 @@ import java.util.List;
 
 public class UserAggregate {
     private UserIdentity identity = null;
-    private List<UserPropertyAndRole> userPropertiesAndRolesList = new ArrayList<>();
+    private List<UserPropertyAndRole> roles = new ArrayList<>();
 
-    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> userPropertiesAndRolesList) {
+    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> roles) {
         this.identity = identity;
-        this.userPropertiesAndRolesList = userPropertiesAndRolesList;
+        this.roles = roles;
     }
 
     public UserAggregate() {
@@ -42,7 +42,7 @@ public class UserAggregate {
                 "    <applications>\n";
          strb.append(headAndIdentity);
 
-        for (UserPropertyAndRole u : userPropertiesAndRolesList) {
+        for (UserPropertyAndRole u : roles) {
                     strb.append(
                     "        <application>\n" +
                     "            <appId>" + u.getApplicationId() + "</appId>\n" +
@@ -147,24 +147,75 @@ public class UserAggregate {
 
 
 
-
     public UserIdentity getIdentity() {
         return identity;
     }
-
     public void setIdentity(UserIdentity identity) {
         this.identity = identity;
     }
 
-    public List<UserPropertyAndRole> getUserPropertiesAndRolesList() {
-        return userPropertiesAndRolesList;
+
+    public String getPersonName() {
+        return identity.getFirstName()+ ' ' + identity.getLastName();
+    }
+    public String getPersonRef() {
+        return identity.getPersonRef();
+    }
+    public String getUid() {
+        return identity.getUid();
+    }
+    public String getUsername() {
+        return identity.getUsername();
+    }
+    public String getFirstName() {
+        return identity.getFirstName();
+    }
+    public String getLastName() {
+        return identity.getLastName();
+    }
+    public String getEmail() {
+        return identity.getEmail();
+    }
+    public String getCellPhone() {
+        return identity.getCellPhone();
     }
 
-    public void addPropsAndRoles(UserPropertyAndRole userPropertyAndRole) {
-        this.userPropertiesAndRolesList.add(userPropertyAndRole);
+
+    public List<UserPropertyAndRole> getRoles() {
+        return roles;
     }
 
-    public void setPropsAndRoles(List<UserPropertyAndRole> userPropertiesAndRolesList) {
-        this.userPropertiesAndRolesList = userPropertiesAndRolesList;
+
+    public void addRole(UserPropertyAndRole role) {
+        this.roles.add(role);
+    }
+
+    public void setPersonRef(String personRef) {
+        identity.setPersonRef(personRef);
+    }
+    public void setUid(String uid) {
+        identity.setUid(uid);
+    }
+    public void setUsername(String username) {
+        identity.setUsername(username);
+    }
+    public void setFirstName(String firstName) {
+        identity.setFirstName(firstName);
+    }
+    public void setLastName(String lastName) {
+        identity.setLastName(lastName);
+    }
+    public void setEmail(String email) {
+        identity.setEmail(email);
+    }
+    public void setCellPhone(String cellPhone) {
+        identity.setCellPhone(cellPhone);
+    }
+    public void setPassword(String password) {
+        identity.setPassword(password);
+    }
+
+    public void setRoles(List<UserPropertyAndRole> roles) {
+        this.roles = roles;
     }
 }

@@ -11,6 +11,8 @@ import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -99,6 +101,57 @@ public class UserIdentityService {
         audit(ActionPerformed.MODIFIED, "password", userUid);
     }
 
+    public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentityRepresentation dto) {
+        String username = dto.getUsername();
+        try {
+            if (ldapHelper.usernameExist(username)) {
+                //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+                throw new IllegalStateException("User already exists, could not create user " + username);
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("usernameExist failed for username=" + username, e);
+        }
+
+        String email = null;
+        if (dto.getEmail() != null && dto.getEmail().contains("+")){
+            email = replacePlusWithEmpty(dto.getEmail());
+        }
+        InternetAddress internetAddress = new InternetAddress();
+        internetAddress.setAddress(email);
+        try {
+            internetAddress.validate();
+        } catch (AddressException e) {
+            //log.error(String.format("E-mail: %s is of wrong format.", email));
+            //return Response.status(Response.Status.BAD_REQUEST).build();
+            throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+        }
+
+        String uid = UUID.randomUUID().toString();
+        UserIdentity userIdentity = new UserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
+                dto.getPersonRef(), email, dto.getCellPhone(), passwordGenerator.generate());
+        try {
+            ldapHelper.addUserIdentity(userIdentity);
+        } catch (NamingException e) {
+            throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
+        }
+        log.info("Added new user to LDAP: username={}, uid={}", username, uid);
+        return userIdentity;
+    }
+
+    private static String replacePlusWithEmpty(String email){
+        String[] words = email.split("[+]");
+        if (words.length == 1) {
+            return email;
+        }
+        email  = "";
+        for (String word : words) {
+            email += word;
+        }
+        return email;
+    }
+
+
+    @Deprecated
     public void addUserIdentity(UserIdentity userIdentity) {
         String username = userIdentity.getUsername();
         try {
@@ -121,12 +174,20 @@ public class UserIdentityService {
         log.info("Added new user to LDAP: {}", username);
     }
 
+    public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
+        return ldapHelper.getUserIndentityForUid(uid);
+    }
+
+    public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
+        ldapHelper.updateUserIdentityForUid(uid, newuser);
+    }
+
+
     public UserIdentity getUserIndentity(String username) throws NamingException {
         return ldapHelper.getUserIndentity(username);
     }
-
     public void updateUserIdentity(String username, UserIdentity newuser) {
-        ldapHelper.updateUserIdentity(username, newuser);
+        ldapHelper.updateUserIdentityForUsername(username, newuser);
     }
 
     public void deleteUserIdentity(String username) {

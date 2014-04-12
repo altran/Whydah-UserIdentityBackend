@@ -50,7 +50,7 @@ public class LDAPHelperTest {
     public void testAddUser() throws Exception {
         UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
         ldapHelper.addUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserIndentity("jan");
+        UserIdentityRepresentation gotUser = ldapHelper.getUserIndentity("jan");
         assertNotNull(gotUser);
     }
 
@@ -65,14 +65,14 @@ public class LDAPHelperTest {
 
         String cellPhone = "32323232";
         gotUser.setCellPhone(cellPhone);
-        ldapHelper.updateUserIdentity(username, gotUser);
+        ldapHelper.updateUserIdentityForUsername(username, gotUser);
         UserIdentity gotUpdatedUser = ldapHelper.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
 
         gotUpdatedUser.setCellPhone(null);
         String firstName = "Emil";
         gotUpdatedUser.setFirstName(firstName);
-        ldapHelper.updateUserIdentity(username, gotUpdatedUser);
+        ldapHelper.updateUserIdentityForUsername(username, gotUpdatedUser);
         gotUpdatedUser = ldapHelper.getUserIndentity(username);
         assertEquals(firstName, gotUpdatedUser.getFirstName());
         assertNull(gotUpdatedUser.getCellPhone());
@@ -84,7 +84,7 @@ public class LDAPHelperTest {
         String username = "usernameToBeDeleted";
         UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
         ldapHelper.addUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserIndentity(user.getUsername());
+        UserIdentityRepresentation gotUser = ldapHelper.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
         boolean deleteSuccessful = ldapHelper.deleteUserIdentity(username);
@@ -92,7 +92,7 @@ public class LDAPHelperTest {
 
         //Thread.sleep(3000);
 
-        UserIdentity gotUser2 = ldapHelper.getUserIndentity(username);
+        UserIdentityRepresentation gotUser2 = ldapHelper.getUserIndentity(username);
         assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
     }
 

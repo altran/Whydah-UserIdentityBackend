@@ -8,6 +8,7 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -89,7 +90,7 @@ public class UserAggregateService {
     }
 
 
-    public UserAggregate getUserAggregate(String username) {
+    public UserAggregate getUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentity(username);
@@ -97,7 +98,22 @@ public class UserAggregateService {
             throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
         }
         if (userIdentity == null) {
-            log.trace("getUserAggregate could not find user with username={}", username);
+            log.trace("getUserAggregateByUsername could not find user with username={}", username);
+            return null;
+        }
+        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
+        return new UserAggregate(userIdentity, userPropertyAndRoles);
+    }
+
+    public UserAggregate getUserAggregateForUid(String uid) {
+        UserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIndentityForUid(uid);
+        } catch (NamingException e) {
+            throw new RuntimeException("getUserAggregateForUid, uid=" + uid, e);
+        }
+        if (userIdentity == null) {
+            log.trace("getUserAggregateForUid could not find user with uid={}", uid);
             return null;
         }
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
@@ -113,7 +129,7 @@ public class UserAggregateService {
                 throw new NotFoundException("User not found. username=" + username);
             }
 
-            userIdentityService.updateUserIdentity(username, newUserIdentity);
+            userIdentityService.updateUserIdentityForUsername(username, newUserIdentity);
             indexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
@@ -121,7 +137,7 @@ public class UserAggregateService {
         }
 
         deleteRolesForUser(newUserIdentity);
-        for(UserPropertyAndRole userPropertyAndRole : userAggregate.getUserPropertiesAndRolesList()) {
+        for(UserPropertyAndRole userPropertyAndRole : userAggregate.getRoles()) {
             userPropertyAndRoleRepository.addUserPropertyAndRole(userPropertyAndRole);
             String value = "uid=" + newUserIdentity.getUid() + ", username=" + newUserIdentity.getUsername() + ", appid=" + userPropertyAndRole.getApplicationId() + ", role=" + userPropertyAndRole.getApplicationRoleName();
             audit(ActionPerformed.ADDED, "role", value);
@@ -130,8 +146,15 @@ public class UserAggregateService {
     }
     */
 
+    public UserIdentity updateUserIdentity(String uid, UserIdentity newUserIdentity) {
+        userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
+        indexer.update(newUserIdentity);
+        audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
+        return newUserIdentity;
+    }
 
-    public UserIdentity updateUserIdentity(String username, String userJson) {
+
+    public UserIdentityRepresentation updateUserIdentity(String username, String userJson) {
         UserIdentity newUserIdentity = UserIdentity.fromJson(userJson);
 
         try {
@@ -149,7 +172,23 @@ public class UserAggregateService {
         return newUserIdentity;
     }
 
-    public void deleteUserAggregate(String username) {
+    public void deleteUserAggregateByUid(String uid) {
+        UserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIndentityForUid(uid);
+        } catch (NamingException e) {
+            throw new RuntimeException("userIdentityService.getUserIndentity with uid=" + uid, e);
+        }
+        if (userIdentity == null) {
+            throw new IllegalArgumentException("UserIdentity not found. uid=" + uid);
+        }
+        userIdentityService.deleteUserIdentity(uid);
+
+        deleteRolesForUser(userIdentity);
+    }
+
+
+    public void deleteUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentity(username);

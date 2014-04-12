@@ -123,7 +123,40 @@ public class LDAPHelper {
         return container;
     }
 
-    public void updateUserIdentity(String username, UserIdentity newuser) {
+    public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
+        if (!newuser.validate()) {
+            log.warn("{} is not valid", newuser);
+            return;
+        }
+        if (!connected) {
+            setUp();
+        }
+        try {
+            UserIdentity olduser = getUserIndentityForUid(uid);
+            updateLdapAttributesForUser(uid, newuser, olduser);
+        } catch (NamingException ne) {
+            log.error("", ne);
+            //TODO Should probably throw exception
+        }
+    }
+
+    private void updateLdapAttributesForUser(String uid, UserIdentity newuser, UserIdentity olduser) throws NamingException {
+        if (olduser == null) {
+            throw new IllegalArgumentException("User " + uid + " not found");
+        }
+        ArrayList<ModificationItem> modificationItems = new ArrayList<>(7);
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_CN, olduser.getPersonName(), newuser.getPersonName());
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_GIVENNAME, olduser.getFirstName(), newuser.getFirstName());
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_SN, olduser.getLastName(), newuser.getLastName());
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_MAIL, olduser.getEmail(), stringCleaner.cleanString(newuser.getEmail()));
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_PERSONREF, olduser.getPersonName(), newuser.getPersonName());
+        addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_MOBILE, olduser.getCellPhone(), newuser.getCellPhone());
+
+        ctx.modifyAttributes(createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()]));
+    }
+
+    public void updateUserIdentityForUsername(String username, UserIdentity newuser) {
         if (!newuser.validate()) {
             log.warn("{} is not valid", newuser);
             return;
@@ -133,19 +166,7 @@ public class LDAPHelper {
         }
         try {
             UserIdentity olduser = getUserIndentity(username);
-            if(olduser == null) {
-                throw new IllegalArgumentException("User " + username + " not found");
-            }
-            ArrayList<ModificationItem> modificationItems = new ArrayList<>(7);
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_CN, olduser.getPersonName(), newuser.getPersonName());
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_GIVENNAME, olduser.getFirstName(), newuser.getFirstName());
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_SN, olduser.getLastName(), newuser.getLastName());
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_MAIL, olduser.getEmail(), stringCleaner.cleanString(newuser.getEmail()));
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_PERSONREF, olduser.getPersonName(), newuser.getPersonName());
-            addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
-            addModificationItem(modificationItems, ATTRIBUTE_NAME_MOBILE, olduser.getCellPhone(), newuser.getCellPhone());
-
-            ctx.modifyAttributes(createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()]));
+            updateLdapAttributesForUser(username, newuser, olduser);
         } catch (NamingException ne) {
             log.error("", ne);
         }
@@ -176,7 +197,7 @@ public class LDAPHelper {
     }
 
     private String createUserDN(String username) throws NamingException {
-        Attributes attributes = getUserAttributes(username);
+        Attributes attributes = getUserAttributesForUsernameOrUid(username);
         if (attributes == null) {
             log.debug("Atributes/User are null");
             return null;
@@ -195,7 +216,24 @@ public class LDAPHelper {
             setUp();
         }
 
-        Attributes attributes = getUserAttributes(username);
+        Attributes attributes = getUserAttributesForUsernameOrUid(username);
+        UserIdentity id = fromLdapAttributes(attributes);
+        return id;
+    }
+
+    public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
+        if (!connected) {
+            setUp();
+        }
+
+        Attributes attributes = getAttributesForUid(uid);
+        UserIdentity id = fromLdapAttributes(attributes);
+        return id;
+    }
+
+
+
+    private UserIdentity fromLdapAttributes(Attributes attributes) throws NamingException {
         if (attributes == null) {
             return null;
         }
@@ -216,18 +254,23 @@ public class LDAPHelper {
     }
 
 
-    private Attributes getUserAttributes(String username) throws NamingException {
-        log.debug("getUserAttributes for username=" + username);
+    private Attributes getUserAttributesForUsernameOrUid(String username) throws NamingException {
+        Attributes userAttributesForUsername = getUserAttributesForUsername(username);
+        if (userAttributesForUsername != null) {
+            return userAttributesForUsername;
+        }
+
+        log.debug("No attributes found for username=" + username + ", trying uid");
+
+        return getAttributesForUid(username);
+    }
+
+    private Attributes getAttributesForUid(String uid) throws NamingException {
+        log.debug("getAttributesForUid, uid=" + uid);
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
-        if (results.hasMore()) {
-            SearchResult searchResult = (SearchResult) results.next();
-            return searchResult.getAttributes();
-        }
-        log.info("No attributes found for username=" + username + ", trying uid");
-        String uid = username;
-        results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
+
+        NamingEnumeration results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
         if (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
@@ -235,6 +278,19 @@ public class LDAPHelper {
         log.debug("No attributes found for uid=" + uid);
         return null;
     }
+
+    private Attributes getUserAttributesForUsername(String username) throws NamingException {
+        log.debug("getUserAttributesForUsername, username=" + username);
+        SearchControls constraints = new SearchControls();
+        constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
+        if (results.hasMore()) {
+            SearchResult searchResult = (SearchResult) results.next();
+            return searchResult.getAttributes();
+        }
+        return null;
+    }
+
 
     private String getAttribValue(Attributes attributes, String attributeName) throws NamingException {
         Attribute attribute = attributes.get(attributeName);
@@ -262,7 +318,7 @@ public class LDAPHelper {
             setUp();
         }
         try {
-            Attributes attributes = getUserAttributes(username);
+            Attributes attributes = getUserAttributesForUsernameOrUid(username);
             String userDN = createUserDN(username);
             if (attributes.get(ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
                 ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
@@ -284,7 +340,7 @@ public class LDAPHelper {
             setUp();
         }
         try {
-            Attributes attributes = getUserAttributes(username);
+            Attributes attributes = getUserAttributesForUsernameOrUid(username);
             String userDN = createUserDN(username);
             if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
@@ -305,7 +361,7 @@ public class LDAPHelper {
 
     public String getSalt(String user) {
         try {
-            Attributes attributes = getUserAttributes(user);
+            Attributes attributes = getUserAttributesForUsernameOrUid(user);
             return getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT);
         } catch (NamingException ne) {
             log.error("", ne);

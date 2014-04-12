@@ -2,6 +2,7 @@ package net.whydah.identity.user.search;
 
 import junit.framework.TestCase;
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<UserIdentity> result = search.search("Sunil");
+        List<UserIdentityRepresentation> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Vuppala");
         assertEquals(1, result.size());
@@ -50,7 +51,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<UserIdentity> result = search.search("Sunil");
+        List<UserIdentityRepresentation> result = search.search("Sunil");
         assertEquals(1, result.size());
         indexer.removeFromIndex("sunil@freecode.no");
         result = search.search("Sunil");
@@ -69,7 +70,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<UserIdentity> result = search.search("Sunil");
+        List<UserIdentityRepresentation> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Sunil");
         assertEquals(1, result.size());
@@ -93,7 +94,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<UserIdentity> result = search.search("Sunil");
+        List<UserIdentityRepresentation> result = search.search("Sunil");
         assertEquals(1, result.size());
         result = search.search("Sunil");
         assertEquals(1, result.size());
@@ -114,7 +115,7 @@ public class SearchTest extends TestCase{
         }};
         indexer.addToIndex(users);
         Search search = new Search(index);
-        List<UserIdentity> result = search.search("Vuppala");
+        List<UserIdentityRepresentation> result = search.search("Vuppala");
         assertEquals(1, result.size());
         assertEquals("sunil@freecode.no", result.get(0).getUsername());
     }

@@ -1,6 +1,7 @@
 package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -29,7 +30,7 @@ public class Search {
         this.index = index;
     }
 
-    public List<UserIdentity> search(String queryString) {
+    public List<UserIdentityRepresentation> search(String queryString) {
         String[] queryitems = queryString.replace('_', ' ').split(" ");
         StringBuilder wilcardquery = new StringBuilder();
         for (String queryitem : queryitems) {
@@ -40,7 +41,7 @@ public class Search {
 
 
         int maxHits = 20;
-        ArrayList<UserIdentity> result = new ArrayList<UserIdentity>();
+        ArrayList<UserIdentityRepresentation> result = new ArrayList<UserIdentityRepresentation>();
         try {
             String[] fields = {
                     Indexer.FIELD_FIRSTNAME,

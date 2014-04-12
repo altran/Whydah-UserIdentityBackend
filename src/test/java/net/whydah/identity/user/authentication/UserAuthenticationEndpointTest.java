@@ -136,11 +136,11 @@ public class UserAuthenticationEndpointTest {
         UserAggregate model = (UserAggregate) entity.getModel();
         UserIdentity identity = model.getIdentity();
         */
-        UserIdentity identity = userAggregate.getIdentity();
-        assertEquals(username, identity.getUsername());
-        assertEquals(identity.getPersonRef(), "");
-        assertEquals(email, identity.getEmail());
-        assertNotNull(identity.getUid());
+        //UserIdentity identity = userAggregate.getIdentity();
+        assertEquals(username, userAggregate.getUsername());
+        assertEquals(userAggregate.getPersonRef(), "");
+        assertEquals(email, userAggregate.getEmail());
+        assertNotNull(userAggregate.getUid());
 
         //TODO Reenable test for properties and roles
         /*
@@ -152,7 +152,7 @@ public class UserAuthenticationEndpointTest {
         String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
         */
         /*
-        List<UserPropertyAndRole> propsAndRoles = model.getUserPropertiesAndRolesList();
+        List<UserPropertyAndRole> propsAndRoles = model.getRoles();
 
         for (UserPropertyAndRole role : propsAndRoles) {
             assertEquals(applicationId, role.getApplicationId());
