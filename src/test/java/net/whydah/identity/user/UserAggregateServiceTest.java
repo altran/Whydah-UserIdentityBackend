@@ -5,6 +5,8 @@ import net.whydah.identity.user.resource.UserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,6 +20,7 @@ import static junit.framework.Assert.assertNotNull;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 06/04/14
  */
 public class UserAggregateServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(UserAggregateServiceTest.class);
     /*
 {
   "uid": "uid",
@@ -115,5 +118,6 @@ public class UserAggregateServiceTest {
         objectMapper.writeValue(strWriter, userRepresentation);
         String json = strWriter.toString();
         assertNotNull(json);
+        log.debug("json: {}", json);
     }
 }
