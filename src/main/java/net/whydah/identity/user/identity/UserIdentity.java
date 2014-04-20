@@ -1,5 +1,6 @@
 package net.whydah.identity.user.identity;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.io.Serializable;
  *
  * @author totto
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class UserIdentity extends UserIdentityRepresentation implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
     private static final long serialVersionUID = 1;
