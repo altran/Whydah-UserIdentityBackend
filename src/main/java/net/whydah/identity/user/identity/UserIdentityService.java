@@ -201,4 +201,17 @@ public class UserIdentityService {
         ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
         auditLogRepository.store(actionPerformed);
     }
+
+    //FIXME baardl: implement verification that admin is allowed to update this password.
+    //Find the admin user token, based on tokenid
+    public boolean allowedToUpdate(String applicationtokenid, String adminUserTokenId) {
+
+        return true;
+    }
+
+    //FIXME baardl: implement verification that admin is allowed to update this password.
+    //Find the admin user token, based on tokenid
+    public String findUserByTokenId(String adminUserTokenId) {
+        return "not-found-not-implemented";
+    }
 }
