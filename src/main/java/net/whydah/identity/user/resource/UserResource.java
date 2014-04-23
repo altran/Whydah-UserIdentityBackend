@@ -47,7 +47,15 @@ public class UserResource {
         this.mapper = new ObjectMapper();
     }
 
-
+    /**
+     * Expectations to input:
+     * no UID
+     * no password
+     *
+     * Output:
+     * uid is included
+     * no password
+     */
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -64,7 +72,6 @@ public class UserResource {
         }
 
         try {
-            //TODO decide if client is allowed to specify password
             UserIdentity userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
 
             String newUserAsJson;
@@ -74,7 +81,7 @@ public class UserResource {
                 log.error("Error converting to json. {}", userIdentity.toString(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
-            //UserAggregate userAggregate = userAggregateService.addUserAndSetDefaultRoles(userIdentityJson);
+            //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
             return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
         }  catch (ConflictException ise) {
             log.error(ise.getMessage());
