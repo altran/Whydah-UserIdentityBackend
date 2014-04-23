@@ -114,18 +114,20 @@ public class UserIdentityService {
         }
 
         String email = null;
-        if (dto.getEmail() != null && dto.getEmail().contains("+")){
-            email = replacePlusWithEmpty(dto.getEmail());
-        }
-        InternetAddress internetAddress = new InternetAddress();
-        internetAddress.setAddress(email);
-        try {
-            internetAddress.validate();
-        } catch (AddressException e) {
-            //log.error(String.format("E-mail: %s is of wrong format.", email));
-            //return Response.status(Response.Status.BAD_REQUEST).build();
-            //TODO use BadRequestException from jersey 2.7
-            throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+        if (dto.getEmail() != null) {
+            if (dto.getEmail().contains("+")) {
+                email = replacePlusWithEmpty(dto.getEmail());
+            }
+            InternetAddress internetAddress = new InternetAddress();
+            internetAddress.setAddress(email);
+            try {
+                internetAddress.validate();
+            } catch (AddressException e) {
+                //log.error(String.format("E-mail: %s is of wrong format.", email));
+                //return Response.status(Response.Status.BAD_REQUEST).build();
+                //TODO use BadRequestException from jersey 2.7
+                throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+            }
         }
 
         String uid = UUID.randomUUID().toString();
