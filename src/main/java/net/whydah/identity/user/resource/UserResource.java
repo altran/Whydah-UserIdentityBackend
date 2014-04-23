@@ -84,13 +84,13 @@ public class UserResource {
             //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
             return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
         }  catch (ConflictException ise) {
-            log.error(ise.getMessage());
+            log.info("addUserIdentity: Conflict request. json={}", userIdentityJson, ise);
             return Response.status(Response.Status.CONFLICT).build();
         } catch (IllegalArgumentException iae) {
-            log.error("addUserIdentity: Invalid request. json={}", userIdentityJson, iae);
+            log.info("addUserIdentity: Invalid request. json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (RuntimeException e) {
-            log.error("", e);
+            log.error("addUserIdentity-RuntimeExeption ", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -149,10 +149,10 @@ public class UserResource {
 
             return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
-            log.error("updateUserIdentityForUsername: Invalid json={}", userIdentityJson, iae);
+            log.info("updateUserIdentit: Invalid json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (RuntimeException e) {
-            log.error("", e);
+            log.error("updateUserIdentity: RuntimeError json={}", userIdentityJson, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -206,10 +206,10 @@ public class UserResource {
             }
             return Response.status(Response.Status.CREATED).entity(json).build();
         }  catch (ConflictException ce) {
-            log.error(ce.getMessage());
+            log.error("addRole-Conflict. {}", roleJson, ce);
             return Response.status(Response.Status.CONFLICT).build();
         } catch (RuntimeException e) {
-            log.error("", e);
+            log.error("addRole-RuntimeException. {}", roleJson, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -281,7 +281,7 @@ public class UserResource {
 
             return Response.ok(json).build();
         } catch (RuntimeException e) {
-            log.error("", e);
+            log.error("updateRole-RuntimeException. {}", roleJson, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -295,7 +295,7 @@ public class UserResource {
             userAggregateService.deleteRole(uid, roleid);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (RuntimeException e) {
-            log.error("", e);
+            log.error("deleteRole-RuntimeException. roleId {}", roleid, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -335,7 +335,7 @@ public class UserResource {
             try {
                 ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
             } catch (RuntimeException re) {
-                log.error(re.getMessage(), re.getCause());
+                log.error("changePasswordForUser-RuntimeException username {}, message {}", username,re.getMessage(), re);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
