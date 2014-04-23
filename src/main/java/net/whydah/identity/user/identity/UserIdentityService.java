@@ -114,10 +114,13 @@ public class UserIdentityService {
         }
 
         String email = null;
-        if (dto.getEmail() != null) {
-            if (dto.getEmail().contains("+")) {
+
+            if (dto.getEmail() != null && dto.getEmail().contains("+")) {
                 email = replacePlusWithEmpty(dto.getEmail());
+            } else {
+                email = dto.getEmail();
             }
+        if (email != null) {
             InternetAddress internetAddress = new InternetAddress();
             internetAddress.setAddress(email);
             try {
