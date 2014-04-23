@@ -8,6 +8,7 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.email.PasswordSender;
+import net.whydah.identity.user.search.Indexer;
 import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +39,19 @@ public class UserIdentityService {
     private final PasswordGenerator passwordGenerator;
     private final PasswordSender passwordSender;
 
+    private final Indexer indexer;
+
 
     @Inject
     public UserIdentityService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
                                LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
-                               PasswordSender passwordSender) {
+                               PasswordSender passwordSender, Indexer indexer) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.ldapHelper = ldapHelper;
         this.auditLogRepository = auditLogRepository;
         this.passwordGenerator = passwordGenerator;
         this.passwordSender = passwordSender;
+        this.indexer = indexer;
     }
 
     public UserIdentity authenticate(final String username, final String password) {
@@ -138,6 +142,7 @@ public class UserIdentityService {
                 dto.getPersonRef(), email, dto.getCellPhone(), passwordGenerator.generate());
         try {
             ldapHelper.addUserIdentity(userIdentity);
+            indexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
