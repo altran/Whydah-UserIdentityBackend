@@ -258,7 +258,7 @@ public class UserAdminTest {
     }
 
     @Test
-    public void addStrangeUser() {
+    public void addStrangeUserWithMissingLastNameAndCodesInCellPhoneNumber() {
 
         String userjson = "{\n" +
                 " \"personRef\":\"triffraff\",\n" +
