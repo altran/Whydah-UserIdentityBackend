@@ -50,10 +50,10 @@ public class UserAggregateService {
         UserIdentity userIdentity = UserIdentity.fromJson(userIdentityJson);
 
         userIdentityService.addUserIdentity(userIdentity);
+        indexer.addToIndex(userIdentity);
 
         List<UserPropertyAndRole> roles = addDefaultUserRole(userIdentity);
 
-        indexer.addToIndex(userIdentity);
 
         audit(ActionPerformed.ADDED, "user", userIdentity.toString());
         return new UserAggregate(userIdentity, roles);
@@ -178,6 +178,7 @@ public class UserAggregateService {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentityForUid(uid);
+            indexer.removeFromIndex(uid);
         } catch (NamingException e) {
             throw new RuntimeException("userIdentityService.getUserIndentity with uid=" + uid, e);
         }
@@ -209,7 +210,7 @@ public class UserAggregateService {
     private void deleteRolesForUser(UserIdentity userIdentity) {
         String uid = userIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
-        indexer.removeFromIndex(uid);
+        //indexer.removeFromIndex(uid);
         audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + userIdentity.getUsername());
     }
 

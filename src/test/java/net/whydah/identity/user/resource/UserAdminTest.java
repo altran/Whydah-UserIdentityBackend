@@ -270,17 +270,18 @@ public class UserAdminTest {
                 "}";
 
 
-        //WebResource webResource = baseResource.path("users/add"); //OLD
-
         WebResource webResource = baseResource.path("users/add");
         webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
 
-        // webResource.type(MediaType.APPLICATION_JSON).post(String.class,testStr);
-        //webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson); //Old
+
+        // Get
+        String ts = baseResource.path("find/tsnyper").get(String.class);
+        assertTrue(ts.contains("tsnyper@midget.orj"));
+        assertTrue(ts.contains("tEdmund"));
+
+
+        // Search
         String s = baseResource.path("users/tsnyper").get(String.class);
-        assertTrue(s.contains("tsnyper@midget.orj"));
-        assertTrue(s.contains("tEdmund"));
-        s = baseResource.path("find/tsnyper").get(String.class);
         assertTrue(s.contains("tsnyper@midget.orj"));
         assertTrue(s.contains("tEdmund"));
     }
