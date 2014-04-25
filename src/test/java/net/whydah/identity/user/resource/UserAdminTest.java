@@ -22,7 +22,6 @@ import java.net.URI;
 import static org.junit.Assert.*;
 
 
-@Ignore
 public class UserAdminTest {
     private static WebResource baseResource;
     private static WebResource logonResource;
