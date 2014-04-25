@@ -261,11 +261,11 @@ public class UserAdminTest {
     public void addStrangeUser() {
 
         String userjson = "{\n" +
-                " \"personRef\":\"riffraff\",\n" +
-                " \"username\":\"snyper\",\n" +
-                " \"firstName\":\"Edmund\",\n" +
+                " \"personRef\":\"triffraff\",\n" +
+                " \"username\":\"tsnyper\",\n" +
+                " \"firstName\":\"tEdmund\",\n" +
 
-                " \"email\":\"snyper@midget.orj\",\n" +
+                " \"email\":\"tsnyper@midget.orj\",\n" +
                 " \"cellPhone\":\"12121-bb-212\"\n" +
                 "}";
 
@@ -277,12 +277,12 @@ public class UserAdminTest {
 
         // webResource.type(MediaType.APPLICATION_JSON).post(String.class,testStr);
         //webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson); //Old
-        String s = baseResource.path("users/snyper").get(String.class);
-        assertTrue(s.contains("snyper@midget.orj"));
-        assertTrue(s.contains("Edmund"));
-        s = baseResource.path("find/snyper").get(String.class);
-        assertTrue(s.contains("snyper@midget.orj"));
-        assertTrue(s.contains("Edmund"));
+        String s = baseResource.path("users/tsnyper").get(String.class);
+        assertTrue(s.contains("tsnyper@midget.orj"));
+        assertTrue(s.contains("tEdmund"));
+        s = baseResource.path("find/tsnyper").get(String.class);
+        assertTrue(s.contains("tsnyper@midget.orj"));
+        assertTrue(s.contains("tEdmund"));
     }
 
 
