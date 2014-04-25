@@ -230,8 +230,11 @@ public class UserAggregateService {
         role.setId("TODOharcodedId");
         role.setUid(uid);
         role.setApplicationId(request.getApplicationId());
+        role.setApplicationName(request.getApplicationName());
         role.setOrganizationId(request.getOrganizationId());
+        role.setOrganizationName(request.getOrganizationName());
         role.setApplicationRoleName(request.getApplicationRoleName());
+        role.setApplicationRoleValue(request.getApplicationRoleValue());
 
         if (userPropertyAndRoleRepository.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
