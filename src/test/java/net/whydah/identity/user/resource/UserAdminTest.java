@@ -257,6 +257,34 @@ public class UserAdminTest {
         assertTrue(s.contains("Edmund"));
     }
 
+    @Test
+    public void addStrangeUser() {
+
+        String userjson = "{\n" +
+                " \"personRef\":\"riffraff\",\n" +
+                " \"username\":\"snyper\",\n" +
+                " \"firstName\":\"Edmund\",\n" +
+
+                " \"email\":\"snyper@midget.orj\",\n" +
+                " \"cellPhone\":\"12121-bb-212\"\n" +
+                "}";
+
+
+        //WebResource webResource = baseResource.path("users/add"); //OLD
+
+        WebResource webResource = baseResource.path("users/add");
+        webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
+
+        // webResource.type(MediaType.APPLICATION_JSON).post(String.class,testStr);
+        //webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson); //Old
+        String s = baseResource.path("users/snyper").get(String.class);
+        assertTrue(s.contains("snyper@midget.orj"));
+        assertTrue(s.contains("Edmund"));
+        s = baseResource.path("find/snyper").get(String.class);
+        assertTrue(s.contains("snyper@midget.orj"));
+        assertTrue(s.contains("Edmund"));
+    }
+
 
     @Test
     public void resetAndChangePassword() {
