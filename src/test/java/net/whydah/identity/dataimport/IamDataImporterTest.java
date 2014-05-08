@@ -55,7 +55,7 @@ public class IamDataImporterTest {
         
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
-        EmbeddedADS ads = new EmbeddedADS(ldappath);
+        ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
         ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
