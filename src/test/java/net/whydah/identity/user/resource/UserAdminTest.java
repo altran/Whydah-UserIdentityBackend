@@ -30,6 +30,7 @@ public class UserAdminTest {
     public static void init() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         FileUtils.deleteDirectory(new File("target/ssotest/"));
+        FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
         uib = new Main();
         uib.startEmbeddedDS();
         uib.importUsersAndRoles();
