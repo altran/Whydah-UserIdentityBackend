@@ -10,8 +10,8 @@ import net.whydah.identity.user.email.MockMail;
 import net.whydah.identity.util.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -31,8 +31,9 @@ public class UserAdminTest {
     private static WebResource baseResource;
     private static WebResource logonResource;
     private static Main uib;
-    @BeforeClass
-    public static void init() throws Exception {
+
+    @Before
+    public void init() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         FileUtils.deleteDirectory(new File("target/ssotest/"));
         FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
@@ -47,16 +48,18 @@ public class UserAdminTest {
         logonResource = Client.create().resource(logonUri);
     }
 
-    @AfterClass
-    public static void teardown() throws Exception {
+    @After
+    public void teardown() throws InterruptedException {
         uib.stop();
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
-
-        }
 
         FileUtils.deleteDirectory(new File("target/ssotest/"));
+    }
+
+    @Test
+    public void find() {
+        WebResource webResource = baseResource.path("users/find/Thomas");
+        String s = webResource.get(String.class);
+        assertTrue(s.contains("\"firstName\":\"Thomas\""));
     }
 
     @Test
@@ -66,6 +69,77 @@ public class UserAdminTest {
         //System.out.println(s);
         assertTrue(s.contains("\"firstName\":\"Thomas\""));
     }
+
+    @Test
+    public void getnonexistinguser() {
+        WebResource webResource = baseResource.path("user/");
+        webResource.path("thomas.pringle@altran.com").get(String.class); // verify that path works with existing user
+        try {
+            String s = webResource.path("bantelonga@gmail.com").get(String.class);
+            fail("Expected 404, got " + s);
+        } catch(UniformInterfaceException e) {
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void modifyUser() {
+        String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
+
+        String s = baseResource.path("user/" + uid).get(String.class);
+        assertTrue(s.contains("siqula@midget.orj"));
+        assertTrue(s.contains("Hoytahl"));
+        assertTrue(s.contains("12121212"));
+
+        String updateduserjson = "{\n" +
+                " \"uid\":\"" + uid + "\",\n" +
+                " \"personRef\":\"1231312\",\n" +
+                " \"username\":\"siqula\",\n" +
+                " \"firstName\":\"Harald\",\n" +
+                " \"lastName\":\"Goffse\",\n" +
+                " \"email\":\"siqula@midget.orj\",\n" +
+                " \"cellPhone\":\"35353535\"\n" +
+                "}";
+
+        baseResource.path("user/" + uid).type("application/json").put(String.class, updateduserjson);
+
+        s = baseResource.path("user/" + uid).get(String.class);
+        assertTrue(s.contains("siqula@midget.orj"));
+        assertTrue(s.contains("Harald"));
+        assertFalse(s.contains("Hoytahl"));
+        assertTrue(s.contains("35353535"));
+        assertFalse(s.contains("12121212"));
+    }
+
+    @Test
+    public void deleteUser() {
+        String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
+
+        ClientResponse deleteResponse = baseResource.path("user/" + uid).delete(ClientResponse.class);
+        deleteResponse.getClientResponseStatus().getFamily().equals(Response.Status.Family.SUCCESSFUL);
+
+        try {
+            String s = baseResource.path(uid).get(String.class);
+            fail("Expected 404, got " + s);
+        } catch(UniformInterfaceException e) {
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void deleteUserNotFound() {
+        WebResource webResource = baseResource.path("users/dededede@hotmail.com/delete");
+        try {
+            String s = webResource.get(String.class);
+            fail("Expected 404, got " + s);
+        } catch(UniformInterfaceException e) {
+            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+        }
+
+    }
+
+
+
 
     @Test
     public void getuserapps() {
@@ -236,18 +310,6 @@ public class UserAdminTest {
 
 
     @Test
-    public void getnonexistinguser() {
-        WebResource webResource = baseResource.path("users/bantelonga@gmail.com");
-        try {
-            String s = webResource.get(String.class);
-            fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
-        }
-    }
-
-
-    @Test
     public void addUser() {
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
 
@@ -335,69 +397,6 @@ public class UserAdminTest {
         //System.out.println(identity);
         assertTrue(identity.contains("identity"));
         assertTrue(identity.contains("gvarnes"));
-    }
-
-    @Test
-    public void modifyUser() {
-        String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
-
-        String s = baseResource.path("user/" + uid).get(String.class);
-        assertTrue(s.contains("siqula@midget.orj"));
-        assertTrue(s.contains("Hoytahl"));
-        assertTrue(s.contains("12121212"));
-
-        String updateduserjson = "{\n" +
-                " \"uid\":\"" + uid + "\",\n" +
-                " \"personRef\":\"1231312\",\n" +
-                " \"username\":\"siqula\",\n" +
-                " \"firstName\":\"Harald\",\n" +
-                " \"lastName\":\"Goffse\",\n" +
-                " \"email\":\"siqula@midget.orj\",\n" +
-                " \"cellPhone\":\"35353535\"\n" +
-                "}";
-
-        baseResource.path("user/" + uid).type("application/json").put(String.class, updateduserjson);
-
-        s = baseResource.path("user/" + uid).get(String.class);
-        assertTrue(s.contains("siqula@midget.orj"));
-        assertTrue(s.contains("Harald"));
-        assertFalse(s.contains("Hoytahl"));
-        assertTrue(s.contains("35353535"));
-        assertFalse(s.contains("12121212"));
-    }
-
-    @Test
-    public void find() {
-        WebResource webResource = baseResource.path("users/find/Thomas");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("\"firstName\":\"Thomas\""));
-    }
-
-    @Test
-    public void deleteUser() {
-        String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
-
-        ClientResponse deleteResponse = baseResource.path("user/" + uid).delete(ClientResponse.class);
-        deleteResponse.getClientResponseStatus().getFamily().equals(Response.Status.Family.SUCCESSFUL);
-
-        try {
-            String s = baseResource.path(uid).get(String.class);
-            fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void deleteUserNotFound() {
-        WebResource webResource = baseResource.path("users/dededede@hotmail.com/delete");
-        try {
-            String s = webResource.get(String.class);
-            fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
-            assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
-        }
-
     }
 
     private String doAddUser(String userjson) {
