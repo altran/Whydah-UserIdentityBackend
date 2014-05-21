@@ -8,6 +8,8 @@ import net.whydah.identity.Main;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.user.email.MockMail;
 import net.whydah.identity.util.FileUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -17,7 +19,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -35,7 +40,7 @@ public class UserAdminTest {
         uib.startEmbeddedDS();
         uib.importUsersAndRoles();
         uib.startHttpServer();
-        URI baseUri = UriBuilder.fromUri("http://localhost/uib/useradmin/").port(uib.getPort()).build();
+        URI baseUri = UriBuilder.fromUri("http://localhost/uib/uib/useradmin/").port(uib.getPort()).build();
         URI logonUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();
         //String authentication = "usrtk1";
         baseResource = Client.create().resource(baseUri)/*.path(authentication + '/')*/;
@@ -56,10 +61,10 @@ public class UserAdminTest {
 
     @Test
     public void getuser() {
-        WebResource webResource = baseResource.path("users/rafal.laczek@freecode.no");
+        WebResource webResource = baseResource.path("user/thomas.pringle@altran.com");
         String s = webResource.get(String.class);
         //System.out.println(s);
-        assertTrue(s.contains("\"firstName\":\"RAFAL\""));
+        assertTrue(s.contains("\"firstName\":\"Thomas\""));
     }
 
     @Test
@@ -77,29 +82,42 @@ public class UserAdminTest {
 
 
     @Test
+    public void getuserrole() {
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        doAddUserRole(uid, "0005", "KK", "test");
+        doAddUserRole(uid, "0005", "NN", "another");
+        doAddUserRole(uid, "0005", "MM", "yetanother");
+
+        Map<String, Object> testRole = doGetUserRole(uid, "test");
+        assertEquals("0005", testRole.get("organizationId"));
+        assertEquals("KK", testRole.get("applicationRoleName"));
+        assertEquals("test", testRole.get("applicationRoleValue"));
+    }
+
+
+    @Test
     public void getuserroles() {
-        WebResource webResource = baseResource.path("users/rafal.laczek@freecode.no/201");
-        String s = webResource.get(String.class);
-        //System.out.println("S in getuserroles() is "+s+ "Stop");
-        assertFalse(s.contains("\"firstName\":\"RAFAL\""));
-        assertTrue(s.contains("\"appId\": \"201\""));
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        doAddUserRole(uid, "0005", "KK", "test");
+
+        List<Map<String, Object>> rolesAfter = doGetUserRoles(uid);
+        assertEquals("0005", rolesAfter.get(0).get("organizationId"));
+        assertEquals("KK", rolesAfter.get(0).get("applicationRoleName"));
+        assertEquals("test", rolesAfter.get(0).get("applicationRoleValue"));
     }
 
 
     @Test
     public void adduserrole() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/50");
-        webResource.path("/add").type("application/json").post(ClientResponse.class, "{\"orgID\": \"0005\",\n" +
-                "        \"roleName\": \"KK\",\n" +
-                "        \"roleValue\": \"test\"}");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("KK"));
-        WebResource webResource2 = baseResource.path("users/sunil@freecode.no");
-        s = webResource2.get(String.class);
-//        System.out.println("Roller etter: " + s);
-        assertTrue(s.contains("KK"));
-    }
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        List<Map<String, Object>> rolesBefore = doGetUserRoles(uid);
+        assertTrue(rolesBefore.isEmpty());
 
+        doAddUserRole(uid, "0005", "KK", "test");
+
+        List<Map<String, Object>> rolesAfter = doGetUserRoles(uid);
+        assertEquals(1, rolesAfter.size());
+    }
 
     @Test
     public void adduserroleNoJson() {
@@ -231,28 +249,14 @@ public class UserAdminTest {
 
     @Test
     public void addUser() {
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
 
-        String userjson = "{\n" +
-                " \"personRef\":\"riffraff\",\n" +
-                " \"username\":\"snyper\",\n" +
-                " \"firstName\":\"Edmund\",\n" +
-                " \"lastName\":\"Goffse\",\n" +
-                " \"email\":\"snyper@midget.orj\",\n" +
-                " \"cellPhone\":\"12121212\"\n" +
-                "}";
+        assertNotNull(uid);
 
-
-        //WebResource webResource = baseResource.path("users/add"); //OLD
-
-        WebResource webResource = baseResource.path("users/add");
-        webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
-
-        // webResource.type(MediaType.APPLICATION_JSON).post(String.class,testStr);
-        //webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson); //Old
-        String s = baseResource.path("users/snyper").get(String.class);
+        String s = baseResource.path("user/" + uid).get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));
         assertTrue(s.contains("Edmund"));
-        s = baseResource.path("find/snyper").get(String.class);
+        s = baseResource.path("users/find/snyper").get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));
         assertTrue(s.contains("Edmund"));
     }
@@ -260,28 +264,18 @@ public class UserAdminTest {
     @Test
     public void addStrangeUserWithMissingLastNameAndCodesInCellPhoneNumber() {
 
-        String userjson = "{\n" +
-                " \"personRef\":\"triffraff\",\n" +
-                " \"username\":\"tsnyper\",\n" +
-                " \"firstName\":\"tEdmund\",\n" +
+        // TODO Are users supposed to be added even with missing lastname?
 
-                " \"email\":\"tsnyper@midget.orj\",\n" +
-                " \"cellPhone\":\"12121-bb-212\"\n" +
-                "}";
-
-
-        WebResource webResource = baseResource.path("users/add");
-        webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
-
+        String uid = doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121-bb-212");
 
         // Get
-        String ts = baseResource.path("find/tsnyper").get(String.class);
+        String ts = baseResource.path("users/find/tsnyper").get(String.class);
         assertTrue(ts.contains("tsnyper@midget.orj"));
         assertTrue(ts.contains("tEdmund"));
 
 
         // Search
-        String s = baseResource.path("users/tsnyper").get(String.class);
+        String s = baseResource.path("user/" + uid).get(String.class);
         assertTrue(s.contains("tsnyper@midget.orj"));
         assertTrue(s.contains("tEdmund"));
     }
@@ -344,17 +338,16 @@ public class UserAdminTest {
     }
 
     @Test
-    @Ignore
     public void modifyUser() {
-        String userjson = "{\n" +
-                " \"personRef\":\"1231312\",\n" +
-                " \"username\":\"siqula\",\n" +
-                " \"firstName\":\"Hoytahl\",\n" +
-                " \"lastName\":\"Goffse\",\n" +
-                " \"email\":\"siqula@midget.orj\",\n" +
-                " \"cellPhone\":\"12121212\"\n" +
-                "}";
+        String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
+
+        String s = baseResource.path("user/" + uid).get(String.class);
+        assertTrue(s.contains("siqula@midget.orj"));
+        assertTrue(s.contains("Hoytahl"));
+        assertTrue(s.contains("12121212"));
+
         String updateduserjson = "{\n" +
+                " \"uid\":\"" + uid + "\",\n" +
                 " \"personRef\":\"1231312\",\n" +
                 " \"username\":\"siqula\",\n" +
                 " \"firstName\":\"Harald\",\n" +
@@ -362,37 +355,33 @@ public class UserAdminTest {
                 " \"email\":\"siqula@midget.orj\",\n" +
                 " \"cellPhone\":\"35353535\"\n" +
                 "}";
-        // baseResource.path("users/add").type("application/json").post(ClientResponse.class, userjson);
-        baseResource.path("users/add").type("application/json").post(ClientResponse.class, userjson);
-        String s = baseResource.path("users/siqula").get(String.class);
-        assertTrue(s.contains("siqula@midget.orj"));
-        assertTrue(s.contains("Hoytahl"));
-        assertTrue(s.contains("12121212"));
 
-        baseResource.path("users/siqula").type("application/json").put(String.class, updateduserjson);
-        s = baseResource.path("users/siqula").get(String.class);
+        baseResource.path("user/" + uid).type("application/json").put(String.class, updateduserjson);
+
+        s = baseResource.path("user/" + uid).get(String.class);
         assertTrue(s.contains("siqula@midget.orj"));
         assertTrue(s.contains("Harald"));
+        assertFalse(s.contains("Hoytahl"));
         assertTrue(s.contains("35353535"));
+        assertFalse(s.contains("12121212"));
     }
 
     @Test
     public void find() {
-        WebResource webResource = baseResource.path("find/Rafal");
+        WebResource webResource = baseResource.path("users/find/Thomas");
         String s = webResource.get(String.class);
-        assertTrue(s.contains("\"firstName\":\"RAFAL\""));
+        assertTrue(s.contains("\"firstName\":\"Thomas\""));
     }
 
     @Test
     public void deleteUser() {
-        WebResource webResource = baseResource.path("users/frustaalstrom@gmail.com");
-        //String s = webResource.get(String.class);
-        String s = webResource.toString();
+        String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
 
-        assertTrue(s.contains("frustaalstrom"));
-        webResource.path("/delete").get(ClientResponse.class);
+        ClientResponse deleteResponse = baseResource.path("user/" + uid).delete(ClientResponse.class);
+        deleteResponse.getClientResponseStatus().getFamily().equals(Response.Status.Family.SUCCESSFUL);
+
         try {
-            s = webResource.get(String.class);
+            String s = baseResource.path(uid).get(String.class);
             fail("Expected 404, got " + s);
         } catch(UniformInterfaceException e) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
@@ -411,5 +400,67 @@ public class UserAdminTest {
 
     }
 
+    private String doAddUser(String userjson) {
+        WebResource webResource = baseResource.path("user");
+        ClientResponse postResponse = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
+        String postResponseJson = postResponse.getEntity(String.class);
+        Map<String, Object> createdUser = null;
+        try {
+            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return (String) createdUser.get("uid");
+    }
+
+    private String doAddUser(String personRef, String username, String firstName, String lastName, String email, String cellPhone) {
+        String userjson = "{\n" +
+                " \"personRef\":\"" + personRef + "\",\n" +
+                " \"username\":\"" + username + "\",\n" +
+                " \"firstName\":\"" + firstName + "\",\n" +
+                " \"lastName\":\"" + lastName + "\",\n" +
+                " \"email\":\"" + email + "\",\n" +
+                " \"cellPhone\":\"" + cellPhone + "\"\n" +
+                "}";
+        return doAddUser(userjson);
+    }
+
+    private List<Map<String, Object>> doGetUserRoles(String uid) {
+        String postResponseJson = baseResource.path("user/" + uid + "/roles").get(String.class);
+        List<Map<String, Object>> roles = null;
+        try {
+            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<List<Map<String, Object>>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return roles;
+    }
+
+    private Map<String, Object> doGetUserRole(String uid, String applicationRoleName) {
+        String postResponseJson = baseResource.path("user/" + uid + "/" + applicationRoleName).get(String.class);
+        Map<String, Object> roles = null;
+        try {
+            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return roles;
+    }
+
+    private Map<String, Object> doAddUserRole(String uid, String organizationId, String applicationRoleName, String applicationRoleValue) {
+        WebResource webResource = baseResource.path("user/" + uid + "/role");
+        ClientResponse postResponse = webResource.type("application/json").post(ClientResponse.class, "{\"organizationId\": \"" + organizationId + "\",\n" +
+                "        \"applicationRoleName\": \"" + applicationRoleName + "\",\n" +
+                "        \"applicationRoleValue\": \"" + applicationRoleValue + "\"}");
+
+        String postResponseJson = postResponse.getEntity(String.class);
+        Map<String, Object> createdUser = null;
+        try {
+            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return createdUser;
+    }
 
 }
