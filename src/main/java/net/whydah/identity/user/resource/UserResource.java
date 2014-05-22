@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.user.UserAggregateService;
+import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
@@ -89,6 +90,9 @@ public class UserResource {
         } catch (IllegalArgumentException iae) {
             log.info("addUserIdentity: Invalid request. json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (InvalidUserIdentityFieldException e) {
+            log.info("addUserIdentity: Validation error. {}", e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (RuntimeException e) {
             log.error("addUserIdentity-RuntimeExeption ", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
