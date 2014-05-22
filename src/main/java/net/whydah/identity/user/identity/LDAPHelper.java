@@ -65,10 +65,7 @@ public class LDAPHelper {
     }
 
     public void addUserIdentity(UserIdentity userIdentity) throws NamingException {
-        if (!userIdentity.validate()) {
-            log.error("Error validating UserIdentity: {}", userIdentity);
-            return;
-        }
+        userIdentity.validate();
 
         if (!connected) {
             setUp();
@@ -124,10 +121,8 @@ public class LDAPHelper {
     }
 
     public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
-        if (!newuser.validate()) {
-            log.warn("{} is not valid", newuser);
-            return;
-        }
+        newuser.validate();
+
         if (!connected) {
             setUp();
         }
@@ -157,10 +152,8 @@ public class LDAPHelper {
     }
 
     public void updateUserIdentityForUsername(String username, UserIdentity newuser) {
-        if (!newuser.validate()) {
-            log.warn("{} is not valid", newuser);
-            return;
-        }
+        newuser.validate();
+
         if (!connected) {
             setUp();
         }
