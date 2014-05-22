@@ -38,24 +38,23 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         this.password = password;
     }
 
-    public boolean validate() {
+    public void validate() throws InvalidUserIdentityFieldException {
         if (uid == null || uid.length() < 2) {
-            logger.error("UID {} not valid", uid);
-            return false;
+            throw new InvalidUserIdentityFieldException("uid", uid);
         }
         if (username == null || username.length() < 3) {
-            logger.error("username {} not valid", username);
-            return false;
+            throw new InvalidUserIdentityFieldException("username", username);
         }
         if (firstName == null || firstName.length() < 2) {
-            logger.error("firstName {} not valid", firstName);
-            return false;
+            throw new InvalidUserIdentityFieldException("firstName", firstName);
         }
         if (lastName == null || lastName.length() < 2) {
-            logger.error("lastName {} not valid", lastName);
-            return false;
+            throw new InvalidUserIdentityFieldException("lastName", lastName);
         }
-        return true;
+        if (email == null || email.length() < 5) {
+            throw new InvalidUserIdentityFieldException("email", email);
+        }
+        // valid
     }
 
     @Override
