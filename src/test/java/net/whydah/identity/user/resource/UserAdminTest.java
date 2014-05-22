@@ -139,43 +139,30 @@ public class UserAdminTest {
     }
 
 
-
-
-    @Test
-    public void getuserapps() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/applications");
-        String s = webResource.get(String.class);
-        //System.out.println(s);
-        assertFalse(s.contains("\"firstName\":\"SUNIL\""));
-        assertTrue(s.contains("\"appId\" : \"201\""));
-        assertTrue(s.contains("\"appId\" : \"101\""));
-        //assertTrue(s.contains("\"hasRoles\" : true"));
-        assertTrue(s.contains("\"hasRoles\" : false"));
-    }
-
-
-
     @Test
     public void getuserroles() {
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
-        String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
-        String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "another");
-        String roleId3 = doAddUserRole(uid, "testappId", "0005", "MM", "yetanother");
+        String roleId1 = doAddUserRole(uid, "testappId1", "0005", "KK", "test");
+        String roleId2 = doAddUserRole(uid, "testappIdX", "0005", "NN", "another");
+        String roleId3 = doAddUserRole(uid, "testappIdX", "0005", "MM", "yetanother");
 
         List<Map<String, Object>> roles = doGetUserRoles(uid);
         assertEquals(3, roles.size());
 
         Map<String, Object> testRole1 = doGetUserRole(uid, roleId1);
+        assertEquals("testappId1", testRole1.get("applicationId"));
         assertEquals("0005", testRole1.get("organizationId"));
         assertEquals("KK", testRole1.get("applicationRoleName"));
         assertEquals("test", testRole1.get("applicationRoleValue"));
 
         Map<String, Object> testRole2 = doGetUserRole(uid, roleId2);
+        assertEquals("testappIdX", testRole2.get("applicationId"));
         assertEquals("0005", testRole2.get("organizationId"));
         assertEquals("NN", testRole2.get("applicationRoleName"));
         assertEquals("another", testRole2.get("applicationRoleValue"));
 
         Map<String, Object> testRole3 = doGetUserRole(uid, roleId3);
+        assertEquals("testappIdX", testRole3.get("applicationId"));
         assertEquals("0005", testRole3.get("organizationId"));
         assertEquals("MM", testRole3.get("applicationRoleName"));
         assertEquals("yetanother", testRole3.get("applicationRoleValue"));
@@ -218,21 +205,6 @@ public class UserAdminTest {
     }
 
 
-
-    @Test
-    public void addDefaultUserrole() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no");
-        webResource.path("/adddefaultrole").get(ClientResponse.class);
-        String s = webResource.get(String.class);
-        //System.out.println(s);
-        assertTrue(s.contains("useradmin"));
-        WebResource webResource2 = baseResource.path("users/sunil@freecode.no");
-        s = webResource2.get(String.class);
-        //System.out.println("Roller etter: " + s);
-        assertTrue(s.contains("useradmin"));
-    }
-
-
     @Test
     public void addExistingUserrole() {
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
@@ -263,29 +235,30 @@ public class UserAdminTest {
 
 
     @Test
-    @Ignore
-    public void deleteAllAppuserroles() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/50");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("test"));
-        webResource.path("/deleteall").get(String.class);
-        WebResource webResource2 = baseResource.path("users/rafal.laczek@freecode.no");
-        s = webResource2.get(String.class);
-        assertFalse(s.contains("Dev"));
-    }
-
-
-
-    @Test
     public void modifyuserrole() {
-        WebResource webResource = baseResource.path("users/rafal.laczek@freecode.no/201");
-        String s = webResource.get(String.class);
-        //System.out.println("S in modifyuserrole(): "+s);
-        assertTrue(s.contains("DEV"));
-        webResource.type("application/json").put(String.class, "{\"orgID\": \"0001\", \"roleName\": \"DEV\", \"roleValue\" : \"flott\"}");
-        s = webResource.get(String.class);
-        //System.out.println("S in modifyuserrole() is"+s);
-        assertTrue(s.contains("flott"));
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        String roleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
+
+        Map<String, Object> roleBeforeModification = doGetUserRole(uid, roleId);
+        assertEquals("testappId", roleBeforeModification.get("applicationId"));
+        assertEquals("0005", roleBeforeModification.get("organizationId"));
+        assertEquals("KK", roleBeforeModification.get("applicationRoleName"));
+        assertEquals("test", roleBeforeModification.get("applicationRoleValue"));
+
+        String modifiedUserRoleJsonRequest = "{\"organizationId\": \"0005\",\n" +
+                "        \"uid\": \"" + uid + "\",\n" +
+                "        \"roleId\": \"" + roleId + "\",\n" +
+                "        \"applicationId\": \"testappId\",\n" +
+                "        \"applicationRoleName\": \"KK\",\n" +
+                "        \"applicationRoleValue\": \"test modified\"}";
+
+        String s = baseResource.path("user/" + uid + "/role/" + roleId).type("application/json").put(String.class, modifiedUserRoleJsonRequest);
+
+        Map<String, Object> roleAfterModification = doGetUserRole(uid, roleId);
+        assertEquals("testappId", roleAfterModification.get("applicationId"));
+        assertEquals("0005", roleAfterModification.get("organizationId"));
+        assertEquals("KK", roleAfterModification.get("applicationRoleName"));
+        assertEquals("test modified", roleAfterModification.get("applicationRoleValue"));
     }
 
 
@@ -293,18 +266,23 @@ public class UserAdminTest {
 
     @Test
     public void userexists() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/exists");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("true"));
+        String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
+        String s = baseResource.path("user/" + uid).get(String.class);
+        assertTrue(s.contains("Hoytahl"));
     }
 
 
 
     @Test
     public void usernotexists() {
-        WebResource webResource = baseResource.path("users/eggbert@hotmail.com/exists");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("false"));
+        doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
+        String uid = "non-existent-uid";
+        try {
+            String s = baseResource.path("user/" + uid).get(String.class);
+            fail("Expected 404 NOT FOUND");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+        }
     }
 
 
@@ -324,43 +302,70 @@ public class UserAdminTest {
     }
 
     @Test
-    public void addStrangeUserWithMissingLastNameAndCodesInCellPhoneNumber() {
+    public void addUserWithMissingPersonRef() {
+        String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
+        baseResource.path("user/" + uid).get(String.class);
+    }
 
-        // TODO Are users supposed to be added even with missing lastname?
+    @Test
+    public void thatAddUserDoesNotAllowMissingFirstName() {
+        try {
+            doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
+            fail("Expected 400 BAD_REQUEST");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
 
-        String uid = doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121-bb-212");
+    @Test
+    public void thatAddUserDoesNotAllowMissingLastName() {
+        try {
+            doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
+            fail("Expected 400 BAD_REQUEST");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
 
-        // Get
-        String ts = baseResource.path("users/find/tsnyper").get(String.class);
-        assertTrue(ts.contains("tsnyper@midget.orj"));
-        assertTrue(ts.contains("tEdmund"));
+    @Test
+    public void thatAddUserDoesNotAllowMissingEmail() {
+        try {
+            doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", null, "12121212");
+            fail("Expected 400 BAD_REQUEST");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
 
-
-        // Search
-        String s = baseResource.path("user/" + uid).get(String.class);
-        assertTrue(s.contains("tsnyper@midget.orj"));
-        assertTrue(s.contains("tEdmund"));
+    @Test
+    public void addUserWithMissingPhoneNumber() {
+        String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", null);
+        baseResource.path("user/" + uid).get(String.class);
     }
 
 
     @Test
+    @Ignore
+    public void addUserWithCodesInCellPhoneNumber() {
+        // TODO: Apache DS does not allow phone number with non-number letters
+        String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
+        baseResource.path("user/" + uid).get(String.class);
+    }
+
+
+    @Test
+    @Ignore
     public void resetAndChangePassword() {
-        String userjson = "{\n" +
-                " \"personRef\":\"123123123\",\n" +
-                " \"username\":\"sneile\",\n" +
-                " \"firstName\":\"Effert\",\n" +
-                " \"lastName\":\"Huffse\",\n" +
-                " \"email\":\"sneile@midget.orj\",\n" +
-                " \"cellPhone\":\"21212121\"\n" +
-                "}";
-        WebResource webResource = baseResource.path("users/add");
-        //webResource.type("application/json").post(String.class, userjson);
-        webResource.type("application/json").post(ClientResponse.class, userjson);
-        baseResource.path("users/sneile/resetpassword").type("application/json").get(ClientResponse.class);
-        String token = uib.getInjector().getInstance(MockMail.class).getToken("sneile");
+        String uid = doAddUser("123123123", "sneile", "Effert", "Huffse", "sneile@midget.orj", "21212121");
+
+        baseResource.path("user/sneile/resetpassword").type("application/json").post(ClientResponse.class);
+
+        // TODO somehow replace PasswordSender with MockMail in guice context.
+
+        String token = uib.getInjector().getInstance(MockMail.class).getToken(uid);
         assertNotNull(token);
 
-        ClientResponse response = baseResource.path("users/sneile/newpassword/" + token).type(MediaType.APPLICATION_JSON).post(ClientResponse.class,"{\"newpassword\":\"naLLert\"}");
+        ClientResponse response = baseResource.path("user/sneile/newpassword/" + token).type(MediaType.APPLICATION_JSON).post(ClientResponse.class,"{\"newpassword\":\"naLLert\"}");
         assertEquals(ClientResponse.Status.OK.getStatusCode(), response.getStatus());
         String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><auth><username>sneile</username><password>naLLert</password></auth>";
         response = logonResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
@@ -371,38 +376,15 @@ public class UserAdminTest {
     }
 
     @Test
-    @Ignore
-    public void newUserFromEmail() {
-        String userjson = "{\n" +
-                " \"personRef\":\"43234321\",\n" +
-                " \"username\":\"gvarvar@midget.orc\",\n" +
-                " \"firstName\":\"Gvarveig\",\n" +
-                " \"lastName\":\"Neskle\",\n" +
-                " \"email\":\"gvarvar@midget.orc\",\n" +
-                " \"cellPhone\":\"43434343\"\n" +
-                "}";
-        WebResource webResource = baseResource.path("users/add");
-        webResource.type("application/json").post(ClientResponse.class, userjson);
-        baseResource.path("users/gvarvar@midget.orc/resetpassword").type("application/json").get(ClientResponse.class);
-        String token = uib.getInjector().getInstance(MockMail.class).getToken("gvarvar@midget.orc");
-        assertNotNull(token);
-
-        String newUserPayload = "{\"newpassword\":\"zePelin32\", \"newusername\":\"gvarnes\"}";
-        ClientResponse response = baseResource.path("users/gvarvar@midget.orc/newuser/" + token).type(MediaType.APPLICATION_JSON).post(ClientResponse.class, newUserPayload);
-        assertEquals(ClientResponse.Status.OK.getStatusCode(), response.getStatus());
-        String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><auth><username>gvarnes</username><password>zePelin32</password></auth>";
-        response = logonResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
-        assertEquals(ClientResponse.Status.OK.getStatusCode(), response.getStatus());
-        String identity = response.getEntity(String.class);
-        //System.out.println(identity);
-        assertTrue(identity.contains("identity"));
-        assertTrue(identity.contains("gvarnes"));
+    public void thatEmailCanBeUsedAsUsername() {
+        String uid = doAddUser("riffraff", "snyper@midget.orj", "Edmund", "Goffse", "somotheremail@midget.orj", "12121212");
+        String s = baseResource.path("user/" + uid).get(String.class);
+        assertTrue(s.contains("snyper@midget.orj"));
     }
 
     private String doAddUser(String userjson) {
         WebResource webResource = baseResource.path("user");
-        ClientResponse postResponse = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, userjson);
-        String postResponseJson = postResponse.getEntity(String.class);
+        String postResponseJson = webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson);
         Map<String, Object> createdUser = null;
         try {
             createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
@@ -413,15 +395,26 @@ public class UserAdminTest {
     }
 
     private String doAddUser(String personRef, String username, String firstName, String lastName, String email, String cellPhone) {
-        String userjson = "{\n" +
-                " \"personRef\":\"" + personRef + "\",\n" +
-                " \"username\":\"" + username + "\",\n" +
-                " \"firstName\":\"" + firstName + "\",\n" +
-                " \"lastName\":\"" + lastName + "\",\n" +
-                " \"email\":\"" + email + "\",\n" +
-                " \"cellPhone\":\"" + cellPhone + "\"\n" +
-                "}";
-        return doAddUser(userjson);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append(" \"username\":\"").append(username).append("\"");
+        if (personRef != null) {
+            sb.append(",\n").append(" \"personRef\":\"").append(personRef).append("\"");
+        }
+        if (firstName != null) {
+            sb.append(",\n").append(" \"firstName\":\"").append(firstName).append("\"");
+        }
+        if (lastName != null) {
+            sb.append(",\n").append(" \"lastName\":\"").append(lastName).append("\"");
+        }
+        if (email != null) {
+            sb.append(",\n").append(" \"email\":\"").append(email).append("\"");
+        }
+        if (cellPhone != null) {
+            sb.append(",\n").append(" \"cellPhone\":\"").append(cellPhone).append("\"");
+        }
+        sb.append("}");
+        return doAddUser(sb.toString());
     }
 
     private List<Map<String, Object>> doGetUserRoles(String uid) {
