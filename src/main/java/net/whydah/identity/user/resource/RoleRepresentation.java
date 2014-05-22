@@ -10,7 +10,7 @@ public class RoleRepresentation extends RoleRepresentationRequest {
 
     public static RoleRepresentation fromUserPropertyAndRole(UserPropertyAndRole role) {
         RoleRepresentation representation = new RoleRepresentation();
-        representation.setId(role.getId());
+        representation.setId(role.getRoleId());
         representation.setApplicationId(role.getApplicationId());
         representation.setApplicationName(role.getApplicationName());
         representation.setOrganizationId(role.getOrganizationId());

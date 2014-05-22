@@ -12,16 +12,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
 
-    private static final String GET_USERROLES_SQL = "SELECT UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
-    private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (UserID, AppID, OrganizationId, RoleName, RoleValues) values (?, ?, ?, ?, ?)";
+    private static final String GET_USERROLES_SQL = "SELECT RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
+    private static final String GET_USERROLE_SQL = "SELECT RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
+    private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
     private static final String DELETE_USER_SQL = "DELETE FROM UserRoles WHERE UserID=?";
-    private static final String DELETE_ROLE_SQL = "DELETE FROM UserRoles WHERE UserID=? AND AppID=? AND OrganizationId=? AND RoleName=?";
+    private static final String DELETE_ROLE_SQL = "DELETE FROM UserRoles WHERE RoleID=?";
     private static final String DELETE_APP_ROLES_SQL = "DELETE FROM UserRoles WHERE UserID=? AND AppID=?";
-    private static final String UPDATE_SQL = "UPDATE UserRoles set RoleValues=? WHERE UserID=? AND AppID=? AND OrganizationId=? AND RoleName=?";
+    private static final String UPDATE_SQL = "UPDATE UserRoles set RoleValues=? WHERE RoleID=?";
 
     @Inject
     private ApplicationRepository applicationRepository;
@@ -31,8 +33,21 @@ public class UserPropertyAndRoleRepository {
     public UserPropertyAndRoleRepository() {
     }
 
+    public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
+        logger.debug("Searching for role for roleId {}", roleId);
+
+        UserPropertyAndRole role;
+        try {
+            role = queryRunner.query(GET_USERROLE_SQL, new UserRoleResultsetHandler(), roleId);
+        } catch (SQLException e) {
+            throw new DatastoreException("Error fetching roles for user with roleId=" + roleId, e);
+        }
+
+        return role;
+    }
+
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        logger.debug("Searching for roles for {}", uid);
+        logger.debug("Searching for roles for uid {}", uid);
 
         List<UserPropertyAndRole> roles;
         try {
@@ -41,14 +56,14 @@ public class UserPropertyAndRoleRepository {
             throw new DatastoreException("Error fetching roles for user with uid=" + uid, e);
         }
         logger.debug("Found {} roles", roles != null ? roles.size() : "null");
-        
+
        /* TODO Just for tests
         for(UserPropertyAndRole obj : resultat){
         	logger.info("UID: "+obj.getUid());
         	logger.info("Role name: "+obj.getRoleName());
         }
         */
-       
+
         return roles;
     }
 
@@ -67,8 +82,12 @@ public class UserPropertyAndRoleRepository {
 
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
+        if (userPropertyAndRole.getRoleId() == null) {
+            userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
+        }
         try {
             queryRunner.update(INSERT_USERROLE_SQL,
+                    userPropertyAndRole.getRoleId(),
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
                     userPropertyAndRole.getOrganizationId(),
@@ -92,12 +111,8 @@ public class UserPropertyAndRoleRepository {
         }
     }
 
-    public void deleteUserRole(String uid, String appid, String orgid, String rolename) {
-        try {
-            queryRunner.update(DELETE_ROLE_SQL, uid, appid, orgid, rolename);
-        } catch (SQLException e) {
-            throw new DatastoreException(e);
-        }
+    public void deleteUserRole(String uid, String roleId) {
+        deleteRole(roleId);
     }
 
     public void deleteUserAppRoles(String uid, String appid) {
@@ -109,12 +124,12 @@ public class UserPropertyAndRoleRepository {
     }
 
     public void updateUserRoleValue(UserPropertyAndRole role) {
-        updateUserRoleValue(role.getUid(), role.getApplicationId(), role.getOrganizationId(), role.getApplicationRoleName(), role.getApplicationRoleValue());
+        updateUserRoleValue(role.getUid(), role.getRoleId(), role.getApplicationRoleValue());
     }
 
-    public void updateUserRoleValue(String uid, String applicationId, String organizationId, String rolename, String rolevalue) {
+    public void updateUserRoleValue(String uid, String roleId, String rolevalue) {
         try {
-            queryRunner.update(UPDATE_SQL, rolevalue, uid, applicationId, organizationId, rolename);
+            queryRunner.update(UPDATE_SQL, rolevalue, roleId);
         } catch (SQLException e) {
             throw new DatastoreException(e);
         }
@@ -130,7 +145,11 @@ public class UserPropertyAndRoleRepository {
     }
 
     public void deleteRole(String roleId) {
-        throw new UnsupportedOperationException("TODO implement delete role using roleId");
+        try {
+            queryRunner.update(DELETE_ROLE_SQL, roleId);
+        } catch (SQLException e) {
+            throw new DatastoreException(e);
+        }
     }
 
     private static class OrgnameResultSetHandler implements ResultSetHandler<String> {
@@ -160,11 +179,12 @@ public class UserPropertyAndRoleRepository {
             ArrayList<UserPropertyAndRole> result = new ArrayList<>();
             while(rs.next()) {
                 UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
-                userPropertyAndRole.setUid(rs.getString(1));
-                userPropertyAndRole.setApplicationId(rs.getString(2));
-                userPropertyAndRole.setOrganizationId(rs.getString(3));
-                userPropertyAndRole.setApplicationRoleName(rs.getString(4));
-                userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(5)));
+                userPropertyAndRole.setRoleId(rs.getString(1));
+                userPropertyAndRole.setUid(rs.getString(2));
+                userPropertyAndRole.setApplicationId(rs.getString(3));
+                userPropertyAndRole.setOrganizationId(rs.getString(4));
+                userPropertyAndRole.setApplicationRoleName(rs.getString(5));
+                userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(6)));
                 Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
@@ -183,5 +203,33 @@ public class UserPropertyAndRoleRepository {
         }
     }
 
+    private class UserRoleResultsetHandler implements ResultSetHandler<UserPropertyAndRole> {
+        @Override
+        public UserPropertyAndRole handle(ResultSet rs) throws SQLException {
+            while(rs.next()) {
+                UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
+                userPropertyAndRole.setRoleId(rs.getString(1));
+                userPropertyAndRole.setUid(rs.getString(2));
+                userPropertyAndRole.setApplicationId(rs.getString(3));
+                userPropertyAndRole.setOrganizationId(rs.getString(4));
+                userPropertyAndRole.setApplicationRoleName(rs.getString(5));
+                userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(6)));
+                Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
+                if(application != null) {
+                    userPropertyAndRole.setApplicationName(application.getName());
+                }
+                String orgName = getOrgname(userPropertyAndRole.getOrganizationId());
+                if(orgName != null) {
+                    userPropertyAndRole.setOrganizationName(orgName);
+                }
+                return userPropertyAndRole;
+           }
+            return null;
+        }
+
+        private String null2empty(String in) {
+            return in != null ? in : "";
+        }
+    }
 
 }

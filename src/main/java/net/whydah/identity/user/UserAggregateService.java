@@ -228,7 +228,6 @@ public class UserAggregateService {
 
     public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {
         UserPropertyAndRole role = new UserPropertyAndRole();
-        role.setId("TODOharcodedId");
         role.setUid(uid);
         role.setApplicationId(request.getApplicationId());
         role.setApplicationName(request.getApplicationName());
@@ -248,8 +247,8 @@ public class UserAggregateService {
         return role;
     }
 
-    public UserPropertyAndRole getRole(String uid, String roleid) {
-        throw new UnsupportedOperationException("TODO");
+    public UserPropertyAndRole getRole(String uid, String roleId) {
+        return userPropertyAndRoleRepository.getUserPropertyAndRole(roleId);
     }
 
     public List<UserPropertyAndRole> getRoles(String uid) {
@@ -259,7 +258,7 @@ public class UserAggregateService {
     public UserPropertyAndRole updateRole(String uid, String roleId, UserPropertyAndRole role) {
         //TODO do some checks here
         role.setUid(uid);
-        role.setId(roleId);
+        role.setRoleId(roleId);
         userPropertyAndRoleRepository.updateUserRoleValue(role);
 
         //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);

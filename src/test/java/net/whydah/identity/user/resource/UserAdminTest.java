@@ -156,30 +156,30 @@ public class UserAdminTest {
 
 
     @Test
-    public void getuserrole() {
-        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
-        doAddUserRole(uid, "0005", "KK", "test");
-        doAddUserRole(uid, "0005", "NN", "another");
-        doAddUserRole(uid, "0005", "MM", "yetanother");
-
-        Map<String, Object> testRole = doGetUserRole(uid, "test");
-        assertEquals("0005", testRole.get("organizationId"));
-        assertEquals("KK", testRole.get("applicationRoleName"));
-        assertEquals("test", testRole.get("applicationRoleValue"));
-    }
-
-
-    @Test
     public void getuserroles() {
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
-        doAddUserRole(uid, "0005", "KK", "test");
+        String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
+        String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "another");
+        String roleId3 = doAddUserRole(uid, "testappId", "0005", "MM", "yetanother");
 
-        List<Map<String, Object>> rolesAfter = doGetUserRoles(uid);
-        assertEquals("0005", rolesAfter.get(0).get("organizationId"));
-        assertEquals("KK", rolesAfter.get(0).get("applicationRoleName"));
-        assertEquals("test", rolesAfter.get(0).get("applicationRoleValue"));
+        List<Map<String, Object>> roles = doGetUserRoles(uid);
+        assertEquals(3, roles.size());
+
+        Map<String, Object> testRole1 = doGetUserRole(uid, roleId1);
+        assertEquals("0005", testRole1.get("organizationId"));
+        assertEquals("KK", testRole1.get("applicationRoleName"));
+        assertEquals("test", testRole1.get("applicationRoleValue"));
+
+        Map<String, Object> testRole2 = doGetUserRole(uid, roleId2);
+        assertEquals("0005", testRole2.get("organizationId"));
+        assertEquals("NN", testRole2.get("applicationRoleName"));
+        assertEquals("another", testRole2.get("applicationRoleValue"));
+
+        Map<String, Object> testRole3 = doGetUserRole(uid, roleId3);
+        assertEquals("0005", testRole3.get("organizationId"));
+        assertEquals("MM", testRole3.get("applicationRoleName"));
+        assertEquals("yetanother", testRole3.get("applicationRoleValue"));
     }
-
 
     @Test
     public void adduserrole() {
@@ -187,18 +187,19 @@ public class UserAdminTest {
         List<Map<String, Object>> rolesBefore = doGetUserRoles(uid);
         assertTrue(rolesBefore.isEmpty());
 
-        doAddUserRole(uid, "0005", "KK", "test");
+        String roleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
 
         List<Map<String, Object>> rolesAfter = doGetUserRoles(uid);
         assertEquals(1, rolesAfter.size());
+
+        assertEquals(roleId, rolesAfter.get(0).get("roleId"));
     }
 
     @Test
     public void adduserroleNoJson() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/201");
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
-            String s = webResource.path("/add").type("application/json").post(String.class, "");
-            //System.out.println(s);
+            String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "");
             fail("Expected 400, got " + s);
         } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
@@ -207,10 +208,9 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleBadJson() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/201");
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
-            String s = webResource.path("/add").type("application/json").post(String.class, "{ dilldall }");
-            //System.out.println(s);
+            String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "{ dilldall }");
             fail("Expected 400, got " + s);
         } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
@@ -435,8 +435,8 @@ public class UserAdminTest {
         return roles;
     }
 
-    private Map<String, Object> doGetUserRole(String uid, String applicationRoleName) {
-        String postResponseJson = baseResource.path("user/" + uid + "/" + applicationRoleName).get(String.class);
+    private Map<String, Object> doGetUserRole(String uid, String roleId) {
+        String postResponseJson = baseResource.path("user/" + uid + "/role/" + roleId).get(String.class);
         Map<String, Object> roles = null;
         try {
             roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
@@ -446,9 +446,10 @@ public class UserAdminTest {
         return roles;
     }
 
-    private Map<String, Object> doAddUserRole(String uid, String organizationId, String applicationRoleName, String applicationRoleValue) {
+    private String doAddUserRole(String uid, String applicationId, String organizationId, String applicationRoleName, String applicationRoleValue) {
         WebResource webResource = baseResource.path("user/" + uid + "/role");
         ClientResponse postResponse = webResource.type("application/json").post(ClientResponse.class, "{\"organizationId\": \"" + organizationId + "\",\n" +
+                "        \"applicationId\": \"" + applicationId + "\",\n" +
                 "        \"applicationRoleName\": \"" + applicationRoleName + "\",\n" +
                 "        \"applicationRoleValue\": \"" + applicationRoleValue + "\"}");
 
@@ -459,7 +460,7 @@ public class UserAdminTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return createdUser;
+        return (String) createdUser.get("roleId");
     }
 
 }

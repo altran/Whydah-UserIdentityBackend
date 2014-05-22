@@ -24,7 +24,7 @@ package net.whydah.identity.user.role;
  * @since 1/11/11
  */
 public class UserPropertyAndRole {
-    private String id;
+    private String roleId;
 
     private String uid;
 
@@ -98,8 +98,8 @@ public class UserPropertyAndRole {
                 '}';
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setRoleId(String roleId) {
+        this.roleId = roleId;
     }
     public void setUid(String uid) {
         this.uid = uid;
@@ -123,8 +123,8 @@ public class UserPropertyAndRole {
         this.applicationRoleValue = applicationRoleValue;
     }
 
-    public String getId() {
-        return id;
+    public String getRoleId() {
+        return roleId;
     }
     public String getUid() {
         return uid;
