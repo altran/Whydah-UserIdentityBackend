@@ -235,30 +235,30 @@ public class UserAdminTest {
 
     @Test
     public void addExistingUserrole() {
-        WebResource webResource = baseResource.path("users/rafal.laczek@freecode.no/201");
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        doAddUserRole(uid, "testappId", "0005", "KK", "test");
         try {
-            String s = webResource.path("/add").type("application/json").post(String.class, "{\"orgID\": \"0001\",\n" +
-                    "        \"roleName\": \"DEV\",\n" +
-                    "        \"roleValue\": \"2012 - 2013\"}");
-            //System.out.println(s);
-            fail("Expected exception with 409, got " + s);
+            String failedRoleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
+            fail("Expected exception with 409, got roleId " + failedRoleId);
         } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.CONFLICT.getStatusCode(), e.getResponse().getStatus());
         }
     }
 
     @Test
-    @Ignore
     public void deleteuserrole() {
-        WebResource webResource = baseResource.path("users/sunil@freecode.no/50");
-        String s = webResource.get(String.class);
-        assertTrue(s.contains("test"));
-        webResource.path("/delete").type("application/json").post(String.class, "{\"orgID\": \"0001\", \"roleName\": \"Dev\"}");
-        s = webResource.get(String.class);
-        assertFalse(s.contains("Dev"));
-        WebResource webResource2 = baseResource.path("users/sunil@freecode.no");
-        s = webResource2.get(String.class);
-        assertFalse(s.contains("Dev"));
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
+        String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "tjohei");
+
+        assertEquals(2, doGetUserRoles(uid).size());
+        assertNotNull(doGetUserRole(uid, roleId1));
+        baseResource.path("user/" + uid + "/role/" + roleId1).delete();
+        assertEquals(1, doGetUserRoles(uid).size());
+
+        assertNotNull(doGetUserRole(uid, roleId2));
+        baseResource.path("user/" + uid + "/role/" + roleId2).delete();
+        assertEquals(0, doGetUserRoles(uid).size());
     }
 
 
@@ -448,12 +448,11 @@ public class UserAdminTest {
 
     private String doAddUserRole(String uid, String applicationId, String organizationId, String applicationRoleName, String applicationRoleValue) {
         WebResource webResource = baseResource.path("user/" + uid + "/role");
-        ClientResponse postResponse = webResource.type("application/json").post(ClientResponse.class, "{\"organizationId\": \"" + organizationId + "\",\n" +
+        String postResponseJson = webResource.type("application/json").post(String.class, "{\"organizationId\": \"" + organizationId + "\",\n" +
                 "        \"applicationId\": \"" + applicationId + "\",\n" +
                 "        \"applicationRoleName\": \"" + applicationRoleName + "\",\n" +
                 "        \"applicationRoleValue\": \"" + applicationRoleValue + "\"}");
 
-        String postResponseJson = postResponse.getEntity(String.class);
         Map<String, Object> createdUser = null;
         try {
             createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});

@@ -286,7 +286,7 @@ public class UserResource {
         }
     }
 
-    @PUT
+    @DELETE
     @Path("/{uid}/role/{roleid}")
     public Response deleteRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid) {
         log.trace("deleteRole, uid={}, roleid={}", uid, roleid);
