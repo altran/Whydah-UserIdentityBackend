@@ -299,6 +299,18 @@ public class UserAdminTest {
 
 
     @Test
+    public void thatAddUserWillRespondWithConflictWhenEmailIsAlreadyInUseByAnotherUser() {
+        doAddUser("riffraff", "another", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        try {
+            doAddUser("tifftaff", "iamatestuser", "Another", "Wanderer", "snyper@midget.orj", "34343434");
+            fail("Expected 409 CONFLICT");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.CONFLICT.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
+
+
+    @Test
     public void addUser() {
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
 
