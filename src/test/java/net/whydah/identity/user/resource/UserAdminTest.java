@@ -286,6 +286,17 @@ public class UserAdminTest {
     }
 
 
+    @Test
+    public void thatAddUserWillRespondWithConflictWhenUsernameAlreadyExists() {
+        doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        try {
+            doAddUser("tifftaff", "snyper", "Another", "Wanderer", "wanderer@midget.orj", "34343434");
+            fail("Expected 409 CONFLICT");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.CONFLICT.getStatusCode(), e.getResponse().getStatus());
+        }
+    }
+
 
     @Test
     public void addUser() {
@@ -395,6 +406,11 @@ public class UserAdminTest {
     }
 
     private String doAddUser(String personRef, String username, String firstName, String lastName, String email, String cellPhone) {
+        String userJson = buildUserJson(personRef, username, firstName, lastName, email, cellPhone);
+        return doAddUser(userJson);
+    }
+
+    private String buildUserJson(String personRef, String username, String firstName, String lastName, String email, String cellPhone) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         sb.append(" \"username\":\"").append(username).append("\"");
@@ -414,7 +430,7 @@ public class UserAdminTest {
             sb.append(",\n").append(" \"cellPhone\":\"").append(cellPhone).append("\"");
         }
         sb.append("}");
-        return doAddUser(sb.toString());
+        return sb.toString();
     }
 
     private List<Map<String, Object>> doGetUserRoles(String uid) {
