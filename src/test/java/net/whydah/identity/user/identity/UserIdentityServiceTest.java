@@ -53,7 +53,7 @@ public class UserIdentityServiceTest {
     @Test
     public void testAddUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapHelper, null, passwordGenerator, null, null);
+                new UserIdentityService(null, ldapHelper, null, passwordGenerator, null, null, null);
 
         String username = "username123";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",

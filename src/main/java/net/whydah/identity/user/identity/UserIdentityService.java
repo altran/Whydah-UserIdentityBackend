@@ -9,6 +9,7 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.Search;
 import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -40,18 +42,20 @@ public class UserIdentityService {
     private final PasswordSender passwordSender;
 
     private final Indexer indexer;
+    private final Search searcher;
 
 
     @Inject
     public UserIdentityService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
                                LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
-                               PasswordSender passwordSender, Indexer indexer) {
+                               PasswordSender passwordSender, Indexer indexer, Search searcher) {
         this.externalLdapAuthenticator = externalLdapAuthenticator;
         this.ldapHelper = ldapHelper;
         this.auditLogRepository = auditLogRepository;
         this.passwordGenerator = passwordGenerator;
         this.passwordSender = passwordSender;
         this.indexer = indexer;
+        this.searcher = searcher;
     }
 
     public UserIdentity authenticate(final String username, final String password) {
@@ -135,6 +139,11 @@ public class UserIdentityService {
                 //TODO use BadRequestException from jersey 2.7
                 throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
             }
+
+            List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
+            if (!usersWithSameEmail.isEmpty()) {
+                throw new ConflictException("E-mail " + email + " is already in use, could not create user " + username);
+            }
         }
 
         String uid = UUID.randomUUID().toString();
@@ -168,11 +177,18 @@ public class UserIdentityService {
         String username = userIdentity.getUsername();
         try {
             if (ldapHelper.usernameExist(username)) {
-                //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-                throw new IllegalStateException("User already exists, could not create user " + username);
+                throw new ConflictException("User already exists, could not create user " + username);
             }
         } catch (NamingException e) {
             throw new RuntimeException("usernameExist failed for username=" + username, e);
+        }
+
+        if (userIdentity.getEmail() != null) {
+            String email = userIdentity.getEmail();
+            List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
+            if (!usersWithSameEmail.isEmpty()) {
+                throw new ConflictException("E-mail " + email + " is already in use, could not create user " + username);
+            }
         }
 
         userIdentity.setPassword(passwordGenerator.generate());

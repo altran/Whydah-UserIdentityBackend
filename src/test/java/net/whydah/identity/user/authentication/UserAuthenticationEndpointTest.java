@@ -86,7 +86,7 @@ public class UserAuthenticationEndpointTest {
 
         PasswordGenerator pwg = new PasswordGenerator();
         PasswordSender passwordSender = new PasswordSender(null, null);
-        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender, null);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender, null, null);
 
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
