@@ -95,12 +95,12 @@ public class UserToken {
                 NodeList orgs = (NodeList) xPath.evaluate("./organization", appnode, XPathConstants.NODESET);
                 for(int orgNo=0; orgNo<orgs.getLength(); orgNo++) {
                     Node orgnode = orgs.item(orgNo);
-                    String orgid = orgnode.getAttributes().getNamedItem("ID").getNodeValue();
+                    String orgName = orgnode.getAttributes().getNamedItem("name").getNodeValue();
                     NodeList roles = (NodeList) xPath.evaluate("./role", orgnode, XPathConstants.NODESET);
                     for(int roleNo=0; roleNo<roles.getLength(); roleNo++) {
                         Node rolenode = roles.item(roleNo);
                         String rolename = rolenode.getAttributes().getNamedItem("name").getNodeValue();
-                        userRoleList.add(new UserRole(appid, orgid, rolename));
+                        userRoleList.add(new UserRole(appid, orgName, rolename));
                     }
                 }
             }

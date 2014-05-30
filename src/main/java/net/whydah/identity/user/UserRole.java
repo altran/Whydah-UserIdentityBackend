@@ -2,12 +2,12 @@ package net.whydah.identity.user;
 
 public class UserRole {
     private final String appId;
-    private final String orgId;
+    private final String orgName;
     private final String roleName;
 
-    public UserRole(String appId, String orgId, String roleName) {
+    public UserRole(String appId, String orgName, String roleName) {
         this.appId = appId;
-        this.orgId = orgId;
+        this.orgName = orgName;
         this.roleName = roleName;
     }
 
@@ -15,8 +15,8 @@ public class UserRole {
         return appId;
     }
 
-    public String getOrgId() {
-        return orgId;
+    public String getOrgName() {
+        return orgName;
     }
 
     public String getRoleName() {
@@ -37,7 +37,7 @@ public class UserRole {
         if (appId != null ? !appId.equals(userRole.appId) : userRole.appId != null) {
             return false;
         }
-        if (orgId != null ? !orgId.equals(userRole.orgId) : userRole.orgId != null) {
+        if (orgName != null ? !orgName.equals(userRole.orgName) : userRole.orgName != null) {
             return false;
         }
         if (roleName != null ? !roleName.equals(userRole.roleName) : userRole.roleName != null) {
@@ -50,7 +50,7 @@ public class UserRole {
     @Override
     public int hashCode() {
         int result = appId != null ? appId.hashCode() : 0;
-        result = 31 * result + (orgId != null ? orgId.hashCode() : 0);
+        result = 31 * result + (orgName != null ? orgName.hashCode() : 0);
         result = 31 * result + (roleName != null ? roleName.hashCode() : 0);
         return result;
     }
@@ -59,7 +59,7 @@ public class UserRole {
     public String toString() {
         return "UserRole{" +
                 "appId='" + appId + '\'' +
-                ", orgId='" + orgId + '\'' +
+                ", orgName='" + orgName + '\'' +
                 ", roleName='" + roleName + '\'' +
                 '}';
     }
