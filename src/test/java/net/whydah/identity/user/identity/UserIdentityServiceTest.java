@@ -1,15 +1,19 @@
 package net.whydah.identity.user.identity;
 
+import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.config.AppConfig;
+import net.whydah.identity.user.search.Search;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
@@ -50,10 +54,10 @@ public class UserIdentityServiceTest {
         ads.stopServer();
     }
 
-    @Test
+    @Test(expected = ConflictException.class)
     public void testAddUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapHelper, null, passwordGenerator, null, null, null);
+                new UserIdentityService(null, ldapHelper, null, passwordGenerator, null, null, Mockito.mock(Search.class));
 
         String username = "username123";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",
@@ -64,11 +68,7 @@ public class UserIdentityServiceTest {
 
         assertEquals(userIdentity, fromLdap);
 
-        try {
-            userIdentityService.addUserIdentity(userIdentity);
-            fail("Expected IllegalStateException because user should already exist.");
-        } catch (IllegalStateException e) {
-            assertTrue(e.getMessage().contains(username));
-        }
+        userIdentityService.addUserIdentity(userIdentity);
+        fail("Expected ConflictException because user should already exist.");
     }
 }
