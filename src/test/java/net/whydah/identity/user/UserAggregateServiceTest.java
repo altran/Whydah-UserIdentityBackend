@@ -90,7 +90,6 @@ public class UserAggregateServiceTest {
         role.setUid(userIdentity.getUid());
         role.setApplicationId("applicationId");
         role.setApplicationName("applicationName");
-        role.setOrganizationId("organizationId");
         role.setOrganizationName("organizationName");
         role.setApplicationRoleName("roleName");
         //role.setRoleValue(roleValue);
@@ -100,7 +99,6 @@ public class UserAggregateServiceTest {
         role2.setUid(userIdentity.getUid());
         role2.setApplicationId("applicationId123");
         role2.setApplicationName("applicationName123");
-        role2.setOrganizationId("organizationId123");
         role2.setOrganizationName("organizationName123");
         role2.setApplicationRoleName("roleName123");
         //role.setRoleValue(roleValue);

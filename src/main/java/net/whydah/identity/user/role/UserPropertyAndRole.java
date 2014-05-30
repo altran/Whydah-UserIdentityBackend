@@ -31,7 +31,6 @@ public class UserPropertyAndRole {
     private String applicationId;
     private transient String applicationName;
 
-    private String organizationId;
     private transient String organizationName;
 
     private String applicationRoleName;
@@ -52,9 +51,6 @@ public class UserPropertyAndRole {
             return false;
         }
         if (applicationName != null ? !applicationName.equals(that.applicationName) : that.applicationName != null) {
-            return false;
-        }
-        if (organizationId != null ? !organizationId.equals(that.organizationId) : that.organizationId != null) {
             return false;
         }
         if (organizationName != null ? !organizationName.equals(that.organizationName) : that.organizationName != null) {
@@ -78,7 +74,6 @@ public class UserPropertyAndRole {
         int result = uid != null ? uid.hashCode() : 0;
         result = 31 * result + (applicationId != null ? applicationId.hashCode() : 0);
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
-        result = 31 * result + (organizationId != null ? organizationId.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
         result = 31 * result + (applicationRoleName != null ? applicationRoleName.hashCode() : 0);
         result = 31 * result + (applicationRoleValue != null ? applicationRoleValue.hashCode() : 0);
@@ -91,7 +86,6 @@ public class UserPropertyAndRole {
                 "uid='" + uid + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
-                ", organizationId='" + organizationId + '\'' +
                 ", organizationName='" + organizationName + '\'' +
                 ", roleName='" + applicationRoleName + '\'' +
                 ", roleValue='" + applicationRoleValue + '\'' +
@@ -109,9 +103,6 @@ public class UserPropertyAndRole {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
     }
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
@@ -134,9 +125,6 @@ public class UserPropertyAndRole {
     }
     public String getApplicationName() {
         return (applicationName == null ? "" : applicationName);
-    }
-    public String getOrganizationId() {
-        return (organizationId == null ? "" : organizationId);
     }
     public String getOrganizationName() {
         return (organizationName == null ? "" : organizationName);

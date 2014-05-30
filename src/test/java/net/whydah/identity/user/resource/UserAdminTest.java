@@ -151,19 +151,19 @@ public class UserAdminTest {
 
         Map<String, Object> testRole1 = doGetUserRole(uid, roleId1);
         assertEquals("testappId1", testRole1.get("applicationId"));
-        assertEquals("0005", testRole1.get("organizationId"));
+        assertEquals("0005", testRole1.get("organizationName"));
         assertEquals("KK", testRole1.get("applicationRoleName"));
         assertEquals("test", testRole1.get("applicationRoleValue"));
 
         Map<String, Object> testRole2 = doGetUserRole(uid, roleId2);
         assertEquals("testappIdX", testRole2.get("applicationId"));
-        assertEquals("0005", testRole2.get("organizationId"));
+        assertEquals("0005", testRole2.get("organizationName"));
         assertEquals("NN", testRole2.get("applicationRoleName"));
         assertEquals("another", testRole2.get("applicationRoleValue"));
 
         Map<String, Object> testRole3 = doGetUserRole(uid, roleId3);
         assertEquals("testappIdX", testRole3.get("applicationId"));
-        assertEquals("0005", testRole3.get("organizationId"));
+        assertEquals("0005", testRole3.get("organizationName"));
         assertEquals("MM", testRole3.get("applicationRoleName"));
         assertEquals("yetanother", testRole3.get("applicationRoleValue"));
     }
@@ -241,11 +241,11 @@ public class UserAdminTest {
 
         Map<String, Object> roleBeforeModification = doGetUserRole(uid, roleId);
         assertEquals("testappId", roleBeforeModification.get("applicationId"));
-        assertEquals("0005", roleBeforeModification.get("organizationId"));
+        assertEquals("0005", roleBeforeModification.get("organizationName"));
         assertEquals("KK", roleBeforeModification.get("applicationRoleName"));
         assertEquals("test", roleBeforeModification.get("applicationRoleValue"));
 
-        String modifiedUserRoleJsonRequest = "{\"organizationId\": \"0005\",\n" +
+        String modifiedUserRoleJsonRequest = "{\"organizationName\": \"0005\",\n" +
                 "        \"uid\": \"" + uid + "\",\n" +
                 "        \"roleId\": \"" + roleId + "\",\n" +
                 "        \"applicationId\": \"testappId\",\n" +
@@ -256,7 +256,7 @@ public class UserAdminTest {
 
         Map<String, Object> roleAfterModification = doGetUserRole(uid, roleId);
         assertEquals("testappId", roleAfterModification.get("applicationId"));
-        assertEquals("0005", roleAfterModification.get("organizationId"));
+        assertEquals("0005", roleAfterModification.get("organizationName"));
         assertEquals("KK", roleAfterModification.get("applicationRoleName"));
         assertEquals("test modified", roleAfterModification.get("applicationRoleValue"));
     }
@@ -467,9 +467,9 @@ public class UserAdminTest {
         return roles;
     }
 
-    private String doAddUserRole(String uid, String applicationId, String organizationId, String applicationRoleName, String applicationRoleValue) {
+    private String doAddUserRole(String uid, String applicationId, String organizationName, String applicationRoleName, String applicationRoleValue) {
         WebResource webResource = baseResource.path("user/" + uid + "/role");
-        String postResponseJson = webResource.type("application/json").post(String.class, "{\"organizationId\": \"" + organizationId + "\",\n" +
+        String postResponseJson = webResource.type("application/json").post(String.class, "{\"organizationName\": \"" + organizationName + "\",\n" +
                 "        \"applicationId\": \"" + applicationId + "\",\n" +
                 "        \"applicationRoleName\": \"" + applicationRoleName + "\",\n" +
                 "        \"applicationRoleValue\": \"" + applicationRoleValue + "\"}");

@@ -110,23 +110,22 @@ public class IamDataImporterTest {
         
         List<UserPropertyAndRole> propsAndRoles = userAggregate1.getRoles();
         assertEquals("All roles must be found", 3, propsAndRoles.size());
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "2", "Mobilefirst", "5", "Altran", "developer", "30"));
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "3", "Whydah", "1", "Whydah", "developer", "20"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "2", "Mobilefirst", "Altran", "developer", "30"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "3", "Whydah", "Whydah", "developer", "20"));
 
         UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
         List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
         assertEquals("All roles must be found", 1, propsAndRoles2.size());
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2", "Mobilefirst", "5", "Altran", "admin", "70"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2", "Mobilefirst", "Altran", "admin", "70"));
 
     }
 
-	private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid,  String appId, String appName, String orgId, String orgName, String roleName, String roleId) {
+	private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid,  String appId, String appName, String orgName, String roleName, String roleId) {
 		for (UserPropertyAndRole role : propsAndRoles) {
 			if(role.getApplicationId().equals(appId) &&
 			   role.getApplicationName().equals(appName) && 
 			   role.getOrganizationName().equals(orgName) && 
-			   role.getOrganizationId().equals(orgId) &&
 			   role.getApplicationRoleName().equals(roleName) &&
 			   role.getApplicationRoleValue().equals(roleId) &&
 			   role.getUid().equals(uid)) {

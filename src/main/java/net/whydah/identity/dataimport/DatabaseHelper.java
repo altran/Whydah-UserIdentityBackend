@@ -35,7 +35,7 @@ public class DatabaseHelper {
                         "  RoleID char(36)," +
                         "  UserID char(36) NOT NULL," +
                         "  AppID varchar(32)," +
-                        "  OrganizationId varchar(32)," +
+                        "  OrganizationName varchar(128)," +
                         "  RoleName varchar(32)," +
                         "  RoleValues varchar(256)" +
                         ")");
@@ -44,7 +44,7 @@ public class DatabaseHelper {
                         " RoleID char(36),\n" +
                         "   UserID char(36) NOT NULL,\n" +
                         "   AppID varchar(32),\n" +
-                        "   OrganizationId varchar(32),\n" +
+                        "   OrganizationName varchar(128),\n" +
                         "   RoleName varchar(32),\n" +
                         "   RoleValues varchar(256)\n" +
                         " )\n");
@@ -56,7 +56,7 @@ public class DatabaseHelper {
                     "  DefaultOrgid varchar(30) default null" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
-                    "  ID varchar(32)," +
+                    "  AppID varchar(32)," +
                     "  Name varchar(128)" +
                     ")");
             queryRunner.update("CREATE TABLE Roles (" +

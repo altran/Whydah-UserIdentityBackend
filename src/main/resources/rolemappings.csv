@@ -1,6 +1,6 @@
-#userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
-thomas.pringle@altran.com, 1, UserAdmin, 1, Whydah, WhydahUserAdmin, 99 
-thomas.pringle@altran.com, 2, Mobilefirst, 5, Altran, developer, 30
-thomas.pringle@altran.com, 3, Whydah, 1, Whydah, developer, 20
-erik.drolshammer, 2, Mobilefirst, 5, Altran, admin, 70
-useradmin, 1, UserAdmin, 1, Whydah, WhydahUserAdmin, 99
+#userId, applicationId, applicationName, organizationName, roleName, roleValue
+thomas.pringle@altran.com, 1, UserAdmin, Whydah, WhydahUserAdmin, 99
+thomas.pringle@altran.com, 2, Mobilefirst, Altran, developer, 30
+thomas.pringle@altran.com, 3, Whydah, Whydah, developer, 20
+erik.drolshammer, 2, Mobilefirst, Altran, admin, 70
+useradmin, 1, UserAdmin, Whydah, WhydahUserAdmin, 99

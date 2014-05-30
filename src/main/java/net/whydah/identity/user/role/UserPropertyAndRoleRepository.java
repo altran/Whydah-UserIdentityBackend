@@ -17,9 +17,9 @@ import java.util.UUID;
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
 
-    private static final String GET_USERROLES_SQL = "SELECT RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
-    private static final String GET_USERROLE_SQL = "SELECT RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
-    private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationId, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
+    private static final String GET_USERROLES_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
+    private static final String GET_USERROLE_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
+    private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
     private static final String DELETE_USER_SQL = "DELETE FROM UserRoles WHERE UserID=?";
     private static final String DELETE_ROLE_SQL = "DELETE FROM UserRoles WHERE RoleID=?";
     private static final String DELETE_APP_ROLES_SQL = "DELETE FROM UserRoles WHERE UserID=? AND AppID=?";
@@ -71,7 +71,7 @@ public class UserPropertyAndRoleRepository {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
-                    && existingRole.getOrganizationId().equals(role.getOrganizationId())
+                    && existingRole.getOrganizationName().equals(role.getOrganizationName())
                     && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
             if (roleExist) {
                 return true;
@@ -90,7 +90,7 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.getRoleId(),
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
-                    userPropertyAndRole.getOrganizationId(),
+                    userPropertyAndRole.getOrganizationName(),
                     userPropertyAndRole.getApplicationRoleName(),
                     userPropertyAndRole.getApplicationRoleValue()
             );
@@ -137,7 +137,7 @@ public class UserPropertyAndRoleRepository {
 
     public String getOrgname(String orgid) {
         try {
-            String ORG_SQL = "SELECT Name from Organization WHERE id=?";
+            String ORG_SQL = "SELECT Name from Organization WHERE AppID=?";
             return queryRunner.query(ORG_SQL, new OrgnameResultSetHandler(), orgid);
         } catch (SQLException e) {
             throw new DatastoreException(e);
@@ -182,16 +182,12 @@ public class UserPropertyAndRoleRepository {
                 userPropertyAndRole.setRoleId(rs.getString(1));
                 userPropertyAndRole.setUid(rs.getString(2));
                 userPropertyAndRole.setApplicationId(rs.getString(3));
-                userPropertyAndRole.setOrganizationId(rs.getString(4));
+                userPropertyAndRole.setOrganizationName(rs.getString(4));
                 userPropertyAndRole.setApplicationRoleName(rs.getString(5));
                 userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(6)));
                 Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
-                }
-                String orgName = getOrgname(userPropertyAndRole.getOrganizationId());
-                if(orgName != null) {
-                    userPropertyAndRole.setOrganizationName(orgName);
                 }
                 result.add(userPropertyAndRole);
             }
@@ -211,16 +207,12 @@ public class UserPropertyAndRoleRepository {
                 userPropertyAndRole.setRoleId(rs.getString(1));
                 userPropertyAndRole.setUid(rs.getString(2));
                 userPropertyAndRole.setApplicationId(rs.getString(3));
-                userPropertyAndRole.setOrganizationId(rs.getString(4));
+                userPropertyAndRole.setOrganizationName(rs.getString(4));
                 userPropertyAndRole.setApplicationRoleName(rs.getString(5));
                 userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString(6)));
                 Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
                 if(application != null) {
                     userPropertyAndRole.setApplicationName(application.getName());
-                }
-                String orgName = getOrgname(userPropertyAndRole.getOrganizationId());
-                if(orgName != null) {
-                    userPropertyAndRole.setOrganizationName(orgName);
                 }
                 return userPropertyAndRole;
            }

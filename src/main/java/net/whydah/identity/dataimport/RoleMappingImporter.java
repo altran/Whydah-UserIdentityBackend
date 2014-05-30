@@ -17,15 +17,14 @@ public class RoleMappingImporter {
 
 	private static final Logger logger = LoggerFactory.getLogger(RoleMappingImporter.class);
 	
-	private static final int REQUIRED_NUMBER_OF_FIELDS = 7;
+	private static final int REQUIRED_NUMBER_OF_FIELDS = 6;
 
 	private static final int USERID = 0;
 	private static final int APPLICATIONID = 1;
 	private static final int APPLICATIONNAME = 2;
-	private static final int ORGANIZATIONID = 3;
-	private static final int ORGANIZATIONNAME = 4;
-	private static final int ROLENAME = 5;
-	private static final int ROLEVALUE = 6;
+	private static final int ORGANIZATIONNAME = 3;
+	private static final int ROLENAME = 4;
+	private static final int ROLEVALUE = 5;
 	
     private UserPropertyAndRoleRepository roleMappingRepository;
     
@@ -70,7 +69,6 @@ public class RoleMappingImporter {
 	            userPropertyAndRole.setApplicationId(cleanString(lineArray[APPLICATIONID]));
 	            userPropertyAndRole.setApplicationName(cleanString(lineArray[APPLICATIONNAME]));
 	        	
-	            userPropertyAndRole.setOrganizationId(cleanString(lineArray[ORGANIZATIONID]));
 	            userPropertyAndRole.setOrganizationName(cleanString(lineArray[ORGANIZATIONNAME]));
 	            userPropertyAndRole.setApplicationRoleName(cleanString(lineArray[ROLENAME]));
 	            userPropertyAndRole.setApplicationRoleValue(cleanString(lineArray[ROLEVALUE]));

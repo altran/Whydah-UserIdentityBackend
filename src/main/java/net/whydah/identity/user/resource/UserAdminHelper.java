@@ -113,7 +113,6 @@ public class UserAdminHelper {
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
         String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
@@ -121,7 +120,6 @@ public class UserAdminHelper {
         role.setUid(userIdentity.getUid());
         role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
-        role.setOrganizationId(organizationId);
         role.setOrganizationName(organizationName);
         role.setApplicationRoleName(roleName);
 //        role.setRoleValue(roleValue);
@@ -149,7 +147,6 @@ public class UserAdminHelper {
 
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
         String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
         String netIQRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.netiq.name");
@@ -157,7 +154,6 @@ public class UserAdminHelper {
         role.setUid(userIdentity.getUid());
         role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
-        role.setOrganizationId(organizationId);
         role.setOrganizationName(organizationName);
         if (facebook) {
             role.setApplicationRoleName(facebookRoleName);

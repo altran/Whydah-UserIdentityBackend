@@ -1,3 +1,7 @@
-#organizationId, organizationName
+#applicationId, organizationName
 1, Whydah
-5, Altran
+1, Altran
+2, Whydah
+2, Altran
+3, Whydah
+3, Altran

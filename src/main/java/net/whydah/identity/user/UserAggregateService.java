@@ -61,7 +61,6 @@ public class UserAggregateService {
     private List<UserPropertyAndRole> addDefaultUserRole(UserIdentity userIdentity) {
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-        String organizationId = AppConfig.appConfig.getProperty("adduser.defaultorganization.id");
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
         String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
         String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
@@ -70,7 +69,6 @@ public class UserAggregateService {
         defaultRole.setUid(userIdentity.getUid());
         defaultRole.setApplicationId(applicationId);
         defaultRole.setApplicationName(applicationName);
-        defaultRole.setOrganizationId(organizationId);
         defaultRole.setOrganizationName(organizationName);
         defaultRole.setApplicationRoleName(roleName);
         //role.setRoleValue(roleValue);
@@ -231,7 +229,6 @@ public class UserAggregateService {
         role.setUid(uid);
         role.setApplicationId(request.getApplicationId());
         role.setApplicationName(request.getApplicationName());
-        role.setOrganizationId(request.getOrganizationId());
         role.setOrganizationName(request.getOrganizationName());
         role.setApplicationRoleName(request.getApplicationRoleName());
         role.setApplicationRoleValue(request.getApplicationRoleValue());

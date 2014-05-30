@@ -7,7 +7,6 @@ public class RoleRepresentationRequest {
     private String applicationId;
     private String applicationName;
 
-    private String organizationId;
     private String organizationName;
 
     private String applicationRoleName;
@@ -19,9 +18,6 @@ public class RoleRepresentationRequest {
     }
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
     }
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
@@ -39,9 +35,6 @@ public class RoleRepresentationRequest {
     }
     public String getApplicationName() {
         return applicationName;
-    }
-    public String getOrganizationId() {
-        return organizationId;
     }
     public String getOrganizationName() {
         return organizationName;

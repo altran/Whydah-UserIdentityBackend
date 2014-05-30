@@ -2,16 +2,16 @@ package net.whydah.identity.dataimport;
 
 public class Organization {
 
-	private final String id;
+	private final String appId;
 	private final String name;
 
 	public Organization(String organizationId, String organizationName) {
-		this.id = organizationId;
+		this.appId = organizationId;
 		this.name = organizationName;
 	}
 
-	public String getId() {
-		return id;
+	public String getAppId() {
+		return appId;
 	}
 
 	public String getName() {
@@ -20,14 +20,14 @@ public class Organization {
 
 	@Override
 	public String toString() {
-		return "Organization [id=" + id + ", name=" + name + "]";
+		return "Organization [appId=" + appId + ", name=" + name + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((appId == null) ? 0 : appId.hashCode());
 		return result;
 	}
 
@@ -40,10 +40,10 @@ public class Organization {
 		if (getClass() != obj.getClass())
 			return false;
 		Organization other = (Organization) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (appId == null) {
+			if (other.appId != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!appId.equals(other.appId))
 			return false;
 		return true;
 	}

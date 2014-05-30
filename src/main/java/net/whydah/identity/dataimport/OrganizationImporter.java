@@ -18,7 +18,7 @@ public class OrganizationImporter {
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 2;
 	
-	private static final int ORGANIZATIONID = 0;
+	private static final int APPID = 0;
 	private static final int ORGANIZATIONNAME = 1;
 	
 	private QueryRunner queryRunner;
@@ -36,7 +36,7 @@ public class OrganizationImporter {
 	private void saveOrganizations(List<Organization> organizations) {
 		try {
 			for (Organization organization: organizations) {
-				queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getId(), organization.getName());
+				queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
 			}
 		} catch(Exception e) {
 			logger.error("Unable to persist organizations.", e);
@@ -62,10 +62,10 @@ public class OrganizationImporter {
 	        	String[] lineArray = line.split(",");
 	        	validateLine(line, lineArray);
 	        	
-	        	String organizationId = cleanString(lineArray[ORGANIZATIONID]);
+	        	String appId = cleanString(lineArray[APPID]);
 	        	String organizationName = cleanString(lineArray[ORGANIZATIONNAME]);
 	        	
-	        	Organization organization = new Organization(organizationId, organizationName);
+	        	Organization organization = new Organization(appId, organizationName);
 	            organizations.add(organization);
 	        }
 			return organizations;

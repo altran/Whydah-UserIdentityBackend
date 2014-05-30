@@ -13,7 +13,6 @@ public class RoleRepresentation extends RoleRepresentationRequest {
         representation.setId(role.getRoleId());
         representation.setApplicationId(role.getApplicationId());
         representation.setApplicationName(role.getApplicationName());
-        representation.setOrganizationId(role.getOrganizationId());
         representation.setOrganizationName(role.getOrganizationName());
         representation.setApplicationRoleName(role.getApplicationRoleName());
         representation.setApplicationRoleValue(role.getApplicationRoleValue());

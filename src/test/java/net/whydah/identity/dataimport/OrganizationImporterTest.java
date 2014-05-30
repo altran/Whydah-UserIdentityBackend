@@ -11,22 +11,27 @@ public class OrganizationImporterTest {
 	@Test
 	public void parseRoles() {
 		String organizationsSource = "testorganizations.csv";
-		
-		List<Organization> organizations = OrganizationImporter.parseOrganizations(organizationsSource);
-		
-//		#organizationId, organizationName
-//		1, Whydah
-//		5, Altran
-		
-		assertEquals("All organizations must be found.", 2, organizations.size());
-		
-		Organization organization1 = organizations.get(0);
-		assertEquals("organizationId must be set.", "1", organization1.getId());
-		assertEquals("organizationName must be set.", "Whydah", organization1.getName());
-		
-		Organization organization2 = organizations.get(1);
-		assertEquals("organizationId must be set.", "5", organization2.getId());
-		assertEquals("organizationName must be set.", "Altran", organization2.getName());
+//      #applicationId, organizationName
+//      1, Whydah
+//      1, Altran
+//      2, Whydah
+//      2, Altran
+//      3, Whydah
+//      3, Altran
 
+        List<Organization> organizations = OrganizationImporter.parseOrganizations(organizationsSource);
+		
+        assertEquals("All organizations must be found.", 6, organizations.size());
+        assertAppIdAndOrgName(organizations.get(0), "1", "Whydah");
+        assertAppIdAndOrgName(organizations.get(1), "1", "Altran");
+        assertAppIdAndOrgName(organizations.get(2), "2", "Whydah");
+        assertAppIdAndOrgName(organizations.get(3), "2", "Altran");
+        assertAppIdAndOrgName(organizations.get(4), "3", "Whydah");
+        assertAppIdAndOrgName(organizations.get(5), "3", "Altran");
 	}
+
+    private void assertAppIdAndOrgName(Organization organization, String appId, String orgName) {
+        assertEquals("applicationId must be set.", appId, organization.getAppId());
+        assertEquals("organizationName must be set.", orgName, organization.getName());
+    }
 }
