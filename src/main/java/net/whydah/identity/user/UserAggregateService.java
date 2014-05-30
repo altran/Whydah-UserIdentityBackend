@@ -253,7 +253,20 @@ public class UserAggregateService {
     }
 
     public UserPropertyAndRole updateRole(String uid, String roleId, UserPropertyAndRole role) {
-        //TODO do some checks here
+        UserPropertyAndRole existingUserPropertyAndRole = userPropertyAndRoleRepository.getUserPropertyAndRole(roleId);
+        if (existingUserPropertyAndRole == null) {
+            throw new NonExistentRoleException("RoleID does not exist: " + roleId);
+        }
+        if (!existingUserPropertyAndRole.getUid().equals(role.getUid())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change uid from " + existingUserPropertyAndRole.getUid() + " to " + role.getUid() + " for roleId " + roleId);
+        }
+        if (!existingUserPropertyAndRole.getApplicationId().equals(role.getApplicationId())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change applicationId from " + existingUserPropertyAndRole.getApplicationId() + " to " + role.getApplicationId() + " for roleId " + roleId);
+        }
+        if (!existingUserPropertyAndRole.getOrganizationName().equals(role.getOrganizationName())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change organizationName from " + existingUserPropertyAndRole.getOrganizationName() + " to " + role.getOrganizationName() + " for roleId " + roleId);
+        }
+
         role.setUid(uid);
         role.setRoleId(roleId);
         userPropertyAndRoleRepository.updateUserRoleValue(role);

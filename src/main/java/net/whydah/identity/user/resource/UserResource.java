@@ -3,6 +3,8 @@ package net.whydah.identity.user.resource;
 import com.google.inject.Inject;
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.user.InvalidRoleModificationException;
+import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.UserIdentity;
@@ -284,6 +286,10 @@ public class UserResource {
             }
 
             return Response.ok(json).build();
+        } catch (NonExistentRoleException e) {
+            return Response.status(Response.Status.fromStatusCode(422)).entity(e.getMessage()).build();
+        } catch (InvalidRoleModificationException e) {
+            return Response.status(Response.Status.fromStatusCode(422)).entity(e.getMessage()).build();
         } catch (RuntimeException e) {
             log.error("updateRole-RuntimeException. {}", roleJson, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
