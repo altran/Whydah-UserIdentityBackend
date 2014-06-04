@@ -46,7 +46,12 @@ public class Main {
             }
         });
 
-        boolean importUsers = shouldImportUsers();
+        //TODO During startup, the app should check if it can do "count * from users" and get a number larger than 0, and locate more than one user from LDAP to ensure that both servers are up and schemas are working. If not, assume that the DB's are empty and need bootstrapping.
+        boolean canContactDB = true;
+        boolean canContactLDAP = true;
+
+        //TODO remove the "PROD" hack when the previous TODO is fixed!
+        boolean importUsers = !"PROD".equals(System.getProperty(AppConfig.IAM_MODE_KEY).toUpperCase()) && shouldImportUsers();
 
         // Start ldap embedded server
         String startEmbeddedDS = AppConfig.appConfig.getProperty("ldap.embedded");
