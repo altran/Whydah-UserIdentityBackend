@@ -27,6 +27,7 @@ public class ApplicationAuthenticationEndpoint {
         //FIXME real implementation of ApplicationAuthenticationEndpoint.
 
         Application mockApplication = new Application("applicationId1234", "applicationNameMock");
+        mockApplication.addAvailableOrgId("Fake organization to avoid NPE");
         String applicationXml = mockApplication.toXML();
         log.debug("Application authentication ok. XML: {}", applicationXml);
         return Response.status(Response.Status.OK).entity(applicationXml).build();

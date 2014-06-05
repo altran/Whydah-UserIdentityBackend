@@ -111,7 +111,7 @@ public class Application {
         for (String availableOrgId : availableOrgIds) {
             availableXml.append("<orgId>" + availableOrgId + "</orgId>\n");
         }
-        availableXml.append("<availableOrgIs>");
+        availableXml.append("</availableOrgIs>");
         return availableXml.toString();
     }
 
