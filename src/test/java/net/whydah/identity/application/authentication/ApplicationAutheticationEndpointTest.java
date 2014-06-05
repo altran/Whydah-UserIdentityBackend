@@ -19,7 +19,7 @@ public class ApplicationAutheticationEndpointTest {
                 "   <defaultrole>null</defaultrole>\n" +
                 "   <defaultorgid>null</defaultorgid>\n" +
                 "  <availableOrgIds/>\n" +
-                " </application>", result.getEntity().toString());
+                " </application>\n", result.getEntity().toString());
     }
 
 }
