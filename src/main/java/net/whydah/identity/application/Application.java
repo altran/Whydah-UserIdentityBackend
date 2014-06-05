@@ -107,14 +107,17 @@ public class Application {
     }
 
     private String buildAvailableOrgIsXml() {
-        StringBuilder availableXml = new StringBuilder("<availableOrgIs>\n");
-        for (String availableOrgId : availableOrgIds) {
-            availableXml.append("<orgId>" + availableOrgId + "</orgId>\n");
+        if(availableOrgIds == null || availableOrgIds.size() == 0) {
+            return "<availableOrgIds/>";
+        }else {
+            StringBuilder availableXml = new StringBuilder("<availableOrgIds>\n");
+            for (String availableOrgId : availableOrgIds) {
+                availableXml.append("<orgId>").append(availableOrgId).append("</orgId>").append("\n");
+            }
+            availableXml.append("</availableOrgIds>");
+            return availableXml.toString();
         }
-        availableXml.append("<availableOrgIs>");
-        return availableXml.toString();
     }
-
 
     public String getId() {
         return id;
