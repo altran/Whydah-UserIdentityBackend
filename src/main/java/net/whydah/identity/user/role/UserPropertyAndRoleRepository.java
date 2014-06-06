@@ -17,6 +17,7 @@ import java.util.UUID;
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
 
+    private static final String GET_ALL_USER_ROLES = "SELECT * FROM UserRoles";
     private static final String GET_USERROLES_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
     private static final String GET_USERROLE_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
     private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
@@ -65,6 +66,12 @@ public class UserPropertyAndRoleRepository {
         */
 
         return roles;
+    }
+
+    public int countUserRolesInDB() throws SQLException{
+        logger.debug("Counting user roles in DB");
+        return queryRunner.query(GET_ALL_USER_ROLES, new UserRolesResultsetHandler())
+                .size();
     }
 
     public boolean hasRole(String uid, UserPropertyAndRole role) {
