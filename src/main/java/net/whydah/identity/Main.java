@@ -70,7 +70,7 @@ public class Main {
         }
 
         // Populate ldap, database and lucene index
-        if (canAccessDBWithUserRoles || importUsers) {
+        if (!canAccessDBWithUserRoles || importUsers) {
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("roledb.directory")));
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("lucene.directory")));
             main.importUsersAndRoles();
