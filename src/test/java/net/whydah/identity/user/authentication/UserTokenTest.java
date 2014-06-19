@@ -40,7 +40,7 @@ public class UserTokenTest {
             "    <issuer>http://10.10.3.88:9998/token/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
             "    <application ID=\"1\">\n" +
             "        <applicationName>WhydahUserAdmin</applicationName>\n" +
-            "        <organization ID=\"9999\">\n" +
+            "        <organization name=\"9999\">\n" +
             "            <organizationName>WHYDAH</organizationName>\n" +
             "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
             "            <role name=\"Tester\" value=\"\"/>\n" +
@@ -48,7 +48,7 @@ public class UserTokenTest {
             "    </application>\n" +
             "    <application ID=\"005\">\n" +
             "        <applicationName>HMS</applicationName>\n" +
-            "        <organization ID=\"1234\">\n" +
+            "        <organization name=\"1234\">\n" +
             "            <organizationName>NBBL</organizationName>\n" +
             "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
             "        </organization>\n" +
