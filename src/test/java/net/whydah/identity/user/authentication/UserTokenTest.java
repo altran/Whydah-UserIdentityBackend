@@ -18,9 +18,9 @@ public class UserTokenTest {
     public void getRoles() {
         UserToken token = new UserToken(usertoken);
 
-        UserRole expectedRole1 = new UserRole("1", "9999", "WhydahUserAdmin");
-        UserRole expectedRole2 = new UserRole("1", "9999", "Tester");
-        UserRole expectedRole3 = new UserRole("005", "1234", "WhydahUserAdmin");
+        UserRole expectedRole1 = new UserRole("1", "WHYDAH", "WhydahUserAdmin");
+        UserRole expectedRole2 = new UserRole("1", "WHYDAH", "Tester");
+        UserRole expectedRole3 = new UserRole("005", "NBBL", "WhydahUserAdmin");
         List<UserRole> actualRoles = token.getUserRoles();
         assertNotNull(actualRoles);
         assertEquals(3, actualRoles.size());
@@ -40,21 +40,49 @@ public class UserTokenTest {
             "    <issuer>http://10.10.3.88:9998/token/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
             "    <application ID=\"1\">\n" +
             "        <applicationName>WhydahUserAdmin</applicationName>\n" +
-            "        <organization name=\"9999\">\n" +
             "            <organizationName>WHYDAH</organizationName>\n" +
             "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
             "            <role name=\"Tester\" value=\"\"/>\n" +
-            "        </organization>\n" +
+
             "    </application>\n" +
             "    <application ID=\"005\">\n" +
             "        <applicationName>HMS</applicationName>\n" +
-            "        <organization name=\"1234\">\n" +
             "            <organizationName>NBBL</organizationName>\n" +
             "            <role name=\"WhydahUserAdmin\" value=\"\"/>\n" +
-            "        </organization>\n" +
             "    </application>\n" +
             "\n" +
             "    <ns2:link type=\"application/xml\" href=\"/b035df2e-e766-4077-a514-2c370cc78714\" rel=\"self\"/>\n" +
             "    <hash type=\"MD5\">6660ae2fcaa0b8311661fa9e3234eb7a</hash>\n" +
+            "</token>";
+
+    @Test
+    public void getRoles2() {
+        UserToken token = new UserToken(usertoken2);
+        UserRole expectedRole1 = new UserRole("1", "", "WhydahUserAdmin");
+        List<UserRole> actualRoles = token.getUserRoles();
+        assertNotNull(actualRoles);
+        assertEquals(1, actualRoles.size());
+        assertTrue(actualRoles.contains(expectedRole1));
+    }
+
+    private final static String usertoken2 = "<token xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"12b84a5a-595b-49df-bb20-26a8a974d7b9\">\n" +
+            "    <uid>useradmin</uid>\n" +
+            "    <timestamp>1403606943867</timestamp>\n" +
+            "    <lifespan>3600000</lifespan>\n" +
+            "    <issuer>http://localhost:9998/tokenservice/token/e0287c65a5c9300c476b34edd0446778/getusertokenbytokenid</issuer>\n" +
+            "    <securitylevel>1</securitylevel>\n" +
+            "    <username>admin</username>\n" +
+            "    <firstname>User</firstname>\n" +
+            "    <lastname>Admin</lastname>\n" +
+            "    <email>useradmin@altran.com</email>\n" +
+            "    <personRef>0</personRef>\n" +
+            "    <application ID=\"1\">\n" +
+            "        <applicationName>UserAdmin</applicationName>\n" +
+            "            <organizationName></organizationName>\n" +
+            "            <role name=\"WhydahUserAdmin\" value=\"99\"/>\n" +
+            "    </application>\n" +
+            "\n" +
+            "    <ns2:link type=\"application/xml\" href=\"/\" rel=\"self\"/>\n" +
+            "    <hash type=\"MD5\">9fc1509fbfc2d62e0b40949e4245524a</hash>\n" +
             "</token>";
 }

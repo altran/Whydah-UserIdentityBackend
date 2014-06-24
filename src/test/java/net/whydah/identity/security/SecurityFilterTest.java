@@ -155,8 +155,8 @@ public class SecurityFilterTest {
         verifyNoMoreInteractions(chain);
     }
 
-    private final static String tokenOther = "<application ID=\"1\"><organization name=\"2\"><role name=\"Vaktmester\"/></organization></application>";
-    private final static String tokenBrukeradmin = "<application ID=\"1\"><organization name=\"2\"><role name=\"WhydahUserAdmin\"/></organization></application>";
+    private final static String tokenOther = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"Vaktmester\"/></application>";
+    private final static String tokenBrukeradmin = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"WhydahUserAdmin\"/></application>";
     private final static String applicationToken = "<application ID=\"abcdefgid\"></application>";
     private final static String applicationTokenId="abcdefgid";
     private final static String userAdminUserTokenId ="au123";

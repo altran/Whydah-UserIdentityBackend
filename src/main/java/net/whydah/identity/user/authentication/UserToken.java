@@ -85,23 +85,19 @@ public class UserToken {
     }
 
     private List<UserRole> extractUserRoles(Document doc) {
-        List<UserRole> userRoleList = new ArrayList<UserRole>();
+        List<UserRole> userRoleList = new ArrayList<>();
         XPath xPath = XPathFactory.newInstance().newXPath();
         try {
             NodeList apps = (NodeList) xPath.evaluate("//application", doc, XPathConstants.NODESET);
             for(int appNo=0; appNo<apps.getLength(); appNo++) {
                 Node appnode = apps.item(appNo);
                 String appid = appnode.getAttributes().getNamedItem("ID").getNodeValue();
-                NodeList orgs = (NodeList) xPath.evaluate("./organization", appnode, XPathConstants.NODESET);
-                for(int orgNo=0; orgNo<orgs.getLength(); orgNo++) {
-                    Node orgnode = orgs.item(orgNo);
-                    String orgName = orgnode.getAttributes().getNamedItem("name").getNodeValue();
-                    NodeList roles = (NodeList) xPath.evaluate("./role", orgnode, XPathConstants.NODESET);
-                    for(int roleNo=0; roleNo<roles.getLength(); roleNo++) {
-                        Node rolenode = roles.item(roleNo);
-                        String rolename = rolenode.getAttributes().getNamedItem("name").getNodeValue();
-                        userRoleList.add(new UserRole(appid, orgName, rolename));
-                    }
+                String orgName = (String) xPath.evaluate(".//organizationName", appnode, XPathConstants.STRING);
+                NodeList roles = (NodeList) xPath.evaluate("./role", appnode, XPathConstants.NODESET);
+                for(int roleNo=0; roleNo<roles.getLength(); roleNo++) {
+                    Node rolenode = roles.item(roleNo);
+                    String rolename = rolenode.getAttributes().getNamedItem("name").getNodeValue();
+                    userRoleList.add(new UserRole(appid, orgName, rolename));
                 }
             }
         } catch (XPathExpressionException e) {
