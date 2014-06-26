@@ -143,7 +143,7 @@ public class SecurityFilter implements Filter {
      * @return authentication
      */
     protected String findUserTokenId(String pathInfo) {
-        if(!pathInfo.startsWith("/")) {
+        if(pathInfo != null && !pathInfo.startsWith("/")) {
             logger.error("Call to UIB does not start with '/' which can be because of configuration problem. Problematic Path: {}", pathInfo);
         }
         String tokenIdPath = findPathElement(pathInfo, 2);
