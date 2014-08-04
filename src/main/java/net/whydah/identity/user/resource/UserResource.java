@@ -87,13 +87,13 @@ public class UserResource {
             //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
             return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
         }  catch (ConflictException ise) {
-            log.info("addUserIdentity: Conflict request. json={}", userIdentityJson, ise);
+            log.info("addUserIdentity returned {}, json={}", Response.Status.CONFLICT.toString(), userIdentityJson, ise);
             return Response.status(Response.Status.CONFLICT).build();
         } catch (IllegalArgumentException iae) {
-            log.info("addUserIdentity: Invalid request. json={}", userIdentityJson, iae);
+            log.info("addUserIdentity returned {}, json={}", Response.Status.BAD_REQUEST.toString(), userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (InvalidUserIdentityFieldException e) {
-            log.info("addUserIdentity: Validation error. {}", e.getMessage());
+            log.info("addUserIdentity returned {} because {}", Response.Status.BAD_REQUEST.toString(), e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (RuntimeException e) {
             log.error("addUserIdentity-RuntimeExeption ", e);
@@ -133,7 +133,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUserIdentity(@PathParam("uid") String uid, String userIdentityJson) {
-        log.trace("updateUserIdentityForUsername: uid={}, userIdentityJson={}", uid, userIdentityJson);
+        log.trace("updateUserIdentity: uid={}, userIdentityJson={}", uid, userIdentityJson);
 
         UserIdentity userIdentity;
         try {
@@ -144,18 +144,20 @@ public class UserResource {
         }
 
         try {
-            String json;
             UserIdentity updatedUserIdentity = userAggregateService.updateUserIdentity(uid, userIdentity);
+
             try {
-                json = mapper.writeValueAsString(updatedUserIdentity);
+                String json = mapper.writeValueAsString(updatedUserIdentity);
+                return Response.ok(json).build();
             } catch (IOException e) {
                 log.error("Error converting to json. {}", userIdentity.toString(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
-
-            return Response.ok(json).build();
+        } catch (InvalidUserIdentityFieldException iuife) {
+            log.warn("updateUserIdentity returned {} because {}.", Response.Status.BAD_REQUEST.toString(), iuife.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (IllegalArgumentException iae) {
-            log.info("updateUserIdentit: Invalid json={}", userIdentityJson, iae);
+            log.info("updateUserIdentity: Invalid json={}", userIdentityJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (RuntimeException e) {
             log.error("updateUserIdentity: RuntimeError json={}", userIdentityJson, e);

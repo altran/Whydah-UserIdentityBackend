@@ -26,9 +26,9 @@
 
 
     <logger name="org.apache.directory" level="WARN" />
-    <logger name="net.whydah" level="trace" />
+    <logger name="net.whydah" level="TRACE" />
 
-    <root level="trace">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
