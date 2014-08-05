@@ -3,7 +3,6 @@ package net.whydah.identity.user.identity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -11,7 +10,7 @@ import javax.naming.directory.*;
 import java.util.Hashtable;
 
 /**
- * LDAP-autentisering.
+ * LDAP authentication.
  */
 public class LdapAuthenticatorImpl {
     private static final Logger log = LoggerFactory.getLogger(LdapAuthenticatorImpl.class);
@@ -20,10 +19,8 @@ public class LdapAuthenticatorImpl {
     private final Hashtable<String,String> baseenv;
     private final Hashtable<String,String> admenv;
 
-
     public LdapAuthenticatorImpl(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
-        log.debug("Initialize LdapAuthenticatorImpl with ldapUrl=" + ldapUrl + ", admPrincipal=" + admPrincipal +
-                ", admCredentials=" + admCredentials + ", usernameAttribute=" + usernameAttribute);
+        log.info("Initialize LdapAuthenticatorImpl with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
         baseenv = new Hashtable<>();
         baseenv.put(Context.PROVIDER_URL, ldapUrl);
         baseenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -34,6 +31,19 @@ public class LdapAuthenticatorImpl {
         this.usernameAttribute = usernameAttribute;
     }
 
+
+    public UserIdentity authenticate(final String username, final String password) {
+        InitialDirContext initialDirContext = authenticateUser(username, password);
+        if (initialDirContext == null) {
+            return null;
+        }
+        try {
+            return getUserinfo(username, initialDirContext);
+        } catch (NamingException e) {
+            log.error("Failed to create getUserinfo in authenticate.", e);
+        }
+        return null;
+    }
 
     /**
      * Authenticate with LDAP using "simple" authentication (username and password).
@@ -47,75 +57,65 @@ public class LdapAuthenticatorImpl {
      * @param password  user password
      * @return  a authenticated UserIdentity
      */
-    public UserIdentity authenticate(final String username, final String password) {
-        log.debug("Trying to authenticate with username and password. username=" + username);
-
+    private InitialDirContext authenticateUser(final String username, final String password) {
+        log.trace("authenticateUser with username and password. username=" + username);
         if (username == null || password == null) {
+            log.info("authenticateUser failed (returned null) because password or username was null.");
             return null;
         }
 
-        try {
-            final String userDN = findUserDN(username);
-            if (userDN == null) {
-                log.info("userDN not found for {}", username);
-                return null;
-            }
-            log.debug("Found userDN=" + userDN);
+        final String userDN = findUserDN(username);
 
-            Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
-            myEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
-            myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-            myEnv.put(Context.SECURITY_CREDENTIALS, password);
-            InitialDirContext context = new InitialDirContext(myEnv);
-            UserIdentity userIdentity = getUserinfo(username, context);
-            return userIdentity;
+        Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
+        myEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
+        myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
+        myEnv.put(Context.SECURITY_CREDENTIALS, password);
+
+        try {
+            return new InitialDirContext(myEnv);
         } catch (Exception e) {
-            log.debug("Authentication failed for user " + username, e);
+            log.error("Failed to create InitialDirContext in authenticate.", e);
             return null;
         }
     }
+
 
     public boolean authenticateWithTemporaryPassword(String username, String password) {
-        try {
-            final String userDN = findUserDN(username);
-            if (userDN == null) {
-                log.info("userDN not found for {}", username);
-                return false;
-            }
-            log.debug("Found userND=" + userDN);
-            Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
-            myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-            myEnv.put(Context.SECURITY_CREDENTIALS, password);
-            new InitialDirContext(myEnv);
-        } catch (AuthenticationException e) {
-            log.info("Authentication failed for user {}", username);
-            return false;
-        } catch (NamingException e) {
-            log.error(e.getLocalizedMessage(), e);
-            return false;
-        }
-        return true;
+        InitialDirContext initialDirContext = authenticateUser(username, password);
+        return initialDirContext != null;
     }
 
 
-    private String findUserDN(String username) throws NamingException {
-        InitialDirContext context;
+    private String findUserDN(String username) {
+        InitialDirContext adminContext;
         try {
-            context = new InitialDirContext(admenv);
-        } catch (AuthenticationException e) {
+            adminContext = new InitialDirContext(admenv);
+        } catch (Exception e) {
             log.error("Error authenticating as superuser, check configuration", e);
-            throw e;
-        }
-        SearchControls constraints = new SearchControls();
-        constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = context.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
-        if (!results.hasMore()) {
             return null;
         }
 
-        SearchResult searchResult =(SearchResult) results.next();
-        return searchResult.getNameInNamespace();
+        try {
+            SearchControls constraints = new SearchControls();
+            constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            NamingEnumeration results = adminContext.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
+            if (!results.hasMore()) {
+                return null;
+            }
+
+            SearchResult searchResult =(SearchResult) results.next();
+            String userDN = searchResult.getNameInNamespace();
+            if (userDN == null) {
+                log.debug("userDN not found for {}", username);
+                return null;
+            }
+            log.debug("findUserDN with username={} found userDN={}", username, userDN);
+        } catch (Exception e) {
+            log.info("findUserDN failed for user with username=" + username, e);
+        }
+        return null;
     }
+
 
     private UserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
         SearchControls constraints = new SearchControls();
@@ -148,10 +148,8 @@ public class LdapAuthenticatorImpl {
         if (attribute == null) {
             return null;
         }
-
         return (String) attribute.get();
     }
-
 }
 
 
