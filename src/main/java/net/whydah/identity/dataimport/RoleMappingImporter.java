@@ -14,11 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoleMappingImporter {
-
-	private static final Logger logger = LoggerFactory.getLogger(RoleMappingImporter.class);
+	private static final Logger log = LoggerFactory.getLogger(RoleMappingImporter.class);
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 6;
-
 	private static final int USERID = 0;
 	private static final int APPLICATIONID = 1;
 	private static final int APPLICATIONNAME = 2;
@@ -34,6 +32,7 @@ public class RoleMappingImporter {
 	}
 
     public List<UserPropertyAndRole> importRoleMapping(String roleMappingSource) {
+        log.info("importOrganizations from roleMappingSource={}", roleMappingSource);
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
     	return roles;
@@ -46,11 +45,9 @@ public class RoleMappingImporter {
 	}
 
 	protected static List<UserPropertyAndRole> parseRoleMapping(String roleMappingSource) {
-
 		BufferedReader reader = null;
 		try {
 			List<UserPropertyAndRole> roleMappings = new ArrayList<>();
-			logger.info("Importing data from {}", roleMappingSource);
 	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(roleMappingSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
@@ -78,14 +75,14 @@ public class RoleMappingImporter {
 			return roleMappings;
 		
 		} catch (IOException ioe) {
-			logger.error("Unable to read file {}", roleMappingSource);
+			log.error("Unable to read file {}", roleMappingSource);
 			throw new RuntimeException("Unable to import Role Mappings from file: " + roleMappingSource);
 		} finally {
             if(reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    logger.warn("Error closing stream", e);
+                    log.warn("Error closing stream", e);
                 }
             }
         }

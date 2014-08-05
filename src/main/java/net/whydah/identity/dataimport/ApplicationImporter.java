@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationImporter {
-
-	private static final Logger logger = LoggerFactory.getLogger(ApplicationImporter.class);
+	private static final Logger log = LoggerFactory.getLogger(ApplicationImporter.class);
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 4;
-
 	private static final int APPLICATIONID = 0;
 	private static final int APPLICATIONNAME = 1;
 	private static final int DEFAULTROLE = 2;
@@ -31,8 +29,8 @@ public class ApplicationImporter {
 	}
 	
 	public void importApplications(String applicationsSource) {
+        log.info("importApplications from applicationsSource={}", applicationsSource);
 		List<Application> applications = parseApplications(applicationsSource);
-		
 		saveApplications(applications);
 	}
 
@@ -43,7 +41,7 @@ public class ApplicationImporter {
 									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId());	
 			}
 		} catch(Exception e) {
-			logger.error("Unable to persist applications.", e);
+			log.error("Unable to persist applications.", e);
 			throw new RuntimeException("Unable to persist applications.", e);
 		}
 	}
@@ -52,7 +50,6 @@ public class ApplicationImporter {
 		BufferedReader reader = null;
 		try {
 			List<Application> applications = new ArrayList<>();
-			logger.info("Importing data from {}", applicationsSource);
 	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(applicationsSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
@@ -76,14 +73,14 @@ public class ApplicationImporter {
 			return applications;
 		
 		} catch (IOException ioe) {
-			logger.error("Unable to read file {}", applicationsSource);
+			log.error("Unable to read file {}", applicationsSource);
 			throw new RuntimeException("Unable to import Application from file: " + applicationsSource);
 		} finally {
             if(reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    logger.warn("Error closing stream", e);
+                    log.warn("Error closing stream", e);
                 }
             }
         }

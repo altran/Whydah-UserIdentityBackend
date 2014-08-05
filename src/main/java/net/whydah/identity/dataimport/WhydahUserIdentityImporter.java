@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WhydahUserIdentityImporter {
-
-	private static final Logger logger = LoggerFactory.getLogger(WhydahUserIdentityImporter.class);
+	private static final Logger log = LoggerFactory.getLogger(WhydahUserIdentityImporter.class);
 
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 8;
 	private static final int USERID = 0;
@@ -40,10 +39,9 @@ public class WhydahUserIdentityImporter {
 	}
     
     public List<UserIdentity> importUsers(String userImportSource) {
-    	List<UserIdentity> users = parseUsers(userImportSource);
-    	
+        log.info("importUsers from userImportSource={}", userImportSource);
+        List<UserIdentity> users = parseUsers(userImportSource);
     	saveUsers(users);
-
     	return users;
     }
 
@@ -58,7 +56,7 @@ public class WhydahUserIdentityImporter {
 	        indexWriter.optimize();
 	        indexWriter.close();
 		} catch (Exception e) {
-			logger.error("Error importing from users!", e);
+			log.error("Error importing from users!", e);
 			throw new RuntimeException("Error importing users!", e);
 		}
 	}
@@ -67,7 +65,6 @@ public class WhydahUserIdentityImporter {
 		BufferedReader reader = null;
 		try {
 			List<UserIdentity> users = new ArrayList<>();
-			logger.info("Importing data from {}", userImportSource);
 			InputStream classpathStream = WhydahUserIdentityImporter.class.getClassLoader().getResourceAsStream(userImportSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
@@ -98,14 +95,14 @@ public class WhydahUserIdentityImporter {
 			return users;
 		
 		} catch (IOException ioe) {
-			logger.error("Unable to read file {}", userImportSource);
+			log.error("Unable to read file {}", userImportSource);
 			throw new RuntimeException("Unable to import users from file: " + userImportSource);
 		} finally {
             if(reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    logger.warn("Error closing stream", e);
+                    log.warn("Error closing stream", e);
                 }
             }
         }

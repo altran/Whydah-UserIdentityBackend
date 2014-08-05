@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrganizationImporter {
-
-	private static final Logger logger = LoggerFactory.getLogger(OrganizationImporter.class);
+	private static final Logger log = LoggerFactory.getLogger(OrganizationImporter.class);
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 2;
-	
 	private static final int APPID = 0;
 	private static final int ORGANIZATIONNAME = 1;
 	
@@ -29,6 +27,7 @@ public class OrganizationImporter {
 	}
 
 	public void importOrganizations(String organizationsSource) {
+        log.info("importOrganizations from organizationsSource={}", organizationsSource);
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
 	}
@@ -39,7 +38,7 @@ public class OrganizationImporter {
 				queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
 			}
 		} catch(Exception e) {
-			logger.error("Unable to persist organizations.", e);
+			log.error("Unable to persist organizations.", e);
 			throw new RuntimeException("Unable to persist organizations.", e);
 		}
 	}
@@ -49,7 +48,6 @@ public class OrganizationImporter {
 		BufferedReader reader = null;
 		try {
 			List<Organization> organizations = new ArrayList<>();
-			logger.info("Importing data from {}", organizationsSource);
 	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(organizationsSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
@@ -71,14 +69,14 @@ public class OrganizationImporter {
 			return organizations;
 		
 		} catch (IOException ioe) {
-			logger.error("Unable to read file {}", organizationsSource);
+			log.error("Unable to read file {}", organizationsSource);
 			throw new RuntimeException("Unable to import Organizations from file: " + organizationsSource);
 		} finally {
             if(reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    logger.warn("Error closing stream", e);
+                    log.warn("Error closing stream", e);
                 }
             }
         }
