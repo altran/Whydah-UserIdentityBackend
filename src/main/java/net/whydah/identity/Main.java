@@ -12,7 +12,6 @@ import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -47,18 +46,22 @@ public class Main {
             }
         });
 
+        //TODO Ask Stig Lau. about this functionality. It is not finished/ doesn't work as expected.
+        /*
         //TODO During startup, the app should check if it can do "count * from users" and get a number larger than 0, and locate more than one user from LDAP to ensure that both servers are up and schemas are working. If not, assume that the DB's are empty and need bootstrapping.
         boolean canAccessDBWithUserRoles = main.canAccessDBWithUserRoles();
         boolean canContactLDAP = true;
 
         //TODO remove the "PROD" hack when the previous TODO is fixed!
         boolean importUsers = !"PROD".equals(System.getProperty(AppConfig.IAM_MODE_KEY).toUpperCase()) && shouldImportUsers();
+        */
+
+        boolean importEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled"));
 
         // Start ldap embedded server
-        String startEmbeddedDS = AppConfig.appConfig.getProperty("ldap.embedded");
-        boolean embeddedDSEnabled = "enabled".equals(startEmbeddedDS);
+        boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
         if (embeddedDSEnabled) {
-            if (importUsers) {
+            if (importEnabled) {
                 FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("ldap.embedded.directory")));
             }
             try {
@@ -70,7 +73,8 @@ public class Main {
         }
 
         // Populate ldap, database and lucene index
-        if (!canAccessDBWithUserRoles || importUsers) {
+        //if (!canAccessDBWithUserRoles || importTestData) {
+        if (importEnabled) {
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("roledb.directory")));
             FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("lucene.directory")));
             main.importUsersAndRoles();
@@ -102,6 +106,7 @@ public class Main {
         
     }
 
+    /*
     public boolean canAccessDBWithUserRoles() {
         try {
             return Guice.createInjector(new ImportModule()).getInstance(UserPropertyAndRoleRepository.class)
@@ -121,6 +126,7 @@ public class Main {
         log.debug("dbpath=" + dbfile.getAbsolutePath() + ", exists=" + dbfile.exists() + ", shouldImport is set to " + shouldImport);
         return shouldImport;
     }
+    */
 
 
     public Injector getInjector() {

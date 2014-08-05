@@ -35,18 +35,20 @@ public class LdapUserIdentityDao {
 
     private final Hashtable<String,String> admenv;
     private final String usernameAttribute;
+    private final boolean readOnly;
 
     private DirContext ctx;
     private boolean connected = false;
 
 
-    public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
+    public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute, boolean readOnly) {
         admenv = new Hashtable<>(4);
         admenv.put(Context.PROVIDER_URL, ldapUrl);
         admenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         admenv.put(Context.SECURITY_PRINCIPAL, admPrincipal);
         admenv.put(Context.SECURITY_CREDENTIALS, admCredentials);
         this.usernameAttribute = usernameAttribute;
+        this.readOnly = readOnly;
 
     }
 
@@ -65,6 +67,11 @@ public class LdapUserIdentityDao {
     }
 
     public void addUserIdentity(UserIdentity userIdentity) throws NamingException {
+        if (readOnly) {
+            log.warn("addUserIdentity called, but LDAP server is configured read-only. UserIdentity was not added.");
+            return;
+        }
+
         userIdentity.validate();
 
         if (!connected) {
@@ -79,7 +86,7 @@ public class LdapUserIdentityDao {
             ctx.createSubcontext(userdn, container);
             log.trace("Added {} with dn={}", userIdentity, userdn);
         } catch (NameAlreadyBoundException nabe) {
-            log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity);
+            log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
         } catch (InvalidAttributeValueException iave){
             StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
             strb.append(userIdentity.toString());
@@ -121,6 +128,11 @@ public class LdapUserIdentityDao {
     }
 
     public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
+        if (readOnly) {
+                log.warn("updateUserIdentityForUid called, but LDAP server is configured read-only. UserIdentity was not updated.");
+            return;
+        }
+
         newuser.validate();
 
         if (!connected) {
@@ -152,6 +164,11 @@ public class LdapUserIdentityDao {
     }
 
     public void updateUserIdentityForUsername(String username, UserIdentity newuser) {
+        if (readOnly) {
+            log.warn("updateUserIdentityForUsername called, but LDAP server is configured read-only. UserIdentity was not updated.");
+            return;
+        }
+
         newuser.validate();
 
         if (!connected) {
@@ -293,6 +310,11 @@ public class LdapUserIdentityDao {
     }
 
     public boolean deleteUserIdentity(String username) {
+        if (readOnly) {
+            log.warn("deleteUserIdentity called, but LDAP server is configured read-only. username={} was not deleted.", username);
+            return false;
+        }
+
         log.info("deleteUserIdentity with username={}", username);
         try {
             String userDN = createUserDNFromUsername(username);
@@ -305,6 +327,11 @@ public class LdapUserIdentityDao {
     }
 
     public void changePassword(String username, String newPassword) {
+        if (readOnly) {
+            log.warn("changePassword called, but LDAP server is configured read-only. Password was not changed for username={}", username);
+            return;
+        }
+
         if (!connected) {
             setUp();
         }
@@ -328,6 +355,11 @@ public class LdapUserIdentityDao {
 
 
     public void setTempPassword(String username, String password, String salt) {
+        if (readOnly) {
+            log.warn("setTempPassword called, but LDAP server is configured read-only. TmpPassword was not set for username={}", username);
+            return;
+        }
+
         if (!connected) {
             setUp();
         }
@@ -360,7 +392,6 @@ public class LdapUserIdentityDao {
         }
         return null;
     }
-
 }
 
 

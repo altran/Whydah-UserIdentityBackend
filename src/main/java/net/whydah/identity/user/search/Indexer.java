@@ -70,13 +70,13 @@ public class Indexer {
     }
 
     public void addToIndex(List<UserIdentity> users) throws IOException {
-        IndexWriter w = new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
+        IndexWriter indexWriter = new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
         for (UserIdentity user : users) {
             Document doc = createLuceneDocument(user);
-            addDocument(doc, w);
+            indexWriter.addDocument(doc);
         }
-        w.optimize();
-        w.close();
+        indexWriter.optimize();
+        indexWriter.close();
     }
 
     /**
@@ -97,14 +97,10 @@ public class Indexer {
     public void addToIndex(IndexWriter writer, UserIdentity user) {
         try {
             Document doc = createLuceneDocument(user);
-            addDocument(doc, writer);
+            writer.addDocument(doc);
         } catch (IOException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+            LOGGER.error("addToIndex failed for {}. Index was probably not updated.", user.toString(), e);
         }
-    }
-
-    private void addDocument(Document doc, IndexWriter w) throws IOException {
-        w.addDocument(doc);
     }
 
     private Document createLuceneDocument(UserIdentity user) {

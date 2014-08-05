@@ -16,9 +16,10 @@ import java.util.Hashtable;
 public class LdapAuthenticator {
     private static final Logger log = LoggerFactory.getLogger(LdapAuthenticator.class);
 
-    private final String usernameAttribute;
     private final Hashtable<String,String> baseenv;
     private final Hashtable<String,String> admenv;
+    private final String usernameAttribute;
+    private static final String uidAttributeForActiveDirectory = "userprincipalname";
 
     public LdapAuthenticator(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
         log.info("Initialize LdapAuthenticator with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
@@ -29,6 +30,7 @@ public class LdapAuthenticator {
         this.admenv = new Hashtable<>(baseenv);
         admenv.put(Context.SECURITY_PRINCIPAL, admPrincipal);
         admenv.put(Context.SECURITY_CREDENTIALS, admCredentials);
+
         this.usernameAttribute = usernameAttribute;
     }
 
@@ -111,7 +113,9 @@ public class LdapAuthenticator {
         try {
             SearchControls constraints = new SearchControls();
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = adminContext.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
+            String baseDN = "";
+            String filter = "(" + usernameAttribute + "=" + username + ")";
+            NamingEnumeration results = adminContext.search(baseDN, filter, constraints);
             if (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 String userDN = searchResult.getNameInNamespace();
@@ -132,7 +136,9 @@ public class LdapAuthenticator {
     private UserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = context.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
+        String baseDN = "";
+        String filter = "(" + usernameAttribute + "=" + username + ")";
+        NamingEnumeration results = context.search(baseDN, filter, constraints);
         // NamingEnumeration results =context.search(GROUPS_OU, filter, cons);
         if (!results.hasMore()) {
             return null;
@@ -146,8 +152,14 @@ public class LdapAuthenticator {
         }
 
         UserIdentity userIdentity = new UserIdentity();
-        userIdentity.setUid((String) attributes.get("uid").get());
-        userIdentity.setUsername((String) attributes.get(usernameAttribute).get());
+        String uid = getAttribValue(attributes, "uid");
+
+        if (uid == null) {  //assume AD
+            uid = getAttribValue(attributes, uidAttributeForActiveDirectory);
+        }
+
+        userIdentity.setUid(uid);
+        userIdentity.setUsername(getAttribValue(attributes, usernameAttribute));
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));
         userIdentity.setLastName(getAttribValue(attributes, "sn"));
         userIdentity.setEmail(getAttribValue(attributes, "mail"));

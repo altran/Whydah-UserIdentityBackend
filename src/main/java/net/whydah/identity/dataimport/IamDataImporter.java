@@ -23,10 +23,6 @@ public class IamDataImporter {
 	}
 	
 	public void importIamData() {
-        String userImportSource = AppConfig.appConfig.getProperty("import.usersource");
-        String roleMappingImportSource = AppConfig.appConfig.getProperty("import.rolemappingsource");
-        String organizationsImportSource = AppConfig.appConfig.getProperty("import.organizationssource");
-        String applicationsImportSource= AppConfig.appConfig.getProperty("import.applicationssource");
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
 
         if (jdbcDriverString.contains("hsqldb")) {
@@ -37,9 +33,14 @@ public class IamDataImporter {
             throw new RuntimeException("Unknown database driver found in configuration - " + jdbcDriverString);
         }
 
+
+        String applicationsImportSource = AppConfig.appConfig.getProperty("import.applicationssource");
         applicationImporter.importApplications(applicationsImportSource);
+        String organizationsImportSource = AppConfig.appConfig.getProperty("import.organizationssource");
         organizationImporter.importOrganizations(organizationsImportSource);
+        String userImportSource = AppConfig.appConfig.getProperty("import.usersource");
         userImporter.importUsers(userImportSource);
+        String roleMappingImportSource = AppConfig.appConfig.getProperty("import.rolemappingsource");
         roleMappingImporter.importRoleMapping(roleMappingImportSource);
 	}
 }

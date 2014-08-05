@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+//ED thinks org.apache.commons.dbutils is crappy. Please consider using some other library.
 public class UserPropertyAndRoleRepository {
     private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
 
@@ -48,30 +49,24 @@ public class UserPropertyAndRoleRepository {
     }
 
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        logger.debug("Searching for roles for uid {}", uid);
+        logger.debug("getUserPropertyAndRoles for uid {}", uid);
 
-        List<UserPropertyAndRole> roles;
-        try {
-            roles = queryRunner.query(GET_USERROLES_SQL, new UserRolesResultsetHandler(), uid);
-        } catch (SQLException e) {
-            throw new DatastoreException("Error fetching roles for user with uid=" + uid, e);
+        List<UserPropertyAndRole> roles = new ArrayList<>();
+        if (uid != null) {
+            try {
+                roles = queryRunner.query(GET_USERROLES_SQL, new UserRolesResultsetHandler(), uid);
+            } catch (SQLException e) {
+                logger.warn("getUserPropertyAndRoles failed for uid={}. SQLException: {}", uid, e.getMessage());
+                //throw new DatastoreException("Error fetching roles for user with uid=" + uid, e);
+            }
         }
         logger.debug("Found {} roles", roles != null ? roles.size() : "null");
-
-       /* TODO Just for tests
-        for(UserPropertyAndRole obj : resultat){
-        	logger.info("UID: "+obj.getUid());
-        	logger.info("Role name: "+obj.getRoleName());
-        }
-        */
-
         return roles;
     }
 
     public int countUserRolesInDB() throws SQLException{
         logger.debug("Counting user roles in DB");
-        return queryRunner.query(GET_ALL_USER_ROLES, new UserRolesResultsetHandler())
-                .size();
+        return queryRunner.query(GET_ALL_USER_ROLES, new UserRolesResultsetHandler()).size();
     }
 
     public boolean hasRole(String uid, UserPropertyAndRole role) {
@@ -222,7 +217,7 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.setApplicationName(application.getName());
                 }
                 return userPropertyAndRole;
-           }
+            }
             return null;
         }
 

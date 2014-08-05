@@ -32,19 +32,7 @@ public class OrganizationImporter {
 		saveOrganizations(organizations);
 	}
 	
-	private void saveOrganizations(List<Organization> organizations) {
-		try {
-			for (Organization organization: organizations) {
-				queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
-			}
-		} catch(Exception e) {
-			log.error("Unable to persist organizations.", e);
-			throw new RuntimeException("Unable to persist organizations.", e);
-		}
-	}
-	
 	protected static List<Organization> parseOrganizations(String organizationsSource) {
-
 		BufferedReader reader = null;
 		try {
 			List<Organization> organizations = new ArrayList<>();
@@ -90,5 +78,16 @@ public class OrganizationImporter {
 			throw new RuntimeException("Organizations parsing error. Incorrect format of Line. It does not contain all required fields. Line: " + line);
 		}
 	}
+
+    private void saveOrganizations(List<Organization> organizations) {
+        try {
+            for (Organization organization: organizations) {
+                queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
+            }
+        } catch(Exception e) {
+            log.error("Unable to persist organizations.", e);
+            throw new RuntimeException("Unable to persist organizations.", e);
+        }
+    }
 }
 

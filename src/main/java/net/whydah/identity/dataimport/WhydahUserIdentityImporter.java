@@ -45,22 +45,6 @@ public class WhydahUserIdentityImporter {
     	return users;
     }
 
-	private void saveUsers(List<UserIdentity> users) {
-		try {
-			Indexer indexer = new Indexer(index);
-			final IndexWriter indexWriter = indexer.getWriter();
-			for (UserIdentity userIdentity : users) {
-				ldapUserIdentityDao.addUserIdentity(userIdentity);
-				indexer.addToIndex(indexWriter, userIdentity);
-			}
-	        indexWriter.optimize();
-	        indexWriter.close();
-		} catch (Exception e) {
-			log.error("Error importing from users!", e);
-			throw new RuntimeException("Error importing users!", e);
-		}
-	}
-
 	protected static List<UserIdentity> parseUsers(String userImportSource) {
 		BufferedReader reader = null;
 		try {
@@ -78,12 +62,10 @@ public class WhydahUserIdentityImporter {
 	        	validateLine(line, lineArray);
 	        	
 	        	UserIdentity userIdentity;
-	        	
 	        	userIdentity = new UserIdentity();
 	        	userIdentity.setUid(cleanString(lineArray[USERID]));
 	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
 	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
-	        	
 	            userIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
 	            userIdentity.setLastName(cleanString(lineArray[LASTNAME]));
 	            userIdentity.setEmail(cleanString(lineArray[EMAIL]));
@@ -117,4 +99,20 @@ public class WhydahUserIdentityImporter {
 			throw new RuntimeException("User parsing error. Incorrect format of Line. It does not contain all required fields. Line: " + line);
 		}
 	}
+
+    private void saveUsers(List<UserIdentity> users) {
+        try {
+            Indexer indexer = new Indexer(index);
+            final IndexWriter indexWriter = indexer.getWriter();
+            for (UserIdentity userIdentity : users) {
+                ldapUserIdentityDao.addUserIdentity(userIdentity);
+                indexer.addToIndex(indexWriter, userIdentity);
+            }
+            indexWriter.optimize();
+            indexWriter.close();
+        } catch (Exception e) {
+            log.error("Error importing users!", e);
+            throw new RuntimeException("Error importing users!", e);
+        }
+    }
 }
