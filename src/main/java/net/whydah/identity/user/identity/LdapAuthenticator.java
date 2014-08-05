@@ -21,7 +21,7 @@ public class LdapAuthenticator {
     private final Hashtable<String,String> admenv;
 
     public LdapAuthenticator(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
-        log.info("Initialize LdapAuthenticatorImpl with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
+        log.info("Initialize LdapAuthenticator with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
         baseenv = new Hashtable<>();
         baseenv.put(Context.PROVIDER_URL, ldapUrl);
         baseenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
