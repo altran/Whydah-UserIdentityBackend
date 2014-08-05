@@ -4,7 +4,7 @@ import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -32,7 +32,7 @@ public class IamDataImporterTest {
     private static String LDAP_URL; 
 
     private static EmbeddedADS ads;
-    private static LDAPHelper ldapHelper;
+    private static LdapUserIdentityDao ldapUserIdentityDao;
     private static UserPropertyAndRoleRepository roleRepository;
     private static QueryRunner queryRunner;
     private static DatabaseHelper databaseHelper;
@@ -57,7 +57,7 @@ public class IamDataImporterTest {
         ldapdir.mkdirs();
         ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
-        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
 
         roleRepository = new UserPropertyAndRoleRepository();
@@ -79,7 +79,7 @@ public class IamDataImporterTest {
 
         organizationImporter = new OrganizationImporter(queryRunner);
         applicationImporter = new ApplicationImporter(queryRunner);
-        userImporter = new WhydahUserIdentityImporter(ldapHelper, index);
+        userImporter = new WhydahUserIdentityImporter(ldapUserIdentityDao, index);
         roleMappingImporter = new RoleMappingImporter(roleRepository);
     }
     
@@ -96,12 +96,12 @@ public class IamDataImporterTest {
 		IamDataImporter iamDataImporter = new IamDataImporter(databaseHelper, applicationImporter, organizationImporter, userImporter, roleMappingImporter);
         iamDataImporter.importIamData();
         
-        UserIdentity thomaspUserIdentity = ldapHelper.getUserIndentity("thomasp");
+        UserIdentity thomaspUserIdentity = ldapUserIdentityDao.getUserIndentity("thomasp");
         assertEquals("Name must be set", "Thomas", thomaspUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Pringle", thomaspUserIdentity.getLastName());
         assertEquals("UserId must be set", "thomas.pringle@altran.com", thomaspUserIdentity.getUid());
 
-        UserIdentity erikdUserIdentity = ldapHelper.getUserIndentity("erikd");
+        UserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
         assertEquals("Name must be set", "Erik", erikdUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("UserId must be set", "erik.drolshammer", erikdUserIdentity.getUid());

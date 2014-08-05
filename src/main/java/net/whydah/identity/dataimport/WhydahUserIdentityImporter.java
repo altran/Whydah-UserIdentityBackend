@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
 import com.google.inject.Inject;
-import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.search.Indexer;
 import org.apache.lucene.index.IndexWriter;
@@ -30,12 +30,12 @@ public class WhydahUserIdentityImporter {
 	private static final int CELLPHONE = 6;
 	private static final int PERSONREF = 7;
 	
-    private LDAPHelper ldapHelper;
+    private LdapUserIdentityDao ldapUserIdentityDao;
     private Directory index;
     
     @Inject
-	public WhydahUserIdentityImporter(LDAPHelper ldapHelper, Directory index) {
-		this.ldapHelper = ldapHelper;
+	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, Directory index) {
+		this.ldapUserIdentityDao = ldapUserIdentityDao;
 		this.index = index;
 	}
     
@@ -52,7 +52,7 @@ public class WhydahUserIdentityImporter {
 			Indexer indexer = new Indexer(index);
 			final IndexWriter indexWriter = indexer.getWriter();
 			for (UserIdentity userIdentity : users) {
-				ldapHelper.addUserIdentity(userIdentity);
+				ldapUserIdentityDao.addUserIdentity(userIdentity);
 				indexer.addToIndex(indexWriter, userIdentity);
 			}
 	        indexWriter.optimize();

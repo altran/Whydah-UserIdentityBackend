@@ -3,6 +3,7 @@ package net.whydah.identity.user.identity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -12,14 +13,14 @@ import java.util.Hashtable;
 /**
  * LDAP authentication.
  */
-public class LdapAuthenticatorImpl {
-    private static final Logger log = LoggerFactory.getLogger(LdapAuthenticatorImpl.class);
+public class LdapAuthenticator {
+    private static final Logger log = LoggerFactory.getLogger(LdapAuthenticator.class);
 
     private final String usernameAttribute;
     private final Hashtable<String,String> baseenv;
     private final Hashtable<String,String> admenv;
 
-    public LdapAuthenticatorImpl(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
+    public LdapAuthenticator(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
         log.info("Initialize LdapAuthenticatorImpl with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
         baseenv = new Hashtable<>();
         baseenv.put(Context.PROVIDER_URL, ldapUrl);
@@ -33,7 +34,7 @@ public class LdapAuthenticatorImpl {
 
 
     public UserIdentity authenticate(final String username, final String password) {
-        InitialDirContext initialDirContext = authenticateUser(username, password);
+        InitialDirContext initialDirContext = authenticateUser(username, password, "simple");
         if (initialDirContext == null) {
             return null;
         }
@@ -55,33 +56,45 @@ public class LdapAuthenticatorImpl {
      *
      * @param username  username
      * @param password  user password
+     * @param securityAuthenticationLevel
      * @return  a authenticated UserIdentity
      */
-    private InitialDirContext authenticateUser(final String username, final String password) {
-        log.trace("authenticateUser with username and password. username=" + username);
+    private InitialDirContext authenticateUser(final String username, final String password, String securityAuthenticationLevel) {
         if (username == null || password == null) {
-            log.info("authenticateUser failed (returned null) because password or username was null.");
+            log.debug("authenticateUser failed (returned null), because password or username was null.");
             return null;
         }
 
         final String userDN = findUserDN(username);
+        if (userDN == null) {
+            log.debug("authenticateUser failed (returned null), because could not find userDN for username={}", username);
+            return null;
+        }
 
         Hashtable<String,String> myEnv = new Hashtable<>(baseenv);
-        myEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
+        if (securityAuthenticationLevel.equals("simple")) {
+            myEnv.put(Context.SECURITY_AUTHENTICATION, securityAuthenticationLevel);
+        }
         myEnv.put(Context.SECURITY_PRINCIPAL, userDN);
         myEnv.put(Context.SECURITY_CREDENTIALS, password);
 
         try {
-            return new InitialDirContext(myEnv);
+            InitialDirContext initialDirContext = new InitialDirContext(myEnv);
+            log.trace("authenticateUser with username and password was successful for username=" + username);
+            return initialDirContext;
+        } catch (AuthenticationException ae) {
+            log.trace("authenticateUser failed (returned null), because {}: {}", ae.getClass().getSimpleName(), ae.getMessage());
         } catch (Exception e) {
-            log.error("Failed to create InitialDirContext in authenticate.", e);
+            log.error("authenticateUser failed (returned null), because could not create InitialDirContext.", e);
             return null;
         }
+        return null;
+
     }
 
 
     public boolean authenticateWithTemporaryPassword(String username, String password) {
-        InitialDirContext initialDirContext = authenticateUser(username, password);
+        InitialDirContext initialDirContext = authenticateUser(username, password, "none");
         return initialDirContext != null;
     }
 
@@ -99,17 +112,16 @@ public class LdapAuthenticatorImpl {
             SearchControls constraints = new SearchControls();
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
             NamingEnumeration results = adminContext.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
-            if (!results.hasMore()) {
-                return null;
+            if (results.hasMore()) {
+                SearchResult searchResult = (SearchResult) results.next();
+                String userDN = searchResult.getNameInNamespace();
+                if (userDN == null) {
+                    log.debug("findUserDN, userDN not found for username={}", username);
+                    return null;
+                }
+                //log.debug("findUserDN with username={} found userDN={}", username, userDN);
+                return userDN;
             }
-
-            SearchResult searchResult =(SearchResult) results.next();
-            String userDN = searchResult.getNameInNamespace();
-            if (userDN == null) {
-                log.debug("userDN not found for {}", username);
-                return null;
-            }
-            log.debug("findUserDN with username={} found userDN={}", username, userDN);
         } catch (Exception e) {
             log.info("findUserDN failed for user with username=" + username, e);
         }
@@ -128,7 +140,7 @@ public class LdapAuthenticatorImpl {
 
         SearchResult searchResult = (SearchResult) results.next();
         Attributes attributes = searchResult.getAttributes();
-        if (attributes.get(LDAPHelper.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
+        if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
             log.info("User has temp password, must change before logon");
             return null;
         }

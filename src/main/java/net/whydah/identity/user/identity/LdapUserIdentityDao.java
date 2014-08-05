@@ -15,8 +15,8 @@ import java.util.Hashtable;
 /**
  * @author totto
  */
-public class LDAPHelper {
-    private static final Logger log = LoggerFactory.getLogger(LDAPHelper.class);
+public class LdapUserIdentityDao {
+    private static final Logger log = LoggerFactory.getLogger(LdapUserIdentityDao.class);
     static final String ATTRIBUTE_NAME_TEMPPWD_SALT = "destinationIndicator";
     /**
      * The OU (organizational unit) to add users to
@@ -40,7 +40,7 @@ public class LDAPHelper {
     private boolean connected = false;
 
 
-    public LDAPHelper(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
+    public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
         admenv = new Hashtable<>(4);
         admenv.put(Context.PROVIDER_URL, ldapUrl);
         admenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -77,9 +77,9 @@ public class LDAPHelper {
         try {
             String userdn = ATTRIBUTE_NAME_UID + '=' + userIdentity.getUid() + "," + USERS_OU;
             ctx.createSubcontext(userdn, container);
-            log.debug("Added {} with dn={}", userIdentity, userdn);
+            log.trace("Added {} with dn={}", userIdentity, userdn);
         } catch (NameAlreadyBoundException nabe) {
-            log.info("User already exist in LDAP: {}", userIdentity);
+            log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity);
         } catch (InvalidAttributeValueException iave){
             StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
             strb.append(userIdentity.toString());
@@ -189,19 +189,18 @@ public class LDAPHelper {
         return objClasses;
     }
 
-    private String createUserDN(String username) throws NamingException {
+    private String createUserDNFromUsername(String username) throws NamingException {
         Attributes attributes = getUserAttributesForUsernameOrUid(username);
         if (attributes == null) {
-            log.debug("Atributes/User are null");
+            log.debug("createUserDNFromUsername failed (returned null), because could not find any Attributes for username={}", username);
             return null;
         }
         String uid = getAttribValue(attributes, ATTRIBUTE_NAME_UID);
-        log.debug("UID is " + uid);
         return createUserDNFromUID(uid);
     }
 
     private String createUserDNFromUID(String uid) throws NamingException {
-        return new StringBuilder(ATTRIBUTE_NAME_UID).append('=').append(uid).append(",").append(USERS_OU).toString();
+        return ATTRIBUTE_NAME_UID + '=' + uid + "," + USERS_OU;
     }
 
     public UserIdentity getUserIndentity(String username) throws NamingException {
@@ -254,7 +253,6 @@ public class LDAPHelper {
         }
 
         log.debug("No attributes found for username=" + username + ", trying uid");
-
         return getAttributesForUid(username);
     }
 
@@ -273,7 +271,6 @@ public class LDAPHelper {
     }
 
     private Attributes getUserAttributesForUsername(String username) throws NamingException {
-        log.debug("getUserAttributesForUsername, username=" + username);
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
@@ -281,6 +278,7 @@ public class LDAPHelper {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
+        log.debug("getUserAttributesForUsername returned null for username=" + username);
         return null;
     }
 
@@ -297,7 +295,7 @@ public class LDAPHelper {
     public boolean deleteUserIdentity(String username) {
         log.info("deleteUserIdentity with username={}", username);
         try {
-            String userDN = createUserDN(username);
+            String userDN = createUserDNFromUsername(username);
             ctx.destroySubcontext(userDN);
             return true;
         } catch (NamingException ne) {
@@ -312,7 +310,7 @@ public class LDAPHelper {
         }
         try {
             Attributes attributes = getUserAttributesForUsernameOrUid(username);
-            String userDN = createUserDN(username);
+            String userDN = createUserDNFromUsername(username);
             if (attributes.get(ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
                 ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
                 ModificationItem[] mis = {mif};
@@ -321,8 +319,9 @@ public class LDAPHelper {
             ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
             ModificationItem[] mis = {mi};
             ctx.modifyAttributes(userDN, mis);
+            log.trace("Password successfully changed for user with username={}", username);
         } catch (NamingException ne) {
-            log.error("", ne);
+            log.error("Error when changing password. Uncertain whether password was changed or not for username=", username, ne);
         }
     }
 
@@ -334,7 +333,7 @@ public class LDAPHelper {
         }
         try {
             Attributes attributes = getUserAttributesForUsernameOrUid(username);
-            String userDN = createUserDN(username);
+            String userDN = createUserDNFromUsername(username);
             if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};

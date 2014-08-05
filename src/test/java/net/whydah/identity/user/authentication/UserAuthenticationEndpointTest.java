@@ -81,12 +81,12 @@ public class UserAuthenticationEndpointTest {
 
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
 
-        LDAPHelper ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        LdapAuthenticatorImpl ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
         PasswordGenerator pwg = new PasswordGenerator();
         PasswordSender passwordSender = new PasswordSender(null, null);
-        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapHelper, auditLogRepository, pwg, passwordSender, null, null);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogRepository, pwg, passwordSender, null, null);
 
         DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
@@ -97,7 +97,7 @@ public class UserAuthenticationEndpointTest {
         roleRepository.setApplicationRepository(configDataRepository);
 
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new Indexer(index), auditLogRepository, roleRepository);
     }
 
     @AfterClass

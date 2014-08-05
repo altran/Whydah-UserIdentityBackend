@@ -34,8 +34,8 @@ public class UserIdentityService {
     private static final String SALT_ENCODING = "UTF-8";
 
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
-    private final LdapAuthenticatorImpl primaryLdapAuthenticator;
-    private final LDAPHelper ldapHelper;
+    private final LdapAuthenticator primaryLdapAuthenticator;
+    private final LdapUserIdentityDao ldapUserIdentityDao;
     private final AuditLogRepository auditLogRepository;
 
     private final PasswordGenerator passwordGenerator;
@@ -46,11 +46,11 @@ public class UserIdentityService {
 
 
     @Inject
-    public UserIdentityService(@Named("primaryLdap") LdapAuthenticatorImpl primaryLdapAuthenticator,
-                               LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
+    public UserIdentityService(@Named("primaryLdap") LdapAuthenticator primaryLdapAuthenticator,
+                               LdapUserIdentityDao ldapUserIdentityDao, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
                                PasswordSender passwordSender, Indexer indexer, Search searcher) {
         this.primaryLdapAuthenticator = primaryLdapAuthenticator;
-        this.ldapHelper = ldapHelper;
+        this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.auditLogRepository = auditLogRepository;
         this.passwordGenerator = passwordGenerator;
         this.passwordSender = passwordSender;
@@ -70,7 +70,7 @@ public class UserIdentityService {
     private String setTempPassword(String username, String uid) {
         String newPassword = passwordGenerator.generate();
         String salt = passwordGenerator.generate();
-        ldapHelper.setTempPassword(username, newPassword, salt);
+        ldapUserIdentityDao.setTempPassword(username, newPassword, salt);
         audit(ActionPerformed.MODIFIED, "resetpassword", uid);
 
         byte[] saltAsBytes;
@@ -90,7 +90,7 @@ public class UserIdentityService {
      * @return  true if authentication OK
      */
     public boolean authenticateWithChangePasswordToken(String username, String token) {
-        String salt = ldapHelper.getSalt(username);
+        String salt = ldapUserIdentityDao.getSalt(username);
 
         byte[] saltAsBytes;
         try {
@@ -106,14 +106,14 @@ public class UserIdentityService {
 
 
     public void changePassword(String username, String userUid, String newPassword) {
-        ldapHelper.changePassword(username, newPassword);
+        ldapUserIdentityDao.changePassword(username, newPassword);
         audit(ActionPerformed.MODIFIED, "password", userUid);
     }
 
     public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentityRepresentation dto) {
         String username = dto.getUsername();
         try {
-            if (ldapHelper.usernameExist(username)) {
+            if (ldapUserIdentityDao.usernameExist(username)) {
                 //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
                 throw new ConflictException("User already exists, could not create user " + username);
             }
@@ -150,7 +150,7 @@ public class UserIdentityService {
         UserIdentity userIdentity = new UserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
                 dto.getPersonRef(), email, dto.getCellPhone(), passwordGenerator.generate());
         try {
-            ldapHelper.addUserIdentity(userIdentity);
+            ldapUserIdentityDao.addUserIdentity(userIdentity);
             indexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
@@ -176,7 +176,7 @@ public class UserIdentityService {
     public void addUserIdentity(UserIdentity userIdentity) {
         String username = userIdentity.getUsername();
         try {
-            if (ldapHelper.usernameExist(username)) {
+            if (ldapUserIdentityDao.usernameExist(username)) {
                 throw new ConflictException("User already exists, could not create user " + username);
             }
         } catch (NamingException e) {
@@ -195,7 +195,7 @@ public class UserIdentityService {
         userIdentity.setUid(UUID.randomUUID().toString());
 
         try {
-            ldapHelper.addUserIdentity(userIdentity);
+            ldapUserIdentityDao.addUserIdentity(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
@@ -203,23 +203,23 @@ public class UserIdentityService {
     }
 
     public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
-        return ldapHelper.getUserIndentityForUid(uid);
+        return ldapUserIdentityDao.getUserIndentityForUid(uid);
     }
 
     public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
-        ldapHelper.updateUserIdentityForUid(uid, newuser);
+        ldapUserIdentityDao.updateUserIdentityForUid(uid, newuser);
     }
 
 
     public UserIdentity getUserIndentity(String username) throws NamingException {
-        return ldapHelper.getUserIndentity(username);
+        return ldapUserIdentityDao.getUserIndentity(username);
     }
     public void updateUserIdentity(String username, UserIdentity newuser) {
-        ldapHelper.updateUserIdentityForUsername(username, newuser);
+        ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
     }
 
     public void deleteUserIdentity(String username) {
-        ldapHelper.deleteUserIdentity(username);
+        ldapUserIdentityDao.deleteUserIdentity(username);
     }
 
     private void audit(String action, String what, String value) {

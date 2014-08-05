@@ -3,8 +3,8 @@ package net.whydah.identity.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
-import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
+import net.whydah.identity.user.identity.LdapAuthenticator;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.search.Indexer;
 import net.whydah.identity.user.search.Search;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -71,11 +71,11 @@ public class UserIdentityBackendModule extends AbstractModule {
         String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
         String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
 
-        LdapAuthenticatorImpl primaryLdapAuthenticator = new LdapAuthenticatorImpl(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute);
-        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("primaryLdap")).toInstance(primaryLdapAuthenticator);
+        LdapAuthenticator primaryLdapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute);
+        bind(LdapAuthenticator.class).annotatedWith(Names.named("primaryLdap")).toInstance(primaryLdapAuthenticator);
 
 
-        bind(LDAPHelper.class).toInstance(new LDAPHelper(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
+        bind(LdapUserIdentityDao.class).toInstance(new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
 
 
         //secondary, not currently in use

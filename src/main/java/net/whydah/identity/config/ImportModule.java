@@ -1,7 +1,7 @@
 package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
-import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.search.Indexer;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -25,7 +25,7 @@ public class ImportModule extends AbstractModule {
         String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
         String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
         String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
-        bind(LDAPHelper.class).toInstance(new LDAPHelper(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
+        bind(LdapUserIdentityDao.class).toInstance(new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
 
 
         //datasource

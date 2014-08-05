@@ -6,7 +6,7 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
-import net.whydah.identity.user.identity.LDAPHelper;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
@@ -35,14 +35,14 @@ public class UserAdminHelper {
     private static final Logger logger = LoggerFactory.getLogger(UserAdminHelper.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
-    private final LDAPHelper ldapHelper;
+    private final LdapUserIdentityDao ldapUserIdentityDao;
     private final Indexer indexer;
     private final AuditLogRepository auditLogRepository;
     private final UserPropertyAndRoleRepository roleRepository;
 
     @Inject
-    public UserAdminHelper(LDAPHelper ldapHelper, Indexer indexer, AuditLogRepository auditLogRepository, UserPropertyAndRoleRepository roleRepository) {
-        this.ldapHelper = ldapHelper;
+    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, Indexer indexer, AuditLogRepository auditLogRepository, UserPropertyAndRoleRepository roleRepository) {
+        this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.indexer = indexer;
         this.auditLogRepository = auditLogRepository;
         this.roleRepository = roleRepository;
@@ -53,13 +53,13 @@ public class UserAdminHelper {
         logger.trace("Adding new user: {}", username);
 
         try {
-            if (ldapHelper.usernameExist(username)) {
+            if (ldapUserIdentityDao.usernameExist(username)) {
                 logger.info("User already exists, could not create user " + username);
                 return Response.status(Response.Status.NOT_ACCEPTABLE).build();
             }
 
             newIdentity.setUid(UUID.randomUUID().toString());
-            ldapHelper.addUserIdentity(newIdentity);
+            ldapUserIdentityDao.addUserIdentity(newIdentity);
             logger.info("Added new user: {}", username);
         } catch (Exception e) {
             logger.error("Could not create user " + username, e);

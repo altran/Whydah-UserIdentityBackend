@@ -11,11 +11,11 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class LDAPHelperTest {
+public class LdapUserIdentityDaoTest {
     private static String ldapUrl; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
-    private static LDAPHelper ldapHelper; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-    private static LdapAuthenticatorImpl ldapAuthenticator; // = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
+    private static LdapUserIdentityDao ldapUserIdentityDao; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+    private static LdapAuthenticator ldapAuthenticator; // = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -24,10 +24,10 @@ public class LDAPHelperTest {
         //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
         int LDAP_PORT = 18389;
         ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
-        ldapHelper = new LDAPHelper(ldapUrl, "uid=admin,ou=system", "secret", "initials");
-        ldapAuthenticator = new LdapAuthenticatorImpl(ldapUrl, "uid=admin,ou=system", "secret", "uid");
+        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials");
+        ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid");
 
-        String workDirPath = "target/" + LDAPHelperTest.class.getSimpleName();
+        String workDirPath = "target/" + LdapUserIdentityDaoTest.class.getSimpleName();
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
@@ -48,9 +48,9 @@ public class LDAPHelperTest {
 
     @Test
     public void testAddUser() throws Exception {
-        UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com");
-        ldapHelper.addUserIdentity(user);
-        UserIdentityRepresentation gotUser = ldapHelper.getUserIndentity("jan");
+        UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com", "pass");
+        ldapUserIdentityDao.addUserIdentity(user);
+        UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity("jan");
         assertNotNull(gotUser);
     }
 
@@ -58,22 +58,22 @@ public class LDAPHelperTest {
     public void testUpdateUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid);
-        ldapHelper.addUserIdentity(user);
-        UserIdentity gotUser = ldapHelper.getUserIndentity(username);
+        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid, "pass");
+        ldapUserIdentityDao.addUserIdentity(user);
+        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
         gotUser.setCellPhone(cellPhone);
-        ldapHelper.updateUserIdentityForUsername(username, gotUser);
-        UserIdentity gotUpdatedUser = ldapHelper.getUserIndentity(username);
+        ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUser);
+        UserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
 
         gotUpdatedUser.setCellPhone(null);
         String firstName = "Emil";
         gotUpdatedUser.setFirstName(firstName);
-        ldapHelper.updateUserIdentityForUsername(username, gotUpdatedUser);
-        gotUpdatedUser = ldapHelper.getUserIndentity(username);
+        ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUpdatedUser);
+        gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(firstName, gotUpdatedUser.getFirstName());
         assertNull(gotUpdatedUser.getCellPhone());
     }
@@ -82,36 +82,38 @@ public class LDAPHelperTest {
     public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "usernameToBeDeleted";
-        UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid);
-        ldapHelper.addUserIdentity(user);
-        UserIdentityRepresentation gotUser = ldapHelper.getUserIndentity(user.getUsername());
+        UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid, "pass");
+        ldapUserIdentityDao.addUserIdentity(user);
+        UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
-        boolean deleteSuccessful = ldapHelper.deleteUserIdentity(username);
+        boolean deleteSuccessful = ldapUserIdentityDao.deleteUserIdentity(username);
         assertTrue(deleteSuccessful);
 
         //Thread.sleep(3000);
 
-        UserIdentityRepresentation gotUser2 = ldapHelper.getUserIndentity(username);
+        UserIdentityRepresentation gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
         assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
     }
 
     @Test
     public void testChangePassword() throws Exception {
-        UserIdentity user = createUser("stoven@hotmail.com", "Oddvar", "Bra", "stoven@hotmail.com", "stoven@hotmail.com");
-        ldapHelper.addUserIdentity(user);
-
+        String username = "stoven@hotmail.com";
         String firstPassword = "pass";
-        assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword("stoven@hotmail.com", firstPassword));
-        String secondPassword = "snafs";
-        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", secondPassword));
+        String uid = username;
+        UserIdentity user = createUser(username, "Oddvar", "Bra", "stoven@hotmail.com", uid, firstPassword);
+        ldapUserIdentityDao.addUserIdentity(user);
 
-        ldapHelper.changePassword("stoven@hotmail.com", secondPassword);
-        assertNull(ldapAuthenticator.authenticate("stoven@hotmail.com", firstPassword));
-        assertNotNull(ldapAuthenticator.authenticate("stoven@hotmail.com", secondPassword));
+        assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword(username, firstPassword));
+        String secondPassword = "snafs";
+        assertNull(ldapAuthenticator.authenticate(username, secondPassword));
+
+        ldapUserIdentityDao.changePassword(username, secondPassword);
+        assertNull(ldapAuthenticator.authenticate(username, firstPassword));
+        assertNotNull(ldapAuthenticator.authenticate(username, secondPassword));
     }
 
-    private static UserIdentity createUser(String username, String firstName, String lastName, String email, String uid) {
+    private static UserIdentity createUser(String username, String firstName, String lastName, String email, String uid, String password) {
         UserIdentity userIdentity = new UserIdentity();
         userIdentity.setUsername(username);
         userIdentity.setFirstName(firstName);
@@ -119,7 +121,7 @@ public class LDAPHelperTest {
         userIdentity.setEmail(email);
         userIdentity.setUid(uid);
         userIdentity.setPersonRef("r" + uid);
-        userIdentity.setPassword("pass");
+        userIdentity.setPassword(password);
         return userIdentity;
     }
 }

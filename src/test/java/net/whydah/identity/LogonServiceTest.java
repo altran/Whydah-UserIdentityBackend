@@ -10,8 +10,8 @@ import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.identity.LDAPHelper;
-import net.whydah.identity.user.identity.LdapAuthenticatorImpl;
+import net.whydah.identity.user.identity.LdapAuthenticator;
+import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.Indexer;
@@ -43,8 +43,8 @@ public class LogonServiceTest {
     private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
-    private static LDAPHelper ldapHelper;
-    private static LdapAuthenticatorImpl ldapAuthenticator;
+    private static LdapUserIdentityDao ldapUserIdentityDao;
+    private static LdapAuthenticator ldapAuthenticator;
     private static UserPropertyAndRoleRepository roleRepository;
     private static UserAdminHelper userAdminHelper;
     private static QueryRunner queryRunner;
@@ -69,8 +69,8 @@ public class LogonServiceTest {
         } catch (Exception e){
 
         }
-        ldapHelper = new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-        ldapAuthenticator = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
 
         roleRepository = new UserPropertyAndRoleRepository();
@@ -90,7 +90,7 @@ public class LogonServiceTest {
         roleRepository.setApplicationRepository(configDataRepository);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        userAdminHelper = new UserAdminHelper(ldapHelper, new Indexer(index), auditLogRepository, roleRepository);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new Indexer(index), auditLogRepository, roleRepository);
         try {
             uib = new Main();
             uib.importUsersAndRoles();
