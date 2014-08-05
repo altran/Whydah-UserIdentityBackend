@@ -43,10 +43,10 @@ ldap.embedded=enabled
 ldap.embedded.directory=bootstrapdata/ldap
 ldap.embedded.port=10389
 
-ldap.external.url=ldap://localhost:10389/dc=external,dc=WHYDAH,dc=no
-ldap.external.principal=uid=admin,ou=system
-ldap.external.credentials=secret
-ldap.external.usernameattribute=initials
+ldap.primary.url=ldap://localhost:10389/dc=external,dc=WHYDAH,dc=no
+ldap.primary.admin.principal=uid=admin,ou=system
+ldap.primary.admin.credentials=secret
+ldap.primary.usernameattribute=initials
 
 roledb.directory=bootstrapdata/hsqldb
 roledb.jdbc.driver=org.hsqldb.jdbc.JDBCDriver
