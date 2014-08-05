@@ -11,14 +11,21 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 public class UserIdentityBackendModule extends AbstractModule {
+    private static final Logger log = LoggerFactory.getLogger(UserIdentityBackendModule.class);
+
     @Override
     protected void configure() {
+        log.info("Configure UserIdentityBackendModule (primaryLDAP, secondaryLDAP, roledb (sql), queryRunner and Lucene).");
+
         BasicDataSource dataSource = getDataSource();
+
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);
 
@@ -58,15 +65,21 @@ public class UserIdentityBackendModule extends AbstractModule {
     }
 
     private void bindLdapServices() {
-        String externalLdapUrl =  AppConfig.appConfig.getProperty("ldap.external.url");
-        String externalAdmPrincipal =  AppConfig.appConfig.getProperty("ldap.external.principal");
-        String externalAdmCredentials =  AppConfig.appConfig.getProperty("ldap.external.credentials");
-        String externalUsernameAttribute =  AppConfig.appConfig.getProperty("ldap.external.usernameattribute");
-        LdapAuthenticatorImpl externalLdapAuthenticator = new LdapAuthenticatorImpl(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute);
-        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("external")).toInstance(externalLdapAuthenticator);
+        //primary
+        String primaryLdapUrl = AppConfig.appConfig.getProperty("ldap.primary.url");
+        String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
+        String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
+        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
 
-        bind(LDAPHelper.class).toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
+        LdapAuthenticatorImpl primaryLdapAuthenticator = new LdapAuthenticatorImpl(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute);
+        bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("primaryLdap")).toInstance(primaryLdapAuthenticator);
 
+
+        bind(LDAPHelper.class).toInstance(new LDAPHelper(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
+
+
+        //secondary, not currently in use
+        /*
         String internalLdapUrl;
         String admPrincipal;
         String admCredentials;
@@ -89,5 +102,6 @@ public class UserIdentityBackendModule extends AbstractModule {
         // internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         LdapAuthenticatorImpl internalLdapAuthenticator = new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute);
         bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(internalLdapAuthenticator);
+        */
     }
 }

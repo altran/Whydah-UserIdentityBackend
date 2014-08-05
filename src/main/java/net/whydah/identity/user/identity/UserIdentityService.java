@@ -34,7 +34,7 @@ public class UserIdentityService {
     private static final String SALT_ENCODING = "UTF-8";
 
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
-    private final LdapAuthenticatorImpl externalLdapAuthenticator;
+    private final LdapAuthenticatorImpl primaryLdapAuthenticator;
     private final LDAPHelper ldapHelper;
     private final AuditLogRepository auditLogRepository;
 
@@ -46,10 +46,10 @@ public class UserIdentityService {
 
 
     @Inject
-    public UserIdentityService(@Named("external") LdapAuthenticatorImpl externalLdapAuthenticator,
+    public UserIdentityService(@Named("primaryLdap") LdapAuthenticatorImpl primaryLdapAuthenticator,
                                LDAPHelper ldapHelper, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
                                PasswordSender passwordSender, Indexer indexer, Search searcher) {
-        this.externalLdapAuthenticator = externalLdapAuthenticator;
+        this.primaryLdapAuthenticator = primaryLdapAuthenticator;
         this.ldapHelper = ldapHelper;
         this.auditLogRepository = auditLogRepository;
         this.passwordGenerator = passwordGenerator;
@@ -59,7 +59,7 @@ public class UserIdentityService {
     }
 
     public UserIdentity authenticate(final String username, final String password) {
-        return externalLdapAuthenticator.authenticate(username, password);
+        return primaryLdapAuthenticator.authenticate(username, password);
     }
 
 
@@ -99,7 +99,7 @@ public class UserIdentityService {
             throw new RuntimeException("Error with salt for username=" + username, e1);
         }
         ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
-        boolean ok = externalLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
+        boolean ok = primaryLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
         log.info("authenticateWithChangePasswordToken was ok={} for username={}", username, ok);
         return ok;
     }

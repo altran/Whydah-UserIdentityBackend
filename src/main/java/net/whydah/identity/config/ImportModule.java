@@ -14,17 +14,19 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImportModule extends AbstractModule {
-	 private static final Logger logger = LoggerFactory.getLogger(ImportModule.class);
+    private static final Logger log = LoggerFactory.getLogger(ImportModule.class);
+
     @Override
     protected void configure() {
-    	logger.info("configure");
-        //LDAP
-        String externalLdapUrl = AppConfig.appConfig.getProperty("ldap.external.url");
-        String externalAdmPrincipal = AppConfig.appConfig.getProperty("ldap.external.principal");
-        String externalAdmCredentials = AppConfig.appConfig.getProperty("ldap.external.credentials");
-        String externalUsernameAttribute = AppConfig.appConfig.getProperty("ldap.external.usernameattribute");
-        bind(LDAPHelper.class)
-                .toInstance(new LDAPHelper(externalLdapUrl, externalAdmPrincipal, externalAdmCredentials, externalUsernameAttribute));
+        log.info("Configure ImportModule (primaryLDAP, roledb (sql), queryRunner and Lucene).");
+
+        //Primary LDAP
+        String primaryLdapUrl = AppConfig.appConfig.getProperty("ldap.primary.url");
+        String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
+        String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
+        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
+        bind(LDAPHelper.class).toInstance(new LDAPHelper(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute));
+
 
         //datasource
         String jdbcdriver = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
@@ -37,6 +39,7 @@ public class ImportModule extends AbstractModule {
         dataSource.setUrl(jdbcurl);//"jdbc:hsqldb:file:" + basepath + "hsqldb");
         dataSource.setUsername(roledbuser);
         dataSource.setPassword(roledbpasswd);
+
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);
 
@@ -48,8 +51,6 @@ public class ImportModule extends AbstractModule {
             bind(Indexer.class).toInstance(new Indexer(index));
         } catch (IOException e) {
             throw new ConfigurationException(e.getLocalizedMessage(), e);
-           
         }
     }
-
 }
