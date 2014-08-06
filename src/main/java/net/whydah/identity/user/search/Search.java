@@ -31,32 +31,32 @@ public class Search {
     }
 
     public List<UserIdentityRepresentation> search(String queryString) {
-        String[] queryitems = queryString.replace('_', ' ').split(" ");
-        StringBuilder wilcardquery = new StringBuilder();
-        for (String queryitem : queryitems) {
-            wilcardquery.append(queryitem).append("^2 ");
-            wilcardquery.append(queryitem).append("* ");
-        }
-        logger.debug("query now: {}", wilcardquery);
-
+        String wildCardQuery = buildWildCardQuery(queryString);
 
         int maxHits = 20;
-        ArrayList<UserIdentityRepresentation> result = new ArrayList<UserIdentityRepresentation>();
+        String[] fields = {
+                Indexer.FIELD_FIRSTNAME,
+                Indexer.FIELD_LASTNAME,
+                Indexer.FIELD_EMAIL,
+                Indexer.FIELD_USERNAME,
+                Indexer.FIELD_MOBILE
+        };
+        HashMap<String, Float> boosts = new HashMap<>();
+        boosts.put(Indexer.FIELD_FIRSTNAME, 2.5f);
+        boosts.put(Indexer.FIELD_LASTNAME, 2f);
+        boosts.put(Indexer.FIELD_USERNAME, 1.5f);
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(Version.LUCENE_30, fields, ANALYZER, boosts);
+        multiFieldQueryParser.setAllowLeadingWildcard(true);
+        Query q = null;
         try {
-            String[] fields = {
-                    Indexer.FIELD_FIRSTNAME,
-                    Indexer.FIELD_LASTNAME,
-                    Indexer.FIELD_EMAIL,
-                    Indexer.FIELD_USERNAME,
-                    Indexer.FIELD_MOBILE
-            };
-            HashMap<String, Float> boosts = new HashMap<String, Float>();
-            boosts.put(Indexer.FIELD_FIRSTNAME, 2.5f);
-            boosts.put(Indexer.FIELD_LASTNAME, 2f);
-            boosts.put(Indexer.FIELD_USERNAME, 1.5f);
-            MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(Version.LUCENE_30, fields, ANALYZER, boosts);
-            multiFieldQueryParser.setAllowLeadingWildcard(true);
-            Query q = multiFieldQueryParser.parse(wilcardquery.toString());
+            q = multiFieldQueryParser.parse(wildCardQuery);
+        } catch (ParseException e) {
+            logger.error("Could not parse wildCardQuery={}", wildCardQuery, e);
+        }
+
+
+        List<UserIdentityRepresentation> result = new ArrayList<>();
+        try {
             IndexSearcher searcher = new IndexSearcher(index, true);
             TopDocs topDocs = searcher.search(q, maxHits);
 
@@ -71,17 +71,25 @@ public class Search {
                 user.setPersonRef(d.get(Indexer.FIELD_PERSONREF));
                 user.setCellPhone(d.get(Indexer.FIELD_MOBILE));
                 user.setEmail(d.get(Indexer.FIELD_EMAIL));
-//                System.out.println(user.getUsername() + " : " + hit.score);
+                //System.out.println(user.getUsername() + " : " + hit.score);
                 result.add(user);
             }
             searcher.close();
-        } catch (ParseException e) {
-            logger.error(e.getLocalizedMessage(), e);
         } catch (IOException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            logger.error("Error when searching", e);
         }
         return result;
-
     }
 
+    private String buildWildCardQuery(String queryString) {
+        String[] queryitems = queryString.replace('_', ' ').split(" ");
+        StringBuilder strb = new StringBuilder();
+        for (String queryitem : queryitems) {
+            strb.append(queryitem).append("^2 ");
+            strb.append(queryitem).append("* ");
+        }
+        String wildCardQuery = strb.toString();
+        logger.debug("Original query={}, wildcard query= {}", queryString, wildCardQuery);
+        return wildCardQuery;
+    }
 }
