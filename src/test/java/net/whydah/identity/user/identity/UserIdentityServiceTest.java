@@ -32,7 +32,7 @@ public class UserIdentityServiceTest {
         //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
         int LDAP_PORT = 19389;
         ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials");
+        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
         ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid");
 
         String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();

@@ -81,7 +81,7 @@ public class UserAuthenticationEndpointTest {
 
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
 
-        LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
         PasswordGenerator pwg = new PasswordGenerator();
