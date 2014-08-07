@@ -41,6 +41,7 @@ public class LdapUserIdentityDao {
     private boolean connected = false;
 
 
+
     public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute, boolean readOnly) {
         admenv = new Hashtable<>(4);
         admenv.put(Context.PROVIDER_URL, ldapUrl);
