@@ -368,7 +368,6 @@ public class UserAdminTest {
 
 
     @Test
-    @Ignore
     public void addUserWithCodesInCellPhoneNumber() {
         // TODO: Apache DS does not allow phone number with non-number letters
         String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
