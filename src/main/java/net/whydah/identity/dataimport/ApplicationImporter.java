@@ -29,6 +29,11 @@ public class ApplicationImporter {
 	}
 	
 	public void importApplications(String applicationsSource) {
+        if (applicationsSource == null || applicationsSource.isEmpty()) {
+            log.info("applicationsSource was empty, skipping applications import.");
+            return;
+        }
+
         log.info("importApplications from applicationsSource={}", applicationsSource);
 		List<Application> applications = parseApplications(applicationsSource);
 		saveApplications(applications);
@@ -50,7 +55,7 @@ public class ApplicationImporter {
 		BufferedReader reader = null;
 		try {
 			List<Application> applications = new ArrayList<>();
-	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(applicationsSource);
+	        InputStream classpathStream = ApplicationImporter.class.getClassLoader().getResourceAsStream(applicationsSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
 	        while (null != (line = reader.readLine())) {

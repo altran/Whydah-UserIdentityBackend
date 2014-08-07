@@ -38,11 +38,15 @@ public class WhydahUserIdentityImporter {
 		this.index = index;
 	}
     
-    public List<UserIdentity> importUsers(String userImportSource) {
+    public void importUsers(String userImportSource) {
+        if (userImportSource == null || userImportSource.isEmpty()) {
+            log.info("userImportSource was empty, skipping user import.");
+            return;
+        }
+
         log.info("importUsers from userImportSource={}", userImportSource);
         List<UserIdentity> users = parseUsers(userImportSource);
     	saveUsers(users);
-    	return users;
     }
 
 	protected static List<UserIdentity> parseUsers(String userImportSource) {

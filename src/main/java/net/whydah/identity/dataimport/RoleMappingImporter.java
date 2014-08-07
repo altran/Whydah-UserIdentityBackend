@@ -31,19 +31,17 @@ public class RoleMappingImporter {
 		this.roleMappingRepository = roleMappingRepository;
 	}
 
-    public List<UserPropertyAndRole> importRoleMapping(String roleMappingSource) {
-        log.info("importOrganizations from roleMappingSource={}", roleMappingSource);
+    public void importRoleMapping(String roleMappingSource) {
+        if (roleMappingSource == null || roleMappingSource.isEmpty()) {
+            log.info("roleMappingSource was empty, skipping roleMapping import.");
+            return;
+        }
+
+        log.info("importRoleMapping from roleMappingSource={}", roleMappingSource);
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
-    	return roles;
     }
     
-	private void saveRoleMapping(List<UserPropertyAndRole> roles) {
-		for(UserPropertyAndRole userPropertyAndRole : roles) {
-			roleMappingRepository.addUserPropertyAndRole(userPropertyAndRole);	
-		}
-	}
-
 	protected static List<UserPropertyAndRole> parseRoleMapping(String roleMappingSource) {
 		BufferedReader reader = null;
 		try {
@@ -97,4 +95,10 @@ public class RoleMappingImporter {
 			throw new RuntimeException("Role Mapping parsing error. Incorrect format of Line. It does not contain all required fields. Line: " + line);
 		}
 	}
+
+    private void saveRoleMapping(List<UserPropertyAndRole> roles) {
+        for(UserPropertyAndRole userPropertyAndRole : roles) {
+            roleMappingRepository.addUserPropertyAndRole(userPropertyAndRole);
+        }
+    }
 }

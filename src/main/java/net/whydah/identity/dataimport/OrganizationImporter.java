@@ -27,6 +27,11 @@ public class OrganizationImporter {
 	}
 
 	public void importOrganizations(String organizationsSource) {
+        if (organizationsSource == null || organizationsSource.isEmpty()) {
+            log.info("organizationsSource was empty, skipping organization import.");
+            return;
+        }
+
         log.info("importOrganizations from organizationsSource={}", organizationsSource);
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
@@ -36,7 +41,7 @@ public class OrganizationImporter {
 		BufferedReader reader = null;
 		try {
 			List<Organization> organizations = new ArrayList<>();
-	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(organizationsSource);
+	        InputStream classpathStream = OrganizationImporter.class.getClassLoader().getResourceAsStream(organizationsSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
 	        String line = null; 
 	        while (null != (line = reader.readLine())) {
