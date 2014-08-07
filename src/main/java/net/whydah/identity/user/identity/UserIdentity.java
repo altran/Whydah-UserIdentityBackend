@@ -174,7 +174,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
     private static String getValidLDAPPhoneNumber(String text){
 
 
-        if (text!=null && Pattern.matches("[a-zA-Z]+", text) == false && text.length() > 2){
+        if (text!=null && Pattern.matches("([0-9]*)", text) == true && text.length() > 7){
             return text;
         }
 
