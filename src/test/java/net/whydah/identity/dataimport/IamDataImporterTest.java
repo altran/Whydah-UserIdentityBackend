@@ -57,7 +57,7 @@ public class IamDataImporterTest {
         ldapdir.mkdirs();
         ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
-        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
+        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
 
 
         roleRepository = new UserPropertyAndRoleRepository();
