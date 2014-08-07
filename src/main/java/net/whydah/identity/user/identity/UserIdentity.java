@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 /**
  * A class representing the identity of a User - backed by LDAP scheme.
@@ -34,7 +35,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         this.lastName = lastName;
         this.personRef = personRef;
         this.email = email;
-        this.cellPhone = cellPhone; //TODO Validate valid cellPhone
+        this.cellPhone = getValidLDAPPhoneNumber(cellPhone); //TODO Validate valid cellPhone
         this.password = password;
     }
 
@@ -168,6 +169,16 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
             email += word;
         }
         return email;
+    }
+
+    private static String getValidLDAPPhoneNumber(String text){
+
+
+        if (Pattern.matches("[a-zA-Z]+", text) == false && text.length() > 2){
+            return text;
+        }
+
+        return null;
     }
 
 }
