@@ -24,6 +24,7 @@ import java.util.List;
 public class Search {
     private static final Logger logger = LoggerFactory.getLogger(Search.class);
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_31);
+    private static final int MAX_HITS = 20;
     private final Directory index;
 
     public Search(Directory index) {
@@ -32,8 +33,6 @@ public class Search {
 
     public List<UserIdentityRepresentation> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
-
-        int maxHits = 20;
         String[] fields = {
                 Indexer.FIELD_FIRSTNAME,
                 Indexer.FIELD_LASTNAME,
@@ -47,18 +46,19 @@ public class Search {
         boosts.put(Indexer.FIELD_USERNAME, 1.5f);
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(Version.LUCENE_30, fields, ANALYZER, boosts);
         multiFieldQueryParser.setAllowLeadingWildcard(true);
-        Query q = null;
+        Query q;
         try {
             q = multiFieldQueryParser.parse(wildCardQuery);
         } catch (ParseException e) {
-            logger.error("Could not parse wildCardQuery={}", wildCardQuery, e);
+            logger.error("Could not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
+            return new ArrayList<>();
         }
 
-
         List<UserIdentityRepresentation> result = new ArrayList<>();
+        IndexSearcher searcher = null;
         try {
-            IndexSearcher searcher = new IndexSearcher(index, true);
-            TopDocs topDocs = searcher.search(q, maxHits);
+            searcher = new IndexSearcher(index, true);
+            TopDocs topDocs = searcher.search(q, MAX_HITS);
 
             for (ScoreDoc hit : topDocs.scoreDocs) {
                 int docId = hit.doc;
@@ -74,10 +74,18 @@ public class Search {
                 //System.out.println(user.getUsername() + " : " + hit.score);
                 result.add(user);
             }
-            searcher.close();
         } catch (IOException e) {
-            logger.error("Error when searching", e);
+            logger.error("Error when searching.", e);
+        } finally {
+            if (searcher != null) {
+                try {
+                    searcher.close();
+                } catch (IOException e) {
+                    logger.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
         }
+
         return result;
     }
 
