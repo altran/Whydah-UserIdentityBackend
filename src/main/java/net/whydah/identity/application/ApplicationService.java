@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by baardl on 29.03.14.
@@ -43,5 +44,9 @@ public class ApplicationService {
 
     public Application getApplication(String applicationId) {
         return applicationRepository.getApplication(applicationId);
+    }
+
+    public List<Application> getApplications() {
+        return applicationRepository.getApplications();
     }
 }

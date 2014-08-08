@@ -37,6 +37,10 @@ public class ApplicationServiceTest {
         assertEquals("consultant@customer", availableOrgIds.get(1));
 
     }
+    @Test
+    public void testGetApplications() throws Exception {
+        List<Application> applications = applicationService.getApplications();
+    }
 
     private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
 }

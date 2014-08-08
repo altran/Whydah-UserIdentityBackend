@@ -9,6 +9,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by baardl on 29.03.14.
@@ -82,6 +83,27 @@ public class ApplicationResource {
         }
     }
 
+    @GET
+    @Path("/applications")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getApplications(){
+        log.trace("getApplications is called ");
+        try {
+            List<Application> applications = applicationService.getApplications();
+            String applicationCreatedJson = buildApplicationsJson(applications);
+            return Response.ok(applicationCreatedJson).build();
+        } catch (IllegalArgumentException iae) {
+            log.error("getApplications: Invalid json.",  iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (IllegalStateException ise) {
+            log.error(ise.getMessage());
+            return Response.status(Response.Status.CONFLICT).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     protected String buildApplicationJson(Application application) {
         String applicationCreatedJson = null;
         try {
@@ -90,5 +112,15 @@ public class ApplicationResource {
             log.warn("Could not convert application to Json {}", application.toString());
         }
         return applicationCreatedJson;
+    }
+
+    protected String buildApplicationsJson(List<Application> applications) {
+        String applicationsCreatedJson = null;
+        try {
+            applicationsCreatedJson = mapper.writeValueAsString(applications);
+        } catch (IOException e) {
+            log.warn("Could not convert application to Json {}", applications.toString());
+        }
+        return applicationsCreatedJson;
     }
 }
