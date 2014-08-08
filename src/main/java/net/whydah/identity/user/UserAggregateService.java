@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
-import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserIdentity;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +44,7 @@ public class UserAggregateService {
         this.userIdentityService = userIdentityService;
     }
 
+    /*
     public UserAggregate addUserAndSetDefaultRoles(String userIdentityJson) {
         UserIdentity userIdentity = UserIdentity.fromJson(userIdentityJson);
 
@@ -88,7 +87,7 @@ public class UserAggregateService {
         roles.add(defaultRole);
         return roles;
     }
-
+    */
 
     public UserAggregate getUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
@@ -104,7 +103,7 @@ public class UserAggregateService {
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
         return new UserAggregate(userIdentity, userPropertyAndRoles);
     }
-
+    /*
     public UserAggregate getUserAggregateForUid(String uid) {
         UserIdentity userIdentity;
         try {
@@ -119,6 +118,7 @@ public class UserAggregateService {
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
         return new UserAggregate(userIdentity, userPropertyAndRoles);
     }
+    */
 
     /*
     public UserAggregate updateUserAggregate(String username, UserAggregate userAggregate) {
@@ -148,8 +148,6 @@ public class UserAggregateService {
 
     public UserIdentity updateUserIdentity(String uid, UserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
-        indexer.update(newUserIdentity);
-        audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         return newUserIdentity;
     }
 

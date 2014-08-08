@@ -121,13 +121,12 @@ public class UserIdentityService {
             throw new RuntimeException("usernameExist failed for username=" + username, e);
         }
 
-        String email = null;
-
-            if (dto.getEmail() != null && dto.getEmail().contains("+")) {
-                email = replacePlusWithEmpty(dto.getEmail());
-            } else {
-                email = dto.getEmail();
-            }
+        String email;
+        if (dto.getEmail() != null && dto.getEmail().contains("+")) {
+            email = replacePlusWithEmpty(dto.getEmail());
+        } else {
+            email = dto.getEmail();
+        }
         if (email != null) {
             InternetAddress internetAddress = new InternetAddress();
             internetAddress.setAddress(email);
@@ -206,8 +205,10 @@ public class UserIdentityService {
         return ldapUserIdentityDao.getUserIndentityForUid(uid);
     }
 
-    public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
-        ldapUserIdentityDao.updateUserIdentityForUid(uid, newuser);
+    public void updateUserIdentityForUid(String uid, UserIdentity newUserIdentity) {
+        ldapUserIdentityDao.updateUserIdentityForUid(uid, newUserIdentity);
+        indexer.update(newUserIdentity);
+        audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
     }
 
 
@@ -231,7 +232,6 @@ public class UserIdentityService {
     //FIXME baardl: implement verification that admin is allowed to update this password.
     //Find the admin user token, based on tokenid
     public boolean allowedToUpdate(String applicationtokenid, String adminUserTokenId) {
-
         return true;
     }
 
