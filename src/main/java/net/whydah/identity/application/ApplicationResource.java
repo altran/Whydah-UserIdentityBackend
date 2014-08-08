@@ -27,7 +27,7 @@ public class ApplicationResource {
     }
 
     /**
-     * Create a new applcation from json
+     * Create a new application from json
      * Add default
      *
      * @param applicationJson  json representing an Application
@@ -83,26 +83,6 @@ public class ApplicationResource {
         }
     }
 
-    @GET
-    @Path("/applications")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getApplications(){
-        log.trace("getApplications is called ");
-        try {
-            List<Application> applications = applicationService.getApplications();
-            String applicationCreatedJson = buildApplicationsJson(applications);
-            return Response.ok(applicationCreatedJson).build();
-        } catch (IllegalArgumentException iae) {
-            log.error("getApplications: Invalid json.",  iae);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (IllegalStateException ise) {
-            log.error(ise.getMessage());
-            return Response.status(Response.Status.CONFLICT).build();
-        } catch (RuntimeException e) {
-            log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     protected String buildApplicationJson(Application application) {
         String applicationCreatedJson = null;
@@ -114,13 +94,4 @@ public class ApplicationResource {
         return applicationCreatedJson;
     }
 
-    protected String buildApplicationsJson(List<Application> applications) {
-        String applicationsCreatedJson = null;
-        try {
-            applicationsCreatedJson = mapper.writeValueAsString(applications);
-        } catch (IOException e) {
-            log.warn("Could not convert application to Json {}", applications.toString());
-        }
-        return applicationsCreatedJson;
-    }
 }

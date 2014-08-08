@@ -49,4 +49,5 @@ public class ApplicationService {
     public List<Application> getApplications() {
         return applicationRepository.getApplications();
     }
+
 }
