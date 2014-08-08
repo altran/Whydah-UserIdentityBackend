@@ -39,8 +39,13 @@ public class ApplicationServiceTest {
     }
     @Test
     public void testGetApplications() throws Exception {
+        Application application = applicationService.createApplication(allApplication);
+        Application application_2 = applicationService.createApplication(application2);
         List<Application> applications = applicationService.getApplications();
+        assertNotNull(applications);
+        assertEquals(2,applications.size());
     }
 
     private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
 }

@@ -22,6 +22,7 @@ public class ApplicationResourceTest {
     AuditLogRepository auditLogRepositoryMock;
     ApplicationService applicationService;
     ApplicationResource applicationResource;
+    ApplicationsResource applicationsResource;
     private HttpServletRequest request;
     private HttpServletResponse response;
 
@@ -32,6 +33,7 @@ public class ApplicationResourceTest {
 
         applicationService = new ApplicationService(applicationRepositoryMock, auditLogRepositoryMock);
         applicationResource = new ApplicationResource(applicationService);
+        applicationsResource = new ApplicationsResource(applicationService);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
     }
@@ -46,9 +48,21 @@ public class ApplicationResourceTest {
         applicationResource.createApplication(allApplication);
     }
 
+    @Test
+    public void testGetApplications() throws Exception {
+
+        applicationResource.createApplication(allApplication);
+        applicationResource.createApplication(application2);
+        applicationsResource.getApplications();
+        verify(response);
+    }
+
+
+    @Test
     public void testCreateApplicationFails() throws Exception {
         applicationResource.createApplication("malformedjson");
         verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
     private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
 }
