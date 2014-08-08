@@ -52,6 +52,7 @@ public class ApplicationsResource {
         String applicationsCreatedJson = null;
         try {
             applicationsCreatedJson = mapper.writeValueAsString(applications);
+            log.debug("Applications.json",applicationsCreatedJson);
         } catch (IOException e) {
             log.warn("Could not convert application to Json {}", applications.toString());
         }

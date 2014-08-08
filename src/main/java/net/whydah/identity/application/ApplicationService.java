@@ -47,6 +47,7 @@ public class ApplicationService {
     }
 
     public List<Application> getApplications() {
+        log.trace("Found applications:"+applicationRepository.getApplications().size());
         return applicationRepository.getApplications();
     }
 
