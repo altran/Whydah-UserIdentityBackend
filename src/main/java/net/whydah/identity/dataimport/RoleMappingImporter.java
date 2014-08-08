@@ -41,6 +41,9 @@ public class RoleMappingImporter {
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
         log.info("{} roles imported.", roles.size());
+
+        //TODO ED (BL): Add user to Lucene index if uib is not indexed already.
+        // Ignore and log warning about lucene update if problems with LDAP/AD lookup.
     }
     
 	protected static List<UserPropertyAndRole> parseRoleMapping(String roleMappingSource) {
