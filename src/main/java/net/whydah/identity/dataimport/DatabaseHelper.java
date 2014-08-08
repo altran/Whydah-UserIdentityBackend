@@ -41,12 +41,13 @@ public class DatabaseHelper {
                         ")");
             }else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE UserRoles (\n" +
-                        " RoleID char(36),\n" +
+                        " ID MEDIUMINT AUTO_INCREMENT,\n" +
                         "   UserID char(36) NOT NULL,\n" +
                         "   AppID varchar(32),\n" +
-                        "   OrganizationName varchar(128),\n" +
+                        "   OrganizationId varchar(32),\n" +
                         "   RoleName varchar(32),\n" +
-                        "   RoleValues varchar(256)\n" +
+                        "   RoleValues varchar(256),\n" +
+                        "    PRIMARY KEY (ID)\n" +
                         " )\n");
             }
             queryRunner.update("CREATE TABLE Applications (" +
@@ -56,7 +57,7 @@ public class DatabaseHelper {
                     "  DefaultOrgid varchar(30) default null" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
-                    "  AppID varchar(32)," +
+                    "  ID varchar(32)," +
                     "  Name varchar(128)" +
                     ")");
             queryRunner.update("CREATE TABLE Roles (" +
@@ -75,7 +76,7 @@ public class DatabaseHelper {
             }
             else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE AUDITLOG (\n" +
-                        " ID MEDIUMINT AUTO_INCREMENT,\n" +
+                        " ID MEDIUMINT,\n" +
                         " userid varchar(36),\n" +
                         " timestamp varchar(20),\n" +
                         " action varchar(32),\n" +
