@@ -19,21 +19,17 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
 public class UserIdentityServiceTest {
-    private static String ldapUrl; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
-    private static LdapUserIdentityDao ldapUserIdentityDao; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-    private static LdapAuthenticator ldapAuthenticator; // = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
+    private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
-
 
     @BeforeClass
     public static void setUp() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
         int LDAP_PORT = 19389;
-        ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
-        ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid");
+        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
+        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials", readOnly);
 
         String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();
         File workDir = new File(workDirPath);

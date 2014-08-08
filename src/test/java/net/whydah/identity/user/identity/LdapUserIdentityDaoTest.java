@@ -12,10 +12,9 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 public class LdapUserIdentityDaoTest {
-    private static String ldapUrl; // = "ldap://localhost:" + serverPort + "/dc=external,dc=WHYDAH,dc=no";
     private static EmbeddedADS ads;
-    private static LdapUserIdentityDao ldapUserIdentityDao; //= new LDAPHelper(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
-    private static LdapAuthenticator ldapAuthenticator; // = new LdapAuthenticatorImpl(LDAP_URL, "uid=admin,ou=system", "secret", "uid");
+    private static LdapUserIdentityDao ldapUserIdentityDao;
+    private static LdapAuthenticator ldapAuthenticator;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -23,8 +22,9 @@ public class LdapUserIdentityDaoTest {
 
         //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
         int LDAP_PORT = 18389;
-        ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
+        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
+        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials", readOnly);
         ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid");
 
         String workDirPath = "target/" + LdapUserIdentityDaoTest.class.getSimpleName();

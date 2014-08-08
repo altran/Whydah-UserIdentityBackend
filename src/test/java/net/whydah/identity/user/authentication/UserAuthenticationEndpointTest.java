@@ -43,14 +43,10 @@ public class UserAuthenticationEndpointTest {
     private final static String basepath = "target/UserAuthenticationEndpointTest/";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
-//    private final static int LDAP_PORT = 10937;
-    private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
     private static EmbeddedADS ads;
     private static UserPropertyAndRoleRepository roleRepository;
     private static UserAdminHelper userAdminHelper;
-    private static QueryRunner queryRunner;
-
     private static UserIdentityService userIdentityService;
 
     @BeforeClass
@@ -58,7 +54,7 @@ public class UserAuthenticationEndpointTest {
     	System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
     	
         int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         
     	FileUtils.deleteDirectory(new File(basepath));
 
@@ -77,11 +73,12 @@ public class UserAuthenticationEndpointTest {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
-        queryRunner = new QueryRunner(dataSource);
+        QueryRunner queryRunner = new QueryRunner(dataSource);
 
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
 
-        LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
+        boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
+        LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials", readOnly);
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "initials");
 
         PasswordGenerator pwg = new PasswordGenerator();

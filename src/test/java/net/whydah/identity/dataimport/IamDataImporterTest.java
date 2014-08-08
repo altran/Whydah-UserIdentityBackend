@@ -24,21 +24,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class IamDataImporterTest {
-
     private final static String basepath = "target/UserAuthenticationEndpointTest/";
 	private static final String lucenePath = basepath + "lucene";
     private final static String ldappath = basepath + "hsqldb/ldap/";
     private final static String dbpath = basepath + "hsqldb/roles";
-    private static String LDAP_URL; 
 
     private static EmbeddedADS ads;
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static UserPropertyAndRoleRepository roleRepository;
-    private static QueryRunner queryRunner;
     private static DatabaseHelper databaseHelper;
     
-
-
 	private static OrganizationImporter organizationImporter;
 	private static WhydahUserIdentityImporter userImporter;
 	private static RoleMappingImporter roleMappingImporter;
@@ -51,13 +46,14 @@ public class IamDataImporterTest {
         FileUtils.deleteDirectory(new File(lucenePath));
 
         int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        String LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
         ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
-        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
+        boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
+        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials", readOnly);
 
 
         roleRepository = new UserPropertyAndRoleRepository();
@@ -66,7 +62,7 @@ public class IamDataImporterTest {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
-        queryRunner = new QueryRunner(dataSource);
+        QueryRunner queryRunner = new QueryRunner(dataSource);
 
         databaseHelper = new DatabaseHelper(queryRunner);
         databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
