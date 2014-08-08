@@ -15,4 +15,4 @@ target/
 /.project
 /.classpath
 
-/bootstrapdata/lucene/
+/bootstrapdata
