@@ -40,6 +40,7 @@ public class RoleMappingImporter {
         log.info("importRoleMapping from roleMappingSource={}", roleMappingSource);
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
+        log.info("{} roles imported.", roles.size());
     }
     
 	protected static List<UserPropertyAndRole> parseRoleMapping(String roleMappingSource) {
@@ -48,7 +49,7 @@ public class RoleMappingImporter {
 			List<UserPropertyAndRole> roleMappings = new ArrayList<>();
 	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(roleMappingSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
-	        String line = null; 
+	        String line;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
 				if (isComment) {

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 public class FileUtils {
-    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
     public static void deleteDirectory(File path) {
         if (path.exists()) {
@@ -17,7 +17,7 @@ public class FileUtils {
                         deleteDirectory(file);
                     } else {
                         if(!file.delete()) {
-                            logger.warn("Unable to delete directory file " + file);
+                            log.warn("Unable to delete directory file " + file);
                         }
                     }
                 }
@@ -26,7 +26,9 @@ public class FileUtils {
         boolean exist = path.exists();
         boolean deleted = path.delete();
         if(exist && !deleted)  {
-            logger.warn("Unable to delete directory " + path);
+            log.warn("Unable to delete directory " + path);
         }
+
+        log.info("Folder {} was deleted successfully.", path.getAbsolutePath());
     }
 }

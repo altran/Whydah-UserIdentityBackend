@@ -47,6 +47,7 @@ public class WhydahUserIdentityImporter {
         log.info("importUsers from userImportSource={}", userImportSource);
         List<UserIdentity> users = parseUsers(userImportSource);
     	saveUsers(users);
+        log.info("{} users imported.", users.size());
     }
 
 	protected static List<UserIdentity> parseUsers(String userImportSource) {
@@ -55,7 +56,7 @@ public class WhydahUserIdentityImporter {
 			List<UserIdentity> users = new ArrayList<>();
 			InputStream classpathStream = WhydahUserIdentityImporter.class.getClassLoader().getResourceAsStream(userImportSource);
 	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
-	        String line = null; 
+	        String line;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
 				if (isComment) {

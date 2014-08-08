@@ -60,7 +60,7 @@ public class UserPropertyAndRoleRepository {
                 //throw new DatastoreException("Error fetching roles for user with uid=" + uid, e);
             }
         }
-        logger.debug("Found {} roles", roles != null ? roles.size() : "null");
+        logger.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
         return roles;
     }
 

@@ -78,14 +78,14 @@ public class UsersResource {
     @GET
     @Path("/find/{q}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response find(@PathParam("q") String query) {
-        log.debug("find with query=" + query);
-        List<UserIdentityRepresentation> result = search.search(query);
+    public Response findUsers(@PathParam("q") String query) {
+        log.trace("findUsers with query=" + query);
+        List<UserIdentityRepresentation> users = search.search(query);
 
         HashMap<String, Object> model = new HashMap<>(2);
-        model.put("users", result);
-        log.info("users", result);
+        model.put("users", users);
         model.put("userbaseurl", uriInfo.getBaseUri());
+        log.trace("findUsers returned {} users.", users.size());
         return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
     }
 }

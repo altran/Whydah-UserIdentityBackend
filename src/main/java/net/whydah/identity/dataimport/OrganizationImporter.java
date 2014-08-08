@@ -35,6 +35,7 @@ public class OrganizationImporter {
         log.info("importOrganizations from organizationsSource={}", organizationsSource);
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
+        log.info("{} organizations imported.", organizations.size());
 	}
 	
 	protected static List<Organization> parseOrganizations(String organizationsSource) {

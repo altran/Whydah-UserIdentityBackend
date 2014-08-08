@@ -37,6 +37,7 @@ public class ApplicationImporter {
         log.info("importApplications from applicationsSource={}", applicationsSource);
 		List<Application> applications = parseApplications(applicationsSource);
 		saveApplications(applications);
+        log.info("{} applications imported.", applications.size());
 	}
 
 	private void saveApplications(List<Application> applications) {
