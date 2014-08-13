@@ -39,6 +39,7 @@
         </developer>
     </developers>
 
+
     <parent>
         <groupId>no.cantara.emi</groupId>
         <artifactId>parent</artifactId>
