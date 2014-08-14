@@ -286,10 +286,9 @@ public class UserResource {
                 log.error("Error converting to json. {}", updatedRole.toString(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
-
             return Response.ok(json).build();
         } catch (NonExistentRoleException e) {
-            return Response.status(Response.Status.fromStatusCode(422)).entity(e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         } catch (InvalidRoleModificationException e) {
             return Response.status(Response.Status.fromStatusCode(422)).entity(e.getMessage()).build();
         } catch (RuntimeException e) {
