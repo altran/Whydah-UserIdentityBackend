@@ -31,10 +31,10 @@ public class ApplicationServiceTest {
         assertEquals("test", application.getName());
         assertEquals("default1role", application.getDefaultRoleName());
         assertEquals("defaultorgname", application.getDefaultOrgName());
-        List<String> availableOrgNamess = application.getAvailableOrgNames();
-        assertNotNull(availableOrgNamess);
-        assertEquals("developer@customer", availableOrgNamess.get(0));
-        assertEquals("consultant@customer", availableOrgNamess.get(1));
+        List<String> availableOrgNames = application.getAvailableOrgNames();
+        assertNotNull(availableOrgNames);
+        assertEquals("developer@customer", availableOrgNames.get(0));
+        assertEquals("consultant@customer", availableOrgNames.get(1));
 
     }
     @Test
