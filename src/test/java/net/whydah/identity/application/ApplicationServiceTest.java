@@ -30,8 +30,8 @@ public class ApplicationServiceTest {
         assertEquals("id1", application.getId());
         assertEquals("test", application.getName());
         assertEquals("default1role", application.getDefaultRole());
-        assertEquals("defaultorgid", application.getDefaultOrgid());
-        List<String> availableOrgIds = application.getAvailableOrgIds();
+        assertEquals("defaultorgid", application.getDefaultOrgName());
+        List<String> availableOrgIds = application.getAvailableOrgNames();
         assertNotNull(availableOrgIds);
         assertEquals("developer@customer", availableOrgIds.get(0));
         assertEquals("consultant@customer", availableOrgIds.get(1));

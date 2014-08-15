@@ -19,7 +19,7 @@ public class ApplicationTest {
         List<String> availableOrgIds = new ArrayList<>();
         availableOrgIds.add("developer@customer");
         availableOrgIds.add("consultant@customer");
-        application.setAvailableOrgIds(availableOrgIds);
+        application.setAvailableOrgNames(availableOrgIds);
         JSONAssert.assertEquals(allApplication, application.toJson(), false);
     }
 

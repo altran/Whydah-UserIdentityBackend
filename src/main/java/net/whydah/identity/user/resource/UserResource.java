@@ -811,12 +811,12 @@ public class UserResource {
         if (app.getDefaultrole() == null) {
             return Response.status(Response.Status.CONFLICT).entity("{\"error\":\"app has no default role\"}'").build();
         }
-        String orgName = userPropertyAndRoleRepository.getOrgname(app.getDefaultOrgid());
+        String orgName = userPropertyAndRoleRepository.getOrgname(app.getDefaultOrgName());
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(whydahUserIdentity.getUid());
         role.setApplicationId(appid);
         role.setApplicationName(app.getName());
-        role.setOrganizationId(app.getDefaultOrgid());
+        role.setOrganizationId(app.getDefaultOrgName());
         role.setOrganizationName(orgName);
         role.setRoleName(app.getDefaultrole());
         log.debug("Role: {}", role);

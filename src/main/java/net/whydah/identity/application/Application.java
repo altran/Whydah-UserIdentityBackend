@@ -30,8 +30,8 @@ public class Application {
     private String id;
     private String name;
     private String defaultRole;
-    private String defaultOrgid;
-    private List<String> availableOrgIds;
+    private String defaultOrgName;
+    private List<String> availableOrgNames;
 
     private Application() {
     }
@@ -39,19 +39,19 @@ public class Application {
     public Application(String id, String name) {
         this(id, name, null, null);
     }
-    public Application(String id, String name, String defaultRole, String defaultOrgid) {
+    public Application(String id, String name, String defaultRole, String defaultOrgName) {
         this.id = id;
         this.name = name;
         this.defaultRole = defaultRole;
-        this.defaultOrgid = defaultOrgid;
+        this.defaultOrgName = defaultOrgName;
     }
 
-    public Application(String id, String name, String defaultRole, String defaultOrgid, List<String> availableOrgIds) {
+    public Application(String id, String name, String defaultRole, String defaultOrgName, List<String> availableOrgNames) {
         this.id = id;
         this.name = name;
         this.defaultRole = defaultRole;
-        this.defaultOrgid = defaultOrgid;
-        this.availableOrgIds = availableOrgIds;
+        this.defaultOrgName = defaultOrgName;
+        this.availableOrgNames = availableOrgNames;
     }
 
     /**
@@ -59,8 +59,8 @@ public class Application {
      "id": "id1",
      "name": "test",
      "defaultRole": "default1role",
-     "defaultOrgid": "defaultorgid",
-     "availableOrgIds": [
+     "defaultOrgName": "defaultorgid",
+     "availableOrgNames": [
      "developer@customer",
      "consultant@customer"
      ]
@@ -100,21 +100,21 @@ public class Application {
                 " <application>\n" +
                 "   <applicationid>" + id + "</applicationid>\n" +
                 "   <applicationname>" + name + "</applicationname>\n" +
-                "   <defaultrole>" + defaultRole + "</defaultrole>\n" +
-                "   <defaultorgid>" + defaultOrgid + "</defaultorgid>\n" +
-                "  " + buildAvailableOrgIsXml() + "\n" +
+                "   <defaultrolename>" + defaultRole + "</defaultrolename>\n" +
+                "   <defaultorganizationname>" + defaultOrgName + "</defaultorganizationname>\n" +
+                "  " + buildAvailableOrgAsXml() + "\n" +
                 " </application>\n";
     }
 
-    private String buildAvailableOrgIsXml() {
-        if(availableOrgIds == null || availableOrgIds.size() == 0) {
-            return "<availableOrgIds/>";
+    private String buildAvailableOrgAsXml() {
+        if(availableOrgNames == null || availableOrgNames.size() == 0) {
+            return "<organizationsnames/>";
         }else {
-            StringBuilder availableXml = new StringBuilder("<availableOrgIds>\n");
-            for (String availableOrgId : availableOrgIds) {
-                availableXml.append("<orgId>").append(availableOrgId).append("</orgId>").append("\n");
+            StringBuilder availableXml = new StringBuilder("<organizationsnames>\n");
+            for (String availableOrgId : availableOrgNames) {
+                availableXml.append("<orgName>").append(availableOrgId).append("</orgName>").append("\n");
             }
-            availableXml.append("</availableOrgIds>");
+            availableXml.append("</organizationsnames>");
             return availableXml.toString();
         }
     }
@@ -128,37 +128,37 @@ public class Application {
     public String getDefaultRole() {
         return defaultRole;
     }
-    public String getDefaultOrgid() {
-        return defaultOrgid;
+    public String getDefaultOrgName() {
+        return defaultOrgName;
     }
 
-    public List<String> getAvailableOrgIds() {
-        return availableOrgIds;
+    public List<String> getAvailableOrgNames() {
+        return availableOrgNames;
     }
 
-    public void setAvailableOrgIds(List<String> availableOrgIds) {
-        if (availableOrgIds != null) {
-            this.availableOrgIds = availableOrgIds;
+    public void setAvailableOrgNames(List<String> availableOrgNames) {
+        if (availableOrgNames != null) {
+            this.availableOrgNames = availableOrgNames;
         }
     }
 
     public void addAvailableOrgId(String availableOrgId) {
-        if (availableOrgIds == null) {
-            availableOrgIds = new ArrayList();
+        if (availableOrgNames == null) {
+            availableOrgNames = new ArrayList();
         }
         if (availableOrgId != null) {
-            this.availableOrgIds.add(availableOrgId);
+            this.availableOrgNames.add(availableOrgId);
         }
     }
 
     public void removeAvailableOrgId(String availableOrgId) {
-        if (availableOrgIds != null && availableOrgId != null) {
-            availableOrgIds.remove(availableOrgId);
+        if (availableOrgNames != null && availableOrgId != null) {
+            availableOrgNames.remove(availableOrgId);
         }
     }
 
-    public void setDefaultOrgid(String defaultOrgid) {
-        this.defaultOrgid = defaultOrgid;
+    public void setDefaultOrgName(String defaultOrgName) {
+        this.defaultOrgName = defaultOrgName;
     }
 
     public void setDefaultRole(String defaultRole) {
@@ -168,15 +168,15 @@ public class Application {
     @Override
     public String toString() {
         String availableIdsString = "";
-         if (this.availableOrgIds != null) {
-            availableIdsString = Joiner.on(", ").join(this.availableOrgIds);
+         if (this.availableOrgNames != null) {
+            availableIdsString = Joiner.on(", ").join(this.availableOrgNames);
          }
         return "Application{" +
                 "appId='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", defaultrole='" + defaultRole + '\'' +
-                ", defaultOrgid='" + defaultOrgid + '\'' +
-                ", availableOrgIds = '" + availableIdsString  + '\'' +
+                ", defaultOrgName='" + defaultOrgName + '\'' +
+                ", availableOrgNames = '" + availableIdsString  + '\'' +
                 '}';
     }
 
