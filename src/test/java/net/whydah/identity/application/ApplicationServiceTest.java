@@ -30,11 +30,11 @@ public class ApplicationServiceTest {
         assertEquals("id1", application.getId());
         assertEquals("test", application.getName());
         assertEquals("default1role", application.getDefaultRoleName());
-        assertEquals("defaultorgid", application.getDefaultOrgName());
-        List<String> availableOrgIds = application.getAvailableOrgNames();
-        assertNotNull(availableOrgIds);
-        assertEquals("developer@customer", availableOrgIds.get(0));
-        assertEquals("consultant@customer", availableOrgIds.get(1));
+        assertEquals("defaultorgname", application.getDefaultOrgName());
+        List<String> availableOrgNamess = application.getAvailableOrgNames();
+        assertNotNull(availableOrgNamess);
+        assertEquals("developer@customer", availableOrgNamess.get(0));
+        assertEquals("consultant@customer", availableOrgNamess.get(1));
 
     }
     @Test
@@ -46,6 +46,7 @@ public class ApplicationServiceTest {
         assertEquals(2,applications.size());
     }
 
-    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
-    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRole\":\"default1role\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgname\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgname\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
+
 }
