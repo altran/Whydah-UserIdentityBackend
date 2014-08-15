@@ -31,6 +31,7 @@ public class Main {
     private HttpServer httpServer;
     private int webappPort;
     private final Injector injector;
+    private String contextpath = "/uib";
 
     public Main() {
         injector = Guice.createInjector(new UserIdentityBackendModule());
@@ -137,7 +138,7 @@ public class Main {
         log.trace("Starting UserIdentityBackend");
 
         ServletHandler servletHandler = new ServletHandler();
-        servletHandler.setContextPath("/uib");
+        servletHandler.setContextPath(contextpath);
         servletHandler.addInitParameter("com.sun.jersey.config.property.packages",
                 "net.whydah.identity.user.resource, net.whydah.identity.user.authentication, net.whydah.identity.application, net.whydah.identity.application.authentication");
         servletHandler.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
@@ -166,7 +167,9 @@ public class Main {
         NetworkListener listener = new NetworkListener("grizzly", NetworkListener.DEFAULT_NETWORK_HOST, webappPort);
         httpServer.addListener(listener);
         httpServer.start();
-        log.info("UserIdentityBackend started on port {}", webappPort);
+        log.info("UserIdentityBackend - import.enabled="+Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled")));
+        log.info("UserIdentityBackend - embeddedDSEnabled="+Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded")));
+        log.info("UserIdentityBackend started on port {}", webappPort+" context-path:"+contextpath);
     }
 
 
@@ -178,6 +181,7 @@ public class Main {
 		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class), injector.getInstance(ApplicationTokenService.class));
         HashMap<String, String> initParams = new HashMap<>(1);
         servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
+        log.info("SecurityFilter instanciated with params:", initParams);
 	}
 
     public int getPort() {
