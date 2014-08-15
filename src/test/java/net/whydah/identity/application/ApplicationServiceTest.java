@@ -29,7 +29,7 @@ public class ApplicationServiceTest {
         assertNotNull(application);
         assertEquals("id1", application.getId());
         assertEquals("test", application.getName());
-        assertEquals("default1role", application.getDefaultRole());
+        assertEquals("default1role", application.getDefaultRoleName());
         assertEquals("defaultorgid", application.getDefaultOrgName());
         List<String> availableOrgIds = application.getAvailableOrgNames();
         assertNotNull(availableOrgIds);

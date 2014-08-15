@@ -29,7 +29,7 @@ public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     private String id;
     private String name;
-    private String defaultRole;
+    private String defaultRoleName;
     private String defaultOrgName;
     private List<String> availableOrgNames;
 
@@ -39,17 +39,17 @@ public class Application {
     public Application(String id, String name) {
         this(id, name, null, null);
     }
-    public Application(String id, String name, String defaultRole, String defaultOrgName) {
+    public Application(String id, String name, String defaultRoleName, String defaultOrgName) {
         this.id = id;
         this.name = name;
-        this.defaultRole = defaultRole;
+        this.defaultRoleName = defaultRoleName;
         this.defaultOrgName = defaultOrgName;
     }
 
-    public Application(String id, String name, String defaultRole, String defaultOrgName, List<String> availableOrgNames) {
+    public Application(String id, String name, String defaultRoleName, String defaultOrgName, List<String> availableOrgNames) {
         this.id = id;
         this.name = name;
-        this.defaultRole = defaultRole;
+        this.defaultRoleName = defaultRoleName;
         this.defaultOrgName = defaultOrgName;
         this.availableOrgNames = availableOrgNames;
     }
@@ -58,7 +58,7 @@ public class Application {
      * {
      "id": "id1",
      "name": "test",
-     "defaultRole": "default1role",
+     "defaultRoleName": "default1role",
      "defaultOrgName": "defaultorgid",
      "availableOrgNames": [
      "developer@customer",
@@ -68,7 +68,7 @@ public class Application {
      * @param applicationJson
      * @return
      */
-    public static Application fromJson(String applicationJson) {
+    public static Application fromJson(String applicationJson) throws  IllegalArgumentException {
             try {
                 Application application;
 
@@ -92,6 +92,7 @@ public class Application {
         } catch (IOException e) {
             log.info("Could not create json from this object {}", toString(), e);
         }
+        log.trace("JSON serialization:",applicationJson);
         return applicationJson;
     }
 
@@ -100,7 +101,7 @@ public class Application {
                 " <application>\n" +
                 "   <applicationid>" + id + "</applicationid>\n" +
                 "   <applicationname>" + name + "</applicationname>\n" +
-                "   <defaultrolename>" + defaultRole + "</defaultrolename>\n" +
+                "   <defaultrolename>" + defaultRoleName + "</defaultrolename>\n" +
                 "   <defaultorganizationname>" + defaultOrgName + "</defaultorganizationname>\n" +
                 "  " + buildAvailableOrgAsXml() + "\n" +
                 " </application>\n";
@@ -125,8 +126,8 @@ public class Application {
     public String getName() {
         return name;
     }
-    public String getDefaultRole() {
-        return defaultRole;
+    public String getDefaultRoleName() {
+        return defaultRoleName;
     }
     public String getDefaultOrgName() {
         return defaultOrgName;
@@ -161,22 +162,22 @@ public class Application {
         this.defaultOrgName = defaultOrgName;
     }
 
-    public void setDefaultRole(String defaultRole) {
-        this.defaultRole = defaultRole;
+    public void setDefaultRoleName(String defaultRoleName) {
+        this.defaultRoleName = defaultRoleName;
     }
 
     @Override
     public String toString() {
-        String availableIdsString = "";
+        String availableNamesString = "";
          if (this.availableOrgNames != null) {
-            availableIdsString = Joiner.on(", ").join(this.availableOrgNames);
+             availableNamesString = Joiner.on(", ").join(this.availableOrgNames);
          }
         return "Application{" +
                 "appId='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", defaultrole='" + defaultRole + '\'' +
-                ", defaultOrgName='" + defaultOrgName + '\'' +
-                ", availableOrgNames = '" + availableIdsString  + '\'' +
+                ", defaultrolename='" + defaultRoleName + '\'' +
+                ", defaultorganizationname='" + defaultOrgName + '\'' +
+                ", availableorganizationnames = '" + availableNamesString  + '\'' +
                 '}';
     }
 

@@ -28,10 +28,15 @@ public class ApplicationService {
         this.auditLogRepository = auditLogRepository;
     }
 
-    public Application createApplication(String applicationJson) {
-        Application application = Application.fromJson(applicationJson);
-        applicationRepository.create(application);
-        audit(ActionPerformed.ADDED, "application", application.toString());
+    public Application createApplication(String applicationJson) throws java.lang.IllegalArgumentException {
+        Application application=null;
+        try {
+             application = Application.fromJson(applicationJson);
+            applicationRepository.create(application);
+            audit(ActionPerformed.ADDED, "application", application.toString());
+        } catch (Exception e){
+            throw new java.lang.IllegalArgumentException("Illegal application arguments:"+applicationJson);
+        }
         return application;
     }
 

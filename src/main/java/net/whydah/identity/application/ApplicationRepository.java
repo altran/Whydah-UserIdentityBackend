@@ -61,7 +61,7 @@ public class ApplicationRepository {
         //TODO Store availableOrdIds
         try {
             numRowsUpdated = queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRole, DefaultOrgid) VALUES (?,?,?,?)",
-                    application.getId(), application.getName(), application.getDefaultRole(), application.getDefaultOrgName());
+                    application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrgName());
             if (numRowsUpdated > 0) {
                 applicationStored = getApplication(application.getId());
                 log.trace("Created application {}, numRowsUpdated {}", applicationStored.toString(), numRowsUpdated);

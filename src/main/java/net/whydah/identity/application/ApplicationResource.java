@@ -36,7 +36,7 @@ public class ApplicationResource {
     @POST
      @Path("/")
      @Consumes(MediaType.APPLICATION_JSON)
-     public Response createApplication(String applicationJson){
+     public Response createApplication(String applicationJson)  {
         log.trace("createApplication is called with applicationJson={}", applicationJson);
         Application application;
         try {
