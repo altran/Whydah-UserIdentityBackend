@@ -23,7 +23,8 @@ public class ApplicationTest {
         JSONAssert.assertEquals(allApplication, application.toJson(), false);
     }
 
-    private final String minimumApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":null,\"defaultOrgid\":null,\"availableOrgIds\":null}";
-    private final String mostApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"defaultrole\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":null}";
-    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRole\":\"defaultrole\",\"defaultOrgid\":\"defaultorgid\",\"availableOrgIds\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String minimumApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":null,\"defaultOrgName\":null,\"availableOrgNames\":null}";
+    private final String mostApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":\"defaultrole\",\"defaultOrgName\":\"defaultorgid\",\"availableOrgNames\":null}";
+    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":\"defaultrole\",\"defaultOrgName\":\"defaultorgid\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
+
 }
