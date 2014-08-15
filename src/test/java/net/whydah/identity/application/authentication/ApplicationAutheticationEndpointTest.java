@@ -16,10 +16,11 @@ public class ApplicationAutheticationEndpointTest {
                 "  <application>\n" +
                 "   <applicationid>applicationId1234</applicationid>\n" +
                 "   <applicationname>applicationNameMock</applicationname>\n" +
-                "   <defaultrole>null</defaultrole>\n" +
-                "   <defaultorgid>null</defaultorgid>\n" +
-                "  <availableOrgIds/>\n" +
+                "   <defaultrolename>null</defaultrolename>\n" +
+                "   <defaultorganizationname>null</defaultorganizationname>\n" +
+                "  <organizationsnames/>\n" +
                 " </application>\n", result.getEntity().toString());
     }
+
 
 }
