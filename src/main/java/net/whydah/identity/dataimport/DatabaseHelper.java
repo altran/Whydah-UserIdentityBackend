@@ -47,7 +47,7 @@ public class DatabaseHelper {
                         "   OrganizationName varchar(32),\n" +
                         "   RoleName varchar(32),\n" +
                         "   RoleValues varchar(256),\n" +
-                        "    PRIMARY KEY (ID)\n" +
+                        "    PRIMARY KEY (RoleID)\n" +
                         " )\n");
             }
             queryRunner.update("CREATE TABLE Applications (" +
