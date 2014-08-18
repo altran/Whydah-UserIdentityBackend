@@ -18,11 +18,11 @@ public class ApplicationImporter {
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 4;
 	private static final int APPLICATIONID = 0;
 	private static final int APPLICATIONNAME = 1;
-	private static final int DEFAULTROLE = 2;
-	private static final int DEFAULTORGANIZATIONID = 3;
+	private static final int DEFAULTROLENAME = 2;
+	private static final int DEFAULTORGANIZATIONNAME = 3;
 	
 	private QueryRunner queryRunner;
-	
+
 	@Inject
 	public ApplicationImporter(QueryRunner queryRunner) {
 		this.queryRunner = queryRunner;
@@ -70,8 +70,8 @@ public class ApplicationImporter {
 	        	
 	        	String applicatinId = cleanString(lineArray[APPLICATIONID]);
 	        	String applicationName = cleanString(lineArray[APPLICATIONNAME]);
-	        	String defaultRoleName = cleanString(lineArray[DEFAULTROLE]);
-	        	String defaultOrganizationId = cleanString(lineArray[DEFAULTORGANIZATIONID]);
+	        	String defaultRoleName = cleanString(lineArray[DEFAULTROLENAME]);
+	        	String defaultOrganizationId = cleanString(lineArray[DEFAULTORGANIZATIONNAME]);
 	        	
 	        	Application application = new Application(applicatinId, applicationName, defaultRoleName, defaultOrganizationId);
 	            applications.add(application);

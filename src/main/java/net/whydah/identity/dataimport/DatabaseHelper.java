@@ -44,7 +44,7 @@ public class DatabaseHelper {
                         " ID MEDIUMINT AUTO_INCREMENT,\n" +
                         "   UserID char(36) NOT NULL,\n" +
                         "   AppID varchar(32),\n" +
-                        "   OrganizationId varchar(32),\n" +
+                        "   OrganizationName varchar(32),\n" +
                         "   RoleName varchar(32),\n" +
                         "   RoleValues varchar(256),\n" +
                         "    PRIMARY KEY (ID)\n" +
@@ -54,7 +54,7 @@ public class DatabaseHelper {
                     "  ID varchar(32)," +
                     "  Name varchar(128)," +
                     "  DefaultRole varchar(30) default null," +
-                    "  DefaultOrgid varchar(30) default null" +
+                    "  DefaultOrgName varchar(30) default null" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
                     "  ID varchar(32)," +
@@ -71,7 +71,7 @@ public class DatabaseHelper {
                         "  timestamp varchar(20)," +
                         "  action varchar(32)," +
                         "  field varchar(32)," +
-                        "  value varchar(256)" +
+                        "  value varchar(4096)" +
                         ")");
             }
             else if(dialect == DB_DIALECT.MYSQL) {
@@ -81,7 +81,7 @@ public class DatabaseHelper {
                         " timestamp varchar(20),\n" +
                         " action varchar(32),\n" +
                         " field varchar(32),\n" +
-                        " value varchar(256),\n" +
+                        " value varchar(4096),\n" +
                         " PRIMARY KEY(ID)\n" +
                         ")");
             }
