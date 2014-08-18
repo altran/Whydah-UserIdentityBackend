@@ -1,6 +1,6 @@
 #userId, applicationId, applicationName, organizationName, roleName, roleValue
-thomas.pringle@altran.com, 10, UserAdmin, Whydah, WhydahUserAdmin, 99
-thomas.pringle@altran.com, 12, Mobilefirst, Altran, developer, 30
-thomas.pringle@altran.com, 13, Whydah, Whydah, developer, 20
-erik.drolshammer, 12, Mobilefirst, Altran, admin, 70
-useradmin, 19, UserAdmin, Whydah, WhydahUserAdmin, 99
+thomas.pringle@altran.com, 11, SecurityTokenService, Whydah, WhydahUserAdmin, 99
+thomas.pringle@altran.com, 12, UserAdminService, Altran, developer, 30
+thomas.pringle@altran.com, 15, SSOLoginWebApplication, Whydah, developer, 20
+erik.drolshammer, 12, UserAdminService, Altran, admin, 70
+useradmin, 19, UserAdminWebApplication, Whydah, WhydahUserAdmin, 99
