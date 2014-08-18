@@ -76,7 +76,7 @@ public class DatabaseHelper {
             }
             else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE AUDITLOG (\n" +
-                        " ID MEDIUMINT AUTO_INCREMENT,\n" +
+                        " ID MEDIUMINT NOT NULL AUTO_INCREMENT,\n" +
                         " userid varchar(36),\n" +
                         " timestamp varchar(20),\n" +
                         " action varchar(32),\n" +
