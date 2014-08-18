@@ -84,6 +84,7 @@ public class UserPropertyAndRoleRepository {
 
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
+        logger.trace("addUserPropertyAndRole"+userPropertyAndRole);
         if (userPropertyAndRole.getRoleId() == null) {
             userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
         }
