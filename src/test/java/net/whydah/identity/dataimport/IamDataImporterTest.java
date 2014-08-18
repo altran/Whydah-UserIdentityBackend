@@ -106,14 +106,14 @@ public class IamDataImporterTest {
         
         List<UserPropertyAndRole> propsAndRoles = userAggregate1.getRoles();
         assertEquals("All roles must be found", 3, propsAndRoles.size());
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "12", "Mobilefirst", "Altran", "developer", "30"));
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "13", "Whydah", "Whydah", "developer", "20"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "12", "UserAdminService", "Altran", "developer", "30"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "15", "SSOLoginWebApplication", "Whydah", "developer", "20"));
 
         UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
         List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
         assertEquals("All roles must be found", 1, propsAndRoles2.size());
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "12", "Mobilefirst", "Altran", "admin", "70"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles2, "erik.drolshammer", "12", "UserAdminService", "Altran", "admin", "70"));
 
     }
 
