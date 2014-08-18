@@ -44,7 +44,7 @@ public class ApplicationImporter {
 	private void saveApplications(List<Application> applications) {
 		try {
 			for (Application application: applications) {
-				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?)",
+				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
 									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
 			}
 		} catch(Exception e) {
