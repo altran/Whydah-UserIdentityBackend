@@ -1,4 +1,4 @@
-#applicationId, applicationName, defaultRole, defaultOrgName
-1, UserAdmin, UserAdmin, Whydah
-2, Mobilefirst, client, Altran
-3, Whydah, developer, Whydah
+#applicationId, applicationName, defaultRole, defaultOrgName, applicationSecret
+1, UserAdmin, UserAdmin, Whydah, dfsad
+2, Mobilefirst, client, Altran, sdfsd
+3, Whydah, developer, Whydah, sadfsd
