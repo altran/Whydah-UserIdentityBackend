@@ -221,6 +221,17 @@ public class UserAggregateService {
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
         auditLogRepository.store(actionPerformed);
     }
+    private void audit(String uid,String action, String what, String value) {
+        UserToken authenticatedUser = Authentication.getAuthenticatedUser();
+        if (authenticatedUser == null) {
+            log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
+            return;
+        }
+        String userId = authenticatedUser.getName();
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(uid, now, action, what, value);
+        auditLogRepository.store(actionPerformed);
+    }
 
     public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {
         UserPropertyAndRole role = new UserPropertyAndRole();

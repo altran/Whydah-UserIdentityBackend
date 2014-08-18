@@ -71,7 +71,7 @@ public class UserIdentityService {
         String newPassword = passwordGenerator.generate();
         String salt = passwordGenerator.generate();
         ldapUserIdentityDao.setTempPassword(username, newPassword, salt);
-        audit(ActionPerformed.MODIFIED, "resetpassword", uid);
+        audit(uid,ActionPerformed.MODIFIED, "resetpassword", uid);
 
         byte[] saltAsBytes;
         try {
@@ -107,7 +107,7 @@ public class UserIdentityService {
 
     public void changePassword(String username, String userUid, String newPassword) {
         ldapUserIdentityDao.changePassword(username, newPassword);
-        audit(ActionPerformed.MODIFIED, "password", userUid);
+        audit(userUid,ActionPerformed.MODIFIED, "password", userUid);
     }
 
     public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentityRepresentation dto) {
@@ -208,7 +208,7 @@ public class UserIdentityService {
     public void updateUserIdentityForUid(String uid, UserIdentity newUserIdentity) {
         ldapUserIdentityDao.updateUserIdentityForUid(uid, newUserIdentity);
         indexer.update(newUserIdentity);
-        audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
+        audit(uid,ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
     }
 
 
@@ -223,9 +223,9 @@ public class UserIdentityService {
         ldapUserIdentityDao.deleteUserIdentity(username);
     }
 
-    private void audit(String action, String what, String value) {
+    private void audit(String uid,String action, String what, String value) {
         String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
+        ActionPerformed actionPerformed = new ActionPerformed(uid, now, action, what, value);
         auditLogRepository.store(actionPerformed);
     }
 
