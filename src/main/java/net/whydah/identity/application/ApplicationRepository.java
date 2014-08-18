@@ -19,7 +19,7 @@ import java.util.List;
 @Singleton
 public class ApplicationRepository {
     private static final Logger log = LoggerFactory.getLogger(ApplicationRepository.class);
-    private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRole, DefaultOrgName from Applications";
+    private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications";
     private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 
     private QueryRunner queryRunner;
