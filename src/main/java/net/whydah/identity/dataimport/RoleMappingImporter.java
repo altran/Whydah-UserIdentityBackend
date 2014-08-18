@@ -60,6 +60,7 @@ public class RoleMappingImporter {
 	        	}
 				
 	        	String[] lineArray = line.split(",");
+                log.trace("Importing entry:"+line);
 	        	validateLine(line, lineArray);
 	        	
 	            UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
@@ -71,7 +72,8 @@ public class RoleMappingImporter {
 	            userPropertyAndRole.setOrganizationName(cleanString(lineArray[ORGANIZATIONNAME]));
 	            userPropertyAndRole.setApplicationRoleName(cleanString(lineArray[ROLENAME]));
 	            userPropertyAndRole.setApplicationRoleValue(cleanString(lineArray[ROLEVALUE]));
-	            
+
+                log.trace("Added role:"+userPropertyAndRole);
 	            roleMappings.add(userPropertyAndRole);
 	        }
 			return roleMappings;
