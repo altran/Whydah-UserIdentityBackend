@@ -60,7 +60,7 @@ public class ApplicationRepository {
         int numRowsUpdated = -1;
         //TODO Store availableOrdIds
         try {
-            numRowsUpdated = queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRole, DefaultOrgid) VALUES (?,?,?,?)",
+            numRowsUpdated = queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName) VALUES (?,?,?,?)",
                     application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrgName());
             if (numRowsUpdated > 0) {
                 applicationStored = getApplication(application.getId());

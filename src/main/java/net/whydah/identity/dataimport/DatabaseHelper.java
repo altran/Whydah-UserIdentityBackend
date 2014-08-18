@@ -50,12 +50,14 @@ public class DatabaseHelper {
                         "    PRIMARY KEY (RoleID)\n" +
                         " )\n");
             }
+
+
             queryRunner.update("CREATE TABLE Applications (" +
                     "  ID varchar(32)," +
                     "  Name varchar(128)," +
                     "  DefaultRoleName varchar(256) default null," +
                     "  DefaultOrgName varchar(256) default null" +
-                    "  ApplicationSecret varchar(256)" +
+                    "  ApplicationSecret varchar(256) default null" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
                     "  ID varchar(32)," +

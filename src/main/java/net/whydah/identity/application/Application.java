@@ -31,6 +31,8 @@ public class Application {
     private String name;
     private String defaultRoleName;
     private String defaultOrgName;
+
+
     private List<String> availableOrgNames;
 
     private Application() {
@@ -45,6 +47,7 @@ public class Application {
         this.defaultRoleName = defaultRoleName;
         this.defaultOrgName = defaultOrgName;
     }
+
 
     public Application(String id, String name, String defaultRoleName, String defaultOrgName, List<String> availableOrgNames) {
         this.id = id;

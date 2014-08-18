@@ -15,12 +15,13 @@ import java.util.List;
 public class ApplicationImporter {
 	private static final Logger log = LoggerFactory.getLogger(ApplicationImporter.class);
 	
-	private static final int REQUIRED_NUMBER_OF_FIELDS = 4;
+	private static final int REQUIRED_NUMBER_OF_FIELDS = 5;
 	private static final int APPLICATIONID = 0;
 	private static final int APPLICATIONNAME = 1;
-	private static final int DEFAULTROLENAME = 2;
+	private static final int DEFAULTROLE = 2;
 	private static final int DEFAULTORGANIZATIONNAME = 3;
-	
+    private static final int APPLICATIONSECRET = 4;
+
 	private QueryRunner queryRunner;
 
 	@Inject
@@ -43,8 +44,8 @@ public class ApplicationImporter {
 	private void saveApplications(List<Application> applications) {
 		try {
 			for (Application application: applications) {
-				queryRunner.update("INSERT INTO Applications values (?, ?, ?, ?)", 
-									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId());	
+				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?)",
+									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
 			}
 		} catch(Exception e) {
 			log.error("Unable to persist applications.", e);
@@ -70,10 +71,11 @@ public class ApplicationImporter {
 	        	
 	        	String applicatinId = cleanString(lineArray[APPLICATIONID]);
 	        	String applicationName = cleanString(lineArray[APPLICATIONNAME]);
-	        	String defaultRoleName = cleanString(lineArray[DEFAULTROLENAME]);
+	        	String defaultRoleName = cleanString(lineArray[DEFAULTROLE]);
 	        	String defaultOrganizationId = cleanString(lineArray[DEFAULTORGANIZATIONNAME]);
-	        	
-	        	Application application = new Application(applicatinId, applicationName, defaultRoleName, defaultOrganizationId);
+                String applicationSecret = cleanString(lineArray[APPLICATIONSECRET]);
+
+	        	Application application = new Application(applicatinId, applicationName, defaultRoleName, defaultOrganizationId,applicationSecret);
 	            applications.add(application);
 	        }
 			return applications;

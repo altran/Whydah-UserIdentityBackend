@@ -7,11 +7,16 @@ public class Application {
 	private final String defaultRoleName;
 	private final String defaultOrganizationId;
 
-	public Application(String applicationId, String applicationName, String defaultRoleName, String defaultOrganizationId) {
+
+    private final String applicationSecret;
+
+
+    public Application(String applicationId, String applicationName, String defaultRoleName, String defaultOrganizationId,String applicationSecret) {
 		this.id = applicationId;
 		this.name = applicationName;
 		this.defaultRoleName = defaultRoleName;
 		this.defaultOrganizationId = defaultOrganizationId;
+        this.applicationSecret=applicationSecret;
 	}
 
 	public String getId() {
@@ -30,7 +35,11 @@ public class Application {
 		return defaultOrganizationId;
 	}
 
-	@Override
+    public String getApplicationSecret() {
+        return applicationSecret;
+    }
+
+    @Override
 	public String toString() {
 		return "Application [id=" + id + ", name=" + name
 				+ ", defaultRoleName=" + defaultRoleName

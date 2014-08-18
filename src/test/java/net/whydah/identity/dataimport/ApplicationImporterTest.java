@@ -19,20 +19,20 @@ public class ApplicationImporterTest {
 //		2, Mobilefirst, Client, 2
 //		3, Development, Developer, 2
 		
-		assertEquals("All organizations must be found.", 3, applications.size());
+		assertEquals("All organizations must be found.", 6, applications.size());
 		
 		Application application1 = applications.get(0);
-		assertEquals("applicationId must be set.", "1", application1.getId());
-		assertEquals("applicationName must be set.", "WhydahUserAdmin", application1.getName());
-		assertEquals("defaultRole must be set.", "WhydahUserAdmin", application1.getDefaultRoleName());
+		assertEquals("applicationId must be set.", "11", application1.getId());
+		assertEquals("applicationName must be set.", "SecurityTokenService", application1.getName());
+		assertEquals("defaultRole must be set.", "SSOApplication", application1.getDefaultRoleName());
 		assertEquals("defaultOrgName must be set.", "Whydah", application1.getDefaultOrganizationId());
 		
 
 		Application application3 = applications.get(2);
-		assertEquals("applicationId must be set.", "3", application3.getId());
-		assertEquals("applicationName must be set.", "Whydah", application3.getName());
-		assertEquals("defaultRole must be set.", "WhydahDefaultUser", application3.getDefaultRoleName());
-		assertEquals("defaultOrgName must be set.", "Altran", application3.getDefaultOrganizationId());
+		assertEquals("applicationId must be set.", "15", application3.getId());
+		assertEquals("applicationName must be set.", "SSOLoginWebApplication", application3.getName());
+		assertEquals("defaultRole must be set.", "SSOApplication", application3.getDefaultRoleName());
+		assertEquals("defaultOrgName must be set.", "Whydah", application3.getDefaultOrganizationId());
 
 	}
 }
