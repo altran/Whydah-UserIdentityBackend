@@ -55,6 +55,7 @@ public class DatabaseHelper {
                     "  Name varchar(128)," +
                     "  DefaultRoleName varchar(256) default null," +
                     "  DefaultOrgName varchar(256) default null" +
+                    "  ApplicationSecret varchar(256)" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
                     "  ID varchar(32)," +
