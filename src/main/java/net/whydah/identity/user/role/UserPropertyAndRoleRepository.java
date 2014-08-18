@@ -84,18 +84,22 @@ public class UserPropertyAndRoleRepository {
 
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
+        logger.trace("addUserPropertyAndRole"+userPropertyAndRole);
         if (userPropertyAndRole.getRoleId() == null) {
             userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
         }
         try {
-            queryRunner.update(INSERT_USERROLE_SQL,
+            int rows = queryRunner.update(INSERT_USERROLE_SQL,
                     userPropertyAndRole.getRoleId(),
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
                     userPropertyAndRole.getOrganizationName(),
                     userPropertyAndRole.getApplicationRoleName(),
                     userPropertyAndRole.getApplicationRoleValue()
+
             );
+            logger.trace(rows + " roles added");
+            logger.trace(INSERT_USERROLE_SQL+":"+userPropertyAndRole);
         } catch (SQLException e) {
             throw new DatastoreException(e);
         }
