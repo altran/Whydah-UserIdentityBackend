@@ -11,7 +11,8 @@ CREATE TABLE Applications (
   ID varchar(32),
   Name varchar(128),
   DefaultRole varchar(30) default null,
-  DefaultOrgid varchar(30) default null
+  DefaultOrgid varchar(30) default null,
+  AppSecret varchar(128) default null
 );
 
 CREATE TABLE Organization (
