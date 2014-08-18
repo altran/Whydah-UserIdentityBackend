@@ -53,8 +53,8 @@ public class DatabaseHelper {
             queryRunner.update("CREATE TABLE Applications (" +
                     "  ID varchar(32)," +
                     "  Name varchar(128)," +
-                    "  DefaultRole varchar(30) default null," +
-                    "  DefaultOrgName varchar(30) default null" +
+                    "  DefaultRoleName varchar(256) default null," +
+                    "  DefaultOrgName varchar(256) default null" +
                     ")");
             queryRunner.update("CREATE TABLE Organization (" +
                     "  ID varchar(32)," +
@@ -76,7 +76,7 @@ public class DatabaseHelper {
             }
             else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE AUDITLOG (\n" +
-                        " ID MEDIUMINT,\n" +
+                        " ID MEDIUMINT AUTO_INCREMENT,\n" +
                         " userid varchar(36),\n" +
                         " timestamp varchar(20),\n" +
                         " action varchar(32),\n" +
