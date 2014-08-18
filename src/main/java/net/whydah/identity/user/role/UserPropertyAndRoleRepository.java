@@ -95,7 +95,9 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.getOrganizationName(),
                     userPropertyAndRole.getApplicationRoleName(),
                     userPropertyAndRole.getApplicationRoleValue()
+
             );
+            logger.trace(INSERT_USERROLE_SQL+":"+userPropertyAndRole);
         } catch (SQLException e) {
             throw new DatastoreException(e);
         }
