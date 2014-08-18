@@ -89,7 +89,7 @@ public class UserPropertyAndRoleRepository {
             userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
         }
         try {
-            queryRunner.update(INSERT_USERROLE_SQL,
+            int rows = queryRunner.update(INSERT_USERROLE_SQL,
                     userPropertyAndRole.getRoleId(),
                     userPropertyAndRole.getUid(),
                     userPropertyAndRole.getApplicationId(),
@@ -98,6 +98,7 @@ public class UserPropertyAndRoleRepository {
                     userPropertyAndRole.getApplicationRoleValue()
 
             );
+            logger.trace(rows + " roles added");
             logger.trace(INSERT_USERROLE_SQL+":"+userPropertyAndRole);
         } catch (SQLException e) {
             throw new DatastoreException(e);
