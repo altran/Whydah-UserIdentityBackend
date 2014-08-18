@@ -41,7 +41,7 @@ public class DatabaseHelper {
                         ")");
             }else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE UserRoles (\n" +
-                        " ID MEDIUMINT AUTO_INCREMENT,\n" +
+                        " RoleID MEDIUMINT AUTO_INCREMENT,\n" +
                         "   UserID char(36) NOT NULL,\n" +
                         "   AppID varchar(32),\n" +
                         "   OrganizationId varchar(32),\n" +
