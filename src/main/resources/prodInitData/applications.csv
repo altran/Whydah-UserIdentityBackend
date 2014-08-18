@@ -1,2 +1,6 @@
 #applicationId, applicationName, defaultRole, defaultOrgName
-1, UserAdminWebapp, UserAdminWebapp, Developer
+11, SecurityTokenService, SSOApplication, Whydah
+12, UserAdminService, WhydahUserAdmin, Whydah
+15, SSOWebApplication, SSOApplication, Whydah
+19, UserAdminWebApplication, WhydahUserAdmin, Whydah
+100, ACS, Employee, ACSOrganization
