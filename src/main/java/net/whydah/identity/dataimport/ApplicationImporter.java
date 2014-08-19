@@ -52,7 +52,8 @@ public class ApplicationImporter {
 			throw new RuntimeException("Unable to persist applications.", e);
 		}
 	}
-	
+
+    // TODO  Support load from file (override) form local filsesystem)
 	protected static List<Application> parseApplications(String applicationsSource) {
 		BufferedReader reader = null;
 		try {
