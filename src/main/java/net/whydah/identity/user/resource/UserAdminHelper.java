@@ -109,7 +109,7 @@ public class UserAdminHelper {
     }
 
     public static String calculateNetIQPassword(String netIQAccessToken) {
-        return netIQAccessToken + netIQAccessToken;
+        return (netIQAccessToken + netIQAccessToken);
     }
 
 
