@@ -37,7 +37,7 @@ public class UserAuthenticationCredentialDTO {
         String username = (String) xPath.evaluate("//username", dDoc, XPathConstants.STRING);
         String password = (String) xPath.evaluate("//password", dDoc, XPathConstants.STRING);
         String facebookId = (String) xPath.evaluate("//fbId", dDoc, XPathConstants.STRING);
-        String netIQAccessToken = (String) xPath.evaluate("//netIQAccessToken", dDoc, XPathConstants.STRING);
+        String netIQAccessToken = (String) xPath.evaluate("//netiqId", dDoc, XPathConstants.STRING);
         UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId,netIQAccessToken);
         return dto;
     }
