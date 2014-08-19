@@ -163,10 +163,11 @@ public class UserAdminHelper {
         addDefaultRole(userIdentity, role);
 
         if (facebook) {
-            String fbapplicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
-            String fbapplicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-            String fborganizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
-            String fbRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
+            role = new UserPropertyAndRole();
+            String fbapplicationId = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.id");
+            String fbapplicationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.name");
+            String fborganizationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultorganization.name");
+            String fbRoleName = AppConfig.appConfig.getProperty("adduser.facebook.defaultrole.name");
             role.setUid(userIdentity.getUid());
             role.setApplicationId(fbapplicationId);
             role.setApplicationName(fbapplicationName);
@@ -176,10 +177,11 @@ public class UserAdminHelper {
             addDefaultRole(userIdentity, role);
         }
         if (netiq) {
-            String netIQRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.netiq.name");
-            String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.netiq.id");
-            String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.netiq.name");
-            String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.netiq.name");
+            role = new UserPropertyAndRole();
+            String netIQRoleName = AppConfig.appConfig.getProperty("adduser.netiq.defaultrole.name");
+            String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.id");
+            String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.name");
+            String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultorganization.name");
             role.setUid(userIdentity.getUid());
             role.setApplicationId(netIQapplicationId);
             role.setApplicationName(netIQapplicationName);
