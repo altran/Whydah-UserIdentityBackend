@@ -309,7 +309,7 @@ public class UserAuthenticationEndpoint {
                 return response;
             }
             if (userIdentity!= null){
-                userAdminHelper.addFacebookDataRole(userIdentity, roleValue);
+                userAdminHelper.addDefaultRoles(userIdentity, roleValue);
             }
 
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());

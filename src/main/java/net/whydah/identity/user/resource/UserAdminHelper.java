@@ -141,7 +141,7 @@ public class UserAdminHelper {
         audit(ActionPerformed.ADDED, "role", value);
     }
 
-    public void addFacebookDataRole(UserIdentity userIdentity, String roleValue) {
+    public void addDefaultRoles(UserIdentity userIdentity, String roleValue) {
         boolean facebook = true;
         boolean netiq = false;
         if (roleValue.indexOf("netIQAccessToken") > 0) {
@@ -153,13 +153,14 @@ public class UserAdminHelper {
         String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
         String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
-        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
+        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
+        String droleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
         role.setUid(userIdentity.getUid());
         role.setApplicationId(applicationId);
         role.setApplicationName(applicationName);
         role.setOrganizationName(organizationName);
         role.setApplicationRoleName(roleName);
-        role.setApplicationRoleValue(roleValue);
+        role.setApplicationRoleValue(droleValue);
         addDefaultRole(userIdentity, role);
 
         if (facebook) {
