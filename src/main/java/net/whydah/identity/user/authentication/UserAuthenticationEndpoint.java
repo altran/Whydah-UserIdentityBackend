@@ -97,7 +97,7 @@ public class UserAuthenticationEndpoint {
         UserAuthenticationCredentialDTO dto;
         try {
             dto = UserAuthenticationCredentialDTO.fromXml(input);
-            log.trace("UserAuthenticationCredentialDTO"+dto);
+            log.trace("UserAuthenticationCredentialDTO"+dto+" XML:"+input);
         } catch (ParserConfigurationException e) {
             log.error("authenticateUser failed due to internal server error. Returning {}", Response.Status.INTERNAL_SERVER_ERROR, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
