@@ -229,7 +229,7 @@ public class UserAuthenticationEndpoint {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response createAndAuthenticateUser(InputStream input) {
-        log.trace("createAndAuthenticateUser");
+        log.debug("createAndAuthenticateUser");
 
         Document fbUserDoc = parse(input);
         if (fbUserDoc == null) {

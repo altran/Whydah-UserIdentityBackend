@@ -155,18 +155,31 @@ public class UserAdminHelper {
         String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
         String facebookRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.facebook.name");
         String netIQRoleName = AppConfig.appConfig.getProperty("adduser.defaultrole.netiq.name");
+        String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.netiq.id");
+        String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.netiq.name");
+        String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.netiq.name");
 
-        role.setUid(userIdentity.getUid());
-        role.setApplicationId(applicationId);
-        role.setApplicationName(applicationName);
-        role.setOrganizationName(organizationName);
         if (facebook) {
+            role.setUid(userIdentity.getUid());
+            role.setApplicationId(applicationId);
+            role.setApplicationName(applicationName);
+            role.setOrganizationName(organizationName);
             role.setApplicationRoleName(facebookRoleName);
             role.setApplicationRoleValue(roleValue);
-        } else if (netiq) {
+            addDefaultRole(userIdentity, role);
+        }
+        if (netiq) {
+            role.setUid(userIdentity.getUid());
+            role.setApplicationId(netIQapplicationId);
+            role.setApplicationName(netIQapplicationName);
+            role.setOrganizationName(netIQorganizationName);
             role.setApplicationRoleName(netIQRoleName);
             role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+            addDefaultRole(userIdentity, role);
         }
+    }
+
+    private void addDefaultRole(UserIdentity userIdentity, UserPropertyAndRole role) {
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
