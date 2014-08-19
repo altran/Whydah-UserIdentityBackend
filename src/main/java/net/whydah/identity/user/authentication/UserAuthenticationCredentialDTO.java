@@ -57,4 +57,13 @@ public class UserAuthenticationCredentialDTO {
     String getUsername() {
         return username;
     }
+
+    @Override
+    public String toString() {
+        return "UserAuthenticationCredentialDTO{" +
+                "username='" + username + '\'' +
+                ", facebookId='" + facebookId + '\'' +
+                ", netIQAccessToken='" + netIQAccessToken + '\'' +
+                '}';
+    }
 }
