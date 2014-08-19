@@ -21,11 +21,13 @@ public class UserAuthenticationCredentialDTO {
     private String username;
     private String password;
     private String facebookId;
+    private String netIQAccessToken;
 
-    private UserAuthenticationCredentialDTO(String username, String password, String facebookId) {
+    private UserAuthenticationCredentialDTO(String username, String password, String facebookId,String netIQAccessToken) {
         this.username = username;
         this.password = password;
         this.facebookId = facebookId;
+        this.netIQAccessToken=netIQAccessToken;
     }
 
     static UserAuthenticationCredentialDTO fromXml(InputStream input) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
@@ -35,7 +37,8 @@ public class UserAuthenticationCredentialDTO {
         String username = (String) xPath.evaluate("//username", dDoc, XPathConstants.STRING);
         String password = (String) xPath.evaluate("//password", dDoc, XPathConstants.STRING);
         String facebookId = (String) xPath.evaluate("//fbId", dDoc, XPathConstants.STRING);
-        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId);
+        String netIQAccessToken = (String) xPath.evaluate("//netIQAccessToken", dDoc, XPathConstants.STRING);
+        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId,netIQAccessToken);
         return dto;
     }
 
@@ -45,6 +48,8 @@ public class UserAuthenticationCredentialDTO {
             passwordCredentials =  password;
         } else if (facebookId != null && !facebookId.equals("")) {
             passwordCredentials =  UserAdminHelper.calculateFacebookPassword(facebookId);
+        } else if (netIQAccessToken != null && !netIQAccessToken.equals("")) {
+            passwordCredentials =  UserAdminHelper.calculateNetIQPassword(netIQAccessToken);
         }
         return passwordCredentials;
     }

@@ -108,6 +108,11 @@ public class UserAdminHelper {
         return fbId + fbId;
     }
 
+    public static String calculateNetIQPassword(String netIQAccessToken) {
+        return netIQAccessToken + netIQAccessToken;
+    }
+
+
     public void addDefaultWhydahUserRole(UserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
 
