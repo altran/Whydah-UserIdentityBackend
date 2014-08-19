@@ -179,10 +179,10 @@ public class UserAdminHelper {
         }
         if (netiq) {
             role = new UserPropertyAndRole();
-            String netIQRoleName = AppConfig.appConfig.getProperty("adduser.netiq.defaultrole.name");
             String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.id");
             String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.name");
             String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultorganization.name");
+            String netIQRoleName = AppConfig.appConfig.getProperty("adduser.netiq.defaultrole.name");
             role.setUid(userIdentity.getUid());
             role.setApplicationId(netIQapplicationId);
             role.setApplicationName(netIQapplicationName);
