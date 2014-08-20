@@ -74,18 +74,10 @@ public class UserResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
+        UserIdentity userIdentity;
         try {
-            UserIdentity userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
+            userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
 
-            String newUserAsJson;
-            try {
-                newUserAsJson = mapper.writeValueAsString(userIdentity);
-            } catch (IOException e) {
-                log.error("Error converting to json. {}", userIdentity.toString(), e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-            //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
-            return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
         }  catch (ConflictException ise) {
             log.info("addUserIdentity returned {}, json={}", Response.Status.CONFLICT.toString(), userIdentityJson, ise);
             return Response.status(Response.Status.CONFLICT).build();
@@ -97,6 +89,15 @@ public class UserResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (RuntimeException e) {
             log.error("addUserIdentity-RuntimeExeption ", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        try {
+            String newUserAsJson;
+            newUserAsJson = mapper.writeValueAsString(userIdentity);
+            //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
+            return Response.status(Response.Status.CREATED).entity(newUserAsJson).build();
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", userIdentity.toString(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
