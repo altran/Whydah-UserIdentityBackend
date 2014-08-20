@@ -112,6 +112,9 @@ public class UserIdentityService {
 
     public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentityRepresentation dto) {
         String username = dto.getUsername();
+        if (username==null){
+            throw new ConflictException("Can not create a user without username!" );
+        }
         try {
             if (ldapUserIdentityDao.usernameExist(username)) {
                 //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
