@@ -14,7 +14,7 @@ public class ApplicationAutheticationEndpointTest {
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +
                 "  <application>\n" +
-                "   <applicationid>applicationId1234</applicationid>\n" +
+                "   <applicationid>9999</applicationid>\n" +
                 "   <applicationname>applicationNameMock</applicationname>\n" +
                 "   <defaultrolename>null</defaultrolename>\n" +
                 "   <defaultorganizationname>null</defaultorganizationname>\n" +
