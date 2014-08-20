@@ -16,7 +16,7 @@ import javax.ws.rs.core.UriInfo;
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
  */
-@Path("/{applciationtokenid}/{usertokenid}/password")
+@Path("/password/{applciationtokenid}")
 public class PasswordResource {
     private static final Logger log = LoggerFactory.getLogger(PasswordResource.class);
 
@@ -32,7 +32,7 @@ public class PasswordResource {
     }
 
     @GET
-    @Path("/{username}")
+    @Path("/reset/username/{username}")
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {

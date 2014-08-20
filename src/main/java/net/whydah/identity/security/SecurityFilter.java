@@ -68,8 +68,6 @@ public class SecurityFilter implements Filter {
                 }
             } else if ( isPasswordPath(pathInfo)){
                 //TODO bli: Needs improvement -aka dont repeat your self.
-                chain.doFilter(request, response);
-                /*
                 String applicationTokenId = findPathElement(pathInfo, 2);
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
                     logger.trace("application verified {}. Moving to next in chain.", applicationTokenId);
@@ -79,7 +77,6 @@ public class SecurityFilter implements Filter {
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
-                */
             } else {
                 //Verify userTokenId
                 String usertokenId = findUserTokenId(pathInfo);
@@ -137,7 +134,7 @@ public class SecurityFilter implements Filter {
 
     private boolean isPasswordPath(String pathInfo) {
         boolean authenticataApplicationOnly = false;
-        String pathElement = findPathElement(pathInfo,3);
+        String pathElement = findPathElement(pathInfo,1);
         if (pathElement != null) {
             authenticataApplicationOnly = pathElement.startsWith(PASSWORD_RESET_PATH);
         }
