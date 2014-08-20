@@ -26,7 +26,7 @@ public class ApplicationAuthenticationEndpoint {
         log.trace("authenticateApplication {}", appCredentialXml);
         //FIXME real implementation of ApplicationAuthenticationEndpoint.
 
-        Application mockApplication = new Application("applicationId1234", "applicationNameMock");
+        Application mockApplication = new Application("9999", "applicationNameMock");
         String applicationXml = mockApplication.toXML();
         log.debug("Application authentication ok. XML: {}", applicationXml);
         return Response.status(Response.Status.OK).entity(applicationXml).build();
