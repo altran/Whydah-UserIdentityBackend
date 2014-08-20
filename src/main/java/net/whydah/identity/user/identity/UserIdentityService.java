@@ -118,10 +118,10 @@ public class UserIdentityService {
         try {
             if (ldapUserIdentityDao.usernameExist(username)) {
                 //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-                throw new ConflictException("User already exists, could not create user " + username);
+                throw new ConflictException("User already exists, could not create user " + dto.getUsername());
             }
         } catch (NamingException e) {
-            throw new RuntimeException("usernameExist failed for username=" + username, e);
+            throw new RuntimeException("usernameExist failed for username=" + dto.getUsername(), e);
         }
 
         String email;
