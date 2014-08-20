@@ -90,10 +90,10 @@ public class UserAdminHelper {
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
             UserIdentity userIdentity = new UserIdentity();
-            userIdentity.setUsername(username);
-            userIdentity.setFirstName(firstName);
-            userIdentity.setLastName(lastName);
-            userIdentity.setEmail(email);
+            userIdentity.setUsername(username.trim());
+            userIdentity.setFirstName(firstName.trim());
+            userIdentity.setLastName(lastName.trim());
+            userIdentity.setEmail(email.trim());
 
             String password = calculateFacebookPassword(fbUserId);
             userIdentity.setPassword(password);
