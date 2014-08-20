@@ -48,6 +48,7 @@ public class UserResource {
         this.userAggregateService = userAggregateService;
         this.applicationRepository = applicationRepository;
         this.mapper = new ObjectMapper();
+        log.info("Started: UserResource");
     }
 
     /**
@@ -313,6 +314,7 @@ public class UserResource {
     }
 
 
+    /*
     @POST
     @Path("/{username}/resetpassword")
     public Response resetPassword(@PathParam("username") String username) {
@@ -330,6 +332,8 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+    */
+
 
     //TODO Can updateUserIdentityForUsername be used instead?
     @POST

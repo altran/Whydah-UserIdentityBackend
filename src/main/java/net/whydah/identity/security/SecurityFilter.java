@@ -22,6 +22,7 @@ import java.util.List;
 public class SecurityFilter implements Filter {
     public static final String OPEN_PATH = "/authenticate";
     public static final String AUTHENTICATE_USER_PATH = "/authenticate";
+    public static final String PASSWORD_RESET_PATH = "/password";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
     public static final String REQUIRED_ROLE_USERS = "WhydahUserAdmin";
     public static final String REQUIRED_ROLE_APPLICATIONS = "WhydahUserAdmin";
@@ -58,13 +59,27 @@ public class SecurityFilter implements Filter {
                 //Verify applicationTokenId
                 String applicationTokenId = findPathElement(pathInfo, 1);
                 if (applicationTokenService.verifyApplication(applicationTokenId)) {
-                    logger.trace("application verified {}. Trying to fetch UserToken.", applicationTokenId);
+                    logger.trace("application verified {}. Moving to next in chain.", applicationTokenId);
                     chain.doFilter(request,response);
                 } else {
                     logger.trace("Application not Authorized=" + applicationTokenId);
                     setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
+            } else if ( isPasswordPath(pathInfo)){
+                //TODO bli: Needs improvement -aka dont repeat your self.
+                chain.doFilter(request, response);
+                /*
+                String applicationTokenId = findPathElement(pathInfo, 2);
+                if (applicationTokenService.verifyApplication(applicationTokenId)) {
+                    logger.trace("application verified {}. Moving to next in chain.", applicationTokenId);
+                    chain.doFilter(request,response);
+                } else {
+                    logger.trace("Application not Authorized=" + applicationTokenId);
+                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+                */
             } else {
                 //Verify userTokenId
                 String usertokenId = findUserTokenId(pathInfo);
@@ -102,6 +117,8 @@ public class SecurityFilter implements Filter {
         Authentication.clearAuthentication();
     }
 
+
+
     private UserToken buildMockedUserToken() {
 
         List<UserRole> roles = new ArrayList<>();
@@ -116,6 +133,15 @@ public class SecurityFilter implements Filter {
             isAuthenticateUserPath = pathElement.startsWith(AUTHENTICATE_USER_PATH);
         }
         return isAuthenticateUserPath;
+    }
+
+    private boolean isPasswordPath(String pathInfo) {
+        boolean authenticataApplicationOnly = false;
+        String pathElement = findPathElement(pathInfo,3);
+        if (pathElement != null) {
+            authenticataApplicationOnly = pathElement.startsWith(PASSWORD_RESET_PATH);
+        }
+        return authenticataApplicationOnly;
     }
 
     protected String findPathElement(String pathInfo, int elementNumber) {
