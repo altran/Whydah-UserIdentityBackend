@@ -203,11 +203,12 @@ public class Main {
     }
 
     public void stop() {
-        log.info("Stopping http server and embedded Apache DS.");    //TODO ED: What about hsqldb?
+        log.info("Stopping http server");    //TODO ED: What about hsqldb?  It dies with the process..
         if (httpServer != null) {
             httpServer.stop();
         }
         if (ads != null) {
+            log.info("Stopping embedded Apache DS.");
             ads.stopServer();
         }
     }
