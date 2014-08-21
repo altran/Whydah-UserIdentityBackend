@@ -19,6 +19,7 @@ public class ApplicationAutheticationEndpointTest {
                 "   <defaultrolename>null</defaultrolename>\n" +
                 "   <defaultorganizationname>null</defaultorganizationname>\n" +
                 "  <organizationsnames/>\n" +
+                "  <rolenames/>\n" +
                 " </application>\n", result.getEntity().toString());
     }
 

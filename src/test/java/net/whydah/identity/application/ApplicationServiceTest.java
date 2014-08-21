@@ -33,7 +33,7 @@ public class ApplicationServiceTest {
     public void testCreateApplication() throws Exception {
         Application application = applicationService.createApplication(allApplication);
         assertNotNull(application);
-        assertEquals("id1", application.getId());
+        assertEquals("11", application.getId());
         assertEquals("test", application.getName());
         assertEquals("default1role", application.getDefaultRoleName());
         assertEquals("defaultorgname", application.getDefaultOrgName());
