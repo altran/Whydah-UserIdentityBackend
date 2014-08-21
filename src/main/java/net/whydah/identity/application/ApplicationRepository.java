@@ -2,6 +2,8 @@ package net.whydah.identity.application;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.whydah.identity.config.AppConfig;
+import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -19,15 +21,23 @@ import java.util.List;
 @Singleton
 public class ApplicationRepository {
     private static final Logger log = LoggerFactory.getLogger(ApplicationRepository.class);
-    private static final String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
-    private static final String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
+
+    private static String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
+    private static String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 
     private QueryRunner queryRunner;
 
     @Inject
     public ApplicationRepository(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
-    }
+        String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
+        if (jdbcDriverString.contains("hsqldb")) {
+            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications";
+        } else if(jdbcDriverString.contains("mysql")) {
+            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
+        }
+        APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
+        }
 
     public Application getApplication(String appid) {
         try {
