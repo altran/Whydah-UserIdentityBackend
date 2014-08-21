@@ -39,6 +39,7 @@ public class DatabaseHelper {
                         "  RoleName varchar(32)," +
                         "  RoleValues varchar(256)" +
                         ")");
+
                 queryRunner.update("CREATE TABLE Applications (" +
                         "  ID varchar(32) PRIMARY KEY," +
                         "  Name varchar(128)," +
