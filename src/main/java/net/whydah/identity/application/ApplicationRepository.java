@@ -34,6 +34,7 @@ public class ApplicationRepository {
         if (jdbcDriverString.contains("hsqldb")) {
             APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications";
         } else if(jdbcDriverString.contains("mysql")) {
+//            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
             APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
         }
         APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
