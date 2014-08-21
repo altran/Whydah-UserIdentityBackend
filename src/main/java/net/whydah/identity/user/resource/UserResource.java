@@ -12,8 +12,6 @@ import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -309,98 +307,6 @@ public class UserResource {
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (RuntimeException e) {
             log.error("deleteRole-RuntimeException. roleId {}", roleid, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-
-    /*
-    @POST
-    @Path("/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        log.info("Reset password for user {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    */
-
-
-    //TODO Can updateUserIdentityForUsername be used instead?
-    @POST
-    @Path("/{username}/newpassword/{token}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePasswordForUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        log.info("Changing password for {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            boolean ok;
-            try {
-                ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
-            } catch (RuntimeException re) {
-                log.error("changePasswordForUser-RuntimeException username {}, message {}", username,re.getMessage(), re);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-
-            if (!ok) {
-                log.info("Authentication failed while changing password for user {}", username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            try {
-                JSONObject jsonobj = new JSONObject(passwordJson);
-                String newpassword = jsonobj.getString("newpassword");
-                userIdentityService.changePassword(username, user.getUid(), newpassword);
-            } catch (JSONException e) {
-                log.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("changePasswordForUser failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @POST
-    @Path("/{username}/changepassword")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response changePasswordbyAdmin(@PathParam("applicationtokenid") String applicationtokenid, @PathParam("userTokenId") String adminUserTokenId,
-            @PathParam("username") String username, String password) {
-        log.info("Admin Changing password for {}", username);
-        //FIXME baardl: implement verification that admin is allowed to update this password.
-        //Find the admin user token, based on tokenid
-        if (!userIdentityService.allowedToUpdate(applicationtokenid, adminUserTokenId)) {
-            String adminUserName = userIdentityService.findUserByTokenId(adminUserTokenId);
-            log.info("Not allowed to update password. adminUser {}, user to update {}", adminUserName, username);
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
-        try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
-
-            if (user == null) {
-                log.trace("No user found for username {}, can not update password.", username);
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-            log.debug("Found user: {}", user.toString());
-
-            userIdentityService.changePassword(username, user.getUid(), password);
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("changePasswordForUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -8,11 +8,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -86,6 +84,37 @@ public class PasswordResource {
             return Response.ok().build();
         } catch (Exception e) {
             log.error("newpassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @POST
+    @Path("/change/{adminUserTokenId}/user/username/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changePasswordbyAdmin(@PathParam("applicationtokenid") String applicationtokenid, @PathParam("adminUserTokenId") String adminUserTokenId,
+                                          @PathParam("username") String username, String password) {
+        log.info("Admin Changing password for {}", username);
+        //FIXME baardl: implement verification that admin is allowed to update this password.
+        //Find the admin user token, based on tokenid
+        if (!userIdentityService.allowedToUpdate(applicationtokenid, adminUserTokenId)) {
+            String adminUserName = userIdentityService.findUserByTokenId(adminUserTokenId);
+            log.info("Not allowed to update password. adminUser {}, user to update {}", adminUserName, username);
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        try {
+            UserIdentity user = userIdentityService.getUserIndentity(username);
+
+            if (user == null) {
+                log.trace("No user found for username {}, can not update password.", username);
+                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
+            }
+            log.debug("Found user: {}", user.toString());
+
+            userIdentityService.changePassword(username, user.getUid(), password);
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("changePasswordForUser failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
