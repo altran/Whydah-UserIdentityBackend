@@ -35,16 +35,20 @@ public class ApplicationsResource {
         try {
             List<Application> applications = applicationService.getApplications();
             List<String> availableOrgNames =  new LinkedList<String>();
-            String regnames=" ";
+            List<String> availableRoleNames =  new LinkedList<String>();
             for (int i = 0; i < applications.size() ; i++) {
                 Application a =applications.get(i);
                 if (!availableOrgNames.contains(a.getDefaultOrgName())){
                     availableOrgNames.add(a.getDefaultOrgName());
                 }
+                if (!availableRoleNames.contains(a.getDefaultOrgName())){
+                    availableRoleNames.add(a.getDefaultRoleName());
+                }
             }
             for (int i = 0; i < applications.size() ; i++) {
                 Application a = applications.get(i);
                 a.setAvailableOrgNames(availableOrgNames);
+                a.setAvailableRoleNames(availableRoleNames);
             }
 
             String applicationCreatedJson = buildApplicationsJson(applications);

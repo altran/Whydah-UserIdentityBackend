@@ -34,6 +34,7 @@ public class Application {
 
 
     private List<String> availableOrgNames;
+    private List<String> availableRoleNames;
 
     private Application() {
     }
@@ -158,6 +159,32 @@ public class Application {
     public void removeAvailableOrgId(String availableOrgId) {
         if (availableOrgNames != null && availableOrgId != null) {
             availableOrgNames.remove(availableOrgId);
+        }
+    }
+
+
+    public List<String> getAvailableRoleNames() {
+        return availableRoleNames;
+    }
+
+    public void setAvailableRoleNames(List<String> availableRoleName) {
+        if (availableRoleName != null) {
+            this.availableRoleNames = availableRoleName;
+        }
+    }
+
+    public void addAvailableRoleName(String availableRoleName) {
+        if (availableRoleNames == null) {
+            availableRoleNames = new ArrayList();
+        }
+        if (availableRoleName != null) {
+            this.availableRoleNames.add(availableRoleName);
+        }
+    }
+
+    public void removeAvailableRoleName(String availableRoleName) {
+        if (availableRoleNames != null && availableRoleName != null) {
+            availableRoleNames.remove(availableRoleName);
         }
     }
 
