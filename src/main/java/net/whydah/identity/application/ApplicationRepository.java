@@ -29,7 +29,7 @@ public class ApplicationRepository {
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
         if (jdbcDriverString.contains("mysql")) {
             APPLICATION_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications WHERE id=? GROUP BY ID";
-            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications GROUP BY ID";
+            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications GROUP BY ID ORDER BY Name ASC";
         }
     }
 
