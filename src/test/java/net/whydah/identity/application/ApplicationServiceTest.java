@@ -32,15 +32,16 @@ public class ApplicationServiceTest {
     @Test
     public void testCreateApplication() throws Exception {
         Application application = applicationService.createApplication(allApplication);
+        System.out.println(application.toString());
         assertNotNull(application);
         assertEquals("11", application.getId());
-        assertEquals("test", application.getName());
-        assertEquals("default1role", application.getDefaultRoleName());
-        assertEquals("defaultorgname", application.getDefaultOrgName());
+        assertEquals("SecurityTokenService", application.getName());
+        assertEquals("WhydahDefaultUser", application.getDefaultRoleName());
+        assertEquals("Whydah", application.getDefaultOrgName());
         List<String> availableOrgNames = application.getAvailableOrgNames();
         assertNotNull(availableOrgNames);
-        assertEquals("developer@customer", availableOrgNames.get(0));
-        assertEquals("consultant@customer", availableOrgNames.get(1));
+        assertEquals("Whydah", availableOrgNames.get(0));
+        assertEquals("ACSOrganization", availableOrgNames.get(1));
 
     }
     @Test
