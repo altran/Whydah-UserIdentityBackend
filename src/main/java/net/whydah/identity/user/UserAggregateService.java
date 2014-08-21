@@ -207,6 +207,7 @@ public class UserAggregateService {
     }
     */
 
+    // FIXME This does not seem to make any sense...  DELETE user or DELETE role?
     private void deleteRolesForUser(UserIdentity userIdentity) {
         String uid = userIdentity.getUid();
         userPropertyAndRoleRepository.deleteUser(uid);
