@@ -39,6 +39,13 @@ public class DatabaseHelper {
                         "  RoleName varchar(32)," +
                         "  RoleValues varchar(256)" +
                         ")");
+                queryRunner.update("CREATE TABLE Applications (" +
+                        "  ID varchar(32)," +
+                        "  Name varchar(128)," +
+                        "  DefaultRoleName varchar(256) default null," +
+                        "  DefaultOrgName varchar(256) default null," +
+                        "  ApplicationSecret varchar(256) default null" +
+                        ")\n");
             }else if(dialect == DB_DIALECT.MYSQL) {
                 queryRunner.update("CREATE TABLE UserRoles (\n" +
                         " RoleID char(36),\n" +
@@ -49,16 +56,16 @@ public class DatabaseHelper {
                         "   RoleValues varchar(256),\n" +
                         "    PRIMARY KEY (RoleID)\n" +
                         " )\n");
+                queryRunner.update("CREATE TABLE Applications (" +
+                        "  ID varchar(32)," +
+                        "  Name varchar(128)," +
+                        "  DefaultRoleName varchar(256) default null," +
+                        "  DefaultOrgName varchar(256) default null," +
+                        "  ApplicationSecret varchar(256) default null" +
+                        ")\n");
             }
 
 
-            queryRunner.update("CREATE TABLE Applications (" +
-                    "  ID varchar(32)," +
-                    "  Name varchar(128)," +
-                    "  DefaultRoleName varchar(256) default null," +
-                    "  DefaultOrgName varchar(256) default null," +
-                    "  ApplicationSecret varchar(256) default null" +
-                    ")");
             queryRunner.update("CREATE TABLE Organization (" +
                     "  ID varchar(32)," +
                     "  Name varchar(128)" +
