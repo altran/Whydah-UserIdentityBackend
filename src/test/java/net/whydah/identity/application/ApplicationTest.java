@@ -16,10 +16,10 @@ public class ApplicationTest {
         JSONAssert.assertEquals(minimumApplication, application.toJson(),false);
         application = new Application("id1", "test", "defaultrole", "defaultorgid");
         JSONAssert.assertEquals(mostApplication, application.toJson(), false);
-        List<String> availableOrgIds = new ArrayList<>();
-        availableOrgIds.add("developer@customer");
-        availableOrgIds.add("consultant@customer");
-        application.setAvailableOrgNames(availableOrgIds);
+        List<String> availableOrgNames = new ArrayList<>();
+        availableOrgNames.add("developer@customer");
+        availableOrgNames.add("consultant@customer");
+        application.setAvailableOrgNames(availableOrgNames);
         JSONAssert.assertEquals(allApplication, application.toJson(), false);
     }
 

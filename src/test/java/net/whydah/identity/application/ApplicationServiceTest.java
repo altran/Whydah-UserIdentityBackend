@@ -56,8 +56,8 @@ public class ApplicationServiceTest {
         System.out.println(buildApplicationsJson(applications));
     }
 
-    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgname\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
-    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgname\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
+    private final String allApplication = "{\"id\":\"11\",\"name\":\"SecurityTokenService\",\"defaultRoleName\":\"WhydahDefaultUser\",\"defaultOrgName\":\"Whydah\",\"availableOrgNames\":[\"Whydah\",\"ACSOrganization\"],\"availableRoleNames\":[\"WhydahDefaultUser\",\"WhydahUserAdmin\"]}";
+    private final String application2 = "{\"id\":\"12\",\"name\":\"UserAdminService\",\"defaultRoleName\":\"WhydahUserAdmin\",\"defaultOrgName\":\"Whydah\",\"availableOrgNames\":[\"Whydah\",\"ACSOrganization\"],\"availableRoleNames\":[\"WhydahDefaultUser\",\"WhydahUserAdmin\"]}";
 
     protected String buildApplicationsJson(List<Application> applications) {
         String applicationsCreatedJson = null;

@@ -108,6 +108,7 @@ public class Application {
                 "   <defaultrolename>" + defaultRoleName + "</defaultrolename>\n" +
                 "   <defaultorganizationname>" + defaultOrgName + "</defaultorganizationname>\n" +
                 "  " + buildAvailableOrgAsXml() + "\n" +
+                "  " + buildAvailableRoleAsXml() + "\n" +
                 " </application>\n";
     }
 
@@ -116,10 +117,22 @@ public class Application {
             return "<organizationsnames/>";
         }else {
             StringBuilder availableXml = new StringBuilder("<organizationsnames>\n");
-            for (String availableOrgId : availableOrgNames) {
-                availableXml.append("<orgName>").append(availableOrgId).append("</orgName>").append("\n");
+            for (String availableOrgName : availableOrgNames) {
+                availableXml.append("<orgName>").append(availableOrgName).append("</orgName>").append("\n");
             }
             availableXml.append("</organizationsnames>");
+            return availableXml.toString();
+        }
+    }
+    private String buildAvailableRoleAsXml() {
+        if(availableRoleNames == null || availableRoleNames.size() == 0) {
+            return "<rolenames/>";
+        }else {
+            StringBuilder availableXml = new StringBuilder("<rolenames>\n");
+            for (String availableroleName : availableRoleNames) {
+                availableXml.append("<roleName>").append(availableroleName).append("</roleName>").append("\n");
+            }
+            availableXml.append("</rolenames>");
             return availableXml.toString();
         }
     }
@@ -147,18 +160,18 @@ public class Application {
         }
     }
 
-    public void addAvailableOrgId(String availableOrgId) {
+    public void addAvailableOrgName(String availableOrgName) {
         if (availableOrgNames == null) {
             availableOrgNames = new ArrayList();
         }
-        if (availableOrgId != null) {
-            this.availableOrgNames.add(availableOrgId);
+        if (availableOrgName != null) {
+            this.availableOrgNames.add(availableOrgName);
         }
     }
 
-    public void removeAvailableOrgId(String availableOrgId) {
-        if (availableOrgNames != null && availableOrgId != null) {
-            availableOrgNames.remove(availableOrgId);
+    public void removeAvailableOrgName(String availableOrgName) {
+        if (availableOrgNames != null && availableOrgName != null) {
+            availableOrgNames.remove(availableOrgName);
         }
     }
 
@@ -198,16 +211,21 @@ public class Application {
 
     @Override
     public String toString() {
-        String availableNamesString = "";
+        String availableOrgNamesString = "";
          if (this.availableOrgNames != null) {
-             availableNamesString = Joiner.on(", ").join(this.availableOrgNames);
+             availableOrgNamesString = Joiner.on(", ").join(this.availableOrgNames);
          }
+        String availableRoleNamesString = "";
+        if (this.availableRoleNames != null) {
+            availableRoleNamesString = Joiner.on(", ").join(this.availableRoleNames);
+        }
         return "Application{" +
                 "appId='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", defaultrolename='" + defaultRoleName + '\'' +
                 ", defaultorganizationname='" + defaultOrgName + '\'' +
-                ", availableorganizationnames = '" + availableNamesString  + '\'' +
+                ", availableorganizationnames = '" + availableOrgNamesString  + '\'' +
+                ", availablerolenames = '" + availableRoleNamesString  + '\'' +
                 '}';
     }
 

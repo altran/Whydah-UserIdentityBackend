@@ -41,7 +41,7 @@ public class ApplicationsResource {
                 if (!availableOrgNames.contains(a.getDefaultOrgName())){
                     availableOrgNames.add(a.getDefaultOrgName());
                 }
-                if (!availableRoleNames.contains(a.getDefaultOrgName())){
+                if (!availableRoleNames.contains(a.getDefaultRoleName())){
                     availableRoleNames.add(a.getDefaultRoleName());
                 }
             }
@@ -70,7 +70,7 @@ public class ApplicationsResource {
         String applicationsCreatedJson = null;
         try {
             applicationsCreatedJson = mapper.writeValueAsString(applications);
-            log.debug("Applications.json",applicationsCreatedJson);
+            log.debug("Applications.json:",applicationsCreatedJson);
         } catch (IOException e) {
             log.warn("Could not convert application to Json {}", applications.toString());
         }
