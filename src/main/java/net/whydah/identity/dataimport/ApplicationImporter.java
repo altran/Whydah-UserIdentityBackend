@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,8 @@ public class ApplicationImporter {
 		try {
 				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
 									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
+        } catch(SQLException e) {
+            log.error("Unable to persist application:", application.toString());
 		} catch(Exception e) {
 			log.error("Unable to persist applications.", e);
 			throw new RuntimeException("Unable to persist applications.", e);
