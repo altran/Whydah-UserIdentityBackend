@@ -22,7 +22,7 @@ import java.util.List;
 public class ApplicationRepository {
     private static final Logger log = LoggerFactory.getLogger(ApplicationRepository.class);
 
-    private static String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName GROUP BY ID from Applications";
+    private static String APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications";
     private static String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
 
     private QueryRunner queryRunner;
@@ -31,10 +31,8 @@ public class ApplicationRepository {
     public ApplicationRepository(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
-        if (jdbcDriverString.contains("hsqldb")) {
-            APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications";
-        } else if(jdbcDriverString.contains("mysql")) {
-            APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?  GROUP BY ID";
+        if(jdbcDriverString.contains("mysql")) {
+            APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=? GROUP BY ID";
             APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName ID from Applications GROUP BY ID";
         }
         }
