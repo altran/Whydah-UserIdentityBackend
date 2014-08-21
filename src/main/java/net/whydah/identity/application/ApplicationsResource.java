@@ -52,6 +52,7 @@ public class ApplicationsResource {
             }
 
             String applicationCreatedJson = buildApplicationsJson(applications);
+            log.trace("Returning applications: "+applicationCreatedJson);
             return Response.ok(applicationCreatedJson).build();
         } catch (IllegalArgumentException iae) {
             log.error("getApplications: Invalid json.",  iae);
