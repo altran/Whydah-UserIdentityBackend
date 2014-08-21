@@ -224,10 +224,12 @@ public class UserIdentityService {
     }
     public void updateUserIdentity(String username, UserIdentity newuser) {
         ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
+        indexer.update(newuser);
     }
 
-    public void deleteUserIdentity(String username) {
+    public void deleteUserIdentity(String username) throws NamingException {
         ldapUserIdentityDao.deleteUserIdentity(username);
+        indexer.removeFromIndex(getUserIndentity(username).getUid());
     }
 
     private void audit(String uid,String action, String what, String value) {
