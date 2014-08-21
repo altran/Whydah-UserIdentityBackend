@@ -9,6 +9,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 @Path("/{applicationtokenid}/{userTokenId}/")
@@ -33,6 +34,19 @@ public class ApplicationsResource {
         log.trace("getApplications is called ");
         try {
             List<Application> applications = applicationService.getApplications();
+            List<String> availableOrgNames =  new LinkedList<String>();
+            String regnames=" ";
+            for (int i = 0; i < applications.size() ; i++) {
+                Application a =applications.get(i);
+                if (!availableOrgNames.contains(a.getDefaultOrgName())){
+                    availableOrgNames.add(a.getDefaultOrgName());
+                }
+            }
+            for (int i = 0; i < applications.size() ; i++) {
+                Application a = applications.get(i);
+                a.setAvailableOrgNames(availableOrgNames);
+            }
+
             String applicationCreatedJson = buildApplicationsJson(applications);
             return Response.ok(applicationCreatedJson).build();
         } catch (IllegalArgumentException iae) {
