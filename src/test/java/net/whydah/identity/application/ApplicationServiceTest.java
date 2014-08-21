@@ -32,7 +32,6 @@ public class ApplicationServiceTest {
     @Test
     public void testCreateApplication() throws Exception {
         Application application = applicationService.createApplication(allApplication);
-        System.out.println(application.toString());
         assertNotNull(application);
         assertEquals("11", application.getId());
         assertEquals("SecurityTokenService", application.getName());
@@ -42,9 +41,19 @@ public class ApplicationServiceTest {
         assertNotNull(availableOrgNames);
         assertEquals("Whydah", availableOrgNames.get(0));
         assertEquals("ACSOrganization", availableOrgNames.get(1));
+        Application aapplication = applicationService.createApplication(allApplication);
 
     }
+
     @Test
+    public void testCreateDuplicateApplication() throws Exception {
+        Application application = applicationService.createApplication(allApplication);
+        applicationService.createApplication(allApplication);
+        applicationService.createApplication(allApplication);
+        applicationService.createApplication(allApplication);
+    }
+
+        @Test
     public void testGetApplications() throws Exception {
         Application application = applicationService.createApplication(allApplication);
         Application application_2 = applicationService.createApplication(application2);

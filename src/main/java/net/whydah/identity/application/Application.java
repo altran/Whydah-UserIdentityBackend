@@ -50,12 +50,13 @@ public class Application {
     }
 
 
-    public Application(String id, String name, String defaultRoleName, String defaultOrgName, List<String> availableOrgNames) {
+    public Application(String id, String name, String defaultRoleName, String defaultOrgName, List<String> availableOrgNames, List<String> availableRoleNames) {
         this.id = id;
         this.name = name;
         this.defaultRoleName = defaultRoleName;
         this.defaultOrgName = defaultOrgName;
         this.availableOrgNames = availableOrgNames;
+        this.availableRoleNames = availableRoleNames;
     }
 
     /**
