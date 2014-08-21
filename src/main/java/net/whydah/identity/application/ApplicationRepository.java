@@ -3,7 +3,6 @@ package net.whydah.identity.application;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.dataimport.DatabaseHelper;
 import net.whydah.identity.user.role.DatastoreException;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -15,9 +14,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author asbkar
- */
 @Singleton
 public class ApplicationRepository {
     private static final Logger log = LoggerFactory.getLogger(ApplicationRepository.class);
@@ -31,11 +27,11 @@ public class ApplicationRepository {
     public ApplicationRepository(QueryRunner queryRunner) {
         this.queryRunner = queryRunner;
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
-        if(jdbcDriverString.contains("mysql")) {
+        if (jdbcDriverString.contains("mysql")) {
             APPLICATION_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications WHERE id=? GROUP BY ID";
             APPLICATIONS_SQL = "SELECT Id, Name, DefaultRoleName, DefaultOrgName from Applications GROUP BY ID";
         }
-        }
+    }
 
     public Application getApplication(String appid) {
         try {
@@ -59,7 +55,6 @@ public class ApplicationRepository {
     }
 
     /**
-     *
      * @param application
      * @return application, with new Id inserted.
      */
@@ -84,7 +79,7 @@ public class ApplicationRepository {
     private static class ApplicationsResultSetHandler implements ResultSetHandler<List<Application>> {
         public List<Application> handle(ResultSet rs) throws SQLException {
             ArrayList<Application> apps = new ArrayList<>();
-            while(rs.next()) {
+            while (rs.next()) {
                 apps.add(new Application(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
             }
             return apps;
@@ -94,7 +89,7 @@ public class ApplicationRepository {
     private static class ApplicationResultSetHandler implements ResultSetHandler<Application> {
         @Override
         public Application handle(ResultSet rs) throws SQLException {
-            if(rs.next()) {
+            if (rs.next()) {
                 return new Application(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
             } else {
                 return null;
