@@ -26,6 +26,7 @@ public class PasswordResource {
     @Context
     private UriInfo uriInfo;
 
+    
     @Inject
     public PasswordResource(UserIdentityService userIdentityService) {
         this.userIdentityService = userIdentityService;
