@@ -42,15 +42,15 @@ public class ApplicationImporter {
 	}
 
 	private void saveApplications(List<Application> applications) {
+        for (Application application: applications) {
 		try {
-			for (Application application: applications) {
 				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
 									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
-			}
 		} catch(Exception e) {
 			log.error("Unable to persist applications.", e);
 			throw new RuntimeException("Unable to persist applications.", e);
 		}
+        }
 	}
 
     // TODO  Support load from file (override) form local filsesystem)
