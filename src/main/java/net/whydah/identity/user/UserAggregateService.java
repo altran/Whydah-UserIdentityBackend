@@ -181,7 +181,11 @@ public class UserAggregateService {
         if (userIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. uid=" + uid);
         }
-        userIdentityService.deleteUserIdentity(uid);
+        try {
+            userIdentityService.deleteUserIdentity(uid);
+        } catch (NamingException ne) {
+            log.warn("Trouble trying to delete user with uid:" + uid);
+        }
 
         deleteRolesForUser(userIdentity);
     }
