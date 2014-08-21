@@ -205,6 +205,9 @@ public class UserIdentityService {
     }
 
     public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
+        if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
+            indexer.removeFromIndex(uid);
+        }
         return ldapUserIdentityDao.getUserIndentityForUid(uid);
     }
 
