@@ -50,6 +50,23 @@ public class PasswordResource {
         }
     }
 
+    @POST
+    @Path("/reset/username/{username}")
+    public Response resetPasswordPOST(@PathParam("username") String username) {
+        log.info("Reset password (POST) for user {}", username);
+        try {
+            UserIdentity user = userIdentityService.getUserIndentity(username);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+            }
+
+            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
+            return Response.ok().build();
+        } catch (Exception e) {
+            log.error("resetPassword failed", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @POST
     @Path("/reset/username/{username}/newpassword/{token}")
