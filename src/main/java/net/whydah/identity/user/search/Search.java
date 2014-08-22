@@ -27,6 +27,7 @@ public class Search {
     private static final int MAX_HITS = 200;
     private final Directory index;
 
+
     public Search(Directory index) {
         this.index = index;
     }
