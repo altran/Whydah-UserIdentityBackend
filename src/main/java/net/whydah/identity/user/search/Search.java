@@ -24,7 +24,7 @@ import java.util.List;
 public class Search {
     private static final Logger logger = LoggerFactory.getLogger(Search.class);
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_31);
-    private static final int MAX_HITS = 20;
+    private static final int MAX_HITS = 200;
     private final Directory index;
 
     public Search(Directory index) {
