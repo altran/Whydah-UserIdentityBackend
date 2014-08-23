@@ -22,7 +22,7 @@ public class UserPropertyAndRoleRepository {
     private static final String GET_USERROLES_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
     private static final String GET_USERROLE_SQL = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
     private static final String INSERT_USERROLE_SQL = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
-    private static final String DELETE_USER_SQL = "DELETE FROM UserRoles WHERE UserID=?";
+    private static final String DELETE_ALL_ROLES_FOR_USER_SQL = "DELETE FROM UserRoles WHERE UserID=?";
     private static final String DELETE_ROLE_SQL = "DELETE FROM UserRoles WHERE RoleID=?";
     private static final String DELETE_APP_ROLES_SQL = "DELETE FROM UserRoles WHERE UserID=? AND AppID=?";
     private static final String UPDATE_SQL = "UPDATE UserRoles set RoleValues=? WHERE RoleID=?";
@@ -111,7 +111,7 @@ public class UserPropertyAndRoleRepository {
      */
     public void deleteUser(String uid) {
         try {
-            queryRunner.update(DELETE_USER_SQL, uid);
+            queryRunner.update(DELETE_ALL_ROLES_FOR_USER_SQL, uid);
         } catch (SQLException e) {
             throw new DatastoreException(e);
         }

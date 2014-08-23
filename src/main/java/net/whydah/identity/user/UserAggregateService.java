@@ -44,50 +44,6 @@ public class UserAggregateService {
         this.userIdentityService = userIdentityService;
     }
 
-    /*
-    public UserAggregate addUserAndSetDefaultRoles(String userIdentityJson) {
-        UserIdentity userIdentity = UserIdentity.fromJson(userIdentityJson);
-
-        userIdentityService.addUserIdentity(userIdentity);
-        indexer.addToIndex(userIdentity);
-
-        List<UserPropertyAndRole> roles = addDefaultUserRole(userIdentity);
-
-
-        audit(ActionPerformed.ADDED, "user", userIdentity.toString());
-        return new UserAggregate(userIdentity, roles);
-    }
-    private List<UserPropertyAndRole> addDefaultUserRole(UserIdentity userIdentity) {
-        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
-        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
-        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
-        String roleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
-
-        UserPropertyAndRole defaultRole = new UserPropertyAndRole();
-        defaultRole.setUid(userIdentity.getUid());
-        defaultRole.setApplicationId(applicationId);
-        defaultRole.setApplicationName(applicationName);
-        defaultRole.setOrganizationName(organizationName);
-        defaultRole.setApplicationRoleName(roleName);
-        //role.setRoleValue(roleValue);
-        defaultRole.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
-        //log.debug("Adding default role: {}", defaultRole);
-
-        if (userPropertyAndRoleRepository.hasRole(userIdentity.getUid(), defaultRole)) {
-            log.warn("Role already exist. Skip adding default role. Return existing roles instead. DefaultRole: " + defaultRole.toString());
-            return userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
-        }
-
-        userPropertyAndRoleRepository.addUserPropertyAndRole(defaultRole);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + defaultRole.getApplicationId() + ", role=" + defaultRole.getApplicationRoleName();
-        audit(ActionPerformed.ADDED, "role", value);
-
-        List<UserPropertyAndRole> roles = new ArrayList<>(1);
-        roles.add(defaultRole);
-        return roles;
-    }
-    */
 
     public UserAggregate getUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
@@ -103,48 +59,6 @@ public class UserAggregateService {
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
         return new UserAggregate(userIdentity, userPropertyAndRoles);
     }
-    /*
-    public UserAggregate getUserAggregateForUid(String uid) {
-        UserIdentity userIdentity;
-        try {
-            userIdentity = userIdentityService.getUserIndentityForUid(uid);
-        } catch (NamingException e) {
-            throw new RuntimeException("getUserAggregateForUid, uid=" + uid, e);
-        }
-        if (userIdentity == null) {
-            log.trace("getUserAggregateForUid could not find user with uid={}", uid);
-            return null;
-        }
-        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());
-        return new UserAggregate(userIdentity, userPropertyAndRoles);
-    }
-    */
-
-    /*
-    public UserAggregate updateUserAggregate(String username, UserAggregate userAggregate) {
-        UserIdentity newUserIdentity = userAggregate.getIdentity();
-        try {
-            UserIdentity existingUserIdentity = userIdentityService.getUserIndentity(username);
-            if (existingUserIdentity == null) {
-                throw new NotFoundException("User not found. username=" + username);
-            }
-
-            userIdentityService.updateUserIdentityForUsername(username, newUserIdentity);
-            indexer.update(newUserIdentity);
-            audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
-        } catch (NamingException e) {
-            throw new RuntimeException("updateUserAggregate failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
-        }
-
-        deleteRolesForUser(newUserIdentity);
-        for(UserPropertyAndRole userPropertyAndRole : userAggregate.getRoles()) {
-            userPropertyAndRoleRepository.addUserPropertyAndRole(userPropertyAndRole);
-            String value = "uid=" + newUserIdentity.getUid() + ", username=" + newUserIdentity.getUsername() + ", appid=" + userPropertyAndRole.getApplicationId() + ", role=" + userPropertyAndRole.getApplicationRoleName();
-            audit(ActionPerformed.ADDED, "role", value);
-        }
-        return userAggregate;
-    }
-    */
 
     public UserIdentity updateUserIdentity(String uid, UserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
@@ -165,7 +79,7 @@ public class UserAggregateService {
             indexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
-            throw new RuntimeException("updateUserAggregate failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
+            throw new RuntimeException("updateUserIdentity failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
         }
         return newUserIdentity;
     }
@@ -190,22 +104,6 @@ public class UserAggregateService {
         deleteRolesForUser(userIdentity);
     }
 
-    /*
-    public void deleteUserAggregateByUsername(String username) {
-        UserIdentity userIdentity;
-        try {
-            userIdentity = userIdentityService.getUserIndentity(username);
-        } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
-        }
-        if (userIdentity == null) {
-            throw new IllegalArgumentException("UserIdentity not found. username=" + username);
-        }
-        userIdentityService.deleteUserIdentity(username);
-
-        deleteRolesForUser(userIdentity);
-    }
-    */
 
     // FIXME This does not seem to make any sense...  DELETE user or DELETE role?
     private void deleteRolesForUser(UserIdentity userIdentity) {

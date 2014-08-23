@@ -142,8 +142,9 @@ public class LdapUserIdentityDao {
         try {
             UserIdentity olduser = getUserIndentityForUid(uid);
             updateLdapAttributesForUser(uid, newuser, olduser);
+            log.debug("updateUserIdentityForUid updated LDAP - newuser={} olduser:{]", newuser, olduser);
         } catch (NamingException ne) {
-            log.error("", ne);
+            log.error("updateUserIdentityForUid updated LDAP", ne);
             //TODO Should probably throw exception
         }
     }
@@ -157,9 +158,9 @@ public class LdapUserIdentityDao {
         addModificationItem(modificationItems, ATTRIBUTE_NAME_GIVENNAME, olduser.getFirstName(), newuser.getFirstName());
         addModificationItem(modificationItems, ATTRIBUTE_NAME_SN, olduser.getLastName(), newuser.getLastName());
         addModificationItem(modificationItems, ATTRIBUTE_NAME_MAIL, olduser.getEmail(), stringCleaner.cleanString(newuser.getEmail()));
+        addModificationItem(modificationItems, ATTRIBUTE_NAME_MOBILE, olduser.getCellPhone(), newuser.getCellPhone());
         addModificationItem(modificationItems, ATTRIBUTE_NAME_PERSONREF, olduser.getPersonName(), newuser.getPersonName());
         addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
-        addModificationItem(modificationItems, ATTRIBUTE_NAME_MOBILE, olduser.getCellPhone(), newuser.getCellPhone());
 
         ctx.modifyAttributes(createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()]));
     }
