@@ -309,9 +309,8 @@ public class UserAuthenticationEndpoint {
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 if (reuse) {
-                    log.info("createAndAuthenticateUser - 3party password override ");
-                    // Override password for 3party tokens
-                    userIdentity.setPassword(userIdentityService.getUserIndentityForUid(userIdentity.getUid()).getPassword());
+                    log.info("createAndAuthenticateUser - update useridentity from 3party token ");
+                    userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
                 } else {
                     return response;
                 }
