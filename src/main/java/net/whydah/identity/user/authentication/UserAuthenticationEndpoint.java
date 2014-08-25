@@ -307,19 +307,27 @@ public class UserAuthenticationEndpoint {
         try {
             log.trace("createAndAuthenticateUser userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);
-            if (reuse) {
-                    log.info("createAndAuthenticateUser - update useridentity from 3party token ");
-                    userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
-            } else if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                    return response;
-                }
-            if (userIdentity!= null){
+            if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
+                return response;
+            }
+            if (userIdentity != null) {
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
             }
 
             log.trace("createAndAuthenticateUser authenticateUser:{}", userIdentity.getUsername());
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
+
         } catch (Exception e) {
+            if (reuse) {
+                log.info("createAndAuthenticateUser - update useridentity from 3party token ");
+                userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
+                if (userIdentity != null) {
+                    userAdminHelper.addDefaultRoles(userIdentity, roleValue);
+                }
+
+                log.trace("createAndAuthenticateUser authenticateUser:{}", userIdentity.getUsername());
+                return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
+            }
             log.error("createAndAuthenticateUser failed " + userIdentity.toString(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
         }
