@@ -302,11 +302,17 @@ public class UserAuthenticationEndpoint {
 
 
     //TODO Move to UserAdminService (the separate application)
+    // FIXME fail if called and a) user exist from earlier  b) the user has reset password
     Response createAndAuthenticateUser(UserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
-                return response;
+                if (reuse) {
+                    // Override password for 3party tokens
+                    userIdentity.setPassword(userIdentityService.getUserIndentityForUid(userIdentity.getUid()).getPassword());
+                } else {
+                    return response;
+                }
             }
             if (userIdentity!= null){
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
