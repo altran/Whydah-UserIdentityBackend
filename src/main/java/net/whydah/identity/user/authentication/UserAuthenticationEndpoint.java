@@ -310,9 +310,11 @@ public class UserAuthenticationEndpoint {
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
-            if (userIdentity != null) {
+            log.info("createAndAuthenticateUser - updating password for  useridentity from 3party token, userName: {} uid: {} ", userIdentity.getUsername(), userIdentity.getUid());
+            userIdentityService.changePassword(userIdentity.getUsername(), userIdentity.getUid(), userIdentity.getPassword());
+            log.info("createAndAuthenticateUser - update useridentity from 3party token ");
+            userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
-            }
 
             log.trace("createAndAuthenticateUser authenticateUser:{}", userIdentity.getUsername());
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
