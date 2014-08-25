@@ -96,7 +96,7 @@ public class UserAdminHelper {
             userIdentity.setLastName(lastName.trim());
             userIdentity.setEmail(email.trim());
 
-            String password = calculateFacebookPassword(fbUserId);
+            String password = calculateSynteticPassword(fbUserId);
             userIdentity.setPassword(password);
             return userIdentity;
         } catch (XPathExpressionException e) {
@@ -105,8 +105,8 @@ public class UserAdminHelper {
         }
     }
 
-    public static String calculateFacebookPassword(String fbId) {
-        return fbId + fbId;
+    public static String calculateSynteticPassword(String thirdpartyID) {
+        return thirdpartyID + UUID.randomUUID().toString();
     }
 
     public static String calculateNetIQPassword(String netIQAccessToken) {

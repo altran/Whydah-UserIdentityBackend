@@ -23,11 +23,11 @@ public class UserAuthenticationCredentialDTO {
     private String facebookId;
     private String netIQAccessToken;
 
-    private UserAuthenticationCredentialDTO(String username, String password, String facebookId,String netIQAccessToken) {
+    private UserAuthenticationCredentialDTO(String username, String password, String facebookId, String netIQAccessToken) {
         this.username = username;
         this.password = password;
         this.facebookId = facebookId;
-        this.netIQAccessToken=netIQAccessToken;
+        this.netIQAccessToken = netIQAccessToken;
     }
 
     static UserAuthenticationCredentialDTO fromXml(InputStream input) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
@@ -38,18 +38,18 @@ public class UserAuthenticationCredentialDTO {
         String password = (String) xPath.evaluate("//password", dDoc, XPathConstants.STRING);
         String facebookId = (String) xPath.evaluate("//fbId", dDoc, XPathConstants.STRING);
         String netIQAccessToken = (String) xPath.evaluate("//netiqId", dDoc, XPathConstants.STRING);
-        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId,netIQAccessToken);
+        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId, netIQAccessToken);
         return dto;
     }
 
     String getPasswordCredential() {
         String passwordCredentials = null;
         if (password != null && !password.equals("")) {
-            passwordCredentials =  password;
+            passwordCredentials = password;
         } else if (facebookId != null && !facebookId.equals("")) {
-            passwordCredentials =  UserAdminHelper.calculateFacebookPassword(facebookId);
+            passwordCredentials = UserAdminHelper.calculateSynteticPassword(facebookId);
         } else if (netIQAccessToken != null && !netIQAccessToken.equals("")) {
-            passwordCredentials =  UserAdminHelper.calculateNetIQPassword(netIQAccessToken);
+            passwordCredentials = UserAdminHelper.calculateNetIQPassword(netIQAccessToken);
         }
         return passwordCredentials;
     }
