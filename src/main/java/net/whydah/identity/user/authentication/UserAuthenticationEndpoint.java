@@ -307,14 +307,12 @@ public class UserAuthenticationEndpoint {
         try {
             log.trace("createAndAuthenticateUser userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);
-            if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
-                if (reuse) {
+            if (reuse) {
                     log.info("createAndAuthenticateUser - update useridentity from 3party token ");
                     userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
-                } else {
+            } else if (response.getStatus() != Response.Status.OK.getStatusCode()) {
                     return response;
                 }
-            }
             if (userIdentity!= null){
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
             }
