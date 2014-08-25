@@ -319,10 +319,10 @@ public class UserAuthenticationEndpoint {
 
         } catch (Exception e) {
             if (reuse) {
-                log.info("createAndAuthenticateUser - update useridentity from 3party token ");
-                userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
                 log.info("createAndAuthenticateUser - updating password for  useridentity from 3party token, userName: {} uid: {} ", userIdentity.getUsername(), userIdentity.getUid());
                 userIdentityService.changePassword(userIdentity.getUsername(), userIdentity.getUid(), userIdentity.getPassword());
+                log.info("createAndAuthenticateUser - update useridentity from 3party token ");
+                userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
                 if (userIdentity != null) {
                     userAdminHelper.addDefaultRoles(userIdentity, roleValue);
                 }
