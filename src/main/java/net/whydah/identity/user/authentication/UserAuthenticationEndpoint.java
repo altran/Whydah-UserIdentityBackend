@@ -305,9 +305,11 @@ public class UserAuthenticationEndpoint {
     // FIXME fail if called and a) user exist from earlier  b) the user has reset password
     Response createAndAuthenticateUser(UserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
+            log.trace("createAndAuthenticateUser userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 if (reuse) {
+                    log.info("createAndAuthenticateUser - 3party password override ");
                     // Override password for 3party tokens
                     userIdentity.setPassword(userIdentityService.getUserIndentityForUid(userIdentity.getUid()).getPassword());
                 } else {
@@ -318,6 +320,7 @@ public class UserAuthenticationEndpoint {
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
             }
 
+            log.trace("createAndAuthenticateUser authenticateUser:{}", userIdentity.getUsername());
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
         } catch (Exception e) {
             log.error("createAndAuthenticateUser failed " + userIdentity.toString(), e);
