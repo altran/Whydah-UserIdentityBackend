@@ -50,19 +50,19 @@ public class UserAdminHelper {
 
     public Response addUser(UserIdentity newIdentity) {
         String username = newIdentity.getUsername();
-        logger.trace("Adding new user: {}", username);
+        logger.trace("addUser - Adding new user: {}", username);
 
         try {
             if (ldapUserIdentityDao.usernameExist(username)) {
-                logger.info("User already exists, could not create user " + username);
+                logger.info("addUser - User already exists, could not create user " + username);
                 return Response.status(Response.Status.NOT_ACCEPTABLE).build();
             }
 
             newIdentity.setUid(UUID.randomUUID().toString());
             ldapUserIdentityDao.addUserIdentity(newIdentity);
-            logger.info("Added new user: {}", username);
+            logger.info("addUser - Added new user: {}", username);
         } catch (Exception e) {
-            logger.error("Could not create user " + username, e);
+            logger.error("addUser - Could not create user " + username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -72,7 +72,7 @@ public class UserAdminHelper {
             indexer.addToIndex(newIdentity);
             audit(ActionPerformed.ADDED, "user", newIdentity.toString());
         } catch (Exception e) {
-            logger.error("Error with lucene indexing or audit loggin for " + username, e);
+            logger.error("addUser - Error with lucene indexing or audit login for " + username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return Response.ok().build();
@@ -100,7 +100,7 @@ public class UserAdminHelper {
             userIdentity.setPassword(password);
             return userIdentity;
         } catch (XPathExpressionException e) {
-            logger.error("", e);
+            logger.error("createWhydahUserIdentity - ", e);
             return null;
         }
     }
@@ -130,10 +130,10 @@ public class UserAdminHelper {
         role.setApplicationRoleName(roleName);
 //        role.setRoleValue(roleValue);
         role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
-        logger.debug("Adding Role: {}", role);
+        logger.debug("AaddDefaultWhydahUserRole - dding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
-            logger.warn("Role already exist. " + role.toString());
+            logger.warn("addDefaultWhydahUserRole - Role already exist. " + role.toString());
             return;
         }
 
@@ -198,7 +198,7 @@ public class UserAdminHelper {
         logger.debug("Adding Role: {}", role);
 
         if (roleRepository.hasRole(userIdentity.getUid(), role)) {
-            logger.warn("Role already exist. " + role.toString());
+            logger.warn("addDefaultRole - Role already exist. " + role.toString());
             // roleRepository.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrganizationId(), role.getRoleName());
         }
 
@@ -209,7 +209,7 @@ public class UserAdminHelper {
             audit(ActionPerformed.ADDED, "role", value);
             }
         } catch (Exception e) {
-            logger.warn("Failed to add role:" + value,e);
+            logger.warn("addDefaultRole - Failed to add role:" + value, e);
         }
     }
 
