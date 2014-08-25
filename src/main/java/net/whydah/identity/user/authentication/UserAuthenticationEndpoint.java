@@ -321,6 +321,7 @@ public class UserAuthenticationEndpoint {
             if (reuse) {
                 log.info("createAndAuthenticateUser - update useridentity from 3party token ");
                 userIdentityService.updateUserIdentity(userIdentity.getUsername(), userIdentity);
+                userIdentityService.changePassword(userIdentity.getUid(), userIdentity.getUsername(), userIdentity.getPassword());
                 if (userIdentity != null) {
                     userAdminHelper.addDefaultRoles(userIdentity, roleValue);
                 }
