@@ -90,6 +90,7 @@ public class UserAdminHelper {
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
             UserIdentity userIdentity = new UserIdentity();
+            userIdentity.setUid(fbUserId.trim());
             userIdentity.setUsername(username.trim());
             userIdentity.setFirstName(firstName.trim());
             userIdentity.setLastName(lastName.trim());
