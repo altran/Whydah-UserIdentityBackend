@@ -49,7 +49,7 @@ public class UserAuthenticationCredentialDTO {
         } else if (facebookId != null && !facebookId.equals("")) {
             passwordCredentials = UserAdminHelper.calculateSynteticPassword(facebookId);
         } else if (netIQAccessToken != null && !netIQAccessToken.equals("")) {
-            passwordCredentials = UserAdminHelper.calculateNetIQPassword(netIQAccessToken);
+            passwordCredentials = UserAdminHelper.calculateSynteticPassword(netIQAccessToken);
         }
         return passwordCredentials;
     }

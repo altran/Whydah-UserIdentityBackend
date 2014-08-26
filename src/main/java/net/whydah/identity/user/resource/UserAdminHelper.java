@@ -109,10 +109,6 @@ public class UserAdminHelper {
         return thirdpartyID + UUID.randomUUID().toString();
     }
 
-    public static String calculateNetIQPassword(String netIQAccessToken) {
-        return (netIQAccessToken + netIQAccessToken);
-    }
-
 
     public void addDefaultWhydahUserRole(UserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
@@ -204,9 +200,9 @@ public class UserAdminHelper {
 
         String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         try {
-            if (userIdentity!= null){
-            roleRepository.addUserPropertyAndRole(role);
-            audit(ActionPerformed.ADDED, "role", value);
+            if (userIdentity != null) {
+                roleRepository.addUserPropertyAndRole(role);
+                audit(ActionPerformed.ADDED, "role", value);
             }
         } catch (Exception e) {
             logger.warn("addDefaultRole - Failed to add role:" + value, e);
