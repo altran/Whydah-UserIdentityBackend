@@ -124,18 +124,20 @@ public class UserAdminHelper {
         role.setApplicationName(applicationName);
         role.setOrganizationName(organizationName);
         role.setApplicationRoleName(roleName);
-//        role.setRoleValue(roleValue);
+        role.setApplicationRoleValue(roleValue);
         role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
-        logger.debug("AaddDefaultWhydahUserRole - dding Role: {}", role);
+//        logger.debug("AaddDefaultWhydahUserRole - dding Role: {}", role);
 
-        if (roleRepository.hasRole(userIdentity.getUid(), role)) {
-            logger.warn("addDefaultWhydahUserRole - Role already exist. " + role.toString());
-            return;
-        }
 
-        roleRepository.addUserPropertyAndRole(role);
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
-        audit(ActionPerformed.ADDED, "role", value);
+        addDefaultRole(userIdentity, role);
+//        if (roleRepository.hasRole(userIdentity.getUid(), role)) {
+//            logger.warn("addDefaultWhydahUserRole - Role already exist. " + role.toString());
+//            return;
+//        }
+
+//        roleRepository.addUserPropertyAndRole(role);
+//        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
+//        audit(ActionPerformed.ADDED, "role", value);
     }
 
     public void addDefaultRoles(UserIdentity userIdentity, String roleValue) {
@@ -145,49 +147,60 @@ public class UserAdminHelper {
             facebook = false;
             netiq = true;
         }
-        UserPropertyAndRole role = new UserPropertyAndRole();
+//        UserPropertyAndRole role = new UserPropertyAndRole();
 
-        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
-        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
-        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
-        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
-        String droleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
-        role.setUid(userIdentity.getUid());
-        role.setApplicationId(applicationId);
-        role.setApplicationName(applicationName);
-        role.setOrganizationName(organizationName);
-        role.setApplicationRoleName(roleName);
-        role.setApplicationRoleValue(droleValue);
-        addDefaultRole(userIdentity, role);
+        addDefaultWhydahUserRole(userIdentity);
+//        String applicationId = AppConfig.appConfig.getProperty("adduser.defaultapplication.id");
+//        String applicationName = AppConfig.appConfig.getProperty("adduser.defaultapplication.name");
+//        String organizationName = AppConfig.appConfig.getProperty("adduser.defaultorganization.name");
+//        String roleName = AppConfig.appConfig.getProperty("adduser.defaultrole.name");
+//        String droleValue = AppConfig.appConfig.getProperty("adduser.defaultrole.value");
+//        role.setUid(userIdentity.getUid());
+//        role.setApplicationId(applicationId);
+//        role.setApplicationName(applicationName);
+//        role.setOrganizationName(organizationName);
+//        role.setApplicationRoleName(roleName);
+//        role.setApplicationRoleValue(droleValue);
+//        addDefaultRole(userIdentity, role);
 
         if (facebook) {
-            role = new UserPropertyAndRole();
-            String fbapplicationId = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.id");
-            String fbapplicationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.name");
-            String fborganizationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultorganization.name");
-            String fbRoleName = AppConfig.appConfig.getProperty("adduser.facebook.defaultrole.name");
-            role.setUid(userIdentity.getUid());
-            role.setApplicationId(fbapplicationId);
-            role.setApplicationName(fbapplicationName);
-            role.setOrganizationName(fborganizationName);
-            role.setApplicationRoleName(fbRoleName);
-            role.setApplicationRoleValue(roleValue);
-            addDefaultRole(userIdentity, role);
+            addDefaultFacebookRole(userIdentity, roleValue);
         }
         if (netiq) {
-            role = new UserPropertyAndRole();
-            String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.id");
-            String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.name");
-            String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultorganization.name");
-            String netIQRoleName = AppConfig.appConfig.getProperty("adduser.netiq.defaultrole.name");
-            role.setUid(userIdentity.getUid());
-            role.setApplicationId(netIQapplicationId);
-            role.setApplicationName(netIQapplicationName);
-            role.setOrganizationName(netIQorganizationName);
-            role.setApplicationRoleName(netIQRoleName);
-            role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
-            addDefaultRole(userIdentity, role);
+            addDefaultNetIQRole(userIdentity);
         }
+    }
+
+    private void addDefaultNetIQRole(UserIdentity userIdentity) {
+        UserPropertyAndRole role;
+        role = new UserPropertyAndRole();
+        String netIQapplicationId = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.id");
+        String netIQapplicationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultapplication.name");
+        String netIQorganizationName = AppConfig.appConfig.getProperty("adduser.netiq.defaultorganization.name");
+        String netIQRoleName = AppConfig.appConfig.getProperty("adduser.netiq.defaultrole.name");
+        role.setUid(userIdentity.getUid());
+        role.setApplicationId(netIQapplicationId);
+        role.setApplicationName(netIQapplicationName);
+        role.setOrganizationName(netIQorganizationName);
+        role.setApplicationRoleName(netIQRoleName);
+        role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        addDefaultRole(userIdentity, role);
+    }
+
+    private void addDefaultFacebookRole(UserIdentity userIdentity, String roleValue) {
+        UserPropertyAndRole role;
+        role = new UserPropertyAndRole();
+        String fbapplicationId = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.id");
+        String fbapplicationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultapplication.name");
+        String fborganizationName = AppConfig.appConfig.getProperty("adduser.facebook.defaultorganization.name");
+        String fbRoleName = AppConfig.appConfig.getProperty("adduser.facebook.defaultrole.name");
+        role.setUid(userIdentity.getUid());
+        role.setApplicationId(fbapplicationId);
+        role.setApplicationName(fbapplicationName);
+        role.setOrganizationName(fborganizationName);
+        role.setApplicationRoleName(fbRoleName);
+        role.setApplicationRoleValue(roleValue);
+        addDefaultRole(userIdentity, role);
     }
 
     private void addDefaultRole(UserIdentity userIdentity, UserPropertyAndRole role) {
