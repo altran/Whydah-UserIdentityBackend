@@ -89,6 +89,7 @@ public class OrganizationImporter {
         try {
             for (Organization organization: organizations) {
                 queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
+                log.info("Imported Organization. Id {}, Name {}", organization.getAppId(), organization.getName());
             }
         } catch(Exception e) {
             log.error("Unable to persist organizations.", e);

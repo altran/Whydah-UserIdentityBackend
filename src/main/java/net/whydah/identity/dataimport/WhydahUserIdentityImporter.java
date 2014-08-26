@@ -111,6 +111,7 @@ public class WhydahUserIdentityImporter {
             final IndexWriter indexWriter = indexer.getWriter();
             for (UserIdentity userIdentity : users) {
                 ldapUserIdentityDao.addUserIdentity(userIdentity);
+                log.info("Imported user. Uid: {}, Name {} {}, Email {}", userIdentity.getUid(), userIdentity.getFirstName(), userIdentity.getLastName(),userIdentity.getEmail());
                 indexer.addToIndex(indexWriter, userIdentity);
             }
             indexWriter.optimize();

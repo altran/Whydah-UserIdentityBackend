@@ -44,15 +44,16 @@ public class ApplicationImporter {
 
 	private void saveApplications(List<Application> applications) {
         for (Application application: applications) {
-		try {
-				queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
-									application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
-        } catch(SQLException e) {
-            log.error("Unable to persist application:", application.toString());
-		} catch(Exception e) {
-			log.error("Unable to persist applications.", e);
-			throw new RuntimeException("Unable to persist applications.", e);
-		}
+            try {
+                queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
+                        application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
+                log.info("Imported Application. Id {}, Name {}", application.getId(), application.getName());
+            } catch(SQLException e) {
+                log.error("Unable to persist application:", application.toString());
+            } catch(Exception e) {
+                log.error("Unable to persist applications.", e);
+                throw new RuntimeException("Unable to persist applications.", e);
+            }
         }
 	}
 
