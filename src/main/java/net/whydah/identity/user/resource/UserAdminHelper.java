@@ -96,7 +96,7 @@ public class UserAdminHelper {
             userIdentity.setLastName(lastName.trim());
             userIdentity.setEmail(email.trim());
 
-            String password = calculateSynteticPassword(fbUserId);
+            String password = calculateSyntheticPassword(fbUserId);
             userIdentity.setPassword(password);
             return userIdentity;
         } catch (XPathExpressionException e) {
@@ -105,7 +105,7 @@ public class UserAdminHelper {
         }
     }
 
-    public static String calculateSynteticPassword(String thirdpartyID) {
+    public static String calculateSyntheticPassword(String thirdpartyID) {
         return thirdpartyID + UUID.randomUUID().toString();
     }
 

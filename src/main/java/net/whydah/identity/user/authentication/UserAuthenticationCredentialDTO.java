@@ -47,9 +47,9 @@ public class UserAuthenticationCredentialDTO {
         if (password != null && !password.equals("")) {
             passwordCredentials = password;
         } else if (facebookId != null && !facebookId.equals("")) {
-            passwordCredentials = UserAdminHelper.calculateSynteticPassword(facebookId);
+            passwordCredentials = UserAdminHelper.calculateSyntheticPassword(facebookId);
         } else if (netIQAccessToken != null && !netIQAccessToken.equals("")) {
-            passwordCredentials = UserAdminHelper.calculateSynteticPassword(netIQAccessToken);
+            passwordCredentials = UserAdminHelper.calculateSyntheticPassword(netIQAccessToken);
         }
         return passwordCredentials;
     }
