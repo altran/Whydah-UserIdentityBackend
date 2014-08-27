@@ -1,8 +1,10 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.identity.util.FileUtils;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -12,8 +14,9 @@ public class RoleMappingImporterTest {
 	@Test
 	public void parseRoles() {
 		String roleMappingSource = "testrolemappings.csv";
-		
-		List<UserPropertyAndRole> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingSource);
+
+        InputStream roleMappingStream = FileUtils.openFileOnClasspath(roleMappingSource);
+		List<UserPropertyAndRole> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingStream);
 		
 //		#userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
 //		thomas.pringle@altran.com, 42, mobilefirst, 23, altran, developer, 30 

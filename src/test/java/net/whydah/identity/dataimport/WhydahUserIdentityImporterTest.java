@@ -1,8 +1,10 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.util.FileUtils;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -12,8 +14,9 @@ public class WhydahUserIdentityImporterTest {
 	@Test
 	public void parseUsers() {
 		String userImportSource = "testusers.csv";
-		
-		List<UserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportSource);
+
+        InputStream userImportStream = FileUtils.openFileOnClasspath(userImportSource);
+		List<UserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportStream);
 		
 		assertEquals("All users must be found.", 2, users.size());
 		

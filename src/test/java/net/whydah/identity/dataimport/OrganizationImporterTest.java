@@ -1,7 +1,9 @@
 package net.whydah.identity.dataimport;
 
+import net.whydah.identity.util.FileUtils;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -19,7 +21,8 @@ public class OrganizationImporterTest {
 //      3, Whydah
 //      3, Altran
 
-        List<Organization> organizations = OrganizationImporter.parseOrganizations(organizationsSource);
+        InputStream organizationsStream = FileUtils.openFileOnClasspath(organizationsSource);
+        List<Organization> organizations = OrganizationImporter.parseOrganizations(organizationsStream);
 		
         assertEquals("All organizations must be found.", 6, organizations.size());
         assertAppIdAndOrgName(organizations.get(0), "1", "Whydah");
