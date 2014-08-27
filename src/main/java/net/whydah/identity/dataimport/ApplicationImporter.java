@@ -30,12 +30,7 @@ public class ApplicationImporter {
 		this.queryRunner = queryRunner;
 	}
 	
-	public void importApplications(String applicationsSource) {
-        if (applicationsSource == null || applicationsSource.isEmpty()) {
-            log.info("applicationsSource was empty, skipping applications import.");
-            return;
-        }
-
+	public void importApplications(InputStream applicationsSource) {
         log.info("importApplications from applicationsSource={}", applicationsSource);
 		List<Application> applications = parseApplications(applicationsSource);
 		saveApplications(applications);
@@ -57,14 +52,12 @@ public class ApplicationImporter {
         }
 	}
 
-    // TODO  Support load from file (override) form local filsesystem)
-	protected static List<Application> parseApplications(String applicationsSource) {
+	protected static List<Application> parseApplications(InputStream applicationsStream) {
 		BufferedReader reader = null;
 		try {
 			List<Application> applications = new ArrayList<>();
-	        InputStream classpathStream = ApplicationImporter.class.getClassLoader().getResourceAsStream(applicationsSource);
-	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
-	        String line = null; 
+	        reader = new BufferedReader(new InputStreamReader(applicationsStream, IamDataImporter.CHARSET_NAME));
+            String line = null;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
 				if (isComment) {
@@ -86,8 +79,8 @@ public class ApplicationImporter {
 			return applications;
 		
 		} catch (IOException ioe) {
-			log.error("Unable to read file {}", applicationsSource);
-			throw new RuntimeException("Unable to import Application from file: " + applicationsSource);
+			log.error("Unable to read file {}", applicationsStream);
+			throw new RuntimeException("Unable to import Application from file: " + applicationsStream);
 		} finally {
             if(reader != null) {
                 try {

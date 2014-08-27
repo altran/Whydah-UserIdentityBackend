@@ -26,24 +26,18 @@ public class OrganizationImporter {
 		this.queryRunner = queryRunner;
 	}
 
-	public void importOrganizations(String organizationsSource) {
-        if (organizationsSource == null || organizationsSource.isEmpty()) {
-            log.info("organizationsSource was empty, skipping organization import.");
-            return;
-        }
-
+	public void importOrganizations(InputStream organizationsSource) {
         log.info("importOrganizations from organizationsSource={}", organizationsSource);
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
         log.info("{} organizations imported.", organizations.size());
 	}
 	
-	protected static List<Organization> parseOrganizations(String organizationsSource) {
+	protected static List<Organization> parseOrganizations(InputStream organizationsStream) {
 		BufferedReader reader = null;
 		try {
 			List<Organization> organizations = new ArrayList<>();
-	        InputStream classpathStream = OrganizationImporter.class.getClassLoader().getResourceAsStream(organizationsSource);
-	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
+            reader = new BufferedReader(new InputStreamReader(organizationsStream, IamDataImporter.CHARSET_NAME));
 	        String line = null; 
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
@@ -63,8 +57,8 @@ public class OrganizationImporter {
 			return organizations;
 		
 		} catch (IOException ioe) {
-			log.error("Unable to read file {}", organizationsSource);
-			throw new RuntimeException("Unable to import Organizations from file: " + organizationsSource);
+			log.error("Unable to read file {}", organizationsStream);
+			throw new RuntimeException("Unable to import Organizations from file: " + organizationsStream);
 		} finally {
             if(reader != null) {
                 try {

@@ -1,7 +1,9 @@
 package net.whydah.identity.dataimport;
 
+import net.whydah.identity.util.FileUtils;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -11,8 +13,8 @@ public class ApplicationImporterTest {
 	@Test
 	public void parseRoles() {
 		String applicationsSource = "testapplications.csv";
-		
-		List<Application> applications = ApplicationImporter.parseApplications(applicationsSource);
+        InputStream applicationStream = FileUtils.openFileOnClasspath(applicationsSource);
+		List<Application> applications = ApplicationImporter.parseApplications(applicationStream);
 		
 //		#applicationId, applicationName, defaultRole, defaultOrgId
 //		1, WhydahUserAdmin, WhydahUserAdmin, 1

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoleMappingImporter {
-	private static final Logger log = LoggerFactory.getLogger(RoleMappingImporter.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleMappingImporter.class);
 	
 	private static final int REQUIRED_NUMBER_OF_FIELDS = 6;
 	private static final int USERID = 0;
@@ -23,7 +23,8 @@ public class RoleMappingImporter {
 	private static final int ORGANIZATIONNAME = 3;
 	private static final int ROLENAME = 4;
 	private static final int ROLEVALUE = 5;
-	
+
+
     private UserPropertyAndRoleRepository roleMappingRepository;
     
     @Inject
@@ -31,12 +32,7 @@ public class RoleMappingImporter {
 		this.roleMappingRepository = roleMappingRepository;
 	}
 
-    public void importRoleMapping(String roleMappingSource) {
-        if (roleMappingSource == null || roleMappingSource.isEmpty()) {
-            log.info("roleMappingSource was empty, skipping roleMapping import.");
-            return;
-        }
-
+    public void importRoleMapping(InputStream roleMappingSource) {
         log.info("importRoleMapping from roleMappingSource={}", roleMappingSource);
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
@@ -46,12 +42,11 @@ public class RoleMappingImporter {
         // Ignore and log warning about lucene update if problems with LDAP/AD lookup.
     }
     
-	protected static List<UserPropertyAndRole> parseRoleMapping(String roleMappingSource) {
+	protected static List<UserPropertyAndRole> parseRoleMapping(InputStream roleMappingStream) {
 		BufferedReader reader = null;
 		try {
 			List<UserPropertyAndRole> roleMappings = new ArrayList<>();
-	        InputStream classpathStream = RoleMappingImporter.class.getClassLoader().getResourceAsStream(roleMappingSource);
-	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
+	        reader = new BufferedReader(new InputStreamReader(roleMappingStream, IamDataImporter.CHARSET_NAME));
 	        String line;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
@@ -79,8 +74,8 @@ public class RoleMappingImporter {
 			return roleMappings;
 		
 		} catch (IOException ioe) {
-			log.error("Unable to read file {}", roleMappingSource);
-			throw new RuntimeException("Unable to import Role Mappings from file: " + roleMappingSource);
+			log.error("Unable to read file {}", roleMappingStream);
+			throw new RuntimeException("Unable to import Role Mappings from file: " + roleMappingStream);
 		} finally {
             if(reader != null) {
                 try {

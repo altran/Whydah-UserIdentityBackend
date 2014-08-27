@@ -38,24 +38,18 @@ public class WhydahUserIdentityImporter {
 		this.index = index;
 	}
     
-    public void importUsers(String userImportSource) {
-        if (userImportSource == null || userImportSource.isEmpty()) {
-            log.info("userImportSource was empty, skipping user import.");
-            return;
-        }
-
+    public void importUsers(InputStream userImportSource) {
         log.info("importUsers from userImportSource={}", userImportSource);
         List<UserIdentity> users = parseUsers(userImportSource);
     	saveUsers(users);
         log.info("{} users imported.", users.size());
     }
 
-	protected static List<UserIdentity> parseUsers(String userImportSource) {
+	protected static List<UserIdentity> parseUsers(InputStream userImportStream) {
 		BufferedReader reader = null;
 		try {
 			List<UserIdentity> users = new ArrayList<>();
-			InputStream classpathStream = WhydahUserIdentityImporter.class.getClassLoader().getResourceAsStream(userImportSource);
-	        reader = new BufferedReader(new InputStreamReader(classpathStream, "ISO-8859-1"));
+	        reader = new BufferedReader(new InputStreamReader(userImportStream, IamDataImporter.CHARSET_NAME));
 	        String line;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
@@ -82,8 +76,8 @@ public class WhydahUserIdentityImporter {
 			return users;
 		
 		} catch (IOException ioe) {
-			log.error("Unable to read file {}", userImportSource);
-			throw new RuntimeException("Unable to import users from file: " + userImportSource);
+			log.error("Unable to read file {}", userImportStream);
+			throw new RuntimeException("Unable to import users from file: " + userImportStream);
 		} finally {
             if(reader != null) {
                 try {
