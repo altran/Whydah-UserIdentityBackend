@@ -385,7 +385,7 @@
                             </generatorConfigurations>
                             <jvmSettings>
                                 <initialMemorySize>32M</initialMemorySize>
-                                <maxMemorySize>256M</maxMemorySize>
+                                <maxMemorySize>512M</maxMemorySize>
                                 <extraArguments>
                                     <extraArgument>-XX:PermSize=32m</extraArgument>
                                     <extraArgument>-XX:MaxPermSize=32m</extraArgument>
