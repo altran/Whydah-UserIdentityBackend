@@ -26,6 +26,18 @@ public class ApplicationsResource {
         this.applicationService = applicationService;
     }
 
+    @POST
+    @Path("/verifyApplicationAuth")
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response verifyApplicationAuth(String applicationCredential) {
+        log.trace("verifyApplicationAuth is called ");
+        
+        //FIXME check applicationSecret against applicationID
+        return Response.ok().build();
+
+    }
+
 
     @GET
     @Path("/applications")
