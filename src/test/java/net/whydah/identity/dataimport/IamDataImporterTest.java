@@ -53,7 +53,7 @@ public class IamDataImporterTest {
         ads = new EmbeddedADS(ldappath);
         ads.startServer(LDAP_PORT);
         boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
-        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "initials", readOnly);
+        ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
 
 
         roleRepository = new UserPropertyAndRoleRepository();

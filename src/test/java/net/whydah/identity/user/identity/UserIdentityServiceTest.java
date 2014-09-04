@@ -29,7 +29,7 @@ public class UserIdentityServiceTest {
         int LDAP_PORT = 19389;
         String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "initials", readOnly);
+        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
 
         String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();
         File workDir = new File(workDirPath);
