@@ -9,7 +9,7 @@ import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -94,7 +94,7 @@ public class UserAuthenticationEndpointTest {
         roleRepository.setApplicationRepository(configDataRepository);
 
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new Indexer(index), auditLogRepository, roleRepository);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
     }
 
     @AfterClass

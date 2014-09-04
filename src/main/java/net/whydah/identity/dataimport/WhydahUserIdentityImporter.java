@@ -3,7 +3,7 @@ package net.whydah.identity.dataimport;
 import com.google.inject.Inject;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.LuceneIndexer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
@@ -101,12 +101,12 @@ public class WhydahUserIdentityImporter {
 
     private void saveUsers(List<UserIdentity> users) {
         try {
-            Indexer indexer = new Indexer(index);
-            final IndexWriter indexWriter = indexer.getWriter();
+            LuceneIndexer luceneIndexer = new LuceneIndexer(index);
+            final IndexWriter indexWriter = luceneIndexer.getWriter();
             for (UserIdentity userIdentity : users) {
                 ldapUserIdentityDao.addUserIdentity(userIdentity);
                 log.info("Imported user. Uid: {}, Name {} {}, Email {}", userIdentity.getUid(), userIdentity.getFirstName(), userIdentity.getLastName(),userIdentity.getEmail());
-                indexer.addToIndex(indexWriter, userIdentity);
+                luceneIndexer.addToIndex(indexWriter, userIdentity);
             }
             indexWriter.optimize();
             indexWriter.close();

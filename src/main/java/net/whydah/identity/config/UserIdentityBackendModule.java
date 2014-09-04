@@ -5,8 +5,8 @@ import com.google.inject.name.Names;
 import net.whydah.identity.user.authentication.SecurityTokenHelper;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.search.Indexer;
-import net.whydah.identity.user.search.Search;
+import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneSearch;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
@@ -57,8 +57,8 @@ public class UserIdentityBackendModule extends AbstractModule {
             String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
             Directory index = new NIOFSDirectory(new File(luceneDir));
             bind(Directory.class).toInstance(index);
-            bind(Indexer.class).toInstance(new Indexer(index));
-            bind(Search.class).toInstance(new Search(index));
+            bind(LuceneIndexer.class).toInstance(new LuceneIndexer(index));
+            bind(LuceneSearch.class).toInstance(new LuceneSearch(index));
         } catch (IOException e) {
             throw new ConfigurationException(e);
         }

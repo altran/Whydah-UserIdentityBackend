@@ -13,7 +13,7 @@ import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.LuceneIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +32,13 @@ public class UserAggregateService {
 
     private final UserIdentityService userIdentityService;
     private final UserPropertyAndRoleRepository userPropertyAndRoleRepository;
-    private final Indexer indexer;
+    private final LuceneIndexer luceneIndexer;
     private final AuditLogRepository auditLogRepository;
 
     @Inject
     public UserAggregateService(UserIdentityService userIdentityService, UserPropertyAndRoleRepository userPropertyAndRoleRepository,
-                                Indexer indexer, AuditLogRepository auditLogRepository) {
-        this.indexer = indexer;
+                                LuceneIndexer luceneIndexer, AuditLogRepository auditLogRepository) {
+        this.luceneIndexer = luceneIndexer;
         this.auditLogRepository = auditLogRepository;
         this.userPropertyAndRoleRepository = userPropertyAndRoleRepository;
         this.userIdentityService = userIdentityService;
@@ -76,7 +76,7 @@ public class UserAggregateService {
             }
 
             userIdentityService.updateUserIdentity(username, newUserIdentity);
-            indexer.update(newUserIdentity);
+            luceneIndexer.update(newUserIdentity);
             audit(ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
         } catch (NamingException e) {
             throw new RuntimeException("updateUserIdentity failed for username=" + username + ", newUserIdentity=" + newUserIdentity, e);
@@ -88,7 +88,7 @@ public class UserAggregateService {
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIndentityForUid(uid);
-            indexer.removeFromIndex(uid);
+            luceneIndexer.removeFromIndex(uid);
         } catch (NamingException e) {
             throw new RuntimeException("userIdentityService.getUserIndentity with uid=" + uid, e);
         }

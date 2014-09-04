@@ -10,7 +10,7 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.LuceneIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -36,14 +36,14 @@ public class UserAdminHelper {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final Indexer indexer;
+    private final LuceneIndexer luceneIndexer;
     private final AuditLogRepository auditLogRepository;
     private final UserPropertyAndRoleRepository roleRepository;
 
     @Inject
-    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, Indexer indexer, AuditLogRepository auditLogRepository, UserPropertyAndRoleRepository roleRepository) {
+    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer, AuditLogRepository auditLogRepository, UserPropertyAndRoleRepository roleRepository) {
         this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.indexer = indexer;
+        this.luceneIndexer = luceneIndexer;
         this.auditLogRepository = auditLogRepository;
         this.roleRepository = roleRepository;
     }
@@ -69,7 +69,7 @@ public class UserAdminHelper {
         addDefaultWhydahUserRole(newIdentity);
 
         try {
-            indexer.addToIndex(newIdentity);
+            luceneIndexer.addToIndex(newIdentity);
             audit(ActionPerformed.ADDED, "user", newIdentity.toString());
         } catch (Exception e) {
             logger.error("addUser - Error with lucene indexing or audit login for " + username, e);

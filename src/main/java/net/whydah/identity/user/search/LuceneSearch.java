@@ -21,30 +21,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Search {
-    private static final Logger logger = LoggerFactory.getLogger(Search.class);
+public class LuceneSearch {
+    private static final Logger logger = LoggerFactory.getLogger(LuceneSearch.class);
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_31);
     private static final int MAX_HITS = 200;
     private final Directory index;
 
 
-    public Search(Directory index) {
+    public LuceneSearch(Directory index) {
         this.index = index;
     }
 
     public List<UserIdentityRepresentation> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
-                Indexer.FIELD_FIRSTNAME,
-                Indexer.FIELD_LASTNAME,
-                Indexer.FIELD_EMAIL,
-                Indexer.FIELD_USERNAME,
-                Indexer.FIELD_MOBILE
+                LuceneIndexer.FIELD_FIRSTNAME,
+                LuceneIndexer.FIELD_LASTNAME,
+                LuceneIndexer.FIELD_EMAIL,
+                LuceneIndexer.FIELD_USERNAME,
+                LuceneIndexer.FIELD_MOBILE
         };
         HashMap<String, Float> boosts = new HashMap<>();
-        boosts.put(Indexer.FIELD_FIRSTNAME, 2.5f);
-        boosts.put(Indexer.FIELD_LASTNAME, 2f);
-        boosts.put(Indexer.FIELD_USERNAME, 1.5f);
+        boosts.put(LuceneIndexer.FIELD_FIRSTNAME, 2.5f);
+        boosts.put(LuceneIndexer.FIELD_LASTNAME, 2f);
+        boosts.put(LuceneIndexer.FIELD_USERNAME, 1.5f);
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(Version.LUCENE_30, fields, ANALYZER, boosts);
         multiFieldQueryParser.setAllowLeadingWildcard(true);
         Query q;
@@ -65,13 +65,13 @@ public class Search {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
                 UserIdentity user = new UserIdentity();
-                user.setFirstName(d.get(Indexer.FIELD_FIRSTNAME));
-                user.setLastName(d.get(Indexer.FIELD_LASTNAME));
-                user.setUid(d.get(Indexer.FIELD_UID));
-                user.setUsername(d.get(Indexer.FIELD_USERNAME));
-                user.setPersonRef(d.get(Indexer.FIELD_PERSONREF));
-                user.setCellPhone(d.get(Indexer.FIELD_MOBILE));
-                user.setEmail(d.get(Indexer.FIELD_EMAIL));
+                user.setFirstName(d.get(LuceneIndexer.FIELD_FIRSTNAME));
+                user.setLastName(d.get(LuceneIndexer.FIELD_LASTNAME));
+                user.setUid(d.get(LuceneIndexer.FIELD_UID));
+                user.setUsername(d.get(LuceneIndexer.FIELD_USERNAME));
+                user.setPersonRef(d.get(LuceneIndexer.FIELD_PERSONREF));
+                user.setCellPhone(d.get(LuceneIndexer.FIELD_MOBILE));
+                user.setEmail(d.get(LuceneIndexer.FIELD_EMAIL));
                 //System.out.println(user.getUsername() + " : " + hit.score);
                 result.add(user);
             }

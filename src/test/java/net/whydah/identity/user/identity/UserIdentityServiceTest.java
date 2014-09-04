@@ -2,7 +2,7 @@ package net.whydah.identity.user.identity;
 
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.user.search.Search;
+import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.junit.AfterClass;
@@ -53,7 +53,7 @@ public class UserIdentityServiceTest {
     @Test(expected = ConflictException.class)
     public void testAddUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, null, Mockito.mock(Search.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, null, Mockito.mock(LuceneSearch.class));
 
         String username = "username123";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",

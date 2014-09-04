@@ -11,28 +11,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchTest extends TestCase{
+public class LuceneSearchTest extends TestCase{
 
   @Test
   public void testsearch() throws IOException {
         Directory index = new RAMDirectory();
 
-        Indexer indexer = new Indexer(index);
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
             
         }};
-        indexer.addToIndex(users);
-        Search search = new Search(index);
-        List<UserIdentityRepresentation> result = search.search("Sunil");
+        luceneIndexer.addToIndex(users);
+        LuceneSearch luceneSearch = new LuceneSearch(index);
+        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        result = search.search("Vuppala");
+        result = luceneSearch.search("Vuppala");
         assertEquals(1, result.size());
-        result = search.search("sunil@freecode.no");
+        result = luceneSearch.search("sunil@freecode.no");
         assertEquals(1, result.size());
-        result = search.search("Pølser");
+        result = luceneSearch.search("Pølser");
         assertEquals(0, result.size());
         
     }
@@ -42,19 +42,19 @@ public class SearchTest extends TestCase{
     public void testremoveuser() throws IOException {
         RAMDirectory index = new RAMDirectory();
 
-        Indexer indexer = new Indexer(index);
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
             
         }};
-        indexer.addToIndex(users);
-        Search search = new Search(index);
-        List<UserIdentityRepresentation> result = search.search("Sunil");
+        luceneIndexer.addToIndex(users);
+        LuceneSearch luceneSearch = new LuceneSearch(index);
+        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        indexer.removeFromIndex("sunil@freecode.no");
-        result = search.search("Sunil");
+        luceneIndexer.removeFromIndex("sunil@freecode.no");
+        result = luceneSearch.search("Sunil");
         assertEquals(0, result.size());
     }
     
@@ -62,22 +62,22 @@ public class SearchTest extends TestCase{
     @Test
     public void testmodifyuser() throws IOException {
         RAMDirectory index = new RAMDirectory();
-        Indexer indexer = new Indexer(index);
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
         }};
-        indexer.addToIndex(users);
-        Search search = new Search(index);
-        List<UserIdentityRepresentation> result = search.search("Sunil");
+        luceneIndexer.addToIndex(users);
+        LuceneSearch luceneSearch = new LuceneSearch(index);
+        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        result = search.search("Sunil");
+        result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        indexer.update(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        result = search.search("Sunil");
+        luceneIndexer.update(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
+        result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        result = search.search("Sunil");
+        result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
        
     }
@@ -85,20 +85,20 @@ public class SearchTest extends TestCase{
     @Test
     public void testwildcardsearch() throws IOException {
         Directory index = new RAMDirectory();
-        Indexer indexer = new Indexer(index);
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
           	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
         
         }};
-        indexer.addToIndex(users);
-        Search search = new Search(index);
-        List<UserIdentityRepresentation> result = search.search("Sunil");
+        luceneIndexer.addToIndex(users);
+        LuceneSearch luceneSearch = new LuceneSearch(index);
+        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        result = search.search("Sunil");
+        result = luceneSearch.search("Sunil");
         assertEquals(1, result.size());
-        result = search.search("sunil@");
+        result = luceneSearch.search("sunil@");
         assertEquals(1, result.size());
     }
 
@@ -106,16 +106,16 @@ public class SearchTest extends TestCase{
     public void testweights() throws IOException {
         Directory index = new RAMDirectory();
 
-        Indexer indexer = new Indexer(index);
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
         	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
         	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
         	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
 
         }};
-        indexer.addToIndex(users);
-        Search search = new Search(index);
-        List<UserIdentityRepresentation> result = search.search("Vuppala");
+        luceneIndexer.addToIndex(users);
+        LuceneSearch luceneSearch = new LuceneSearch(index);
+        List<UserIdentityRepresentation> result = luceneSearch.search("Vuppala");
         assertEquals(1, result.size());
         assertEquals("sunil@freecode.no", result.get(0).getUsername());
     }

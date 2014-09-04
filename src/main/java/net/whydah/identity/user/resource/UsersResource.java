@@ -5,7 +5,7 @@ import com.sun.jersey.api.view.Viewable;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
-import net.whydah.identity.user.search.Search;
+import net.whydah.identity.user.search.LuceneSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +28,14 @@ public class UsersResource {
     private static final Logger log = LoggerFactory.getLogger(UsersResource.class);
 
     private final UserAggregateService userAggregateService;
-    private final Search search;
+    private final LuceneSearch luceneSearch;
 
     @Context
     private UriInfo uriInfo;
 
     @Inject
-    public UsersResource(Search search, UserAggregateService userAggregateService) {
-        this.search = search;
+    public UsersResource(LuceneSearch luceneSearch, UserAggregateService userAggregateService) {
+        this.luceneSearch = luceneSearch;
         this.userAggregateService = userAggregateService;
     }
 
@@ -80,7 +80,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
-        List<UserIdentityRepresentation> users = search.search(query);
+        List<UserIdentityRepresentation> users = luceneSearch.search(query);
 
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("users", users);

@@ -8,8 +8,8 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.email.PasswordSender;
-import net.whydah.identity.user.search.Indexer;
-import net.whydah.identity.user.search.Search;
+import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,20 +41,20 @@ public class UserIdentityService {
     private final PasswordGenerator passwordGenerator;
     private final PasswordSender passwordSender;
 
-    private final Indexer indexer;
-    private final Search searcher;
+    private final LuceneIndexer luceneIndexer;
+    private final LuceneSearch searcher;
 
 
     @Inject
     public UserIdentityService(@Named("primaryLdap") LdapAuthenticator primaryLdapAuthenticator,
                                LdapUserIdentityDao ldapUserIdentityDao, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
-                               PasswordSender passwordSender, Indexer indexer, Search searcher) {
+                               PasswordSender passwordSender, LuceneIndexer luceneIndexer, LuceneSearch searcher) {
         this.primaryLdapAuthenticator = primaryLdapAuthenticator;
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.auditLogRepository = auditLogRepository;
         this.passwordGenerator = passwordGenerator;
         this.passwordSender = passwordSender;
-        this.indexer = indexer;
+        this.luceneIndexer = luceneIndexer;
         this.searcher = searcher;
     }
 
@@ -153,7 +153,7 @@ public class UserIdentityService {
                 dto.getPersonRef(), email, dto.getCellPhone(), passwordGenerator.generate());
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
-            indexer.addToIndex(userIdentity);
+            luceneIndexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
@@ -207,14 +207,14 @@ public class UserIdentityService {
     public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
         if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
             log.warn("Trying to access non-existant UID, removing form index: " + uid);
-            indexer.removeFromIndex(uid);
+            luceneIndexer.removeFromIndex(uid);
         }
         return ldapUserIdentityDao.getUserIndentityForUid(uid);
     }
 
     public void updateUserIdentityForUid(String uid, UserIdentity newUserIdentity) {
         ldapUserIdentityDao.updateUserIdentityForUid(uid, newUserIdentity);
-        indexer.update(newUserIdentity);
+        luceneIndexer.update(newUserIdentity);
         audit(uid,ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
     }
 
@@ -224,12 +224,12 @@ public class UserIdentityService {
     }
     public void updateUserIdentity(String username, UserIdentity newuser) {
         ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
-        indexer.update(newuser);
+        luceneIndexer.update(newuser);
     }
 
     public void deleteUserIdentity(String username) throws NamingException {
         ldapUserIdentityDao.deleteUserIdentity(username);
-        indexer.removeFromIndex(getUserIndentity(username).getUid());
+        luceneIndexer.removeFromIndex(getUserIndentity(username).getUid());
     }
 
     private void audit(String uid,String action, String what, String value) {

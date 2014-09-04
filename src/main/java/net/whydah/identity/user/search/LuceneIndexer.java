@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * Indexer for adding users to the index.
  */
-public class Indexer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Indexer.class);
+public class LuceneIndexer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LuceneIndexer.class);
 
     public static final String FIELD_FIRSTNAME = "firstname";
     public static final String FIELD_LASTNAME = "surname";
@@ -32,7 +32,7 @@ public class Indexer {
     private final Directory index;
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_31);
 
-    public Indexer(Directory index) {
+    public LuceneIndexer(Directory index) {
         this.index = index;
     }
 

@@ -2,7 +2,7 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.search.Indexer;
+import net.whydah.identity.user.search.LuceneIndexer;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
@@ -49,7 +49,7 @@ public class ImportModule extends AbstractModule {
             String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
             Directory index = new NIOFSDirectory(new File(luceneDir));
             bind(Directory.class).toInstance(index);
-            bind(Indexer.class).toInstance(new Indexer(index));
+            bind(LuceneIndexer.class).toInstance(new LuceneIndexer(index));
         } catch (IOException e) {
             throw new ConfigurationException(e.getLocalizedMessage(), e);
         }
