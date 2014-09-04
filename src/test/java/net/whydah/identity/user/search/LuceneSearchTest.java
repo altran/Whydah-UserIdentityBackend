@@ -19,7 +19,7 @@ public class LuceneSearchTest extends TestCase{
 
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("kari.norman@example.com", "Kari", "Norman", "kari.norman@example.com", "kari.norman@example.com"));
         	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
         	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
             
@@ -29,7 +29,7 @@ public class LuceneSearchTest extends TestCase{
         List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Norman");
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         result = luceneSearch.search("ola@example.com");
         assertEquals(1, result.size());
         result = luceneSearch.search("Pølser");
@@ -108,7 +108,7 @@ public class LuceneSearchTest extends TestCase{
 
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("kari.norman@example.com", "Kari", "Norman", "kari.norman@example.com", "kari.norman@example.com"));
         	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
         	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
 
@@ -116,8 +116,8 @@ public class LuceneSearchTest extends TestCase{
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Norman");
-        assertEquals(1, result.size());
-        assertEquals("ola@example.com", result.get(0).getUsername());
+        assertEquals(2, result.size());
+        assertEquals("ola@example.com", result.get(1).getUsername());
     }
 
 
