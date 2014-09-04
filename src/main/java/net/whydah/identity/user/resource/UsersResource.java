@@ -6,6 +6,7 @@ import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.search.LuceneSearch;
+import net.whydah.identity.user.search.UserSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +30,16 @@ public class UsersResource {
 
     private final UserAggregateService userAggregateService;
     private final LuceneSearch luceneSearch;
+    private final UserSearch userSearch;
 
     @Context
     private UriInfo uriInfo;
 
     @Inject
-    public UsersResource(LuceneSearch luceneSearch, UserAggregateService userAggregateService) {
+    public UsersResource(LuceneSearch luceneSearch, UserAggregateService userAggregateService, UserSearch userSearch) {
         this.luceneSearch = luceneSearch;
         this.userAggregateService = userAggregateService;
+        this.userSearch = userSearch;
     }
 
     /**
@@ -80,8 +83,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
-        List<UserIdentityRepresentation> users = luceneSearch.search(query);
-
+        List<UserIdentityRepresentation> users = userSearch.search(query);
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("users", users);
         model.put("userbaseurl", uriInfo.getBaseUri());
