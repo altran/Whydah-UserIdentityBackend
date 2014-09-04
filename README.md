@@ -50,7 +50,11 @@ ldap.embedded.port=10389
 ldap.primary.url=ldap://localhost:10389/dc=external,dc=WHYDAH,dc=no
 ldap.primary.admin.principal=uid=admin,ou=system
 ldap.primary.admin.credentials=secret
-ldap.primary.usernameattribute=initials
+ldap.primary.uid.attribute=uid
+ldap.primary.username.attribute=initials
+#For AD
+#ldap.primary.uid.attribute=userprincipalname
+#ldap.primary.username.attribute=sAMAccountName
 
 roledb.directory=bootstrapdata/hsqldb
 roledb.jdbc.driver=org.hsqldb.jdbc.JDBCDriver

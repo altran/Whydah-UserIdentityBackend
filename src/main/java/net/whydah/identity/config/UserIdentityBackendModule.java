@@ -69,15 +69,16 @@ public class UserIdentityBackendModule extends AbstractModule {
         String primaryLdapUrl = AppConfig.appConfig.getProperty("ldap.primary.url");
         String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
         String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
-        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
+        String primaryUidAttribute = AppConfig.appConfig.getProperty("ldap.primary.uid.attribute");
+        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.username.attribute");
         boolean primaryReadOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
 
 
-        LdapAuthenticator primaryLdapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute);
+        LdapAuthenticator primaryLdapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
         bind(LdapAuthenticator.class).annotatedWith(Names.named("primaryLdap")).toInstance(primaryLdapAuthenticator);
 
-
-        LdapUserIdentityDao primaryLdapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute, primaryReadOnly);
+        LdapUserIdentityDao primaryLdapUserIdentityDao =
+                new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, primaryReadOnly);
         bind(LdapUserIdentityDao.class).toInstance(primaryLdapUserIdentityDao);
 
 

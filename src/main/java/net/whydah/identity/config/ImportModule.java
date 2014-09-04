@@ -24,9 +24,10 @@ public class ImportModule extends AbstractModule {
         String primaryLdapUrl = AppConfig.appConfig.getProperty("ldap.primary.url");
         String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
         String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
-        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.usernameattribute");
+        String primaryUidAttribute = AppConfig.appConfig.getProperty("ldap.primary.uid.attribute");
+        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.username.attribute");
         boolean readonly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
-        bind(LdapUserIdentityDao.class).toInstance(new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUsernameAttribute,readonly));
+        bind(LdapUserIdentityDao.class).toInstance(new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute,readonly));
 
 
         //datasource

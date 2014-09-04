@@ -15,14 +15,14 @@ import java.util.Hashtable;
  */
 public class LdapAuthenticator {
     private static final Logger log = LoggerFactory.getLogger(LdapAuthenticator.class);
-
     private final Hashtable<String,String> baseenv;
     private final Hashtable<String,String> admenv;
+    private final String uidAttribute;
     private final String usernameAttribute;
-    private static final String uidAttributeForActiveDirectory = "userprincipalname";
+    //private static final String uidAttributeForActiveDirectory = "userprincipalname";
 
-    public LdapAuthenticator(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute) {
-        log.info("Initialize LdapAuthenticator with ldapUrl={}, admPrincipal={}, usernameAttribute={}", ldapUrl, admPrincipal, usernameAttribute);
+    public LdapAuthenticator(String ldapUrl, String admPrincipal, String admCredentials, String uidAttribute, String usernameAttribute) {
+        log.info("Initialize LdapAuthenticator with ldapUrl={}, admPrincipal={}, uidAttribute={}, usernameAttribute={}", ldapUrl, admPrincipal, uidAttribute, usernameAttribute);
         baseenv = new Hashtable<>();
         baseenv.put(Context.PROVIDER_URL, ldapUrl);
         baseenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -31,6 +31,7 @@ public class LdapAuthenticator {
         admenv.put(Context.SECURITY_PRINCIPAL, admPrincipal);
         admenv.put(Context.SECURITY_CREDENTIALS, admCredentials);
 
+        this.uidAttribute = uidAttribute;
         this.usernameAttribute = usernameAttribute;
     }
 
@@ -152,13 +153,7 @@ public class LdapAuthenticator {
         }
 
         UserIdentity userIdentity = new UserIdentity();
-        String uid = getAttribValue(attributes, "uid");
-
-        if (uid == null) {  //assume AD
-            uid = getAttribValue(attributes, uidAttributeForActiveDirectory);
-        }
-
-        userIdentity.setUid(uid);
+        userIdentity.setUid(getAttribValue(attributes, uidAttribute));
         userIdentity.setUsername(getAttribValue(attributes, usernameAttribute));
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));
         userIdentity.setLastName(getAttribValue(attributes, "sn"));

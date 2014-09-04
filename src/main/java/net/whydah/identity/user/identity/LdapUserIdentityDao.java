@@ -23,7 +23,6 @@ public class LdapUserIdentityDao {
      */
     private static final String USERS_OU = "ou=users";
     private static final String ATTRIBUTE_NAME_CN = "cn";
-    private static final String ATTRIBUTE_NAME_UID = "uid";
     private static final String ATTRIBUTE_NAME_SN = "sn";
     private static final String ATTRIBUTE_NAME_GIVENNAME = "givenName";
     private static final String ATTRIBUTE_NAME_MAIL = "mail";
@@ -34,6 +33,7 @@ public class LdapUserIdentityDao {
     private static final StringCleaner stringCleaner = new StringCleaner();
 
     private final Hashtable<String,String> admenv;
+    private final String uidAttribute;
     private final String usernameAttribute;
     private final boolean readOnly;
 
@@ -42,12 +42,13 @@ public class LdapUserIdentityDao {
 
 
 
-    public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String usernameAttribute, boolean readOnly) {
+    public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String uidAttribute, String usernameAttribute, boolean readOnly) {
         admenv = new Hashtable<>(4);
         admenv.put(Context.PROVIDER_URL, ldapUrl);
         admenv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         admenv.put(Context.SECURITY_PRINCIPAL, admPrincipal);
         admenv.put(Context.SECURITY_CREDENTIALS, admCredentials);
+        this.uidAttribute = uidAttribute;
         this.usernameAttribute = usernameAttribute;
         this.readOnly = readOnly;
 
@@ -83,7 +84,7 @@ public class LdapUserIdentityDao {
 
         // Create the entry
         try {
-            String userdn = ATTRIBUTE_NAME_UID + '=' + userIdentity.getUid() + "," + USERS_OU;
+            String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
             ctx.createSubcontext(userdn, container);
             log.trace("Added {} with dn={}", userIdentity, userdn);
         } catch (NameAlreadyBoundException nabe) {
@@ -112,7 +113,7 @@ public class LdapUserIdentityDao {
         container.put(new BasicAttribute(ATTRIBUTE_NAME_CN, userIdentity.getPersonName()));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_GIVENNAME, userIdentity.getFirstName()));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_SN, userIdentity.getLastName()));
-        container.put(new BasicAttribute(ATTRIBUTE_NAME_UID, stringCleaner.cleanString(userIdentity.getUid())));
+        container.put(new BasicAttribute(uidAttribute, stringCleaner.cleanString(userIdentity.getUid())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, userIdentity.getEmail()));
         container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, userIdentity.getPassword()));
@@ -214,12 +215,12 @@ public class LdapUserIdentityDao {
             log.debug("createUserDNFromUsername failed (returned null), because could not find any Attributes for username={}", username);
             return null;
         }
-        String uid = getAttribValue(attributes, ATTRIBUTE_NAME_UID);
+        String uid = getAttribValue(attributes, uidAttribute);
         return createUserDNFromUID(uid);
     }
 
     private String createUserDNFromUID(String uid) throws NamingException {
-        return ATTRIBUTE_NAME_UID + '=' + uid + "," + USERS_OU;
+        return uidAttribute + '=' + uid + "," + USERS_OU;
     }
 
     public UserIdentity getUserIndentity(String username) throws NamingException {
@@ -250,7 +251,7 @@ public class LdapUserIdentityDao {
         }
 
         UserIdentity id = new UserIdentity();
-        id.setUid((String) attributes.get(ATTRIBUTE_NAME_UID).get());
+        id.setUid((String) attributes.get(uidAttribute).get());
         id.setUsername((String) attributes.get(usernameAttribute).get());
         id.setFirstName(getAttribValue(attributes, ATTRIBUTE_NAME_GIVENNAME));
         id.setLastName(getAttribValue(attributes, ATTRIBUTE_NAME_SN));
@@ -280,7 +281,7 @@ public class LdapUserIdentityDao {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        NamingEnumeration results = ctx.search("", "(" + ATTRIBUTE_NAME_UID + "=" + uid + ")", constraints);
+        NamingEnumeration results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
         if (results.hasMore()) {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
