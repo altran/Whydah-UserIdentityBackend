@@ -19,18 +19,18 @@ public class LuceneSearchTest extends TestCase{
 
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
-        	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
+        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
             
         }};
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
-        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
+        List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        result = luceneSearch.search("Vuppala");
+        result = luceneSearch.search("Norman");
         assertEquals(1, result.size());
-        result = luceneSearch.search("sunil@freecode.no");
+        result = luceneSearch.search("ola@example.com");
         assertEquals(1, result.size());
         result = luceneSearch.search("Pølser");
         assertEquals(0, result.size());
@@ -44,17 +44,17 @@ public class LuceneSearchTest extends TestCase{
 
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
-        	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
+        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
             
         }};
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
-        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
+        List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        luceneIndexer.removeFromIndex("sunil@freecode.no");
-        result = luceneSearch.search("Sunil");
+        luceneIndexer.removeFromIndex("ola@example.com");
+        result = luceneSearch.search("Ola");
         assertEquals(0, result.size());
     }
     
@@ -64,20 +64,20 @@ public class LuceneSearchTest extends TestCase{
         RAMDirectory index = new RAMDirectory();
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
-        	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
+        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
         }};
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
-        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
+        List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        result = luceneSearch.search("Sunil");
+        result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        luceneIndexer.update(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        result = luceneSearch.search("Sunil");
+        luceneIndexer.update(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        result = luceneSearch.search("Sunil");
+        result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
        
     }
@@ -87,18 +87,18 @@ public class LuceneSearchTest extends TestCase{
         Directory index = new RAMDirectory();
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-          	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
-        	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
+          	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
         
         }};
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
-        List<UserIdentityRepresentation> result = luceneSearch.search("Sunil");
+        List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        result = luceneSearch.search("Sunil");
+        result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        result = luceneSearch.search("sunil@");
+        result = luceneSearch.search("ola@");
         assertEquals(1, result.size());
     }
 
@@ -108,16 +108,16 @@ public class LuceneSearchTest extends TestCase{
 
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
-        	add(createUser("rafal.laczek@freecode.no", "Rafal", "Laczek", "rafal.laczek@freecode.no", "rafal.laczek@freecode.no"));
-        	add(createUser("sunil@freecode.no", "Sunil", "Vuppala", "sunil@freecode.no", "sunil@freecode.no"));
-        	add(createUser("frode.torvund@freecode.no", "Frode", "Torvund", "frode.torvund@freecode.no", "frode.torvund@freecode.no"));
+        	add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
+        	add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        	add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
 
         }};
         luceneIndexer.addToIndex(users);
         LuceneSearch luceneSearch = new LuceneSearch(index);
-        List<UserIdentityRepresentation> result = luceneSearch.search("Vuppala");
+        List<UserIdentityRepresentation> result = luceneSearch.search("Norman");
         assertEquals(1, result.size());
-        assertEquals("sunil@freecode.no", result.get(0).getUsername());
+        assertEquals("ola@example.com", result.get(0).getUsername());
     }
 
 
