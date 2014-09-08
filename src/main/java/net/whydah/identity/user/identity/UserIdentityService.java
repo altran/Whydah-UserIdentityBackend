@@ -206,7 +206,7 @@ public class UserIdentityService {
 
     public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
         if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
-            log.warn("Trying to access non-existant UID, removing form index: " + uid);
+            log.warn("Trying to access non-existing UID, removing form index: " + uid);
             luceneIndexer.removeFromIndex(uid);
         }
         return ldapUserIdentityDao.getUserIndentityForUid(uid);
