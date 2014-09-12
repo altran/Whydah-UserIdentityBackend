@@ -228,8 +228,8 @@ public class UserIdentityService {
     }
 
     public void deleteUserIdentity(String username) throws NamingException {
-        ldapUserIdentityDao.deleteUserIdentity(username);
         luceneIndexer.removeFromIndex(getUserIndentity(username).getUid());
+        ldapUserIdentityDao.deleteUserIdentity(username);
     }
 
     private void audit(String uid,String action, String what, String value) {
