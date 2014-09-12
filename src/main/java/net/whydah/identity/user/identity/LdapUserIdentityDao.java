@@ -298,7 +298,7 @@ public class LdapUserIdentityDao {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        log.trace("No attributes found for uid.{}={}", uidAttribute, uid);
+        log.trace("No attributes found for uid. Search on: {}={}", uidAttribute, uid);
         return null;
     }
 
@@ -333,7 +333,7 @@ public class LdapUserIdentityDao {
                 throw pre;
             }
         }
-        log.trace("No attributes found for username {}={}", uidAttribute, username);
+        log.trace("No attributes found for username. Search on: {}={}", usernameAttribute, username);
         return null;
     }
 
