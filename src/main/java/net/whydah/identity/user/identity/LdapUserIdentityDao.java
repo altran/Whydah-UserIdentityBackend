@@ -298,7 +298,7 @@ public class LdapUserIdentityDao {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        log.debug("No attributes found for uid=" + uid);
+        log.trace("No attributes found for uid.{}={}", uidAttribute, uid);
         return null;
     }
 
@@ -307,6 +307,9 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
         try {
+//            if (log.isTraceEnabled()) {
+//                log.trace("Context: " + buildContextLog(ctx, usernameAttribute, constraints));
+//            }
             results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
         } catch (NamingException pre) {
             if (pre instanceof PartialResultException) {
@@ -329,10 +332,14 @@ public class LdapUserIdentityDao {
                 log.trace("Failed to extract attributes. usernameAttribute {}, username {}", usernameAttribute, username);
                 throw pre;
             }
-
         }
-        log.debug("getUserAttributesForUsername returned null for username {}", username);
+        log.trace("No attributes found for username {}={}", uidAttribute, username);
         return null;
+    }
+
+    private String buildContextLog(DirContext ctx, String usernameAttribute, SearchControls constraints) {
+        String log = ""; //"- ldapURL: " + ctx.
+        return log;
     }
 
     private boolean hasResults(NamingEnumeration results) throws NamingException {
