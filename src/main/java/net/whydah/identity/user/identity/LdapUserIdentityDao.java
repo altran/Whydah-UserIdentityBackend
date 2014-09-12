@@ -284,6 +284,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
         try {
+            log.trace("Search for user using: {}={}", uidAttribute, uid);
             results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
         } catch (NamingException pre) {
             if (pre instanceof PartialResultException) {
@@ -307,9 +308,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
         try {
-//            if (log.isTraceEnabled()) {
-//                log.trace("Context: " + buildContextLog(ctx, usernameAttribute, constraints));
-//            }
+            log.trace("Search for user using: {}={}", usernameAttribute, username);
             results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
         } catch (NamingException pre) {
             if (pre instanceof PartialResultException) {
@@ -335,11 +334,6 @@ public class LdapUserIdentityDao {
         }
         log.trace("No attributes found for username. Search on: {}={}", usernameAttribute, username);
         return null;
-    }
-
-    private String buildContextLog(DirContext ctx, String usernameAttribute, SearchControls constraints) {
-        String log = ""; //"- ldapURL: " + ctx.
-        return log;
     }
 
     private boolean hasResults(NamingEnumeration results) throws NamingException {
