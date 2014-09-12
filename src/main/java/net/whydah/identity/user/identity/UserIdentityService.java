@@ -198,6 +198,7 @@ public class UserIdentityService {
 
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
+            luceneIndexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
