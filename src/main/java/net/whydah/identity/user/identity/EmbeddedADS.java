@@ -108,6 +108,7 @@ public class EmbeddedADS {
         SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(new File(workingDirectory));
         extractor.extractOrCopy(true);
 
+        logger.trace("Extacted Schema");
         schemaPartition.setWrappedPartition(ldifPartition);
 
         SchemaLoader loader = new LdifSchemaLoader(schemaRepository);

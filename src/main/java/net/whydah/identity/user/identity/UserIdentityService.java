@@ -198,6 +198,7 @@ public class UserIdentityService {
 
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
+            luceneIndexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }
@@ -206,7 +207,7 @@ public class UserIdentityService {
 
     public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
         if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
-            log.warn("Trying to access non-existant UID, removing form index: " + uid);
+            log.warn("Trying to access non-existing UID, removing form index: " + uid);
             luceneIndexer.removeFromIndex(uid);
         }
         return ldapUserIdentityDao.getUserIndentityForUid(uid);
@@ -228,8 +229,8 @@ public class UserIdentityService {
     }
 
     public void deleteUserIdentity(String username) throws NamingException {
-        ldapUserIdentityDao.deleteUserIdentity(username);
         luceneIndexer.removeFromIndex(getUserIndentity(username).getUid());
+        ldapUserIdentityDao.deleteUserIdentity(username);
     }
 
     private void audit(String uid,String action, String what, String value) {

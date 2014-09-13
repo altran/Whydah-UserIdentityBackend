@@ -4,10 +4,7 @@ package net.whydah.identity.user.identity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.naming.directory.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -250,14 +247,19 @@ public class LdapUserIdentityDao {
             return null;
         }
 
-        UserIdentity id = new UserIdentity();
-        id.setUid((String) attributes.get(uidAttribute).get());
-        id.setUsername((String) attributes.get(usernameAttribute).get());
-        id.setFirstName(getAttribValue(attributes, ATTRIBUTE_NAME_GIVENNAME));
-        id.setLastName(getAttribValue(attributes, ATTRIBUTE_NAME_SN));
-        id.setEmail(getAttribValue(attributes, ATTRIBUTE_NAME_MAIL));
-        id.setPersonRef(getAttribValue(attributes, ATTRIBUTE_NAME_PERSONREF));
-        id.setCellPhone(getAttribValue(attributes, ATTRIBUTE_NAME_MOBILE));
+        UserIdentity id = null;
+        Attribute uidAttributeValue = attributes.get(uidAttribute);
+        Attribute  usernameAttributeValue = attributes.get(usernameAttribute);
+        if (uidAttributeValue != null && usernameAttributeValue != null) {
+            id = new UserIdentity();
+            id.setUid((String) attributes.get(uidAttribute).get());
+            id.setUsername((String) attributes.get(usernameAttribute).get());
+            id.setFirstName(getAttribValue(attributes, ATTRIBUTE_NAME_GIVENNAME));
+            id.setLastName(getAttribValue(attributes, ATTRIBUTE_NAME_SN));
+            id.setEmail(getAttribValue(attributes, ATTRIBUTE_NAME_MAIL));
+            id.setPersonRef(getAttribValue(attributes, ATTRIBUTE_NAME_PERSONREF));
+            id.setCellPhone(getAttribValue(attributes, ATTRIBUTE_NAME_MOBILE));
+        }
         return id;
     }
 
@@ -280,26 +282,70 @@ public class LdapUserIdentityDao {
         log.debug("getAttributesForUid, uid=" + uid);
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration results = null;
+        try {
+            log.trace("Search for user using: {}={}", uidAttribute, uid);
+            results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
+        } catch (NamingException pre) {
+            if (pre instanceof PartialResultException) {
+                log.trace("Partial Search only. Due to speed optimization, full search in LDAP/AD is not enabled. uid: {},PartialResultException: {}", uid, pre.getMessage());
+            } else {
+                log.trace("NamingException. uidAttribute {}, username {}", uidAttribute, uid);
+                throw pre;
+            }
+        }
 
-        NamingEnumeration results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
-        if (results.hasMore()) {
+        if (hasResults(results)) {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        log.debug("No attributes found for uid=" + uid);
+        log.trace("No attributes found for uid. Search on: {}={}", uidAttribute, uid);
         return null;
     }
 
     private Attributes getUserAttributesForUsername(String username) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
-        if (results.hasMore()) {
-            SearchResult searchResult = (SearchResult) results.next();
-            return searchResult.getAttributes();
+        NamingEnumeration results = null;
+        try {
+            log.trace("Search for user using: {}={}", usernameAttribute, username);
+            results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
+        } catch (NamingException pre) {
+            if (pre instanceof PartialResultException) {
+                log.trace("Partial Search only. Due to speed optimization, full search in LDAP/AD is not enabled. Username: {},PartialResultException: {}", username, pre.getMessage());
+            } else {
+                log.trace("NamingException. usernameAttribute {}, username {}", usernameAttribute, username);
+                throw pre;
+            }
         }
-        log.debug("getUserAttributesForUsername returned null for username=" + username);
+
+        try {
+            if (hasResults(results)) {
+                SearchResult searchResult = (SearchResult) results.next();
+                return searchResult.getAttributes();
+            }
+        } catch (NamingException pre) {
+            if (pre instanceof PartialResultException) {
+                log.trace("Failed to extract attributes. Username: {},PartialResultException: {}", username, pre.getMessage());
+            } else {
+                log.trace("Failed to extract attributes. usernameAttribute {}, username {}", usernameAttribute, username);
+                throw pre;
+            }
+        }
+        log.trace("No attributes found for username. Search on: {}={}", usernameAttribute, username);
         return null;
+    }
+
+    private boolean hasResults(NamingEnumeration results) throws NamingException {
+        boolean hasResults = false;
+        if (results != null) {
+            try {
+                hasResults = results.hasMore();
+            } catch (NamingException ne) {
+                log.debug("NamingException trying to do results.hasMore(). Swallowing this exception.");
+            }
+        }
+        return hasResults;
     }
 
 

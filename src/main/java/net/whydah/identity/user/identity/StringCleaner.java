@@ -26,7 +26,7 @@ public class StringCleaner {
     public StringCleaner() {
         legalCharacterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅÜÈÄÖÑ" +
                 "abcdefghijklmnopqrstuvwxyzæøåüèäöñ" +
-                "1234567890-@. ";
+                "1234567890-+@. ";
     }
 
     /**
