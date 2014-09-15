@@ -100,7 +100,7 @@ public class Main {
     }
 
    void deleteDirectoryByProperty(String key) {
-        String dirPath = AppConfig.appConfig.getProperty("roledb.directory");
+        String dirPath = AppConfig.appConfig.getProperty(key);
         if (dirPath != null ) {
             FileUtils.deleteDirectory(new File(dirPath));
         }
