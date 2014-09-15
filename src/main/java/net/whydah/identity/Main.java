@@ -76,8 +76,8 @@ public class Main {
         // Populate ldap, database and lucene index
         //if (!canAccessDBWithUserRoles || importTestData) {
         if (importEnabled) {
-            FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("roledb.directory")));
-            FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("lucene.directory")));
+            main.deleteDirectoryByProperty("roledb.directory");
+            main.deleteDirectoryByProperty("lucene.directory");
             main.importUsersAndRoles();
         }
 
@@ -96,6 +96,13 @@ public class Main {
                 log.warn("Thread was interrupted.", ie);
             }
             main.stop();
+        }
+    }
+
+   void deleteDirectoryByProperty(String key) {
+        String dirPath = AppConfig.appConfig.getProperty("roledb.directory");
+        if (dirPath != null ) {
+            FileUtils.deleteDirectory(new File(dirPath));
         }
     }
 
