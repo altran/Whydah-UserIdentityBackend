@@ -31,11 +31,14 @@ public class IamDataImporter {
 	
 	public void importIamData() {
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
+        String jdbcUrlString = AppConfig.appConfig.getProperty("roledb.jdbc.url");
 
         if (jdbcDriverString.contains("hsqldb")) {
             databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
         } else if(jdbcDriverString.contains("mysql")) {
             databaseHelper.initDB(DatabaseHelper.DB_DIALECT.MYSQL);
+        } else if (jdbcUrlString.contains("sqlserver")) {
+            databaseHelper.initDB(DatabaseHelper.DB_DIALECT.MSSQL);
         } else {
             throw new RuntimeException("Unknown database driver found in configuration - " + jdbcDriverString);
         }
