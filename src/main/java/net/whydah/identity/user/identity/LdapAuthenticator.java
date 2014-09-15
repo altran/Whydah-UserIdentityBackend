@@ -121,10 +121,10 @@ public class LdapAuthenticator {
                 SearchResult searchResult = (SearchResult) results.next();
                 String userDN = searchResult.getNameInNamespace();
                 if (userDN == null) {
-                    log.debug("findUserDN, userDN not found for username={}", username);
+                    log.trace("findUserDN, userDN not found for username={}", username);
                     return null;
                 }
-                //log.debug("findUserDN with username={} found userDN={}", username, userDN);
+                log.trace("findUserDN with username={} found userDN={}", username, userDN);
                 return userDN;
             }
         } catch (Exception e) {
