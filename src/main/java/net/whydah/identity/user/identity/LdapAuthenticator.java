@@ -128,7 +128,7 @@ public class LdapAuthenticator {
                 return userDN;
             }
         } catch (Exception e) {
-            log.info("findUserDN failed for user with username=" + username, e);
+            log.info("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute,username, e);
         }
         return null;
     }
