@@ -35,8 +35,8 @@ public class SecurityTokenHelper {
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);
         try {
-            ClientResponse response = webResource.path("token/" + appTokenId + "/getusertokenbytokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-            log.info("Accessing:" + "tokenservice/" + appTokenId + "/getusertokenbytokenid");
+            ClientResponse response = webResource.path("token/" + appTokenId + "/getusertokenbyusertokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+            log.info("Accessing:" + "tokenservice/" + appTokenId + "/getusertokenbyusertokenid");
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 String usertoken = response.getEntity(String.class);
                 log.debug("usertoken: {}", usertoken);

@@ -69,7 +69,7 @@ public class UserTokenTest {
             "    <uid>useradmin</uid>\n" +
             "    <timestamp>1403606943867</timestamp>\n" +
             "    <lifespan>3600000</lifespan>\n" +
-            "    <issuer>http://localhost:9998/tokenservice/token/e0287c65a5c9300c476b34edd0446778/getusertokenbytokenid</issuer>\n" +
+            "    <issuer>http://localhost:9998/tokenservice/token/e0287c65a5c9300c476b34edd0446778/getusertokenbyusertokenid</issuer>\n" +
             "    <securitylevel>1</securitylevel>\n" +
             "    <username>admin</username>\n" +
             "    <firstname>User</firstname>\n" +
