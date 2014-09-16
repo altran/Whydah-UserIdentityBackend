@@ -54,7 +54,7 @@ public class ApplicationToken {
                     "         <expires>" + expires + "</expires>\n" +
                     "     </params> \n" +
                     "     <Url type=\"application/xml\" method=\"POST\" " +
-                    "                template=\"" + baseuri + "/token/" + applicationTokenId + "/getusertokenbyusertokenid\"/> \n" +
+                    "                template=\"" + baseuri + "/user/" + applicationTokenId + "/get_usertoken_by_usertokenid\"/> \n" +
                     " </authentication>\n";
         }
     }
@@ -69,7 +69,7 @@ public class ApplicationToken {
             "            <expires>" + expires + "</expires>\n" +
             "        </params> \n" +
             "           <Url type=\"application/xml\"" +
-            "                template=\"http://example.com/token/{authentication}/getusertokenbyusertokenid\"/>" +
+            "                template=\"http://example.com/user/{authentication}/get_usertoken_by_usertokenid\"/>" +
             "    </authentication>\n";
 
     public String getApplicationTokenId() {
