@@ -19,9 +19,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author asbkar
- */
 public class UserToken {
     private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
@@ -60,7 +57,7 @@ public class UserToken {
 
     public boolean hasRole(String rolename) {
         for (UserRole userRole : userRoles) {
-            if(rolename.equals(userRole.getRoleName())) {
+            if (rolename.equals(userRole.getRoleName())) {
                 return true;
             }
         }
@@ -79,7 +76,7 @@ public class UserToken {
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
             return documentBuilder.parse(new InputSource(new StringReader(userToken)));
-        } catch (ParserConfigurationException|SAXException|IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -89,12 +86,12 @@ public class UserToken {
         XPath xPath = XPathFactory.newInstance().newXPath();
         try {
             NodeList apps = (NodeList) xPath.evaluate("//application", doc, XPathConstants.NODESET);
-            for(int appNo=0; appNo<apps.getLength(); appNo++) {
+            for (int appNo = 0; appNo < apps.getLength(); appNo++) {
                 Node appnode = apps.item(appNo);
                 String appid = appnode.getAttributes().getNamedItem("ID").getNodeValue();
                 String orgName = (String) xPath.evaluate(".//organizationName", appnode, XPathConstants.STRING);
                 NodeList roles = (NodeList) xPath.evaluate("./role", appnode, XPathConstants.NODESET);
-                for(int roleNo=0; roleNo<roles.getLength(); roleNo++) {
+                for (int roleNo = 0; roleNo < roles.getLength(); roleNo++) {
                     Node rolenode = roles.item(roleNo);
                     String rolename = rolenode.getAttributes().getNamedItem("name").getNodeValue();
                     userRoleList.add(new UserRole(appid, orgName, rolename));
