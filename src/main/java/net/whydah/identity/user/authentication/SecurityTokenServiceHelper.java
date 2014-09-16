@@ -15,13 +15,13 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SecurityTokenHelper {
-    private static final Logger log = LoggerFactory.getLogger(SecurityTokenHelper.class);
+public class SecurityTokenServiceHelper {
+    private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceHelper.class);
     private final WebResource webResource;
     private String myAppTokenId;
     private String myAppTokenXML;
 
-    public SecurityTokenHelper(String usertokenserviceUri) {
+    public SecurityTokenServiceHelper(String usertokenserviceUri) {
         Client client = Client.create();
         webResource = client.resource(usertokenserviceUri);
     }
@@ -39,7 +39,7 @@ public class SecurityTokenHelper {
                 log.debug("usertoken: {}", usertoken);
                 return new UserToken(usertoken);
             }
-            log.warn("User token NOT ok: {}", response.getStatus() + response.toString());
+            log.warn("User token NOT ok: {} {}", response.getStatus(), response.toString());
             List<UserRole> roles = new ArrayList<>();
             roles.add(new UserRole("9999", "99999", "mockrole"));
             return new UserToken("MockUserToken", roles);
@@ -59,26 +59,26 @@ public class SecurityTokenHelper {
         if (myAppTokenId != null) {
             ClientResponse response = webResource.path(myAppTokenId + "/validate").get(ClientResponse.class);
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                log.debug("Prev token ok");
+                log.trace("Previous applicationtoken is ok");
                 return myAppTokenId;
             }
         }
-        log.info("Must reauthenticate myself");
-        authenticateme();
+        log.warn("Previous applicationtoken  invalid - Must re-authenticate myself");
+        authenticateMyself();
         return myAppTokenId;
     }
 
-    private synchronized void authenticateme() {
+    private synchronized void authenticateMyself() {
         String auth = "<applicationcredential><params><applicationID>1</applicationID><applicationSecret>secret</applicationSecret></params></applicationcredential>";
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("applicationcredential", auth);
         String apptoken = webResource.path("logon").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, formData);
         myAppTokenXML = apptoken;
         log.info("apptoken={}", apptoken);
-        myAppTokenId = getTokenIdFromAppToken(apptoken);
+        myAppTokenId = getApplicationTokenIdFromAppToken(apptoken);
     }
 
-    private String getTokenIdFromAppToken(String appTokenXML) {
+    private String getApplicationTokenIdFromAppToken(String appTokenXML) {
         return appTokenXML.substring(appTokenXML.indexOf("<applicationtoken>") + "<applicationtoken>".length(), appTokenXML.indexOf("</applicationtoken>"));
     }
 
