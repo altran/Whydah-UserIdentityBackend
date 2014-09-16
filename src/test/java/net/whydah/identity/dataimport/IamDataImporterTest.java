@@ -117,16 +117,16 @@ public class IamDataImporterTest {
 
     }
 
-	private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid,  String appId, String appName, String orgName, String roleName, String roleId) {
-		for (UserPropertyAndRole role : propsAndRoles) {
-			if(role.getApplicationId().equals(appId) &&
+    private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {
+        for (UserPropertyAndRole role : propsAndRoles) {
+            if(role.getApplicationId().equals(appId) &&
 			   role.getApplicationName().equals(appName) && 
 			   role.getOrganizationName().equals(orgName) && 
 			   role.getApplicationRoleName().equals(roleName) &&
-			   role.getApplicationRoleValue().equals(roleId) &&
-			   role.getUid().equals(uid)) {
-				
-				return true;
+                    role.getApplicationRoleValue().equals(roleValue) &&
+                    role.getUid().equals(uid)) {
+
+                return true;
 			}
 		}
 		return false;
