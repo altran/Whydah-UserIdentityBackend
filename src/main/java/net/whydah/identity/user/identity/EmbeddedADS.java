@@ -205,6 +205,11 @@ public class EmbeddedADS {
 
     public void stopServer() {
         server.stop();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ie){
+
+        }
     }
 
 
