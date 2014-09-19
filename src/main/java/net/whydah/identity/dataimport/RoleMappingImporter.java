@@ -38,7 +38,6 @@ public class RoleMappingImporter {
     	saveRoleMapping(roles);
         log.info("{} roles imported.", roles.size());
 
-        //TODO ED (BL): Add user to Lucene index if uib is not indexed already.
         // Ignore and log warning about lucene update if problems with LDAP/AD lookup.
     }
     

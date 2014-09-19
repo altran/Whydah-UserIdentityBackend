@@ -37,7 +37,7 @@ public class UserTokenTest {
             "    <etternavn>Admin</etternavn>\n" +
             "    <timestamp>1299848579653</timestamp>\n" +
             "    <lifespan>200000</lifespan>\n" +
-            "    <issuer>http://10.10.3.88:9998/token/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
+            "    <issuer>http://10.10.3.88:9998/user/9056ac3f744957ae6a86daffb5aa98d3/usertoken</issuer>\n" +
             "    <application ID=\"1\">\n" +
             "        <applicationName>WhydahUserAdmin</applicationName>\n" +
             "            <organizationName>WHYDAH</organizationName>\n" +
@@ -69,7 +69,7 @@ public class UserTokenTest {
             "    <uid>useradmin</uid>\n" +
             "    <timestamp>1403606943867</timestamp>\n" +
             "    <lifespan>3600000</lifespan>\n" +
-            "    <issuer>http://localhost:9998/tokenservice/token/e0287c65a5c9300c476b34edd0446778/getusertokenbytokenid</issuer>\n" +
+            "    <issuer>http://localhost:9998/tokenservice/user/e0287c65a5c9300c476b34edd0446778/get_usertoken_by_usertokenid</issuer>\n" +
             "    <securitylevel>1</securitylevel>\n" +
             "    <username>admin</username>\n" +
             "    <firstname>User</firstname>\n" +

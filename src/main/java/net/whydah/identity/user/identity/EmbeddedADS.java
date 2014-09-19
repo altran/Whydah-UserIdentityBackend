@@ -1,31 +1,22 @@
 package net.whydah.identity.user.identity;
 
 import net.whydah.identity.config.WhydahConfig;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.partition.ldif.LdifPartition;
-import org.apache.directory.server.core.schema.SchemaPartition;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.ldap.entry.ServerEntry;
-import org.apache.directory.shared.ldap.name.DN;
-import org.apache.directory.shared.ldap.schema.SchemaManager;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.ldif.extractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schema.loader.ldif.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.ldap.schema.registries.SchemaLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
+import java.io.IOException;
+import java.util.UUID;
 
 
 /**
@@ -38,7 +29,8 @@ import java.util.List;
 public class EmbeddedADS {
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedADS.class);
     private static final int DEFAULT_SERVER_PORT = 10389;
-
+    private static final String INSTANCE_NAME = "Whydah";
+    private static final String BASE_DN = "o=TEST";
     /**
      * The directory identity
      */
@@ -48,46 +40,8 @@ public class EmbeddedADS {
      * The LDAP server
      */
     private LdapServer server;
-    private String dc="";
+    private String dc = "";
     // private FCconfig fCconfig;
-
-
-    /**
-     * Add a new partition to the server
-     *
-     * @param partitionId The partition Id
-     * @param partitionDn The partition DN
-     * @return The newly added partition
-     * @throws Exception If the partition can't be added
-     */
-    private Partition addPartition(String partitionId, String partitionDn) throws Exception {
-        // Create a new partition named 'foo'.
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId(partitionId);
-        partition.setPartitionDir(new File(service.getWorkingDirectory(), partitionId));
-        partition.setSuffix(partitionDn);
-        service.addPartition(partition);
-
-        return partition;
-    }
-
-
-    /**
-     * Add a new set of index on the given attributes
-     *
-     * @param partition The partition on which we want to add index
-     * @param attrs     The list of attributes to index
-     */
-    private void addIndex(Partition partition, String... attrs) {
-        // Index some attributes on the apache partition
-        HashSet<Index<?, ServerEntry, Long>> indexedAttributes = new HashSet<Index<?, ServerEntry, Long>>();
-
-        for (String attribute : attrs) {
-            indexedAttributes.add(new JdbmIndex<String, ServerEntry>(attribute));
-        }
-
-        ((JdbmPartition) partition).setIndexedAttributes(indexedAttributes);
-    }
 
 
     /**
@@ -95,40 +49,89 @@ public class EmbeddedADS {
      *
      * @throws Exception if the schema LDIF files are not found on the classpath
      */
-    private void initSchemaPartition() throws Exception {
-        SchemaPartition schemaPartition = service.getSchemaService().getSchemaPartition();
+    /**
+     * private void initSchemaPartition() throws Exception {
+     * SchemaPartition schemaPartition = service.getSchemaPartition();
+     * <p/>
+     * // Init the LdifPartition
+     * LdifPartition ldifPartition = new LdifPartition();
+     * String workingDirectory = service.getWorkingDirectory().getPath();
+     * ldifPartition.setWorkingDirectory(workingDirectory + "/schema");
+     * <p/>
+     * // Extract the schema on disk (a brand new one) and load the registries
+     * File schemaRepository = new File(workingDirectory, "schema");
+     * SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(new File(workingDirectory));
+     * extractor.extractOrCopy(true);
+     * <p/>
+     * logger.trace("Extacted Schema");
+     * schemaPartition.setWrappedPartition(ldifPartition);
+     * <p/>
+     * SchemaLoader loader = new LdifSchemaLoader(schemaRepository);
+     * SchemaManager schemaManager = new DefaultSchemaManager(loader);
+     * service.setSchemaManager(schemaManager);
+     * <p/>
+     * // We have to load the schema now, otherwise we won't be able
+     * // to initialize the Partitions, as we won't be able to parse
+     * // and normalize their suffix DN
+     * schemaManager.loadAllEnabled();
+     * <p/>
+     * schemaPartition.setSchemaManager(schemaManager);
+     * <p/>
+     * List<Throwable> errors = schemaManager.getErrors();
+     * <p/>
+     * if (!errors.isEmpty()) {
+     * throw new Exception("Schema load failed : " + errors);
+     * }
+     * }
+     */
 
-        // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition();
-        String workingDirectory = service.getWorkingDirectory().getPath();
-        ldifPartition.setWorkingDirectory(workingDirectory + "/schema");
+    private void init(String INSTANCE_PATH) throws Exception, IOException, LdapException,
+            NamingException {
 
-        // Extract the schema on disk (a brand new one) and load the registries
-        File schemaRepository = new File(workingDirectory, "schema");
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(new File(workingDirectory));
-        extractor.extractOrCopy(true);
+        DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
+        factory.init(INSTANCE_NAME);
 
-        logger.trace("Extacted Schema");
-        schemaPartition.setWrappedPartition(ldifPartition);
+        service = factory.getDirectoryService();
+        service.getChangeLog().setEnabled(false);
+        service.setShutdownHookEnabled(true);
 
-        SchemaLoader loader = new LdifSchemaLoader(schemaRepository);
-        SchemaManager schemaManager = new DefaultSchemaManager(loader);
-        service.setSchemaManager(schemaManager);
+        InstanceLayout il = new InstanceLayout(INSTANCE_PATH);
+        service.setInstanceLayout(il);
 
-        // We have to load the schema now, otherwise we won't be able
-        // to initialize the Partitions, as we won't be able to parse
-        // and normalize their suffix DN
-        schemaManager.loadAllEnabled();
 
-        schemaPartition.setSchemaManager(schemaManager);
+        AvlPartition partition = new AvlPartition(
+                service.getSchemaManager());
+        partition.setId("Test");
+        partition.setSuffixDn(new Dn(service.getSchemaManager(),
+                BASE_DN));
+        logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
+        partition.initialize();
+        service.addPartition(partition);
 
-        List<Throwable> errors = schemaManager.getErrors();
+        AvlPartition mypartition = new AvlPartition(
+                service.getSchemaManager());
+        mypartition.setId(INSTANCE_NAME);
+        mypartition.setSuffixDn(new Dn(service.getSchemaManager(),
+                "dc=external,dc=" + dc + ",dc=no"));
+        logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
+        mypartition.initialize();
+        service.addPartition(mypartition);
 
-        if (!errors.isEmpty()) {
-            throw new Exception("Schema load failed : " + errors);
-        }
+        //         Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
+
+        Dn dnApache = new Dn("dc=external,dc=" + dc + ",dc=no");
+        Entry entryApache = service.newEntry(dnApache);
+        entryApache.add("objectClass", "top", "domain", "extensibleObject");
+        entryApache.add("dc", dc);
+        service.getAdminSession().add(entryApache);
+        Entry entryApache2 = service.newEntry(new Dn("ou=users,dc=external,dc=" + dc + ",dc=no"));
+        entryApache2.add("objectClass", "top", "organizationalUnit");
+        service.getAdminSession().add(entryApache2);
+
+        //server = new LdapServer();
+        //server.setTransports(new TcpTransport("localhost", DEFAULT_SERVER_PORT));
+        //server.setDirectoryService(service);
     }
-
 
     /**
      * Initialize the server. It creates the partition, adds the index, and
@@ -145,57 +148,22 @@ public class EmbeddedADS {
             }
         }
 
-        // Initialize the LDAP identity
-        service = new DefaultDirectoryService();
-        service.setWorkingDirectory(workDir);
 
         WhydahConfig fCconfig = new WhydahConfig();
         if (fCconfig.getProptype().equals("FCDEV")) {
-            //dc = fCconfig.getFCDc(); //TODO commented for a while. Work with it when Prod and dev. enviroment are ready
-            dc="WHYDAH";
-        } else if(fCconfig.getProptype().equals("DEV")) {
-            //dc = "CUSTOMER"; //TODO commented for a while. Work with it when Prod and dev. enviroment are ready
-            dc="WHYDAH";
-        } else{
-            dc="WHYDAH"; //Test
+            dc = "WHYDAH";
+        } else if (fCconfig.getProptype().equals("DEV")) {
+            dc = "WHYDAH";
+        } else {
+            dc = "WHYDAH";
         }
 
+        init(workDir.getPath());
 
-        // first load the schema
-        initSchemaPartition();
-
-        // then the system partition
-        // this is a MANDATORY partition
-        Partition systemPartition = addPartition("system", ServerDNConstants.SYSTEM_DN);
-        service.setSystemPartition(systemPartition);
-
-        // Disable the ChangeLog system
-        service.getChangeLog().setEnabled(false);
-        service.setDenormalizeOpAttrsEnabled(true);
-
-        // Now we can create as many partitions as we need
-        // Create some new partitions named 'foo', 'bar' and 'apache'.
-
-        Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
-        // Index some attributes on the apache partition
-        addIndex(apachePartition, "objectClass", "ou", "uid");
 
         // And start the identity
-        service.startup();
+        // service.startup();
 
-        // Inject the apache root entry
-        if (service.getAdminSession().exists(apachePartition.getSuffixDn())) {
-            return;
-        }
-
-        DN dnApache = new DN("dc=external,dc="+dc+",dc=no");
-        ServerEntry entryApache = service.newEntry(dnApache);
-        entryApache.add("objectClass", "top", "domain", "extensibleObject");
-        entryApache.add("dc", dc); 
-        service.getAdminSession().add(entryApache);
-        ServerEntry entryApache2 = service.newEntry(new DN("ou=users,dc=external,dc="+dc+",dc=no")); 
-        entryApache2.add("objectClass", "top", "organizationalUnit");
-        service.getAdminSession().add(entryApache2);
     }
 
 
@@ -221,6 +189,7 @@ public class EmbeddedADS {
     public void startServer() throws Exception {
         startServer(DEFAULT_SERVER_PORT);
     }
+
     /**
      * starts the LdapServer
      *
@@ -236,11 +205,16 @@ public class EmbeddedADS {
 
     public void stopServer() {
         server.stop();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ie){
+
+        }
     }
 
 
     /**
-     * Main class.
+     * Main class for standalone test and configuration of ApacheDS embedded.
      *
      * @param args first arg is working directory. Default is used if not specified.
      */
@@ -248,7 +222,7 @@ public class EmbeddedADS {
         try {
             String ldappath;
             if (args.length == 0) {
-                ldappath = System.getProperty("user.home") + "/bootstrapdata/ldap";
+                ldappath = System.getProperty("user.home") + "/bootstrapdata/ldaptest" + UUID.randomUUID().toString();
             } else {
                 ldappath = args[0];
             }
@@ -256,20 +230,21 @@ public class EmbeddedADS {
             logger.info("LDAP working directory={}", ldappath);
             File workDir = new File(ldappath);
 
-            boolean isDirCreated =  workDir.mkdirs();
-            if(isDirCreated){
+            boolean isDirCreated = workDir.mkdirs();
+            if (isDirCreated) {
                 // Create the server
                 EmbeddedADS ads = new EmbeddedADS(workDir);
+                ads.init(workDir.getPath());
                 // optionally we can start a server too
                 ads.startServer(DEFAULT_SERVER_PORT);
+
+
+                // Read an entry
+                Entry result = ads.service.getAdminSession().lookup(new Dn("dc=external,dc=WHYDAH,dc=no"));
+
+                // And print it if available
+                System.out.println("Found entry : " + result);
             }
-
-
-            // Read an entry
-//            Entry result = ads.identity.getAdminSession().lookup(new DN("dc=external,dc=WHYDAH,dc=no"));
-
-            // And print it if available
-//            System.out.println("Found entry : " + result);
 
 
         } catch (Exception e) {

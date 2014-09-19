@@ -2,7 +2,7 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import net.whydah.identity.user.authentication.SecurityTokenHelper;
+import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.search.LuceneIndexer;
@@ -32,7 +32,7 @@ public class UserIdentityBackendModule extends AbstractModule {
         bindLuceneServices();
 
         String tokenserviceUri = AppConfig.appConfig.getProperty("securitytokenservice");
-        bind(SecurityTokenHelper.class).toInstance(new SecurityTokenHelper(tokenserviceUri));
+        bind(SecurityTokenServiceHelper.class).toInstance(new SecurityTokenServiceHelper(tokenserviceUri));
 
         bindLdapServices();
     }

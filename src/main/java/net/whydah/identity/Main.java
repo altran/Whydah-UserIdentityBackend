@@ -10,7 +10,7 @@ import net.whydah.identity.config.ImportModule;
 import net.whydah.identity.config.UserIdentityBackendModule;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
-import net.whydah.identity.user.authentication.SecurityTokenHelper;
+import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -76,8 +76,8 @@ public class Main {
         // Populate ldap, database and lucene index
         //if (!canAccessDBWithUserRoles || importTestData) {
         if (importEnabled) {
-            FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("roledb.directory")));
-            FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("lucene.directory")));
+            main.deleteDirectoryByProperty("roledb.directory");
+            main.deleteDirectoryByProperty("lucene.directory");
             main.importUsersAndRoles();
         }
 
@@ -99,12 +99,19 @@ public class Main {
         }
     }
 
+    void deleteDirectoryByProperty(String key) {
+        String dirPath = AppConfig.appConfig.getProperty(key);
+        if (dirPath != null) {
+            FileUtils.deleteDirectory(new File(dirPath));
+        }
+    }
+
     public void importUsersAndRoles() {
         Injector injector = Guice.createInjector(new ImportModule());
-        
+
         IamDataImporter iamDataImporter = injector.getInstance(IamDataImporter.class);
         iamDataImporter.importIamData();
-        
+
     }
 
     /*
@@ -167,22 +174,22 @@ public class Main {
         NetworkListener listener = new NetworkListener("grizzly", NetworkListener.DEFAULT_NETWORK_HOST, webappPort);
         httpServer.addListener(listener);
         httpServer.start();
-        log.info("UserIdentityBackend - import.enabled="+Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled")));
-        log.info("UserIdentityBackend - embeddedDSEnabled="+Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded")));
-        log.info("UserIdentityBackend started on port {}", webappPort+" context-path:"+contextpath);
+        log.info("UserIdentityBackend - import.enabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled")));
+        log.info("UserIdentityBackend - embeddedDSEnabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded")));
+        log.info("UserIdentityBackend started on port {}", webappPort + " context-path:" + contextpath);
     }
 
 
-	private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
-		String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
-		if (StringUtils.isEmpty(requiredRoleName)) {
-			log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
-		}
-		SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenHelper.class), injector.getInstance(ApplicationTokenService.class));
+    private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
+        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
+        if (StringUtils.isEmpty(requiredRoleName)) {
+            log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
+        }
+        SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenServiceHelper.class), injector.getInstance(ApplicationTokenService.class));
         HashMap<String, String> initParams = new HashMap<>(1);
         servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
         log.info("SecurityFilter instanciated with params:", initParams);
-	}
+    }
 
     public int getPort() {
         return webappPort;

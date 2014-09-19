@@ -70,7 +70,7 @@ public class LdapAuthenticator {
 
         final String userDN = findUserDN(username);
         if (userDN == null) {
-            log.debug("authenticateUser failed (returned null), because could not find userDN for username={}", username);
+            log.warn("authenticateUser failed (returned null), because could not find userDN for username={}", username);
             return null;
         }
 
@@ -121,14 +121,14 @@ public class LdapAuthenticator {
                 SearchResult searchResult = (SearchResult) results.next();
                 String userDN = searchResult.getNameInNamespace();
                 if (userDN == null) {
-                    log.debug("findUserDN, userDN not found for username={}", username);
+                    log.trace("findUserDN, userDN not found for username={}", username);
                     return null;
                 }
-                //log.debug("findUserDN with username={} found userDN={}", username, userDN);
+                log.trace("findUserDN with username={} found userDN={}", username, userDN);
                 return userDN;
             }
         } catch (Exception e) {
-            log.info("findUserDN failed for user with username=" + username, e);
+            log.info("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute,username, e);
         }
         return null;
     }
