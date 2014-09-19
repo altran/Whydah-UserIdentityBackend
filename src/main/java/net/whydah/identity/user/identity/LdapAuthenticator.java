@@ -70,7 +70,7 @@ public class LdapAuthenticator {
 
         final String userDN = findUserDN(username);
         if (userDN == null) {
-            log.debug("authenticateUser failed (returned null), because could not find userDN for username={}", username);
+            log.warn("authenticateUser failed (returned null), because could not find userDN for username={}", username);
             return null;
         }
 
