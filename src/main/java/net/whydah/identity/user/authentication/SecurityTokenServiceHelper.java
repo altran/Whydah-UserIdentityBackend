@@ -78,6 +78,7 @@ public class SecurityTokenServiceHelper {
         myAppTokenId = getApplicationTokenIdFromAppToken(apptoken);
     }
 
+    // TODO  change parsing to xpath parsing
     private String getApplicationTokenIdFromAppToken(String appTokenXML) {
         return appTokenXML.substring(appTokenXML.indexOf("<applicationtoken>") + "<applicationtoken>".length(), appTokenXML.indexOf("</applicationtoken>"));
     }

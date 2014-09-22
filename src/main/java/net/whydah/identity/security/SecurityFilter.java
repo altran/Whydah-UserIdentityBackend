@@ -49,7 +49,7 @@ public class SecurityFilter implements Filter {
         String pathInfo = servletRequest.getPathInfo();
         logger.trace("filter path {}", pathInfo);
         if (pathInfo == null) {
-            logger.trace("No data in input - probably due to erronous URL configured (eg: ...:9995/uib)");
+            logger.trace("No data in input - probably due to error in URL.  Configured (eg: ...:9995/uib)");
             return;
         } else if (isOpenPath(pathInfo)) {
             logger.trace("accessing open path {}", pathInfo);
