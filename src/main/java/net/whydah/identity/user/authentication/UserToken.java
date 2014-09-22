@@ -39,8 +39,8 @@ public class UserToken {
     private String extractUsername(Document doc) {
         XPath xPath = XPathFactory.newInstance().newXPath();
         try {
-            String fornavn = (String) xPath.evaluate("/token/fornavn", doc, XPathConstants.STRING);
-            String etternavn = (String) xPath.evaluate("/token/etternavn", doc, XPathConstants.STRING);
+            String fornavn = (String) xPath.evaluate("/usertoken/firstname", doc, XPathConstants.STRING);
+            String etternavn = (String) xPath.evaluate("/usertoken/lastname", doc, XPathConstants.STRING);
             return fornavn + ' ' + etternavn;
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);

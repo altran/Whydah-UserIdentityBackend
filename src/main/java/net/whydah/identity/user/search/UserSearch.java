@@ -29,7 +29,7 @@ public class UserSearch {
     public List<UserIdentityRepresentation> search(String query) {
         List<UserIdentityRepresentation> users = luceneSearch.search(query);
         //If user is not found in lucene, try to search AD.
-        if (users == null || users.size() <1) {
+        if (users == null || users.size() < 1) {
             try {
                 UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
                 if (user != null) {

@@ -30,7 +30,7 @@ public class UserTokenTest {
     }
 
     private final static String usertoken = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-            "<token xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"b035df2e-e766-4077-a514-2c370cc78714\">\n" +
+            "<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"b035df2e-e766-4077-a514-2c370cc78714\">\n" +
             "    <securitylevel>1</securitylevel>\n" +
             "    <personid></personid>\n" +
             "    <fornavn>Bruker</fornavn>\n" +
@@ -53,7 +53,7 @@ public class UserTokenTest {
             "\n" +
             "    <ns2:link type=\"application/xml\" href=\"/b035df2e-e766-4077-a514-2c370cc78714\" rel=\"self\"/>\n" +
             "    <hash type=\"MD5\">6660ae2fcaa0b8311661fa9e3234eb7a</hash>\n" +
-            "</token>";
+            "</usertoken>";
 
     @Test
     public void getRoles2() {
@@ -65,7 +65,7 @@ public class UserTokenTest {
         assertTrue(actualRoles.contains(expectedRole1));
     }
 
-    private final static String usertoken2 = "<token xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"12b84a5a-595b-49df-bb20-26a8a974d7b9\">\n" +
+    private final static String usertoken2 = "<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"12b84a5a-595b-49df-bb20-26a8a974d7b9\">\n" +
             "    <uid>useradmin</uid>\n" +
             "    <timestamp>1403606943867</timestamp>\n" +
             "    <lifespan>3600000</lifespan>\n" +
@@ -84,5 +84,5 @@ public class UserTokenTest {
             "\n" +
             "    <ns2:link type=\"application/xml\" href=\"/\" rel=\"self\"/>\n" +
             "    <hash type=\"MD5\">9fc1509fbfc2d62e0b40949e4245524a</hash>\n" +
-            "</token>";
+            "</usertoken>";
 }
