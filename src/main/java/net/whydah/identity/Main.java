@@ -160,13 +160,8 @@ public class Main {
         GuiceContainer container = new GuiceContainer(injector);
         servletHandler.setServletInstance(container);
 
-        /*
-        webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("identity.port"));
-        //URI baseUri = UriBuilder.fromUri("http://localhost").port(webappPort).build();
-        URI baseUri =  new URI(AppConfig.appConfig.getProperty("myuri"));
-        httpServer = GrizzlyServerFactory.createHttpServer(baseUri, servletHandler);
-        log.info("UserIdentityBackend started with baseUri=", baseUri);
-        */
+
+        // TODO: use AppConfig.appConfig.getProperty("myuri") instead of hardcoded values
         webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("service.port"));
         httpServer = new HttpServer();
         ServerConfiguration serverconfig = httpServer.getServerConfiguration();
