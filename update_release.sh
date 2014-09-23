@@ -1,7 +1,7 @@
 #!/bin/sh
 
 A=UserIdentityBackend
-V=2.0-alpha-9
+V=2.0-alpha-16
 
 
 if [[ $V == *SNAPSHOT* ]]; then

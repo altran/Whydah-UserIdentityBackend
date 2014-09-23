@@ -18,9 +18,7 @@ Installation
 
 * create a user for the service
 
-* when release is available -> create start_service.sh
-
-update-service.sh
+* create update-service.sh
 ```
 #!/bin/sh
 
@@ -114,7 +112,7 @@ lucene.directory=target/bootstrapdata/lucene
 ```
 
 
-* start-service.sh
+* create start-service.sh
 ```
 #!/bin/sh
 nohup /usr/bin/java -DIAM_MODE=PROD -DIAM_CONFIG=/home/UserIdentityBackend/useridentitybackend.PROD.properties -jar /home/UserIdentityBackend/UserIdentityBackend.jar
