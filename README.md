@@ -17,82 +17,110 @@ Installation
 
 
 * create a user for the service
-* run ./start_service_SNAPSHOT.sh
 
 * when release is available -> create start_service.sh
 
+update-service.sh
 ```
 #!/bin/sh
 
-export IAM_MODE=TEST
-
 A=UserIdentityBackend
-V=LATEST
-JARFILE=$A-$V.jar
+V=SNAPSHOT
 
-pkill -f $A
 
-wget --user=altran  -O $JARFILE "http://mvnrepo.cantara.no/service/local/artifact/maven/content?r=releases&g=net.whydah.identity&a=$A&v=$V&p=jar"
-nohup java -jar -DIAM_CONFIG=useridentitybackend.TEST.properties $JARFILE &
+if [[ $V == *SNAPSHOT* ]]; then
+   echo Note: If the artifact version contains "SNAPSHOT" - the artifact latest greates snapshot is downloaded, Irrelevent of version number!!!
+   path="http://mvnrepo.cantara.no/content/repositories/snapshots/net/whydah/identity/$A"
+   version=`curl -s "$path/maven-metadata.xml" | grep "<version>" | sed "s/.*<version>\([^<]*\)<\/version>.*/\1/" | tail -n 1`
+   echo "Version $version"
+   build=`curl -s "$path/$version/maven-metadata.xml" | grep '<value>' | head -1 | sed "s/.*<value>\([^<]*\)<\/value>.*/\1/"`
+   JARFILE="$A-$build.jar"
+   url="$path/$version/$JARFILE"
+else #A specific Release version
+   path="http://mvnrepo.cantara.no/content/repositories/releases/net/whydah/identity/$A"
+   url=$path/$V/$A-$V.jar
+   JARFILE=$A-$V.jar
+fi
 
-tail -f nohup.out
+# Download
+echo Downloading $url
+wget -O $JARFILE -q -N $url
+
+
+#Create symlink or replace existing sym link
+if [ -h $A.jar ]; then
+   unlink $A.jar
+fi
+ln -s $JARFILE $A.jar
 ```
 
-* create useradmin.TEST.properties
+
+
+
+* create useridentitybackend.TEST.properties
 
 ```
+DEFCON=5
+# Normal operations
 prop.type=DEV
-#prop.type=TEST
-ldap.embedded=enabled
-ldap.embedded.directory=bootstrapdata/ldap
-ldap.embedded.port=10389
+ldap.embedded=true
+ldap.embedded.port=11389
+ldap.embedded.directory=target/bootstrapdata/ldap
 
-ldap.primary.url=ldap://localhost:10389/dc=external,dc=WHYDAH,dc=no
+ldap.primary.url=ldap://localhost:11389/dc=external,dc=WHYDAH,dc=no
 ldap.primary.admin.principal=uid=admin,ou=system
 ldap.primary.admin.credentials=secret
 ldap.primary.uid.attribute=uid
 ldap.primary.username.attribute=initials
-#For AD
-#ldap.primary.uid.attribute=userprincipalname
-#ldap.primary.username.attribute=sAMAccountName
+ldap.primary.readonly=false
 
-roledb.directory=bootstrapdata/hsqldb
+roledb.directory=target/bootstrapdata/hsqldb
 roledb.jdbc.driver=org.hsqldb.jdbc.JDBCDriver
-roledb.jdbc.url=jdbc:hsqldb:file:bootstrapdata/hsqldb/roles
+roledb.jdbc.url=jdbc:hsqldb:file:target/bootstrapdata/hsqldb/roles
 roledb.jdbc.user=sa
 roledb.jdbc.password=
 
-import.usersource=users.csv
-import.rolemappingsource=rolemappings.csv
-import.applicationssource=applications.csv
-import.organizationssource=organizations.csv
+import.enabled=true
+import.usersource=testdata/users.csv
+import.rolemappingsource=testdata/rolemappings.csv
+import.applicationssource=testdata/applications.csv
+import.organizationssource=testdata/organizations.csv
 
 useradmin.requiredrolename=WhydahUserAdmin
 
-adduser.defaultrole.facebook.name=FBData
-
 adduser.defaultrole.name=WhydahDefaultUser
-adduser.defaultrole.value=1
-adduser.defaultapplication.name=Whydah
-adduser.defaultapplication.id=3
+adduser.defaultrole.value=true
+adduser.defaultapplication.name=WhydahTestWebApplication
+adduser.defaultapplication.id=99
 adduser.defaultorganization.name=Whydah
-adduser.defaultorganization.value=1
 
-#ssologinservice=http://myservice.net/sso/
+adduser.netiq.defaultrole.name=Employee
+adduser.netiq.defaultrole.value=$email  // Not used placeholder
+adduser.netiq.defaultapplication.name=ACS
+adduser.netiq.defaultapplication.id=100
+adduser.netiq.defaultorganization.name=ACSOrganization
+
+adduser.facebook.defaultrole.name=FBData
+adduser.facebook.defaultrole.value=$fbdata  // Not used placeholder
+adduser.facebook.defaultapplication.name=WhydahTestWebApplication
+adduser.facebook.defaultapplication.id=99
+adduser.facebook.defaultorganization.name=Facebook
+
+securitytokenservice=mock
 ssologinservice=http://localhost:9997/sso/
-# securitytokenservice=http://myservice.net/tokenservice/
-securitytokenservice=http://localhost:9998/tokenservice/
-# myuri=http://myservice.net/uib
-myuri=http://localhost:9995/
+myuri=http://localhost:9995/uib/
 service.port=9995
-
-
-lucene.directory=bootstrapdata/lucene
-
-
-gmail.username=mysystem@gmail.com
-gmail.password=pw
+lucene.directory=target/bootstrapdata/lucene
 ```
+
+
+* start-service.sh
+```
+#!/bin/sh
+nohup /usr/bin/java -DIAM_MODE=PROD -DIAM_CONFIG=/home/UserIdentityBackend/useridentitybackend.PROD.properties -jar /home/UserIdentityBackend/UserIdentityBackend.jar
+```
+
+
 
 Typical apache setup
 ====================
@@ -116,49 +144,4 @@ Typical apache setup
 ```
 
 
-TODO:
-Better configuration of temporary lucene/hsqldb-paths. They are stored in different folders for different tests & usage modes. 
-
-
-
-Server overview
-===============
-
-
-Development
-===========
-
-http://myApp.net - App using Whydah
-http://myserver.net - Whydah SSO
-
-Webproxy CNAME	 					CNAME/direct	
-http://myserver.net/huntevaluationbackend/		server-x:8080/huntevaluationbackend
-http://myserver.net					http://localhost:8983/solr	
-http://myserver.net/sso					http://localhost:9997/sso	
-http://myserver/tokenservice				http://localhost:9998/tokenservice/	
-http://myserver.net/uib					http://localhost:9995/uib/	
-http://myserver.cloudapp.net/useradmin			http://localhost:9996/useradmin/ 		 loop with ssologinservice.
-
-
-Test/Production
-===============
-http://myApp.net - App using Whydah
-http://myserver.net - Whydah SSO
-
-
-Webproxy CNAME	 					CNAME/direct	
-http://myserver.net/huntevaluationbackend/		server-x:8080/huntevaluationbackend
-http://myserver.net					http://server-a:8983/solr	
-http://myserver.net/sso					http://server-b:9997/sso	
-http://myserver/tokenservice				http://server-c:9998/tokenservice/	
-http://myserver.net/uib					http://server-d:9995/uib/	
-http://myserver.cloudapp.net/useradmin			http://server-e:9996/useradmin/ 		 loop with ssologinservice.
-
-
-Development Infrastructure
-==========================
-
-Webproxy CNAME	 		CNAME/direct	 	 		Comment
-http://mvnrepo.cantara.no	http://nexus.cantara.no:8081		Ask Erik if it doesn't work.
-http://ci.cantara.no		http://217.77.36.146:8080/jenkins/		 
 

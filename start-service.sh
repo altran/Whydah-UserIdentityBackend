@@ -1,15 +1,2 @@
 #!/bin/sh
-
-export IAM_MODE=TEST
-
-A=UserIdentityBackend
-V=LATEST
-JARFILE=$A-$V.jar
-
-pkill -f $A
-
-wget -O $JARFILE "http://mvnrepo.cantara.no/service/local/artifact/maven/content?r=releases&g=net.whydah.identity&a=$A&v=$V&p=jar"
-nohup java -jar -DIAM_CONFIG=useridentitybackend.TEST.properties $JARFILE &
-
-tail -f nohup.out
-
+nohup /usr/bin/java -DIAM_MODE=PROD -DIAM_CONFIG=/home/UserIdentityBackend/useridentitybackend.PROD.properties -jar /home/UserIdentityBackend/UserIdentityBackend.jar
