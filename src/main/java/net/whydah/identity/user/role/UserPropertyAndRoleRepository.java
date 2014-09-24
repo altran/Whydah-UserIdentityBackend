@@ -72,9 +72,9 @@ public class UserPropertyAndRoleRepository {
     public boolean hasRole(String uid, UserPropertyAndRole role) {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
-            logger.trace("hasRole - checking existing.applicationID {} against applicationID{}", existingRole.getApplicationId(), role.getApplicationId());
-            logger.trace("hasRole - checking existing.getOrganizationName {} against getOrganizationName{}", existingRole.getOrganizationName(), role.getOrganizationName());
-            logger.trace("hasRole - checking existing.getApplicationRoleName {} against getApplicationRoleName{}", existingRole.getApplicationRoleName(), role.getApplicationRoleName());
+            logger.trace("hasRole - checking existing.applicationID {} against applicationID {}", existingRole.getApplicationId(), role.getApplicationId());
+            logger.trace("hasRole - checking existing.getOrganizationName {} against getOrganizationName {}", existingRole.getOrganizationName(), role.getOrganizationName());
+            logger.trace("hasRole - checking existing.getApplicationRoleName {} against getApplicationRoleName {}", existingRole.getApplicationRoleName(), role.getApplicationRoleName());
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
                     && existingRole.getOrganizationName().equals(role.getOrganizationName())
                     && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
@@ -89,7 +89,11 @@ public class UserPropertyAndRoleRepository {
 
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
-        logger.trace("addUserPropertyAndRole"+userPropertyAndRole);
+        logger.trace("addUserPropertyAndRole:" + userPropertyAndRole);
+        if (hasRole(userPropertyAndRole.getUid(), userPropertyAndRole)) {
+            logger.trace("Trying to add an existing role, ignoring");
+            return;
+        }
         if (userPropertyAndRole.getRoleId() == null || userPropertyAndRole.getRoleId().length()<5 ) {
             userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
         }
@@ -209,7 +213,7 @@ public class UserPropertyAndRoleRepository {
             return in != null ? in : "";
         }
     }
-
+ 
     private class UserRoleResultsetHandler implements ResultSetHandler<UserPropertyAndRole> {
         @Override
         public UserPropertyAndRole handle(ResultSet rs) throws SQLException {
