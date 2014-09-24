@@ -72,13 +72,18 @@ public class UserPropertyAndRoleRepository {
     public boolean hasRole(String uid, UserPropertyAndRole role) {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
+            logger.trace("hasRole - checking existing.applicationID {} against applicationID{}", existingRole.getApplicationId(), role.getApplicationId());
+            logger.trace("hasRole - checking existing.getOrganizationName {} against getOrganizationName{}", existingRole.getOrganizationName(), role.getOrganizationName());
+            logger.trace("hasRole - checking existing.getApplicationRoleName {} against getApplicationRoleName{}", existingRole.getApplicationRoleName(), role.getApplicationRoleName());
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
                     && existingRole.getOrganizationName().equals(role.getOrganizationName())
                     && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
             if (roleExist) {
+                logger.trace("Found role");
                 return true;
             }
         }
+        logger.trace("Not Found role");
         return false;
     }
 
