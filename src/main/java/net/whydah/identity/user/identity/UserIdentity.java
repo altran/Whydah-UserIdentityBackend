@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
  * A class representing the identity of a User - backed by LDAP scheme.
  * See getLdapAttributes in LDAPHelper for mapping to LDAP attributes.
  *
- * @author totto
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserIdentity extends UserIdentityRepresentation implements Serializable {
@@ -30,7 +29,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
     public UserIdentity(String uid, String username, String firstName, String lastName, String personRef,
                         String email, String cellPhone, String password) {
         this.uid = uid;
-        this.username = username;
+        this.username = (username != null ? username : email);
         this.firstName = firstName;
         this.lastName = lastName;
         this.personRef = personRef;
@@ -129,7 +128,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
 
             JSONObject jsonobj = new JSONObject(userJson);
 
-            String username = jsonobj.getString("username");
+            String username = (jsonobj.getString("username").length() > 2) ? jsonobj.getString("username") : jsonobj.getString("email");
 
             String email = jsonobj.getString("email");
             if (email.contains("+")){
