@@ -50,7 +50,16 @@ public class UserAdminHelper {
 
     public Response addUser(UserIdentity newIdentity) {
         String username = newIdentity.getUsername();
+
+        if (username == null || username.length() < 2) {
+            username = newIdentity.getEmail();
+            if (username == null || username.length() < 2) {
+                logger.error("Could not handle the new user data, no username");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
         logger.trace("addUser - Adding new user: {}", username);
+
 
         try {
             if (ldapUserIdentityDao.usernameExist(username)) {
