@@ -306,13 +306,18 @@ public class UserAuthenticationEndpoint {
     // FIXME fail if called and a) user exist from earlier  b) the user has reset password
     Response createAndAuthenticateUser(UserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
-            log.trace("createAndAuthenticateUser userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
+            log.trace("createAndAuthenticateUser - userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);
             if (!reuse && response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
 
             if (userIdentity != null) {
+                log.trace("createAndAuthenticateUser - Checking for UID mismatch. received: {} found {}", userIdentity.getUid(), userIdentityService.getUserIdentity(userIdentity.getUsername()).getUid());
+                if (!userIdentity.getUid().equalsIgnoreCase(userIdentityService.getUserIdentity(userIdentity.getUsername()).getUid())) {
+                    log.error("createAndAuthenticateUser - Got user with dogus UID, resetting to found UID");
+                    userIdentity.setUid(userIdentityService.getUserIdentity(userIdentity.getUsername()).getUid());
+                }
                 userAdminHelper.addDefaultRoles(userIdentity, roleValue);
                 if (reuse) {
                     log.info("createAndAuthenticateUser - update useridentity from 3party token ");
@@ -323,7 +328,7 @@ public class UserAuthenticationEndpoint {
                 }
             }
 
-            log.trace("createAndAuthenticateUser authenticateUser:{}", userIdentity.getUsername());
+            log.trace("createAndAuthenticateUser - authenticateUser:{}", userIdentity.getUsername());
             return authenticateUser(userIdentity.getUsername(), userIdentity.getPassword());
 
         } catch (Exception e) {
