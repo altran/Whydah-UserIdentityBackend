@@ -26,7 +26,7 @@ public class PasswordResource {
     @Context
     private UriInfo uriInfo;
 
-    
+
     @Inject
     public PasswordResource(UserIdentityService userIdentityService) {
         this.userIdentityService = userIdentityService;
@@ -38,7 +38,7 @@ public class PasswordResource {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -56,7 +56,7 @@ public class PasswordResource {
     public Response resetPasswordPOST(@PathParam("username") String username) {
         log.info("Reset password (POST) for user {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -71,10 +71,10 @@ public class PasswordResource {
 
     @POST
     @Path("/reset/username/{username}/newpassword/{token}")
-    public Response setPassword(@PathParam("username") String username,@PathParam("token") String token,String passwordJson) {
-        log.info("newpassword for user {} token {}", username,token);
+    public Response setPassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
+        log.info("newpassword for user {} token {}", username, token);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -82,7 +82,7 @@ public class PasswordResource {
             try {
                 ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
             } catch (RuntimeException re) {
-                log.error("changePasswordForUser-RuntimeException username {}, message {}", username,re.getMessage(), re);
+                log.error("changePasswordForUser-RuntimeException username {}, message {}", username, re.getMessage(), re);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
@@ -121,7 +121,7 @@ public class PasswordResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
 
             if (user == null) {
                 log.trace("No user found for username {}, can not update password.", username);

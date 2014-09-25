@@ -53,7 +53,7 @@ public class UserResource {
      * Expectations to input:
      * no UID
      * no password
-     *
+     * <p/>
      * Output:
      * uid is included
      * no password
@@ -77,7 +77,7 @@ public class UserResource {
         try {
             userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
 
-        }  catch (ConflictException ise) {
+        } catch (ConflictException ise) {
             log.info("addUserIdentity returned {}, json={}", Response.Status.CONFLICT.toString(), userIdentityJson, ise);
             return Response.status(Response.Status.CONFLICT).build();
         } catch (IllegalArgumentException iae) {
@@ -109,12 +109,12 @@ public class UserResource {
 
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserIndentityForUid(uid);
+            userIdentity = userIdentityService.getUserIdentityForUid(uid);
         } catch (NamingException e) {
-            throw new RuntimeException("getUserIndentityForUid, uid=" + uid, e);
+            throw new RuntimeException("getUserIdentityForUid, uid=" + uid, e);
         }
         if (userIdentity == null) {
-            log.trace("getUserIndentityForUid could not find user with uid={}", uid);
+            log.trace("getUserIdentityForUid could not find user with uid={}", uid);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -184,7 +184,6 @@ public class UserResource {
     }
 
 
-
     // ROLES
 
 
@@ -214,7 +213,7 @@ public class UserResource {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }
             return Response.status(Response.Status.CREATED).entity(json).build();
-        }  catch (ConflictException ce) {
+        } catch (ConflictException ce) {
             log.error("addRole-Conflict. {}", roleJson, ce);
             return Response.status(Response.Status.CONFLICT).build();
         } catch (RuntimeException e) {
@@ -448,7 +447,7 @@ public class UserResource {
     public Response newUser(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Endrer data for ny bruker {}: {}", username, passwordJson);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -463,7 +462,7 @@ public class UserResource {
                 String newpassword = jsonobj.getString("newpassword");
                 String newusername = jsonobj.getString("newusername");
                 if (!username.equals(newusername)) {
-                    UserIdentity newidexists = userIdentityService.getUserIndentity(newusername);
+                    UserIdentity newidexists = userIdentityService.getUserIdentity(newusername);
                     if (newidexists != null) {
                         return Response.status(Response.Status.BAD_REQUEST).entity("Username already exists").build();
                     }
@@ -536,7 +535,7 @@ public class UserResource {
         log.debug("Fjern alle roller for {}: {}", username, appid);
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
             log.debug("fant8 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
@@ -560,7 +559,7 @@ public class UserResource {
     public Response getUserRoles(@PathParam("username") String username, @PathParam("appid") String appid) {
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
         } catch (NamingException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -587,7 +586,7 @@ public class UserResource {
         log.debug("Fjern rolle for {} i app {}: {}", new String[]{username, appid, jsonrole});
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
             log.debug("fant bruker: {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error("", e);
@@ -618,7 +617,7 @@ public class UserResource {
     public Response modifyRoleValue(@PathParam("username") String username, @PathParam("appid") String appid, String jsonrole) {
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -654,7 +653,7 @@ public class UserResource {
         }
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
             log.debug("fant6 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);
@@ -706,7 +705,7 @@ public class UserResource {
         log.debug("legg til default rolle for {}:{}", username, appid);
         UserIdentity whydahUserIdentity;
         try {
-            whydahUserIdentity = userIdentityService.getUserIndentity(username);
+            whydahUserIdentity = userIdentityService.getUserIdentity(username);
             log.debug("fant7 {}", whydahUserIdentity);
         } catch (NamingException e) {
             log.error(e.getLocalizedMessage(), e);

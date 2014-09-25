@@ -96,7 +96,7 @@ public class UserIdentityServiceTest {
                 "test@test.no", "12345678", "password");
         userAdminHelper.addUser(userIdentity);
 
-        UserIdentityRepresentation fromLdap = userIdentityService.getUserIndentity(username);
+        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);

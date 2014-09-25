@@ -48,9 +48,9 @@ public class UserAggregateService {
     public UserAggregate getUserAggregateByUsername(String username) {
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserIndentity(username);
+            userIdentity = userIdentityService.getUserIdentity(username);
         } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIndentity with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserIdentity with username=" + username, e);
         }
         if (userIdentity == null) {
             log.trace("getUserAggregateByUsername could not find user with username={}", username);
@@ -70,7 +70,7 @@ public class UserAggregateService {
         UserIdentity newUserIdentity = UserIdentity.fromJson(userJson);
 
         try {
-            UserIdentity userIdentity = userIdentityService.getUserIndentity(username);
+            UserIdentity userIdentity = userIdentityService.getUserIdentity(username);
             if (userIdentity == null) {
                 return null;
             }
@@ -87,10 +87,10 @@ public class UserAggregateService {
     public void deleteUserAggregateByUid(String uid) {
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserIndentityForUid(uid);
+            userIdentity = userIdentityService.getUserIdentityForUid(uid);
             luceneIndexer.removeFromIndex(uid);
         } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIndentity with uid=" + uid, e);
+            throw new RuntimeException("userIdentityService.getUserIdentity with uid=" + uid, e);
         }
         if (userIdentity == null) {
             throw new IllegalArgumentException("UserIdentity not found. uid=" + uid);
@@ -124,7 +124,8 @@ public class UserAggregateService {
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
         auditLogRepository.store(actionPerformed);
     }
-    private void audit(String uid,String action, String what, String value) {
+
+    private void audit(String uid, String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
         if (authenticatedUser == null) {
             log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);

@@ -174,38 +174,7 @@ public class UserIdentityService {
     }
 
 
-    @Deprecated
-    public void addUserIdentity(UserIdentity userIdentity) {
-        String username = userIdentity.getUsername();
-        try {
-            if (ldapUserIdentityDao.usernameExist(username)) {
-                throw new ConflictException("User already exists, could not create user " + username);
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException("usernameExist failed for username=" + username, e);
-        }
-
-        if (userIdentity.getEmail() != null) {
-            String email = userIdentity.getEmail();
-            List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
-            if (!usersWithSameEmail.isEmpty()) {
-                throw new ConflictException("E-mail " + email + " is already in use, could not create user " + username);
-            }
-        }
-
-        userIdentity.setPassword(passwordGenerator.generate());
-        userIdentity.setUid(UUID.randomUUID().toString());
-
-        try {
-            ldapUserIdentityDao.addUserIdentity(userIdentity);
-            luceneIndexer.addToIndex(userIdentity);
-        } catch (NamingException e) {
-            throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
-        }
-        log.info("Added new user to LDAP: {}", username);
-    }
-
-    public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
+    public UserIdentity getUserIdentityForUid(String uid) throws NamingException {
         if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
             log.warn("Trying to access non-existing UID, removing form index: " + uid);
             luceneIndexer.removeFromIndex(uid);
@@ -220,7 +189,7 @@ public class UserIdentityService {
     }
 
 
-    public UserIdentity getUserIndentity(String username) throws NamingException {
+    public UserIdentity getUserIdentity(String username) throws NamingException {
         return ldapUserIdentityDao.getUserIndentity(username);
     }
     public void updateUserIdentity(String username, UserIdentity newuser) {
@@ -229,7 +198,7 @@ public class UserIdentityService {
     }
 
     public void deleteUserIdentity(String username) throws NamingException {
-        luceneIndexer.removeFromIndex(getUserIndentity(username).getUid());
+        luceneIndexer.removeFromIndex(getUserIdentity(username).getUid());
         ldapUserIdentityDao.deleteUserIdentity(username);
     }
 

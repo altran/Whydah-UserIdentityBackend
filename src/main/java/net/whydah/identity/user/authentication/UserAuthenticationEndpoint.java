@@ -84,6 +84,7 @@ public class UserAuthenticationEndpoint {
 
     /**
      * Authentication using XML. XML must contain an element with name username, and an element with name password.
+     *
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
@@ -97,11 +98,11 @@ public class UserAuthenticationEndpoint {
         UserAuthenticationCredentialDTO dto;
         try {
             dto = UserAuthenticationCredentialDTO.fromXml(input);
-            log.trace("UserAuthenticationCredentialDTO"+dto+" XML:"+input.toString());
+            log.trace("UserAuthenticationCredentialDTO" + dto + " XML:" + input.toString());
         } catch (ParserConfigurationException e) {
             log.error("authenticateUser failed due to internal server error. Returning {}", Response.Status.INTERNAL_SERVER_ERROR, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, check error logs</error>").build();
-        } catch (IOException|SAXException |XPathExpressionException e) {
+        } catch (IOException | SAXException | XPathExpressionException e) {
             log.info("authenticateUser failed due to invald client request. Returning {}", Response.Status.BAD_REQUEST, e);
             return Response.status(Response.Status.BAD_REQUEST).entity("<error>Bad request, check client request</error>").build();
         }
@@ -117,7 +118,7 @@ public class UserAuthenticationEndpoint {
 
     private Response authenticateUser(String username, String password) {
         UserIdentity id = userIdentityService.authenticate(username, password);
-        if (id == null)  {
+        if (id == null) {
             log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
             return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
@@ -174,7 +175,7 @@ public class UserAuthenticationEndpoint {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password for user {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
@@ -196,7 +197,7 @@ public class UserAuthenticationEndpoint {
     public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
         log.info("Changing password for {}", username);
         try {
-            UserIdentity user = userIdentityService.getUserIndentity(username);
+            UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
@@ -245,7 +246,7 @@ public class UserAuthenticationEndpoint {
 
         String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
         //String facebookUserAsString = getFacebookDataAsXmlString(input);
-        return createAndAuthenticateUser(userIdentity, facebookUserAsString,true);
+        return createAndAuthenticateUser(userIdentity, facebookUserAsString, true);
     }
 
     //TODO Move to UserAdminService (the separate application)
