@@ -73,7 +73,7 @@ public class UsersResource {
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("user", user.toString());
         model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
+        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
     }
 
 
@@ -93,6 +93,6 @@ public class UsersResource {
         model.put("users", users.toString());
         model.put("userbaseurl", uriInfo.getBaseUri());
         log.trace("findUsers returned {} users.", users.size());
-        return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
+        return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
     }
 }
