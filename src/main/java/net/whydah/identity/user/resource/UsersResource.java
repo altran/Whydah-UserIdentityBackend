@@ -7,6 +7,7 @@ import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.identity.user.search.UserSearch;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class UsersResource {
     private final UserAggregateService userAggregateService;
     private final LuceneSearch luceneSearch;
     private final UserSearch userSearch;
+    private final ObjectMapper mapper;
+
 
     @Context
     private UriInfo uriInfo;
@@ -40,6 +44,7 @@ public class UsersResource {
         this.luceneSearch = luceneSearch;
         this.userAggregateService = userAggregateService;
         this.userSearch = userSearch;
+        this.mapper = new ObjectMapper();
     }
 
     /**
@@ -50,7 +55,7 @@ public class UsersResource {
      */
     @GET
     @Path("/username/{username}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getUserAggregate(@PathParam("username") String username) {
         log.trace("getUserAggregateByUsername with username=" + username);
 
@@ -65,10 +70,16 @@ public class UsersResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        HashMap<String, Object> model = new HashMap<>(2);
-        model.put("user", user);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
+        try {
+
+            HashMap<String, Object> model = new HashMap<>(2);
+            model.put("user", mapper.writeValueAsString(user));
+            model.put("userbaseurl", uriInfo.getBaseUri());
+            return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", user.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
@@ -80,14 +91,19 @@ public class UsersResource {
      */
     @GET
     @Path("/find/{q}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
         List<UserIdentityRepresentation> users = userSearch.search(query);
-        HashMap<String, Object> model = new HashMap<>(2);
-        model.put("users", users);
-        model.put("userbaseurl", uriInfo.getBaseUri());
-        log.trace("findUsers returned {} users.", users.size());
-        return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
+        try {
+            HashMap<String, Object> model = new HashMap<>(2);
+            model.put("users", mapper.writeValueAsString(users));
+            model.put("userbaseurl", uriInfo.getBaseUri());
+            log.trace("findUsers returned {} users.", users.size());
+            return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
+        } catch (IOException e) {
+            log.error("Error converting to json. {}", users.toString(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
