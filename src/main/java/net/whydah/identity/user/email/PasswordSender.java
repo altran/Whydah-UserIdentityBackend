@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class PasswordSender {
     private static final Logger log = LoggerFactory.getLogger(PasswordSender.class);
     private static final String RESET_PASSWORD_SUBJECT = "Whydah password reset";
-    private static final String CHANGE_PASSWORD_PATH = "/changepassword/";
+    private static final String CHANGE_PASSWORD_PATH = "changepassword/";
     private final String ssoLoginServiceUrl;
 
     private final EmailBodyGenerator bodyGenerator;
