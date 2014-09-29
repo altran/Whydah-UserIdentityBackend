@@ -19,7 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,16 +70,11 @@ public class UsersResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        try {
 
             HashMap<String, Object> model = new HashMap<>(2);
-            model.put("user", mapper.writeValueAsString(user));
+        model.put("user", Charset.forName("UTF-8").encode(user.toString()));
             model.put("userbaseurl", uriInfo.getBaseUri());
             return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
-        } catch (IOException e) {
-            log.error("Error converting to json. {}", user.toString(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
 
@@ -95,15 +90,10 @@ public class UsersResource {
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
         List<UserIdentityRepresentation> users = userSearch.search(query);
-        try {
             HashMap<String, Object> model = new HashMap<>(2);
-            model.put("users", mapper.writeValueAsString(users));
+        model.put("users", Charset.forName("UTF-8").encode(users.toString()));
             model.put("userbaseurl", uriInfo.getBaseUri());
             log.trace("findUsers returned {} users.", users.size());
             return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
-        } catch (IOException e) {
-            log.error("Error converting to json. {}", users.toString(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
     }
 }
