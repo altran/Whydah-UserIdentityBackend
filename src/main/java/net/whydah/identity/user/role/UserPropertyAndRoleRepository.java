@@ -219,8 +219,8 @@ public class UserPropertyAndRoleRepository {
         public UserPropertyAndRole handle(ResultSet rs) throws SQLException {
             while(rs.next()) {
                 UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
-                userPropertyAndRole.setRoleId(rs.getString(1));
-                userPropertyAndRole.setUid(rs.getString(2));
+                userPropertyAndRole.setRoleId(rs.getString(1).trim());
+                userPropertyAndRole.setUid(rs.getString(2).trim());
                 userPropertyAndRole.setApplicationId(rs.getString(3));
                 userPropertyAndRole.setOrganizationName(rs.getString(4));
                 userPropertyAndRole.setApplicationRoleName(rs.getString(5));
