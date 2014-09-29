@@ -79,6 +79,8 @@ public class FreemarkerViewProcessor implements ViewProcessor<Template> {
             Configuration config = new Configuration();
             config.setTemplateLoader(new ClassTemplateLoader(getClass(), "/templates"));
             config.setDefaultEncoding("UTF-8");
+            config.setOutputEncoding("UTF-8");
+            config.setURLEscapingCharset("UTF-8");
             // don't always put a ',' in numbers (e.g., id=2000 vs id=2,000)
             config.setNumberFormat("0");
             config.setLocalizedLookup(false);

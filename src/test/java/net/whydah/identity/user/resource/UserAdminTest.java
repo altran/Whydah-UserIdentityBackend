@@ -309,7 +309,7 @@ public class UserAdminTest {
 
     @Test
     public void addUser() {
-        String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
+        String uid = doAddUser("riffraff", "snyper", "Edmund", "Gøæøåffse", "snyper@midget.orj", "12121212");
 
         assertNotNull(uid);
 
