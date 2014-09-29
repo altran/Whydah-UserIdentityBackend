@@ -194,7 +194,7 @@ public class UserPropertyAndRoleRepository {
             ArrayList<UserPropertyAndRole> result = new ArrayList<>();
             while(rs.next()) {
                 UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
-                userPropertyAndRole.setRoleId(rs.getString(1));
+                userPropertyAndRole.setRoleId(rs.getString(1).trim());
                 userPropertyAndRole.setUid(rs.getString(2).trim());
                 userPropertyAndRole.setApplicationId(rs.getString(3));
                 userPropertyAndRole.setOrganizationName(rs.getString(4));
