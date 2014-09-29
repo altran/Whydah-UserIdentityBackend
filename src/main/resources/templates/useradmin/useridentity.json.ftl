@@ -1,4 +1,3 @@
-<#ftl encoding="utf-8">
 {
  "personRef":"${identity.personRef!?js_string}",
  "uid":"${identity.uid?js_string}",

@@ -77,7 +77,7 @@ public class UserAdminTest {
         try {
             String s = webResource.path("bantelonga@gmail.com").get(String.class);
             fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
+        } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
     }
@@ -121,7 +121,7 @@ public class UserAdminTest {
         try {
             String s = baseResource.path(uid).get(String.class);
             fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
+        } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
     }
@@ -132,7 +132,7 @@ public class UserAdminTest {
         try {
             String s = webResource.get(String.class);
             fail("Expected 404, got " + s);
-        } catch(UniformInterfaceException e) {
+        } catch (UniformInterfaceException e) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
@@ -262,15 +262,12 @@ public class UserAdminTest {
     }
 
 
-
-
     @Test
     public void userexists() {
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).get(String.class);
         assertTrue(s.contains("Hoytahl"));
     }
-
 
 
     @Test
@@ -319,9 +316,9 @@ public class UserAdminTest {
         String s = baseResource.path("user/" + uid).get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));
         assertTrue(s.contains("Edmund"));
-        s = baseResource.path("users/find/snyper").get(String.class);
-        assertTrue(s.contains("snyper@midget.orj"));
-        assertTrue(s.contains("Edmund"));
+        String findresult = baseResource.path("users/find/snyper").get(String.class);
+        assertTrue(findresult.contains("snyper@midget.orj"));
+        assertTrue(findresult.contains("Edmund"));
     }
 
     @Test
@@ -387,7 +384,7 @@ public class UserAdminTest {
         String token = uib.getInjector().getInstance(MockMail.class).getToken(uid);
         assertNotNull(token);
 
-        ClientResponse response = baseResource.path("user/sneile/newpassword/" + token).type(MediaType.APPLICATION_JSON).post(ClientResponse.class,"{\"newpassword\":\"naLLert\"}");
+        ClientResponse response = baseResource.path("user/sneile/newpassword/" + token).type(MediaType.APPLICATION_JSON).post(ClientResponse.class, "{\"newpassword\":\"naLLert\"}");
         assertEquals(ClientResponse.Status.OK.getStatusCode(), response.getStatus());
         String payload = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><auth><username>sneile</username><password>naLLert</password></auth>";
         response = logonResource.path("logon").type("application/xml").post(ClientResponse.class, payload);
@@ -409,7 +406,8 @@ public class UserAdminTest {
         String postResponseJson = webResource.type(MediaType.APPLICATION_JSON).post(String.class, userjson);
         Map<String, Object> createdUser = null;
         try {
-            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -448,7 +446,8 @@ public class UserAdminTest {
         String postResponseJson = baseResource.path("user/" + uid + "/roles").get(String.class);
         List<Map<String, Object>> roles = null;
         try {
-            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<List<Map<String, Object>>>() {});
+            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<List<Map<String, Object>>>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -459,7 +458,8 @@ public class UserAdminTest {
         String postResponseJson = baseResource.path("user/" + uid + "/role/" + roleId).get(String.class);
         Map<String, Object> roles = null;
         try {
-            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+            roles = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -475,7 +475,8 @@ public class UserAdminTest {
 
         Map<String, Object> createdUser = null;
         try {
-            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {});
+            createdUser = new ObjectMapper().readValue(postResponseJson, new TypeReference<Map<String, Object>>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

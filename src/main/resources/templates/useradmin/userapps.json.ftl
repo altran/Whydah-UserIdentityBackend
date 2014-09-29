@@ -1,4 +1,3 @@
-<#ftl encoding="utf-8">
 {"applications" : [
 <#list allApps as app>
     {

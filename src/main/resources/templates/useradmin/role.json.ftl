@@ -1,4 +1,3 @@
-<#ftl encoding="utf-8">
    {
         "appId": "${rolle.applicationId?js_string}",
         "applicationName": "${rolle.applicationName?js_string}",
