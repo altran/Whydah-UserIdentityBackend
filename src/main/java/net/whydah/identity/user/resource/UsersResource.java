@@ -19,7 +19,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
@@ -71,10 +70,10 @@ public class UsersResource {
         }
 
 
-            HashMap<String, Object> model = new HashMap<>(2);
-        model.put("user", Charset.forName("UTF-8").encode(user.toString()));
-            model.put("userbaseurl", uriInfo.getBaseUri());
-            return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("user", user.toString());
+        model.put("userbaseurl", uriInfo.getBaseUri());
+        return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).build();
     }
 
 
@@ -90,10 +89,10 @@ public class UsersResource {
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
         List<UserIdentityRepresentation> users = userSearch.search(query);
-            HashMap<String, Object> model = new HashMap<>(2);
-        model.put("users", Charset.forName("UTF-8").encode(users.toString()));
-            model.put("userbaseurl", uriInfo.getBaseUri());
-            log.trace("findUsers returned {} users.", users.size());
-            return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("users", users.toString());
+        model.put("userbaseurl", uriInfo.getBaseUri());
+        log.trace("findUsers returned {} users.", users.size());
+        return Response.ok(new Viewable("/useradmin/users.json.ftl", model)).build();
     }
 }
