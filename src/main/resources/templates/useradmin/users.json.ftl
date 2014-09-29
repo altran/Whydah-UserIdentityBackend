@@ -1,3 +1,4 @@
+<#ftl encoding="utf-8">
 {
 "rows":"${users?size}",
 "result":

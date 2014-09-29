@@ -1,3 +1,4 @@
+<#ftl encoding="utf-8">
 {
 <#assign identity=user.identity>
 "identity": <#include "useridentity.json.ftl"/>,
