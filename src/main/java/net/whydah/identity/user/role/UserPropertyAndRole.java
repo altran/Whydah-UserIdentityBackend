@@ -1,28 +1,5 @@
 package net.whydah.identity.user.role;
 
-/**
- * A Java representation for a user's properties and roles as it is stored in a RDBMS.
- *
- * A user (uid)
- * has the role (roleName, roleValue)
- * in this application (applicationId, applicationName)
- * from the relation (organizationId, organizationName).
- *
- * An example to illustrate why the context/relation/organization concept is needed:
- *
- * As an employee (relation: organizationId, organizationName),
- * a user (uid)
- * has the "reader" role in
- * application CompanyCMS.
- *
- * As technical writer in the Company (relation: organizationId, organizationName),
- * a user (uid)
- * has the "writer" role in
- * application CompanyCMS.
- *
- * @author totto
- * @since 1/11/11
- */
 public class UserPropertyAndRole {
     private String roleId;
 
@@ -95,21 +72,27 @@ public class UserPropertyAndRole {
     public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
+
     public void setUid(String uid) {
         this.uid = uid;
     }
+
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
+
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
     }
+
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
     }
+
     public void setApplicationRoleName(String applicationRoleName) {
         this.applicationRoleName = applicationRoleName;
     }
+
     public void setApplicationRoleValue(String applicationRoleValue) {
         this.applicationRoleValue = applicationRoleValue;
     }
@@ -117,21 +100,27 @@ public class UserPropertyAndRole {
     public String getRoleId() {
         return roleId;
     }
+
     public String getUid() {
         return uid;
     }
+
     public String getApplicationId() {
         return applicationId;
     }
+
     public String getApplicationName() {
         return (applicationName == null ? "" : applicationName);
     }
+
     public String getOrganizationName() {
         return (organizationName == null ? "" : organizationName);
     }
+
     public String getApplicationRoleName() {
         return applicationRoleName;
     }
+
     public String getApplicationRoleValue() {
         return applicationRoleValue;
     }

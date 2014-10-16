@@ -61,26 +61,6 @@ public class UserAuthenticationEndpoint {
         this.userIdentityService = userIdentityService;
         //this.hostname = getLocalhostName();
     }
-    /*
-    private String getLocalhostName()  {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            log.warn("", e);
-        }
-        return "unknown host";
-    }
-    */
-
-    /*
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    public Response info() {
-        Map<String, String> welcomeModel = new HashMap<>(1);
-        welcomeModel.put("hostname", hostname);
-        return Response.ok(new Viewable("/welcome", welcomeModel)).build();
-    }
-    */
 
     /**
      * Authentication using XML. XML must contain an element with name username, and an element with name password.
@@ -90,7 +70,6 @@ public class UserAuthenticationEndpoint {
      */
     //TODO Convert to GET
     @POST
-    //@Path("/")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response authenticateUser(InputStream input) {
@@ -136,93 +115,6 @@ public class UserAuthenticationEndpoint {
         return response;
     }
 
-
-    /*
-     * Form/html-based authentication.
-     * @param username Username to be authenticated.
-     * @param password Users password.
-     * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
-     */
-    /*
-    @Path("/")
-    @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    public Response authenticateUserForm(@FormParam("username") String username, @FormParam("password") String password) {
-        log.debug("authenticateUserForm: user=" + username + ", password=" + password);
-        UserIdentity id = null;
-        if (username != null && password != null) {
-            id = userIdentityService.auth(username, password);
-//            if(id == null) {
-//                System.out.println("Prøver intern ldap");
-//                id = internalLdapAuthenticator.auth(username, password);
-//            }
-        } else {
-            log.warn("Missing user or password");
-        }
-        if (id == null) {
-            return Response.ok(new Viewable("/logonFailed.ftl")).build();
-        }
-        UserAggregate whydahUser = new UserAggregate(id, roleRepository.getUserPropertyAndRoles(id.getUid()));
-        return Response.ok(new Viewable("/user.ftl", whydahUser)).build();
-    }
-    */
-
-    /*
-    //TODO Move to UserResource
-    @GET
-    @Path("users/{username}/resetpassword")
-    public Response resetPassword(@PathParam("username") String username) {
-        log.info("Reset password for user {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIdentity(username);
-
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-            }
-
-            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("resetPassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    //TODO Move to UserResource
-    //Copy of changePasswordForUser in UserResource
-    @POST
-    @Path("users/{username}/newpassword/{token}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        log.info("Changing password for {}", username);
-        try {
-            UserIdentity user = userIdentityService.getUserIdentity(username);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
-            }
-
-            boolean ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
-
-            if (!ok) {
-                log.info("Authentication failed while changing password for user {}", username);
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-            try {
-                JSONObject jsonobj = new JSONObject(passwordJson);
-                String newpassword = jsonobj.getString("newpassword");
-                userIdentityService.changePassword(username, user.getUid(), newpassword);
-            } catch (JSONException e) {
-                log.error("Bad json", e);
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("changePassword failed", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    */
 
     //TODO Move to UserAdminService (the separate application)
     @POST

@@ -19,13 +19,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 
-/**
- * A simple example exposing how to embed Apache Directory Server version 1.5.7
- * into an application.
- *
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
- */
 public class EmbeddedADS {
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedADS.class);
     private static final int DEFAULT_SERVER_PORT = 10389;
@@ -207,7 +200,7 @@ public class EmbeddedADS {
         server.stop();
         try {
             Thread.sleep(100);
-        } catch (InterruptedException ie){
+        } catch (InterruptedException ie) {
 
         }
     }

@@ -34,28 +34,28 @@ public class UserAggregate {
                 "        <username>" + identity.getUsername() + "</username>\n" +
                 "        <cellPhone>" + (identity.getCellPhone() != null ? identity.getCellPhone() : "") + "</cellPhone>\n" +
                 "        <email>" + identity.getEmail() + "</email>\n" +
-                "        <firstname>" + identity.getFirstName() +"</firstname>\n" +
+                "        <firstname>" + identity.getFirstName() + "</firstname>\n" +
                 "        <lastname>" + identity.getLastName() + "</lastname>\n" +
                 "        <personRef>" + (identity.getPersonRef() != null ? identity.getPersonRef() : "") + "</personRef>\n" +
                 "        <UID>" + identity.getUid() + "</UID>\n" +
                 "    </identity>\n" +
                 "    <applications>\n";
-         strb.append(headAndIdentity);
+        strb.append(headAndIdentity);
 
         for (UserPropertyAndRole u : roles) {
-                    strb.append(
+            strb.append(
                     "        <application>\n" +
-                    "            <appId>" + u.getApplicationId() + "</appId>\n" +
-                    "            <applicationName>" + u.getApplicationName() + "</applicationName>\n" +
-                    "            <orgName>" + u.getOrganizationName() + "</orgName>\n" +
-                    "            <roleName>" + u.getApplicationRoleName() + "</roleName>\n" +
-                    "            <roleValue>" + u.getApplicationRoleValue() + "</roleValue>\n" +
-                    "        </application>\n"
-                    );
+                            "            <appId>" + u.getApplicationId() + "</appId>\n" +
+                            "            <applicationName>" + u.getApplicationName() + "</applicationName>\n" +
+                            "            <orgName>" + u.getOrganizationName() + "</orgName>\n" +
+                            "            <roleName>" + u.getApplicationRoleName() + "</roleName>\n" +
+                            "            <roleValue>" + u.getApplicationRoleValue() + "</roleValue>\n" +
+                            "        </application>\n"
+            );
         }
         strb.append(
                 "    </applications>\n" +
-                "</whydahuser>"
+                        "</whydahuser>"
         );
         return strb.toString();
     }
@@ -100,82 +100,44 @@ public class UserAggregate {
         return null;
     }
 
-     /*
-    private static HashMap<String, String> getAppValues(NodeList children) {
-        HashMap<String, String> values = new HashMap<>();
-        for(int j=0; j < children.getLength(); j++) {
-            Node node = children.item(j);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                values.put(node.getNodeName(), node.getTextContent());
-            }
-        }
-        return values;
-    }
-
-    public void putApplicationCompanyRoleValue(String p_application_ID, String p_application_Name, String p_company_ID, String p_company_name, String p_role, String p_value) {
-        if (applicationCompanyRoleValueMap.containsKey(p_application_ID)) {
-            ApplicationData application = applicationCompanyRoleValueMap.get(p_application_ID);
-            CompanyRoles company = application.getCompaniesAndRolesMap().get(p_company_ID);
-            if (company != null) {  // Application and company exists, just update the rolemap
-                company.getRoleMap().put(p_role, p_value);
-            } else {
-                company = new CompanyRoles();
-                company.setCompanyNumber(p_company_ID);
-                company.setCompanyName(p_company_name);
-                Map<String, String> rolemap = new HashMap<String, String>();
-                rolemap.put(p_role, p_value);
-                company.setRoleMap(rolemap);
-                application.addCompanyWithRoles(company.getCompanyNumber(), company);
-                applicationCompanyRoleValueMap.put(application.getApplicationID(), application);
-            }
-            // Add or update existing application
-        } else {
-            ApplicationData application = new ApplicationData();
-            application.setApplicationID(p_application_ID);
-            application.setApplicationName(p_application_Name);
-            CompanyRoles company = new CompanyRoles();
-            company.setCompanyNumber(p_company_ID);
-            company.setCompanyName(p_company_name);
-            Map<String,String> rolemap = new HashMap<String, String>();
-            rolemap.put(p_role, p_value);
-            company.setRoleMap(rolemap);
-            application.addCompanyWithRoles(company.getCompanyNumber(), company);
-            applicationCompanyRoleValueMap.put(application.getApplicationID(), application);
-        }
-    }
-    */
-
-
 
     public UserIdentity getIdentity() {
         return identity;
     }
+
     public void setIdentity(UserIdentity identity) {
         this.identity = identity;
     }
 
 
     public String getPersonName() {
-        return identity.getFirstName()+ ' ' + identity.getLastName();
+        return identity.getFirstName() + ' ' + identity.getLastName();
     }
+
     public String getPersonRef() {
         return identity.getPersonRef();
     }
+
     public String getUid() {
         return identity.getUid();
     }
+
     public String getUsername() {
         return identity.getUsername();
     }
+
     public String getFirstName() {
         return identity.getFirstName();
     }
+
     public String getLastName() {
         return identity.getLastName();
     }
+
     public String getEmail() {
         return identity.getEmail();
     }
+
     public String getCellPhone() {
         return identity.getCellPhone();
     }
@@ -193,24 +155,31 @@ public class UserAggregate {
     public void setPersonRef(String personRef) {
         identity.setPersonRef(personRef);
     }
+
     public void setUid(String uid) {
         identity.setUid(uid);
     }
+
     public void setUsername(String username) {
         identity.setUsername(username);
     }
+
     public void setFirstName(String firstName) {
         identity.setFirstName(firstName);
     }
+
     public void setLastName(String lastName) {
         identity.setLastName(lastName);
     }
+
     public void setEmail(String email) {
         identity.setEmail(email);
     }
+
     public void setCellPhone(String cellPhone) {
         identity.setCellPhone(cellPhone);
     }
+
     public void setPassword(String password) {
         identity.setPassword(password);
     }

@@ -8,9 +8,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 
 
-/**
- * Genererer email body for epost som skal sendes ut.
- */
 public class EmailBodyGenerator {
     private final Configuration freemarkerConfig;
     private static final String NEW_USER_EMAIL_TEMPLATE = "WelcomeNewUser.ftl";
@@ -25,7 +22,7 @@ public class EmailBodyGenerator {
     }
 
 
-    public String resetPassword(String url,String username) {
+    public String resetPassword(String url, String username) {
         HashMap<String, String> model = new HashMap<>();
         model.put("username", username);
         model.put("url", url);

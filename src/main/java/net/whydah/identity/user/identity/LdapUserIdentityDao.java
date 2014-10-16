@@ -9,9 +9,6 @@ import javax.naming.directory.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-/**
- * @author totto
- */
 public class LdapUserIdentityDao {
     private static final Logger log = LoggerFactory.getLogger(LdapUserIdentityDao.class);
     static final String ATTRIBUTE_NAME_TEMPPWD_SALT = "destinationIndicator";
@@ -29,14 +26,13 @@ public class LdapUserIdentityDao {
 
     private static final StringCleaner stringCleaner = new StringCleaner();
 
-    private final Hashtable<String,String> admenv;
+    private final Hashtable<String, String> admenv;
     private final String uidAttribute;
     private final String usernameAttribute;
     private final boolean readOnly;
 
     private DirContext ctx;
     private boolean connected = false;
-
 
 
     public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String uidAttribute, String usernameAttribute, boolean readOnly) {
@@ -86,7 +82,7 @@ public class LdapUserIdentityDao {
             log.trace("Added {} with dn={}", userIdentity, userdn);
         } catch (NameAlreadyBoundException nabe) {
             log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
-        } catch (InvalidAttributeValueException iave){
+        } catch (InvalidAttributeValueException iave) {
             StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
             strb.append(userIdentity.toString());
             if (log.isDebugEnabled()) {
@@ -128,7 +124,7 @@ public class LdapUserIdentityDao {
 
     public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
         if (readOnly) {
-                log.warn("updateUserIdentityForUid called, but LDAP server is configured read-only. UserIdentity was not updated.");
+            log.warn("updateUserIdentityForUid called, but LDAP server is configured read-only. UserIdentity was not updated.");
             return;
         }
 
@@ -183,12 +179,12 @@ public class LdapUserIdentityDao {
     }
 
     private void addModificationItem(ArrayList<ModificationItem> modificationItems, String attributeName, String oldValue, String newValue) {
-        if((oldValue != null && oldValue.equals(newValue)) || (oldValue == null && newValue == null)) {
+        if ((oldValue != null && oldValue.equals(newValue)) || (oldValue == null && newValue == null)) {
             log.debug("Not changing " + attributeName + "=" + newValue);
-        } else if(oldValue == null) {
+        } else if (oldValue == null) {
             log.debug("Adding attribute " + attributeName + "=" + newValue);
             modificationItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(attributeName, newValue)));
-        } else if(newValue == null) {
+        } else if (newValue == null) {
             log.debug("Removing attribute '" + attributeName + "'");
             modificationItems.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attributeName, oldValue)));
         } else {
@@ -241,7 +237,6 @@ public class LdapUserIdentityDao {
     }
 
 
-
     private UserIdentity fromLdapAttributes(Attributes attributes) throws NamingException {
         if (attributes == null) {
             return null;
@@ -249,7 +244,7 @@ public class LdapUserIdentityDao {
 
         UserIdentity id = null;
         Attribute uidAttributeValue = attributes.get(uidAttribute);
-        Attribute  usernameAttributeValue = attributes.get(usernameAttribute);
+        Attribute usernameAttributeValue = attributes.get(usernameAttribute);
         if (uidAttributeValue != null && usernameAttributeValue != null) {
             id = new UserIdentity();
             id.setUid((String) attributes.get(uidAttribute).get());
@@ -351,7 +346,7 @@ public class LdapUserIdentityDao {
 
     private String getAttribValue(Attributes attributes, String attributeName) throws NamingException {
         Attribute attribute = attributes.get(attributeName);
-        if(attribute != null) {
+        if (attribute != null) {
             return (String) attribute.get();
         } else {
             return null;
@@ -400,7 +395,6 @@ public class LdapUserIdentityDao {
             log.error("Error when changing password. Uncertain whether password was changed or not for username=", username, ne);
         }
     }
-
 
 
     public void setTempPassword(String username, String password, String salt) {

@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.Properties;
 
 /**
- * Helper methods for reading configurration.
+ * Helper methods for reading configuration.
  */
 public final class AppConfig {
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);

@@ -7,8 +7,8 @@ import static org.junit.Assert.assertEquals;
 public class ChangePasswordTokenTest {
     @Test
     public void testToken() {
-        String user = "bentesolvang@hotmail.org";
-        String password = "N34jh87a";
+        String user = "britta@hotmail.org";
+        String password = "brille";
         byte[] salt = "jdhUhj\\?".getBytes();
         ChangePasswordToken changePasswordToken = new ChangePasswordToken(user, password);
         String token = changePasswordToken.generateTokenString(salt);
@@ -19,8 +19,8 @@ public class ChangePasswordTokenTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWrongSalt() {
-        String user = "bentesolvang@hotmail.org";
-        String password = "N34jh87a";
+        String user = "britta@hotmail.org";
+        String password = "brille";
         byte[] salt = "jdhUhj\\?".getBytes();
         ChangePasswordToken changePasswordToken = new ChangePasswordToken(user, password);
         String token = changePasswordToken.generateTokenString(salt);
