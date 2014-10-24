@@ -62,11 +62,13 @@ public class Main {
         // Start ldap embedded server
         boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
         if (embeddedDSEnabled) {
+            String ldapPath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
             if (importEnabled) {
-                FileUtils.deleteDirectory(new File(AppConfig.appConfig.getProperty("ldap.embedded.directory")));
+                FileUtils.deleteDirectory(new File(ldapPath));
             }
             try {
-                main.startEmbeddedDS();
+                Integer ldapPort = Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+                main.startEmbeddedDS(ldapPath, ldapPort);
             } catch (Exception e) {
                 log.error("Could not start embedded ApacheDS. Shutting down UserIdentityBackend.", e);
                 System.exit(1);
@@ -190,13 +192,11 @@ public class Main {
         return webappPort;
     }
 
-    public void startEmbeddedDS() throws Exception {
+    public void startEmbeddedDS(String ldapPath, int ldapPort) throws Exception {
         log.info("Starting embedded ApacheDS");
-        String ldappath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
-        ads = new EmbeddedADS(ldappath);
+        ads = new EmbeddedADS(ldapPath);
 
-        int ldapport = Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        ads.startServer(ldapport);
+        ads.startServer(ldapPort);
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
