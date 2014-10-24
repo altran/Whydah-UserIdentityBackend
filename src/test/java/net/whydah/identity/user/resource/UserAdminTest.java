@@ -35,10 +35,11 @@ public class UserAdminTest {
     @Before
     public void init() throws Exception {
         System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        FileUtils.deleteDirectory(new File("target/ssotest/"));
+        String ldapPath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
+        FileUtils.deleteDirectory(new File(ldapPath));
         FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
         uib = new Main();
-        uib.startEmbeddedDS();
+        uib.startEmbeddedDS(AppConfig.appConfig.getProperty("ldap.embedded.directory"), Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port")));
         uib.importUsersAndRoles();
         uib.startHttpServer();
         URI baseUri = UriBuilder.fromUri("http://localhost/uib/uib/useradmin/").port(uib.getPort()).build();
@@ -51,8 +52,6 @@ public class UserAdminTest {
     @After
     public void teardown() throws InterruptedException {
         uib.stop();
-
-        FileUtils.deleteDirectory(new File("target/ssotest/"));
     }
 
     @Test

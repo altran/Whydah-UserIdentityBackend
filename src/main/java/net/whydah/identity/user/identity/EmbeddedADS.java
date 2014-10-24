@@ -70,6 +70,9 @@ public class EmbeddedADS {
      */
 
     private void init(String INSTANCE_PATH) throws Exception, IOException, LdapException, NamingException {
+        //Used by http://svn.apache.org/repos/asf/directory/apacheds/tags/2.0.0-M7/core-annotations/src/main/java/org/apache/directory/server/core/factory/DefaultDirectoryServiceFactory.java
+        String instanceDirectory = System.setProperty("workingDirectory", INSTANCE_PATH);
+
         DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
         factory.init(INSTANCE_NAME);
 
@@ -181,13 +184,19 @@ public class EmbeddedADS {
 
     public void stopServer() {
         server.stop();
+        DirectoryService directoryService = server.getDirectoryService();
+        try {
+            directoryService.shutdown();
+        } catch (Exception e) {
+            logger.error("Error shutting down DirectoryService.", e);
+        }
+        //directoryService.getCacheService().destroy();
+
         try {
             Thread.sleep(100);
         } catch (InterruptedException ie) {
-
         }
     }
-
 
     /**
      * Main class for standalone test and configuration of ApacheDS embedded.
