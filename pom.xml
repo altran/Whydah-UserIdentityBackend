@@ -383,7 +383,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>net.whydah.identity.UIBMain</mainClass>
+                    <mainClass>net.whydah.identity.Main</mainClass>
                 </configuration>
             </plugin>
             <plugin>
@@ -419,7 +419,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 <manifestEntries>
-                                        <Main-Class>net.whydah.identity.UIBMain</Main-Class>
+                                        <Main-Class>net.whydah.identity.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
@@ -440,7 +440,7 @@
                     <daemons>
                         <daemon>
                             <id>${project.name}</id>
-                            <mainClass>net.whydah.identity.UIBMain</mainClass>
+                            <mainClass>net.whydah.identity.Main</mainClass>
                             <platforms>
                                 <platform>jsw</platform>
                             </platforms>
