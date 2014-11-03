@@ -17,22 +17,21 @@ import java.util.List;
 
 public class SecurityTokenServiceHelper {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceHelper.class);
-    private final WebResource webResource;
-    private String myAppTokenId;
+    private final WebResource tokenServiceResource;
     private String myAppTokenXML;
+    //private String myAppTokenId;
 
     public SecurityTokenServiceHelper(String usertokenserviceUri) {
-        Client client = Client.create();
-        webResource = client.resource(usertokenserviceUri);
+        tokenServiceResource = Client.create().resource(usertokenserviceUri);
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid) {
         log.debug("usertokenid={}", usertokenid);
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);
-        formData.add("apptoken", myAppTokenXML);
+        formData.add("apptoken", myAppTokenXML);    //TODO myAppTokenXML is never set...
         try {
-            ClientResponse response = webResource.path("user/" + appTokenId + "/get_usertoken_by_usertokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+            ClientResponse response = tokenServiceResource.path("user/" + appTokenId + "/get_usertoken_by_usertokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
             log.info("Accessing:" + "tokenservice/" + appTokenId + "/get_usertoken_by_usertokenid");
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 String usertoken = response.getEntity(String.class);
@@ -54,10 +53,10 @@ public class SecurityTokenServiceHelper {
         }
 
     }
-
+    /*
     private String getAppTokenId() {
         if (myAppTokenId != null) {
-            ClientResponse response = webResource.path(myAppTokenId + "/validate").get(ClientResponse.class);
+            ClientResponse response = tokenServiceResource.path(myAppTokenId + "/validate").get(ClientResponse.class);
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 log.trace("Previous applicationtoken is ok");
                 return myAppTokenId;
@@ -68,19 +67,21 @@ public class SecurityTokenServiceHelper {
         return myAppTokenId;
     }
 
+
     private synchronized void authenticateMyself() {
         String auth = "<applicationcredential><params><applicationID>1</applicationID><applicationSecret>secret</applicationSecret></params></applicationcredential>";
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("applicationcredential", auth);
-        String apptoken = webResource.path("logon").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, formData);
+        String apptoken = tokenServiceResource.path("logon").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(String.class, formData);
         myAppTokenXML = apptoken;
         log.info("apptoken={}", apptoken);
         myAppTokenId = getApplicationTokenIdFromAppToken(apptoken);
     }
 
+
     // TODO  change parsing to xpath parsing
     private String getApplicationTokenIdFromAppToken(String appTokenXML) {
         return appTokenXML.substring(appTokenXML.indexOf("<applicationtoken>") + "<applicationtoken>".length(), appTokenXML.indexOf("</applicationtoken>"));
     }
-
+    */
 }
