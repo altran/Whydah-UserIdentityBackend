@@ -142,10 +142,8 @@ public class EmbeddedADS {
         }
 
 
-        WhydahConfig fCconfig = new WhydahConfig();
-        if (fCconfig.getProptype().equals("FCDEV")) {
-            dc = "WHYDAH";
-        } else if (fCconfig.getProptype().equals("DEV")) {
+        WhydahConfig myConfig = new WhydahConfig();
+        if (myConfig.getProptype().equals("DEV")) {
             dc = "WHYDAH";
         } else {
             dc = "WHYDAH";
