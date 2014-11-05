@@ -52,12 +52,15 @@ public class IamDataImporter {
             String applicationsImportSource = AppConfig.appConfig.getProperty("import.applicationssource");
             ais = openInputStream("Applications", applicationsImportSource);
             applicationImporter.importApplications(ais);
+
             String organizationsImportSource = AppConfig.appConfig.getProperty("import.organizationssource");
             ois = openInputStream("Organizations", organizationsImportSource);
             organizationImporter.importOrganizations(ois);
+
             String userImportSource = AppConfig.appConfig.getProperty("import.usersource");
             uis = openInputStream("Users", userImportSource);
             userImporter.importUsers(uis);
+
             String roleMappingImportSource = AppConfig.appConfig.getProperty("import.rolemappingsource");
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
             roleMappingImporter.importRoleMapping(rmis);
@@ -70,7 +73,7 @@ public class IamDataImporter {
     }
 
     InputStream openInputStream(String tableName, String importSource) {
-        InputStream is =null;
+        InputStream is;
         if (FileUtils.localFileExist(importSource)) {
             log.info("Importing {} from local config override. {}", tableName,importSource);
             is = FileUtils.openLocalFile(importSource);
@@ -80,6 +83,4 @@ public class IamDataImporter {
         }
         return is;
     }
-
-
 }

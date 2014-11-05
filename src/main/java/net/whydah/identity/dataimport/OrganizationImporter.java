@@ -27,7 +27,6 @@ public class OrganizationImporter {
 	}
 
 	public void importOrganizations(InputStream organizationsSource) {
-        log.info("importOrganizations from organizationsSource={}", organizationsSource);
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
         log.info("{} organizations imported.", organizations.size());

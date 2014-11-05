@@ -39,7 +39,6 @@ public class WhydahUserIdentityImporter {
 	}
     
     public void importUsers(InputStream userImportSource) {
-        log.info("importUsers from userImportSource={}", userImportSource);
         List<UserIdentity> users = parseUsers(userImportSource);
     	saveUsers(users);
         log.info("{} users imported.", users.size());

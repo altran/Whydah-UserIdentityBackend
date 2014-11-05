@@ -31,7 +31,6 @@ public class ApplicationImporter {
 	}
 	
 	public void importApplications(InputStream applicationsSource) {
-        log.info("importApplications from applicationsSource={}", applicationsSource);
 		List<Application> applications = parseApplications(applicationsSource);
 		saveApplications(applications);
         log.info("{} applications imported.", applications.size());

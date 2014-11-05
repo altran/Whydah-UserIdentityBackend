@@ -33,7 +33,6 @@ public class RoleMappingImporter {
 	}
 
     public void importRoleMapping(InputStream roleMappingSource) {
-        log.info("importRoleMapping from roleMappingSource={}", roleMappingSource);
     	List<UserPropertyAndRole> roles = parseRoleMapping(roleMappingSource);
     	saveRoleMapping(roles);
         log.info("{} roles imported.", roles.size());
