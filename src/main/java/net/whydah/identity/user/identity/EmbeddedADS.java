@@ -1,6 +1,5 @@
 package net.whydah.identity.user.identity;
 
-import net.whydah.identity.config.WhydahConfig;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -24,18 +23,10 @@ public class EmbeddedADS {
     private static final int DEFAULT_SERVER_PORT = 10389;
     private static final String INSTANCE_NAME = "Whydah";
     private static final String BASE_DN = "o=TEST";
-    /**
-     * The directory identity
-     */
+
     private DirectoryService service;
-
-    /**
-     * The LDAP server
-     */
     private LdapServer server;
-    private String dc = "";
-    // private FCconfig fCconfig;
-
+    private String dc = "WHYDAH";
 
     /**
      * initialize the schema manager and add the schema partition to diectory identity
@@ -78,8 +69,9 @@ public class EmbeddedADS {
      * }
      */
 
-    private void init(String INSTANCE_PATH) throws Exception, IOException, LdapException,
-            NamingException {
+    private void init(String INSTANCE_PATH) throws Exception, IOException, LdapException, NamingException {
+        //Used by http://svn.apache.org/repos/asf/directory/apacheds/tags/2.0.0-M7/core-annotations/src/main/java/org/apache/directory/server/core/factory/DefaultDirectoryServiceFactory.java
+        String instanceDirectory = System.setProperty("workingDirectory", INSTANCE_PATH);
 
         DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
         factory.init(INSTANCE_NAME);
@@ -92,20 +84,16 @@ public class EmbeddedADS {
         service.setInstanceLayout(il);
 
 
-        AvlPartition partition = new AvlPartition(
-                service.getSchemaManager());
+        AvlPartition partition = new AvlPartition(service.getSchemaManager());
         partition.setId("Test");
-        partition.setSuffixDn(new Dn(service.getSchemaManager(),
-                BASE_DN));
+        partition.setSuffixDn(new Dn(service.getSchemaManager(), BASE_DN));
         logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
         partition.initialize();
         service.addPartition(partition);
 
-        AvlPartition mypartition = new AvlPartition(
-                service.getSchemaManager());
+        AvlPartition mypartition = new AvlPartition(service.getSchemaManager());
         mypartition.setId(INSTANCE_NAME);
-        mypartition.setSuffixDn(new Dn(service.getSchemaManager(),
-                "dc=external,dc=" + dc + ",dc=no"));
+        mypartition.setSuffixDn(new Dn(service.getSchemaManager(), "dc=external,dc=" + dc + ",dc=no"));
         logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
         mypartition.initialize();
         service.addPartition(mypartition);
@@ -140,21 +128,20 @@ public class EmbeddedADS {
                 logger.debug("Not all directories could be created. " + workDir.getAbsolutePath());
             }
         }
-
-
-        WhydahConfig myConfig = new WhydahConfig();
-        if (myConfig.getProptype().equals("DEV")) {
+        /*
+        WhydahConfig fCconfig = new WhydahConfig();
+        if (fCconfig.getProptype().equals("FCDEV")) {
+            dc = "WHYDAH";
+        } else if (fCconfig.getProptype().equals("DEV")) {
             dc = "WHYDAH";
         } else {
             dc = "WHYDAH";
         }
-
+        */
         init(workDir.getPath());
-
 
         // And start the identity
         // service.startup();
-
     }
 
 
@@ -176,10 +163,11 @@ public class EmbeddedADS {
         this(new File(workDir));
     }
 
-
+    /*
     public void startServer() throws Exception {
         startServer(DEFAULT_SERVER_PORT);
     }
+    */
 
     /**
      * starts the LdapServer
@@ -196,13 +184,19 @@ public class EmbeddedADS {
 
     public void stopServer() {
         server.stop();
+        DirectoryService directoryService = server.getDirectoryService();
+        try {
+            directoryService.shutdown();
+        } catch (Exception e) {
+            logger.error("Error shutting down DirectoryService.", e);
+        }
+        //directoryService.getCacheService().destroy();
+
         try {
             Thread.sleep(100);
         } catch (InterruptedException ie) {
-
         }
     }
-
 
     /**
      * Main class for standalone test and configuration of ApacheDS embedded.
@@ -234,10 +228,8 @@ public class EmbeddedADS {
                 Entry result = ads.service.getAdminSession().lookup(new Dn("dc=external,dc=WHYDAH,dc=no"));
 
                 // And print it if available
-                System.out.println("Found entry : " + result);
+                logger.info("Found entry : " + result);
             }
-
-
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
         }

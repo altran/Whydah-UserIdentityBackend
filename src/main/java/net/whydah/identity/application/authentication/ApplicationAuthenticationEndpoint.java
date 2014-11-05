@@ -14,8 +14,10 @@ import javax.ws.rs.core.Response;
 /**
  * Created by baardl on 22.03.14.
  * This not a RESTful endpoint. This is a http RPC endpoint.
+ *
+ * NOT IN USE YET!
  */
-@Path("/authenticate/application")
+//@Path("/authenticate/application")
 public class ApplicationAuthenticationEndpoint {
     private final static Logger log = LoggerFactory.getLogger(ApplicationAuthenticationEndpoint.class);
 
