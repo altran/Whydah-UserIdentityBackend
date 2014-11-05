@@ -49,7 +49,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
 
         //Printable string (alphabetic, digits, ', (, ), +, ,, -, ., /, :, ?, and space) and "
         //http://pic.dhe.ibm.com/infocenter/zvm/v6r3/index.jsp?topic=%2Fcom.ibm.zvm.v630.kldl0%2Fkldl023.htm
-        if (!telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
+        if (cellPhone != null && !telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
             throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
         }
         // valid

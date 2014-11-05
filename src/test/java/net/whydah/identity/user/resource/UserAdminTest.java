@@ -362,12 +362,24 @@ public class UserAdminTest {
         baseResource.path("user/" + uid).get(String.class);
     }
 
-
+    /*  //TODO not sure what this test is supposed to verify
     @Test
     public void addUserWithCodesInCellPhoneNumber() {
         // TODO: Apache DS does not allow phone number with non-number letters
         String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
         baseResource.path("user/" + uid).get(String.class);
+    }
+    */
+
+    @Test
+    public void testAddUserWithLettersInPhoneNumberIsNotAllowed() {
+        // Apache DS does not allow phone number with non-number letters
+        try {
+            doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
+            fail("Expected 400 BAD_REQUEST");
+        } catch (UniformInterfaceException e) {
+            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
+        }
     }
 
 
