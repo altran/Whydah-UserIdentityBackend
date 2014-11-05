@@ -180,7 +180,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
             return text;
         }
 
-        return text;
+        return null;
     }
 
 }
