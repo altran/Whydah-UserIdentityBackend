@@ -82,7 +82,7 @@ public class LdapUserIdentityDao {
             log.trace("Added {} with dn={}", userIdentity, userdn);
             return true;
         } catch (NoPermissionException pe) {
-            log.error("addUserIdentity failed. Not allow to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), pe.getMessage());
+            log.error("addUserIdentity failed. Not allowed to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), pe.getMessage());
         } catch (NameAlreadyBoundException nabe) {
             log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
         } catch (InvalidAttributeValueException iave) {

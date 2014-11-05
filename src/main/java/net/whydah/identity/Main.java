@@ -190,7 +190,7 @@ public class Main {
         SecurityFilter securityFilter = new SecurityFilter(injector.getInstance(SecurityTokenServiceHelper.class), injector.getInstance(ApplicationTokenService.class));
         HashMap<String, String> initParams = new HashMap<>(1);
         servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
-        log.info("SecurityFilter instanciated with params:", initParams);
+        log.info("SecurityFilter initialized with params:", initParams);
     }
 
     public int getPort() {
