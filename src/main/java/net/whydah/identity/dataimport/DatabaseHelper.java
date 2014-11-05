@@ -32,20 +32,16 @@ public class DatabaseHelper {
                 createDatabaseTables(dialect);
                 break;
             case MSSQL:
-                createDatabaseMSSql();
+                logger.info("Expecting the MSSql database to be pre-initialized with the latest schema. Automatic database creation is not supported.");
                 break;
             default:
                 logger.warn("Trying to init database with unknown database dialect {}", dialect.name());
         }
     }
 
-    private void createDatabaseMSSql() {
-        logger.info("Expecting the MSSql database to be pre-initialized with the latest schema. Automatic database creation is not supported.");
-
-    }
 
     private void createDatabaseTables(DB_DIALECT dialect) {
-        logger.info("Creating UserPropertyAndRole tables.");
+        logger.info("Creating UserPropertyAndRole tables for DB_DIALECT={}.", dialect.name());
         try {
             if(dialect == DB_DIALECT.HSSQL) {
                 queryRunner.update("CREATE TABLE UserRoles (" +

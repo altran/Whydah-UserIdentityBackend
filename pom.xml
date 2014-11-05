@@ -162,11 +162,14 @@
             <artifactId>hsqldb</artifactId>
             <version>2.3.2</version>
         </dependency>
+        <!-- DatabaseHelper does not support PostgreSQL yet. -->
+        <!--
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.3-1102-jdbc41</version>
         </dependency>
+        -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -211,15 +214,6 @@
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
         </dependency>
-
-        <!--Json testing -->
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
-        </dependency>
-
 
         <!-- Apache DS dependencies -->
         <dependency>
@@ -301,7 +295,14 @@
             <version>2.0.0-M3</version>
         </dependency>
 
+
         <!-- test dependencies -->
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.2.3</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
