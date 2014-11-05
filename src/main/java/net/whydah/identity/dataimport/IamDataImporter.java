@@ -33,15 +33,17 @@ public class IamDataImporter {
         String jdbcDriverString = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
         String jdbcUrlString = AppConfig.appConfig.getProperty("roledb.jdbc.url");
 
+        DatabaseHelper.DB_DIALECT db_dialect;
         if (jdbcDriverString.contains("hsqldb")) {
-            databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
+            db_dialect = DatabaseHelper.DB_DIALECT.HSSQL;
         } else if(jdbcDriverString.contains("mysql")) {
-            databaseHelper.initDB(DatabaseHelper.DB_DIALECT.MYSQL);
+            db_dialect = DatabaseHelper.DB_DIALECT.MYSQL;
         } else if (jdbcUrlString.contains("sqlserver")) {
-            databaseHelper.initDB(DatabaseHelper.DB_DIALECT.MSSQL);
+            db_dialect = DatabaseHelper.DB_DIALECT.MSSQL;
         } else {
             throw new RuntimeException("Unknown database driver found in configuration - " + jdbcDriverString);
         }
+        databaseHelper.initDB(db_dialect);
 
 
         InputStream ais = null;
