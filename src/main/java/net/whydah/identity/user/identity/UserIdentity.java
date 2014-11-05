@@ -175,10 +175,10 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
             return null;
         }
 
-        if (text!=null && Pattern.matches("([0-9]*)", text) == true && text.length() > 7){
+        text = text.replaceAll(" +", "");
+        if (text != null && Pattern.matches("([+][+0-9]*)", text) == true && text.length() > 7) {
             return text;
         }
-        text = text.replaceAll(" +", "");
 
         return text;
     }

@@ -102,4 +102,22 @@ public class UserIdentityServiceTest {
         Response response = userAdminHelper.addUser(userIdentity);
         assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
     }
+
+
+    @Test
+    public void testAddUserStrangeCellPhone() throws Exception {
+        UserIdentityService userIdentityService =
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
+
+        String username = "username1234";
+        UserIdentity userIdentity = new UserIdentity("uid2", username, "firstName2", "lastName2", "personRef2",
+                "test2@test.no", "+47 123 45 678", "password2");
+        userAdminHelper.addUser(userIdentity);
+
+        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
+
+        assertEquals(userIdentity, fromLdap);
+        Response response = userAdminHelper.addUser(userIdentity);
+        assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
+    }
 }
