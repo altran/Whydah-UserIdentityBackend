@@ -1,5 +1,6 @@
 package net.whydah.identity.user.identity;
 
+import org.apache.directory.api.ldap.model.schema.syntaxCheckers.TelephoneNumberSyntaxChecker;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.Serializable;
-import java.util.regex.Pattern;
 
 /**
  * A class representing the identity of a User - backed by LDAP scheme.
@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 public class UserIdentity extends UserIdentityRepresentation implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
     private static final long serialVersionUID = 1;
+    private static final TelephoneNumberSyntaxChecker telephoneNumberSyntaxChecker = new TelephoneNumberSyntaxChecker();
 
     private String uid;
 
@@ -34,28 +35,47 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         this.lastName = lastName;
         this.personRef = personRef;
         this.email = email;
-        this.cellPhone = getValidLDAPPhoneNumber(cellPhone); //TODO Validate valid cellPhone
+        this.cellPhone = cellPhone;
         this.password = password;
     }
 
     public void validate() throws InvalidUserIdentityFieldException {
-        if (uid == null || uid.length() < 2) {
-            throw new InvalidUserIdentityFieldException("uid", uid);
-        }
-        if (username == null || username.length() < 3) {
-            throw new InvalidUserIdentityFieldException("username", username);
-        }
-        if (firstName == null || firstName.length() < 2) {
-            throw new InvalidUserIdentityFieldException("firstName", firstName);
-        }
-        if (lastName == null || lastName.length() < 2) {
-            throw new InvalidUserIdentityFieldException("lastName", lastName);
-        }
-        if (email == null || email.length() < 5) {
-            throw new InvalidUserIdentityFieldException("email", email);
+        validateSetAndMinimumLength("uid", uid, 2);
+        validateSetAndMinimumLength("username", username, 3);
+        validateSetAndMinimumLength("firstName", firstName, 2);
+        validateSetAndMinimumLength("lastName", lastName, 2);
+
+        validateEmail();
+
+        //Printable string (alphabetic, digits, ', (, ), +, ,, -, ., /, :, ?, and space) and "
+        //http://pic.dhe.ibm.com/infocenter/zvm/v6r3/index.jsp?topic=%2Fcom.ibm.zvm.v630.kldl0%2Fkldl023.htm
+        if (!telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
+            throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
         }
         // valid
     }
+
+    private void validateSetAndMinimumLength(String key, String value, int minLength) {
+        if (value == null || value.length() < minLength) {
+            throw new InvalidUserIdentityFieldException(key, value);
+        }
+    }
+
+
+    private void validateEmail() {
+        if (email == null || email.length() < 5) {
+            throw new InvalidUserIdentityFieldException("email", email);
+        }
+
+        InternetAddress internetAddress = new InternetAddress();
+        internetAddress.setAddress(email);
+        try {
+            internetAddress.validate();
+        } catch (AddressException e) {
+            throw new InvalidUserIdentityFieldException("email", email);
+        }
+    }
+
 
     @Override
     public String toString() {
@@ -169,7 +189,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         }
         return email;
     }
-
+    /*
     private static String getValidLDAPPhoneNumber(String text){
         if (text == null) {
             return null;
@@ -182,5 +202,5 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
 
         return null;
     }
-
+    */
 }
