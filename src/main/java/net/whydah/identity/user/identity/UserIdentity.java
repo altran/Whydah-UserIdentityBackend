@@ -176,7 +176,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         }
 
         text = text.replaceAll(" +", "");
-        if (text != null && Pattern.matches("([+][+0-9]*)", text) == true && text.length() > 7) {
+        if (text != null && Pattern.matches("(d\\+)?([+0-9]*)", text) == true && text.length() > 7) {
             return text;
         }
 
