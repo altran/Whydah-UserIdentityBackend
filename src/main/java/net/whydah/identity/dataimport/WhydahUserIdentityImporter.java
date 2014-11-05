@@ -40,8 +40,8 @@ public class WhydahUserIdentityImporter {
     
     public void importUsers(InputStream userImportSource) {
         List<UserIdentity> users = parseUsers(userImportSource);
-    	saveUsers(users);
-        log.info("{} users imported.", users.size());
+        int userAddedCount = saveUsers(users);
+        log.info("{} users imported.", userAddedCount);
     }
 
 	protected static List<UserIdentity> parseUsers(InputStream userImportStream) {
@@ -98,14 +98,18 @@ public class WhydahUserIdentityImporter {
 		}
 	}
 
-    private void saveUsers(List<UserIdentity> users) {
+    private int saveUsers(List<UserIdentity> users) {
+        int userAddedCount = 0;
         try {
             LuceneIndexer luceneIndexer = new LuceneIndexer(index);
             final IndexWriter indexWriter = luceneIndexer.getWriter();
             for (UserIdentity userIdentity : users) {
-                ldapUserIdentityDao.addUserIdentity(userIdentity);
-                log.info("Imported user. Uid: {}, Name {} {}, Email {}", userIdentity.getUid(), userIdentity.getFirstName(), userIdentity.getLastName(),userIdentity.getEmail());
-                luceneIndexer.addToIndex(indexWriter, userIdentity);
+                boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
+                if (added) {
+                    log.info("Imported user. Uid: {}, Name {} {}, Email {}", userIdentity.getUid(), userIdentity.getFirstName(), userIdentity.getLastName(),userIdentity.getEmail());
+                    userAddedCount++;
+                    luceneIndexer.addToIndex(indexWriter, userIdentity);
+                }
             }
             indexWriter.optimize();
             indexWriter.close();
@@ -113,5 +117,6 @@ public class WhydahUserIdentityImporter {
             log.error("Error importing users!", e);
             throw new RuntimeException("Error importing users!", e);
         }
+        return userAddedCount;
     }
 }

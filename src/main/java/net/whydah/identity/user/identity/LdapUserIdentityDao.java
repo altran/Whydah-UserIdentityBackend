@@ -61,10 +61,10 @@ public class LdapUserIdentityDao {
         connected = true;
     }
 
-    public void addUserIdentity(UserIdentity userIdentity) throws NamingException {
+    public boolean addUserIdentity(UserIdentity userIdentity) throws NamingException {
         if (readOnly) {
             log.warn("addUserIdentity called, but LDAP server is configured read-only. UserIdentity was not added.");
-            return;
+            return false;
         }
 
         userIdentity.validate();
@@ -73,13 +73,16 @@ public class LdapUserIdentityDao {
             setUp();
         }
 
-        Attributes container = getLdapAttributes(userIdentity);
+        Attributes attributes = getLdapAttributes(userIdentity);
 
         // Create the entry
+        String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
         try {
-            String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
-            ctx.createSubcontext(userdn, container);
+            ctx.createSubcontext(userdn, attributes);
             log.trace("Added {} with dn={}", userIdentity, userdn);
+            return true;
+        } catch (NoPermissionException pe) {
+            log.error("addUserIdentity failed. Not allow to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), pe.getMessage());
         } catch (NameAlreadyBoundException nabe) {
             log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
         } catch (InvalidAttributeValueException iave) {
@@ -92,6 +95,7 @@ public class LdapUserIdentityDao {
             }
             log.warn(strb.toString());
         }
+        return false;
     }
 
     /**

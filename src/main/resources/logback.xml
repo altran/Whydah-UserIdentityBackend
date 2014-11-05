@@ -26,7 +26,8 @@
 
 
     <logger name="org.apache.directory" level="WARN" />
-    <logger name="net.whydah" level="TRACE" />
+    <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
+    <logger name="net.whydah.identity" level="TRACE" />
 
     <root level="TRACE">
         <appender-ref ref="STDOUT" />

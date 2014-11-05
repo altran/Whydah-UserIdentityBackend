@@ -78,16 +78,21 @@ public class Main {
         // Populate ldap, database and lucene index
         //if (!canAccessDBWithUserRoles || importTestData) {
         if (importEnabled) {
-            main.deleteDirectoryByProperty("roledb.directory");
-            main.deleteDirectoryByProperty("lucene.directory");
-            main.importUsersAndRoles();
+            try {
+                main.deleteDirectoryByProperty("roledb.directory");
+                main.deleteDirectoryByProperty("lucene.directory");
+                main.importUsersAndRoles();
+            } catch (RuntimeException e) {
+                log.error("Import failed. Shutting down UserIdentityBackend.", e);
+                System.exit(2);
+            }
         }
 
         try {
             main.startHttpServer();
         } catch (Exception e) {
             log.error("Could not start HTTP Server. Shutting down UserIdentityBackend.", e);
-            System.exit(2);
+            System.exit(3);
         }
 
         if (!embeddedDSEnabled) {
