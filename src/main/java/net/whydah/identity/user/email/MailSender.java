@@ -15,12 +15,20 @@ import java.util.Properties;
 public class MailSender {
     private static final Logger log = LoggerFactory.getLogger(MailSender.class);
     public static final String FROM_ADDRESS = "notworking@whydah.net";
-    private final String username;
-    private final String password;
+
+
+    private static final boolean SMTP_AUTH = true;
+    private static final boolean SMTP_STARTTTLS_ENABLE = true;
+    private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final String SMTP_PORT = "587";
+
+
+    private final String smtpUsername;
+    private final String smtpPassword;
 
     public MailSender() {
-        this.username = AppConfig.appConfig.getProperty("gmail.username");
-        this.password = AppConfig.appConfig.getProperty("gmail.password");
+        this.smtpUsername = AppConfig.appConfig.getProperty("gmail.username");
+        this.smtpPassword = AppConfig.appConfig.getProperty("gmail.password");
     }
 
     /*
@@ -33,11 +41,11 @@ public class MailSender {
         log.debug("Sending email to recipients={}, subject={}, body={}", new String[]{recipients, subject, body});
 
         //Gmail props
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
+        Properties smtpProperties = new Properties();
+        smtpProperties.put("mail.smtp.auth", SMTP_AUTH);
+        smtpProperties.put("mail.smtp.starttls.enable", SMTP_STARTTTLS_ENABLE);
+        smtpProperties.put("mail.smtp.host", SMTP_HOST);
+        smtpProperties.put("mail.smtp.port", SMTP_PORT);
 
         //Cantara smtp, will only work with @cantara-adresses
         /*
@@ -48,10 +56,10 @@ public class MailSender {
         props.put("mail.smtp.port", "25");
         Session session = Session.getInstance(props);
         */
-        Session session = Session.getInstance(props,
+        Session session = Session.getInstance(smtpProperties,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password);
+                        return new PasswordAuthentication(smtpUsername, smtpPassword);
                     }
                 });
 
@@ -66,7 +74,8 @@ public class MailSender {
             Transport.send(message);
             log.info("Sent email to " + recipients);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            String smtpInfo = "Error sending email. SMTP_HOST=" + SMTP_HOST + ", SMTP_PORT=" + SMTP_PORT + ", smtpUsername=" + smtpUsername + ", subject=" + subject;
+            throw new RuntimeException(smtpInfo, e);
         }
     }
 }
