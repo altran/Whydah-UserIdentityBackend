@@ -49,7 +49,7 @@ public class UserPropertyAndRoleRepository {
     }
 
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        logger.debug("getUserPropertyAndRoles for uid {}", uid);
+        logger.debug("getUserPropertyAndRoles for uid={}", uid);
 
         List<UserPropertyAndRole> roles = new ArrayList<>();
         if (uid != null) {

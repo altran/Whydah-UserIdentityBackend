@@ -106,7 +106,8 @@ public class WhydahUserIdentityImporter {
             for (UserIdentity userIdentity : users) {
                 boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
                 if (added) {
-                    log.info("Imported user. Uid: {}, Name {} {}, Email {}", userIdentity.getUid(), userIdentity.getFirstName(), userIdentity.getLastName(),userIdentity.getEmail());
+                    log.info("Imported user: uid={}, username={}, name={} {}, email={}",
+                            userIdentity.getUid(), userIdentity.getUsername(), userIdentity.getFirstName(), userIdentity.getLastName(), userIdentity.getEmail());
                     userAddedCount++;
                     luceneIndexer.addToIndex(indexWriter, userIdentity);
                 }
