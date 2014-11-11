@@ -1,6 +1,7 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 public class SecurityFilter implements Filter {
     public static final String OPEN_PATH = "/authenticate";
+    public static final String TEST_PATH = "/test";
     public static final String AUTHENTICATE_USER_PATH = "/authenticate";
     public static final String PASSWORD_RESET_PATH = "/password";
     public static final String SECURED_PATHS_PARAM = "securedPaths";
@@ -54,6 +56,14 @@ public class SecurityFilter implements Filter {
         } else if (isOpenPath(pathInfo)) {
             logger.trace("accessing open path {}", pathInfo);
             chain.doFilter(request, response);
+        } else if (isTestPath(pathInfo)) {
+            logger.trace("accessing test path {}", pathInfo);
+            if ("true".equals(AppConfig.appConfig.getProperty("testpage"))) {
+                chain.doFilter(request, response);
+            } else {
+                logger.info("Test resource available with configuration testpage=true");
+                setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
+            }
         } else {
             if (isAuthenticateUserPath(pathInfo)) {
                 //Verify applicationTokenId
@@ -153,6 +163,10 @@ public class SecurityFilter implements Filter {
 
     protected boolean isOpenPath(String pathInfo) {
         return pathInfo.startsWith(OPEN_PATH);
+    }
+
+    private boolean isTestPath(String pathInfo) {
+        return pathInfo.startsWith(TEST_PATH);
     }
 
     private void setResponseStatus(HttpServletResponse response, int statuscode) {
