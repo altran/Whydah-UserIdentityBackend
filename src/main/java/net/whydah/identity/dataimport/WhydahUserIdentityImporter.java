@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.search.LuceneIndexer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +28,12 @@ public class WhydahUserIdentityImporter {
 	private static final int PERSONREF = 7;
 	
     private LdapUserIdentityDao ldapUserIdentityDao;
-    private Directory index;
+    private LuceneIndexer luceneIndexer;
     
     @Inject
-	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, Directory index) {
+	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer) {
 		this.ldapUserIdentityDao = ldapUserIdentityDao;
-		this.index = index;
+		this.luceneIndexer = luceneIndexer;
 	}
     
     public void importUsers(InputStream userImportSource) {
@@ -101,19 +99,16 @@ public class WhydahUserIdentityImporter {
     private int saveUsers(List<UserIdentity> users) {
         int userAddedCount = 0;
         try {
-            LuceneIndexer luceneIndexer = new LuceneIndexer(index);
-            final IndexWriter indexWriter = luceneIndexer.getWriter();
             for (UserIdentity userIdentity : users) {
                 boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
                 if (added) {
                     log.info("Imported user: uid={}, username={}, name={} {}, email={}",
                             userIdentity.getUid(), userIdentity.getUsername(), userIdentity.getFirstName(), userIdentity.getLastName(), userIdentity.getEmail());
                     userAddedCount++;
-                    luceneIndexer.addToIndex(indexWriter, userIdentity);
                 }
             }
-            indexWriter.optimize();
-            indexWriter.close();
+
+            luceneIndexer.addToIndex(users);
         } catch (Exception e) {
             log.error("Error importing users!", e);
             throw new RuntimeException("Error importing users!", e);

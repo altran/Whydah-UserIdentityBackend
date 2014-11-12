@@ -112,13 +112,15 @@ public class UserIdentityService {
 
     public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentityRepresentation dto) {
         String username = dto.getUsername();
-        if (username==null){
-            throw new ConflictException("Can not create a user without username!" );
+        if (username == null){
+            throw new ConflictException("Can not create a user without username!");
         }
         try {
             if (ldapUserIdentityDao.usernameExist(username)) {
                 //return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-                throw new ConflictException("User already exists, could not create user " + dto.getUsername());
+                String msg = "User already exists in LDAP, could not create user with username=" + dto.getUsername();
+                log.info(msg);
+                throw new ConflictException(msg);
             }
         } catch (NamingException e) {
             throw new RuntimeException("usernameExist failed for username=" + dto.getUsername(), e);
@@ -144,7 +146,9 @@ public class UserIdentityService {
 
             List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
             if (!usersWithSameEmail.isEmpty()) {
-                throw new ConflictException("E-mail " + email + " is already in use, could not create user " + username);
+                String msg = "E-mail " + email + " is already in use (in lucene index), could not create user with username=" + username;
+                log.info(msg);
+                throw new ConflictException(msg);
             }
         }
 

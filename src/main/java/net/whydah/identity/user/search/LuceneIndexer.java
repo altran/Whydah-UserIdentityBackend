@@ -19,8 +19,6 @@ import java.util.List;
  * Indexer for adding users to the index.
  */
 public class LuceneIndexer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LuceneIndexer.class);
-
     public static final String FIELD_FIRSTNAME = "firstname";
     public static final String FIELD_LASTNAME = "surname";
     public static final String FIELD_UID = "uid";
@@ -29,54 +27,78 @@ public class LuceneIndexer {
     public static final String FIELD_PERSONREF = "personref";
     public static final String FIELD_MOBILE = "mobile";
 
-    private final Directory index;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LuceneIndexer.class);
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_31);
+    private final Directory index;
 
     public LuceneIndexer(Directory index) {
         this.index = index;
+        /*
+        IndexWriter w = null;
+        try {
+            w = getWriter();
+            LOGGER.debug("LuceneIndexer initialized. lockId={}", index.getLockID());
+        } catch (IOException e) {
+            LOGGER.error("getWriter failed.", e);
+        } finally {
+            closeWriter(w);
+        }
+        */
     }
 
-    public void removeFromIndex(String uid) {
+    public void addToIndex(UserIdentity user) {
+        IndexWriter w = null;
         try {
-            IndexWriter w = getWriter();
-            w.deleteDocuments(new Term(FIELD_UID, uid));
-            w.optimize();
-            w.close();
+            w = getWriter();
+            Document doc = createLuceneDocument(user);
+            w.addDocument(doc);
         } catch (IOException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+            LOGGER.error("addToIndex failed for {}.", user.toString(), e);
+        } finally {
+            closeWriter(w);
+        }
+    }
+
+
+    public void addToIndex(List<UserIdentity> users) throws IOException {
+        IndexWriter w = null;
+        try {
+            w = getWriter();
+            for (UserIdentity user : users) {
+                try {
+                    Document doc = createLuceneDocument(user);
+                    w.addDocument(doc);
+                } catch (IOException e) {
+                    LOGGER.error("addToIndex failed for {}. User was not added to lucene index.", user.toString(), e);
+                }
+            }
+        } finally {
+            closeWriter(w);
         }
     }
 
     public void update(UserIdentity user) {
+        IndexWriter w = null;
         try {
-            IndexWriter w = getWriter();
+            w = getWriter();
             w.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
-            w.optimize();
-            w.close();
         } catch (IOException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+            LOGGER.error("updating {} failed.", user.toString(), e);
+        } finally {
+            closeWriter(w);
         }
     }
 
-    public void addToIndex(UserIdentity user) {
+    public void removeFromIndex(String uid) {
+        IndexWriter w = null;
         try {
-            IndexWriter writer = getWriter();
-            addToIndex(writer, user);
-            writer.optimize();
-            writer.close();
+            w = getWriter();
+            w.deleteDocuments(new Term(FIELD_UID, uid));
         } catch (IOException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+            LOGGER.error("removeFromIndex failed. uid={}", uid, e);
+        } finally {
+            closeWriter(w);
         }
-    }
-
-    public void addToIndex(List<UserIdentity> users) throws IOException {
-        IndexWriter indexWriter = new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
-        for (UserIdentity user : users) {
-            Document doc = createLuceneDocument(user);
-            indexWriter.addDocument(doc);
-        }
-        indexWriter.optimize();
-        indexWriter.close();
     }
 
     /**
@@ -90,18 +112,10 @@ public class LuceneIndexer {
      *  read/written to or if there is any other low-level
      *  IO error
      */
-    public IndexWriter getWriter() throws IOException {
+    private IndexWriter getWriter() throws IOException {
         return new IndexWriter(index, ANALYZER, IndexWriter.MaxFieldLength.UNLIMITED);
     }
 
-    public void addToIndex(IndexWriter writer, UserIdentity user) {
-        try {
-            Document doc = createLuceneDocument(user);
-            writer.addDocument(doc);
-        } catch (IOException e) {
-            LOGGER.error("addToIndex failed for {}. Index was probably not updated.", user.toString(), e);
-        }
-    }
 
     private Document createLuceneDocument(UserIdentity user) {
         Document doc = new Document();
@@ -120,4 +134,14 @@ public class LuceneIndexer {
         return doc;
     }
 
+    private void closeWriter(IndexWriter w) {
+        if (w != null) {
+            try {
+                w.optimize();
+                w.close();
+            } catch (IOException e) {
+                //intentionally ignore
+            }
+        }
+    }
 }

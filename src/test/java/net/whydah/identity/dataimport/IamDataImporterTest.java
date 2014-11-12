@@ -8,6 +8,7 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
+import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -72,10 +73,11 @@ public class IamDataImporterTest {
         //configDataRepository.setQueryRunner(queryRunner);
         roleRepository.setApplicationRepository(configDataRepository);
         Directory index = new NIOFSDirectory(new File(lucenePath));
+        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
 
         organizationImporter = new OrganizationImporter(queryRunner);
         applicationImporter = new ApplicationImporter(queryRunner);
-        userImporter = new WhydahUserIdentityImporter(ldapUserIdentityDao, index);
+        userImporter = new WhydahUserIdentityImporter(ldapUserIdentityDao, luceneIndexer);
         roleMappingImporter = new RoleMappingImporter(roleRepository);
     }
     
