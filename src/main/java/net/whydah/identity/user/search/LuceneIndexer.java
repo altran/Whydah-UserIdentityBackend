@@ -33,7 +33,8 @@ public class LuceneIndexer {
 
     public LuceneIndexer(Directory index) {
         this.index = index;
-        /*
+
+        //Open a writer to ensure segments* file is created.
         IndexWriter w = null;
         try {
             w = getWriter();
@@ -43,7 +44,6 @@ public class LuceneIndexer {
         } finally {
             closeWriter(w);
         }
-        */
     }
 
     public void addToIndex(UserIdentity user) {
