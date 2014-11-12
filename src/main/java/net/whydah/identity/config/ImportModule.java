@@ -48,7 +48,16 @@ public class ImportModule extends AbstractModule {
         //Lucene
         try {
             String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
-            Directory index = new NIOFSDirectory(new File(luceneDir));
+
+            File luceneDirectory = new File(luceneDir);
+            if (!luceneDirectory.exists()) {
+                boolean dirsCreated = luceneDirectory.mkdirs();
+                if (!dirsCreated) {
+                    log.debug("{} was not successfully created.", luceneDirectory.getAbsolutePath());
+                }
+            }
+
+            Directory index = new NIOFSDirectory(luceneDirectory);
             bind(Directory.class).toInstance(index);
             bind(LuceneIndexer.class).toInstance(new LuceneIndexer(index));
         } catch (IOException e) {
