@@ -58,29 +58,18 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         // valid
     }
 
-    // Stored as employeeNumber in ldap, so only allow only positive integers.
+    //Numeric or alphanumeric according to https://tools.ietf.org/html/rfc2798#section-2.4
     private void validatePersonRef() {
-        if (personRef != null) {
-            int personRefAsInt;
-            try {
-                personRefAsInt = Integer.parseInt(personRef);
-            } catch (NumberFormatException nfe) {
-                throw new InvalidUserIdentityFieldException("personRef", personRef);
-            }
-            if (personRefAsInt < 0) {
-                throw new InvalidUserIdentityFieldException("personRef", personRef);
-            }
+        if (personRef != null && !isAlphaNumeric(personRef)) {
+            throw new InvalidUserIdentityFieldException("personRef", personRef);
         }
     }
 
-    public static boolean isNumeric(String str) {
-        for (char c : str.toCharArray()) {
-            if (!Character.isDigit(c)) {
-                return false;
-            }
-        }
-        return true;
+    public static boolean isAlphaNumeric(String str){
+        String pattern= "^[a-zA-Z0-9]*$";
+        return str.matches(pattern);
     }
+
 
     private void validateSetAndMinimumLength(String key, String value, int minLength) {
         if (value == null || value.length() < minLength) {

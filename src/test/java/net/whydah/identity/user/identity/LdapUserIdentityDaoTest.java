@@ -120,7 +120,7 @@ public class LdapUserIdentityDaoTest {
         userIdentity.setLastName(lastName);
         userIdentity.setEmail(email);
         userIdentity.setUid(uid);
-        userIdentity.setPersonRef("r" + uid);
+        userIdentity.setPersonRef("1234567890abcdefghijklmnopqrstuvwxyz");
         userIdentity.setPassword(password);
         return userIdentity;
     }
