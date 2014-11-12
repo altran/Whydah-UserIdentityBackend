@@ -105,11 +105,12 @@ public class UserResource {
     @Path("/{uid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserIdentity(@PathParam("uid") String uid) {
-        log.trace("getUserIdentity, uid={}", uid);
+        log.trace("getUserIdentity for uid={}", uid);
 
         UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentityForUid(uid);
+            log.trace("getUserIdentity for uid={} found user={}", uid, (userIdentity != null ? userIdentity.toString() : "null"));
         } catch (NamingException e) {
             throw new RuntimeException("getUserIdentityForUid, uid=" + uid, e);
         }

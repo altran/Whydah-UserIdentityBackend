@@ -52,7 +52,34 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         if (cellPhone != null && !telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
             throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
         }
+
+        validatePersonRef();
+
         // valid
+    }
+
+    // Stored as employeeNumber in ldap, so only allow only positive integers.
+    private void validatePersonRef() {
+        if (personRef != null) {
+            int personRefAsInt;
+            try {
+                personRefAsInt = Integer.parseInt(personRef);
+            } catch (NumberFormatException nfe) {
+                throw new InvalidUserIdentityFieldException("personRef", personRef);
+            }
+            if (personRefAsInt < 0) {
+                throw new InvalidUserIdentityFieldException("personRef", personRef);
+            }
+        }
+    }
+
+    public static boolean isNumeric(String str) {
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void validateSetAndMinimumLength(String key, String value, int minLength) {
