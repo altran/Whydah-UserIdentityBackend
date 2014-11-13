@@ -43,6 +43,7 @@ public class Main {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+                log.debug("ShutdownHook triggered. Exiting application");
                 main.stop();
             }
         });
@@ -102,6 +103,7 @@ public class Main {
             } catch (InterruptedException ie) {
                 log.warn("Thread was interrupted.", ie);
             }
+            log.debug("Finished waiting for Thread.currentThread().join()");
             main.stop();
         }
     }
