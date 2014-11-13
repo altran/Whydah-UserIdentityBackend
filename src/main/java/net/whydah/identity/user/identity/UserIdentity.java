@@ -53,23 +53,8 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
             throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
         }
 
-        validatePersonRef();
-
         // valid
     }
-
-    //Numeric or alphanumeric according to https://tools.ietf.org/html/rfc2798#section-2.4
-    private void validatePersonRef() {
-        if (personRef != null && !isAlphaNumeric(personRef)) {
-            throw new InvalidUserIdentityFieldException("personRef", personRef);
-        }
-    }
-
-    public static boolean isAlphaNumeric(String str){
-        String pattern= "^[a-zA-Z0-9]*$";
-        return str.matches(pattern);
-    }
-
 
     private void validateSetAndMinimumLength(String key, String value, int minLength) {
         if (value == null || value.length() < minLength) {
