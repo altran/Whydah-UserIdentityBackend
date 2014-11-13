@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Helper methods for reading configuration.
@@ -16,6 +18,8 @@ public final class AppConfig {
     public static final String IAM_MODE_JUNIT = "JUNIT";
     public static final String IAM_MODE_DEV = "DEV";
 
+    public static final Set pwList = new HashSet();
+
     public static final AppConfig appConfig = new AppConfig();
 
     private final Properties properties;
@@ -24,7 +28,7 @@ public final class AppConfig {
         String configfilename = System.getProperty(IAM_CONFIG_KEY);
         if (configfilename != null) {
             properties = loadFromFile(configfilename);
-        } else  {
+        } else {
             String appMode = System.getenv(IAM_MODE_KEY);
             if (appMode == null) {
                 appMode = System.getProperty(IAM_MODE_KEY);
@@ -36,6 +40,7 @@ public final class AppConfig {
 
         }
 
+        loadCommonPWFromClasspath();
     }
 
     public String getProperty(String key) {
@@ -47,7 +52,7 @@ public final class AppConfig {
         String propertyfile = String.format("useridentitybackend.%s.properties", appMode);
         logger.info("Loading properties from classpath: {}", propertyfile);
         InputStream is = AppConfig.class.getClassLoader().getResourceAsStream(propertyfile);
-        if(is == null) {
+        if (is == null) {
             throw new ConfigurationException("Error reading " + propertyfile + " from classpath.");
         }
         try {
@@ -58,7 +63,7 @@ public final class AppConfig {
         return properties;
     }
 
-    private Properties loadFromFile(String configfilename)  {
+    private Properties loadFromFile(String configfilename) {
         Properties fileProperties = new Properties();
         File file = new File(configfilename);
         FileInputStream fis = null;
@@ -74,7 +79,7 @@ public final class AppConfig {
         } catch (IOException e) {
             throw new ConfigurationException("Config file " + configfilename + " specified by System property " + IAM_CONFIG_KEY + " not found.", e);
         } finally {
-            if(fis != null) {
+            if (fis != null) {
                 try {
                     fis.close();
                 } catch (IOException e) {
@@ -83,6 +88,24 @@ public final class AppConfig {
             }
         }
         return fileProperties;
+    }
+
+    private void loadCommonPWFromClasspath() {
+        String pwfile = String.format("common-pw.txt");
+        logger.info("Loading properties from classpath: {}", pwfile);
+        InputStream is = AppConfig.class.getClassLoader().getResourceAsStream(pwfile);
+        if (is == null) {
+            throw new ConfigurationException("Error reading " + pwfile + " from classpath.");
+        }
+        try {
+            String line;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+            while ((line = bufferedReader.readLine()) != null) {
+                pwList.add(line);
+            }
+        } catch (IOException e) {
+            throw new ConfigurationException("Error reading " + pwfile + " from classpath.", e);
+        }
     }
 
 }
