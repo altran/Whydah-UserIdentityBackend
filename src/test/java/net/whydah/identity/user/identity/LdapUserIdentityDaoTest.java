@@ -48,10 +48,26 @@ public class LdapUserIdentityDaoTest {
 
     @Test
     public void testAddUser() throws Exception {
-        UserIdentity user = createValidUser("staven@hotmail.com", "jan", "Oddvar", "jensen", "staven@hotmail.com", "pass");
+        String uid = "staven@hotmail.com";
+        String username = "jan";
+        String firstName = "Oddvar";
+        String lastName = "jensen";
+        String email = "staven@hotmail.com";
+        String password = "pass";
+        String cellPhone = "+4798765432";
+        String personRef = "some@email.dk";
+        UserIdentity user = new UserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
         ldapUserIdentityDao.addUserIdentity(user);
-        UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity("jan");
+        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("jan");
         assertNotNull(gotUser);
+        assertEquals(gotUser.getUid(), uid);
+        assertEquals(gotUser.getUsername(), username);
+        assertEquals(gotUser.getFirstName(), firstName);
+        assertEquals(gotUser.getLastName(), lastName);
+        assertEquals(gotUser.getEmail(), email);
+        //assertEquals(gotUser.getPassword(), password);
+        assertEquals(gotUser.getCellPhone(), cellPhone);
+        assertEquals(gotUser.getPersonRef(), personRef);
     }
 
     @Test
@@ -64,7 +80,7 @@ public class LdapUserIdentityDaoTest {
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
-        String personRef = "123abc";
+        String personRef = "abc/123";
         gotUser.setCellPhone(cellPhone);
         gotUser.setPersonRef(personRef);
         ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUser);
@@ -74,11 +90,14 @@ public class LdapUserIdentityDaoTest {
 
         gotUpdatedUser.setCellPhone(null);
         String firstName = "Emil";
+        personRef = "some@email.com";
         gotUpdatedUser.setFirstName(firstName);
+        gotUpdatedUser.setPersonRef(personRef);
         ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUpdatedUser);
         gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(firstName, gotUpdatedUser.getFirstName());
         assertNull(gotUpdatedUser.getCellPhone());
+        assertEquals(personRef, gotUpdatedUser.getPersonRef());
     }
 
     @Test
