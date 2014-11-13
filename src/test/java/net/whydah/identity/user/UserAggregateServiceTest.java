@@ -83,8 +83,8 @@ public class UserAggregateServiceTest {
     @Test   //ED: In-progress
     public void testJsonFromUserAggregate() throws IOException {
         String username = "usernameABC";
-        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef", "email",
-                "12345678", "password");
+        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "email", "password", "12345678", "personRef"
+        );
 
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(userIdentity.getUid());

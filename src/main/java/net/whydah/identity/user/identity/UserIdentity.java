@@ -27,8 +27,8 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
     public UserIdentity() {
     }
 
-    public UserIdentity(String uid, String username, String firstName, String lastName, String personRef,
-                        String email, String cellPhone, String password) {
+    public UserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
+                        String cellPhone, String personRef) {
         this.uid = uid;
         this.username = (username != null ? username : email);
         this.firstName = firstName;

@@ -48,7 +48,7 @@ public class LdapUserIdentityDaoTest {
 
     @Test
     public void testAddUser() throws Exception {
-        UserIdentity user = createUser("jan", "Oddvar", "jensen", "staven@hotmail.com", "staven@hotmail.com", "pass");
+        UserIdentity user = createValidUser("staven@hotmail.com", "jan", "Oddvar", "jensen", "staven@hotmail.com", "pass");
         ldapUserIdentityDao.addUserIdentity(user);
         UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity("jan");
         assertNotNull(gotUser);
@@ -58,16 +58,19 @@ public class LdapUserIdentityDaoTest {
     public void testUpdateUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        UserIdentity user = createUser(username, "Nalle", "Puh", "nalle@hotmail.com", uid, "pass");
+        UserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com", "pass");
         ldapUserIdentityDao.addUserIdentity(user);
         UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
+        String personRef = "123abc";
         gotUser.setCellPhone(cellPhone);
+        gotUser.setPersonRef(personRef);
         ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUser);
         UserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
+        assertEquals(personRef, gotUpdatedUser.getPersonRef());
 
         gotUpdatedUser.setCellPhone(null);
         String firstName = "Emil";
@@ -82,15 +85,13 @@ public class LdapUserIdentityDaoTest {
     public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "usernameToBeDeleted";
-        UserIdentity user = createUser(username, "Trevor", "Treske", "tretre@hotmail.com", uid, "pass");
+        UserIdentity user = createValidUser(uid, username, "Trevor", "Treske", "tretre@hotmail.com", "pass");
         ldapUserIdentityDao.addUserIdentity(user);
         UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
         boolean deleteSuccessful = ldapUserIdentityDao.deleteUserIdentity(username);
         assertTrue(deleteSuccessful);
-
-        //Thread.sleep(3000);
 
         UserIdentityRepresentation gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
         assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
@@ -101,7 +102,7 @@ public class LdapUserIdentityDaoTest {
         String username = "stoven@hotmail.com";
         String firstPassword = "pass";
         String uid = username;
-        UserIdentity user = createUser(username, "Oddvar", "Bra", "stoven@hotmail.com", uid, firstPassword);
+        UserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com", firstPassword);
         ldapUserIdentityDao.addUserIdentity(user);
 
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword(username, firstPassword));
@@ -113,15 +114,7 @@ public class LdapUserIdentityDaoTest {
         assertNotNull(ldapAuthenticator.authenticate(username, secondPassword));
     }
 
-    private static UserIdentity createUser(String username, String firstName, String lastName, String email, String uid, String password) {
-        UserIdentity userIdentity = new UserIdentity();
-        userIdentity.setUsername(username);
-        userIdentity.setFirstName(firstName);
-        userIdentity.setLastName(lastName);
-        userIdentity.setEmail(email);
-        userIdentity.setUid(uid);
-        userIdentity.setPersonRef("1234567890abcdefghijklmnopqrstuvwxyz");
-        userIdentity.setPassword(password);
-        return userIdentity;
+    private static UserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email, String password) {
+        return new UserIdentity(uid, username, firstName, lastName, email, password, null, null);
     }
 }

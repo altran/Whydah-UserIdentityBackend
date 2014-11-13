@@ -154,7 +154,7 @@ public class UserIdentityService {
 
         String uid = UUID.randomUUID().toString();
         UserIdentity userIdentity = new UserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
-                dto.getPersonRef(), email, dto.getCellPhone(), passwordGenerator.generate());
+                email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
             luceneIndexer.addToIndex(userIdentity);

@@ -92,8 +92,8 @@ public class UserIdentityServiceTest {
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
 
         String username = "username123";
-        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "personRef",
-                "test@test.no", "12345678", "password");
+        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
+        );
         userAdminHelper.addUser(userIdentity);
 
         UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
@@ -110,8 +110,8 @@ public class UserIdentityServiceTest {
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
 
         String username = "username1234";
-        UserIdentity userIdentity = new UserIdentity("uid2", username, "firstName2", "lastName2", "personRef2",
-                "test2@test.no", "+47 123 45 678", "password2");
+        UserIdentity userIdentity = new UserIdentity("uid2", username, "firstName2", "lastName2", "test2@test.no", "password2", "+47 123 45 678", "personRef2"
+        );
         userAdminHelper.addUser(userIdentity);
 
         UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);

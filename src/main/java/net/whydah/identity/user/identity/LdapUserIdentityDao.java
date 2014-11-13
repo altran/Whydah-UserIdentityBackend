@@ -9,6 +9,9 @@ import javax.naming.directory.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+/**
+ * https://wiki.cantara.no/display/whydah/UserIdentity+LDAP+mapping
+ */
 public class LdapUserIdentityDao {
     private static final Logger log = LoggerFactory.getLogger(LdapUserIdentityDao.class);
     static final String ATTRIBUTE_NAME_TEMPPWD_SALT = "destinationIndicator";
