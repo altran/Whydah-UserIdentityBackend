@@ -86,10 +86,10 @@ public class UserIdentityService {
     /**
      * Authenticate using token generated when resetting the password
      * @param username  username to authenticate
-     * @param token with temporary access
+     * @param changePasswordTokenAsString with temporary access
      * @return  true if authentication OK
      */
-    public boolean authenticateWithChangePasswordToken(String username, String token) {
+    public boolean authenticateWithChangePasswordToken(String username, String changePasswordTokenAsString) {
         String salt = ldapUserIdentityDao.getSalt(username);
 
         byte[] saltAsBytes;
@@ -98,9 +98,9 @@ public class UserIdentityService {
         } catch (UnsupportedEncodingException e1) {
             throw new RuntimeException("Error with salt for username=" + username, e1);
         }
-        ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(token, saltAsBytes);
+        ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(changePasswordTokenAsString, saltAsBytes);
         boolean ok = primaryLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
-        log.info("authenticateWithChangePasswordToken was ok={} for username={}", username, ok);
+        log.info("authenticateWithChangePasswordToken was ok={} for username={}", ok, username);
         return ok;
     }
 

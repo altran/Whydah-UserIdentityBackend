@@ -64,7 +64,7 @@ public class LdapAuthenticator {
      */
     private InitialDirContext authenticateUser(final String username, final String password, String securityAuthenticationLevel) {
         if (username == null || password == null) {
-            log.debug("authenticateUser failed (returned null), because password or username was null.");
+            log.debug("authenticateUser failed (returning null), because password or username was null.");
             return null;
         }
 

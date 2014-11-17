@@ -37,7 +37,7 @@ public class PasswordResource {
     @GET
     @Path("/reset/username/{username}")
     public Response resetPassword(@PathParam("username") String username) {
-        log.info("Reset password for user {}", username);
+        log.info("Reset password (GET) for username={}", username);
         try {
             UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
@@ -55,7 +55,7 @@ public class PasswordResource {
     @POST
     @Path("/reset/username/{username}")
     public Response resetPasswordPOST(@PathParam("username") String username) {
-        log.info("Reset password (POST) for user {}", username);
+        log.info("Reset password (POST) for username={}", username);
         try {
             UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
@@ -72,8 +72,8 @@ public class PasswordResource {
 
     @POST
     @Path("/reset/username/{username}/newpassword/{token}")
-    public Response setPassword(@PathParam("username") String username, @PathParam("token") String token, String passwordJson) {
-        log.info("newpassword for user {} token {}", username, token);
+    public Response setPassword(@PathParam("username") String username, @PathParam("token") String changePasswordTokenAsString, String passwordJson) {
+        log.info("Set new password for username={}, changePasswordTokenAsString={}", username, changePasswordTokenAsString);
         try {
             UserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
@@ -81,21 +81,21 @@ public class PasswordResource {
             }
             boolean ok;
             try {
-                ok = userIdentityService.authenticateWithChangePasswordToken(username, token);
+                ok = userIdentityService.authenticateWithChangePasswordToken(username, changePasswordTokenAsString);
             } catch (RuntimeException re) {
-                log.error("changePasswordForUser-RuntimeException username {}, message {}", username, re.getMessage(), re);
+                log.error("changePasswordForUser-RuntimeException username={}, message={}", username, re.getMessage(), re);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
             if (!ok) {
-                log.info("Authentication failed while changing password for user {}", username);
+                log.info("Authentication failed while changing password for username={}", username);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
             try {
                 JSONObject jsonobj = new JSONObject(passwordJson);
                 String newpassword = jsonobj.getString("newpassword");
                 if (AppConfig.pwList.contains(newpassword)) {
-                    log.error("changePasswordForUser-Weak password for username {}", username);
+                    log.error("changePasswordForUser-Weak password for username={}", username);
                     return Response.status(Response.Status.NOT_ACCEPTABLE).build();
 
                 }

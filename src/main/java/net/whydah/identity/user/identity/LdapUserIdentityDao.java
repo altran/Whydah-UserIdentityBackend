@@ -288,7 +288,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
         try {
-            log.trace("Search for user using: {}={}", uidAttribute, uid);
+            log.trace("getAttributesForUid using {}={}", uidAttribute, uid);
             results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
         } catch (NamingException pre) {
             if (pre instanceof PartialResultException) {
@@ -312,7 +312,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
         try {
-            log.trace("Search for user using: {}={}", usernameAttribute, username);
+            log.trace("getUserAttributesForUsername using {}={}", usernameAttribute, username);
             results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
         } catch (NamingException pre) {
             if (pre instanceof PartialResultException) {
@@ -430,8 +430,12 @@ public class LdapUserIdentityDao {
             ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
             ModificationItem[] mis = {mip};
             ctx.modifyAttributes(userDN, mis);
-        } catch (NamingException ne) {
-            log.error("", ne);
+        } catch (NoPermissionException np) {
+            log.error("setTempPassword failed for username={}, not sufficient access rights using admin principal={}. NoPermissionException msg={} ",
+                    username, getAdminPrincipal(), np.getMessage());
+        }
+        catch (NamingException ne) {
+            log.error("setTempPassword failed for username={} using admin principal={}. ", username, getAdminPrincipal(), ne);
         }
     }
 
@@ -443,6 +447,10 @@ public class LdapUserIdentityDao {
             log.error("", ne);
         }
         return null;
+    }
+
+    private String getAdminPrincipal() {
+        return admenv.get(Context.SECURITY_PRINCIPAL);
     }
 }
 
