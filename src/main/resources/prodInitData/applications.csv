@@ -1,3 +1,4 @@
+# Use https://www.grc.com/passwords.htm or http://passwordsgenerator.net/ to generate applicationSecret.
 #applicationId, applicationName, defaultRole, defaultOrgName, applicationSecret
 11, SecurityTokenService, SSOApplication, Whydah, 6r46g3q986Ep6By7B9J46m96D
 12, UserAdminService, WhydahUserAdmin, Whydah, 9ju592A4t8dzz8mz7a5QQJ7Px
