@@ -53,8 +53,11 @@ public class RoleMappingImporter {
 	        	}
 				
 	        	String[] lineArray = line.split(",");
-                log.trace("Importing entry:"+line);
-	        	validateLine(line, lineArray);
+                log.trace("Importing entry=" + line);
+                if (lineArray.length < REQUIRED_NUMBER_OF_FIELDS) {
+                    log.warn("Role Mapping parsing error. Incorrect format of line. It does not contain all required fields. Line was NOT IMPORTED! Line=" + line);
+                    continue;
+                }
 	        	
 	            UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
 
@@ -86,17 +89,11 @@ public class RoleMappingImporter {
 	}
 
 	private static String cleanString(String string) {
-		return string==null ? string : string.trim();
-	}
-
-	private static void validateLine(String line, String[] lineArray) {
-		if (lineArray.length < REQUIRED_NUMBER_OF_FIELDS) {
-			throw new RuntimeException("Role Mapping parsing error. Incorrect format of Line. It does not contain all required fields. Line: " + line);
-		}
+		return string == null ? string : string.trim();
 	}
 
     private void saveRoleMapping(List<UserPropertyAndRole> roles) {
-        for(UserPropertyAndRole userPropertyAndRole : roles) {
+        for (UserPropertyAndRole userPropertyAndRole : roles) {
             roleMappingRepository.addUserPropertyAndRole(userPropertyAndRole);
         }
     }
