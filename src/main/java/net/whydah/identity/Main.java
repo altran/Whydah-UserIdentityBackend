@@ -7,6 +7,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import net.whydah.identity.application.authentication.ApplicationTokenService;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.config.ImportModule;
+import net.whydah.identity.config.SSLTool;
 import net.whydah.identity.config.UserIdentityBackendModule;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
@@ -152,6 +153,13 @@ public class Main {
 
     public void startHttpServer() throws Exception {
         log.trace("Starting UserIdentityBackend");
+
+
+        // Property-overwrite of SSL verification to support weak ssl certificates
+        if ("disabled".equalsIgnoreCase(AppConfig.appConfig.getProperty("sslverification"))) {
+            SSLTool.disableCertificateValidation();
+
+        }
 
         ServletHandler servletHandler = new ServletHandler();
         servletHandler.setContextPath(contextpath);
