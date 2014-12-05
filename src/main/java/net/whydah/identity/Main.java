@@ -33,8 +33,10 @@ public class Main {
     private int webappPort;
     private final Injector injector;
     private String contextpath = "/uib";
+    public static String version;
 
     public Main() {
+        version = this.getClass().getPackage().getImplementationVersion();
         injector = Guice.createInjector(new UserIdentityBackendModule());
     }
 
@@ -188,7 +190,7 @@ public class Main {
         httpServer.start();
         log.info("UserIdentityBackend - import.enabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled")));
         log.info("UserIdentityBackend - embeddedDSEnabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded")));
-        log.info("UserIdentityBackend started on port {}", webappPort + " context-path:" + contextpath);
+        log.info("UserIdentityBackend version:{} started on port {}", version, webappPort + " context-path:" + contextpath);
     }
 
 
