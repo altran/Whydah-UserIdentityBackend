@@ -179,6 +179,9 @@ public class SecurityFilter implements Filter {
     }
 
     protected String findApplicationTokenId(String pathInfo) {
+        if (pathInfo != null && !pathInfo.startsWith("/")) {
+            logger.error("Call to UIB does not start with '/' . Problematic Path: {}", pathInfo);
+        }
         String tokenIdPath = findPathElement(pathInfo, 1);
         String tokenId = null;
         if (tokenIdPath != null) {
