@@ -34,7 +34,7 @@ public class PasswordResource {
         log.info("Started: PasswordResource");
     }
 
-    @GET
+    @POST
     @Path("/reset/username/{username}")
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password (GET) for username={}", username);
