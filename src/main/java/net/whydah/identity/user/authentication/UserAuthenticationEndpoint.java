@@ -68,7 +68,6 @@ public class UserAuthenticationEndpoint {
      * @param input XML input stream.
      * @return XML-encoded identity and role information, or a LogonFailed element if authentication failed.
      */
-    //TODO Convert to GET
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
