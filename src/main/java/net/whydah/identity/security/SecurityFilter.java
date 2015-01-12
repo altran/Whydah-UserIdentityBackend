@@ -100,7 +100,7 @@ public class SecurityFilter implements Filter {
                         return;
                     }
                     if (!userToken.hasRole(requiredRole)) {
-                        logger.trace("Missing required role {}", requiredRole);
+                        logger.trace("Missing required role {}\n - token:", requiredRole, userToken);
                         setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
                         return;
                     }
