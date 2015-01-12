@@ -31,8 +31,8 @@ public class SecurityTokenServiceHelper {
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);    //TODO myAppTokenXML is never set...
         try {
-            ClientResponse response = tokenServiceResource.path("user/" + appTokenId + "/get_usertoken_by_usertokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
-            log.info("Accessing:" + "tokenservice/" + appTokenId + "/get_usertoken_by_usertokenid");
+            ClientResponse response = tokenServiceResource.path("user").path(appTokenId).path("get_usertoken_by_usertokenid").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+            log.info("Accessing:" + "tokenservice/user/" + appTokenId + "/get_usertoken_by_usertokenid");
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 String usertoken = response.getEntity(String.class);
                 log.debug("usertoken: {}", usertoken);
