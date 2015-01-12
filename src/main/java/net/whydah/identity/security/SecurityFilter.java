@@ -152,7 +152,16 @@ public class SecurityFilter implements Filter {
     }
 
     protected boolean isOpenPath(String pathInfo) {
-        return pathInfo.startsWith(OPEN_PATH);
+        if (pathInfo.startsWith(OPEN_PATH)) {
+            return true;
+        }
+        if (pathInfo.contains("applications")) {
+            return true;
+        }
+        if (pathInfo.contains("users/find/")) {
+            return true;
+        }
+        return false;
     }
 
     private void setResponseStatus(HttpServletResponse response, int statuscode) {
