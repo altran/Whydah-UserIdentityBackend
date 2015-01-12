@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 A=UserIdentityBackend
 V=SNAPSHOT
@@ -28,3 +28,4 @@ if [ -h $A.jar ]; then
    unlink $A.jar
 fi
 ln -s $JARFILE $A.jar
+
