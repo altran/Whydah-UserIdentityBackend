@@ -27,6 +27,7 @@ public class SecurityTokenServiceHelper {
 
     public UserToken getUserToken(String appTokenId, String usertokenid) {
         log.debug("usertokenid={}", usertokenid);
+        log.debug("myAppTokenXML={}", myAppTokenXML);
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
         formData.add("usertokenid", usertokenid);
         formData.add("apptoken", myAppTokenXML);    //TODO myAppTokenXML is never set...
