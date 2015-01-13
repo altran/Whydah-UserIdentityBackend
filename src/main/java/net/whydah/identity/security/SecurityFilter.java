@@ -23,14 +23,14 @@ public class SecurityFilter implements Filter {
     public static final String OPEN_PATH = "/authenticate";
     public static final String AUTHENTICATE_USER_PATH = "/authenticate";
     public static final String PASSWORD_RESET_PATH = "/password";
-    public static final String SECURED_PATHS_PARAM = "securedPaths";
+    //public static final String SECURED_PATHS_PARAM = "securedPaths";
     public static final String REQUIRED_ROLE_USERS = "WhydahUserAdmin";
-    public static final String REQUIRED_ROLE_APPLICATIONS = "WhydahUserAdmin";
+    //public static final String REQUIRED_ROLE_APPLICATIONS = "WhydahUserAdmin";
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final ApplicationTokenService applicationTokenService;
-    private List<String> securedPaths = new ArrayList<>();
+    //private List<String> securedPaths = new ArrayList<>();
     private String requiredRole;
 
     public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, ApplicationTokenService applicationTokenService) {
@@ -51,7 +51,9 @@ public class SecurityFilter implements Filter {
         if (pathInfo == null) {
             logger.trace("No data in input - probably due to error in URL.  Configured (eg: ...:9995/uib)");
             return;
-        } else if (isOpenPath(pathInfo)) {
+        }
+
+        if (isOpenPath(pathInfo)) {
             logger.trace("accessing open path {}", pathInfo);
             chain.doFilter(request, response);
         } else {
@@ -116,7 +118,6 @@ public class SecurityFilter implements Filter {
 
 
     private UserToken buildMockedUserToken() {
-
         List<UserRole> roles = new ArrayList<>();
         roles.add(new UserRole("9999", "99999", "mockrole"));
         return new UserToken("MockUserToken", roles);
@@ -200,6 +201,7 @@ public class SecurityFilter implements Filter {
 
     }
 
+    /*
     private boolean isSecuredPath(String pathInfo) {
         for (String securedPath : securedPaths) {
             if (pathInfo.startsWith(securedPath)) {
@@ -210,6 +212,7 @@ public class SecurityFilter implements Filter {
         logger.info("Not secured: {}", pathInfo);
         return false;
     }
+    */
 
     @Override
     public void destroy() {
