@@ -1,5 +1,6 @@
 package net.whydah.identity.health;
 
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +16,25 @@ import javax.ws.rs.core.Response;
 @Path("/health")
 public class HealthResource {
     private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
+    private final HealthCheckService healthCheckService;
+
+    @Inject
+    public HealthResource(HealthCheckService healthCheckService) {
+        this.healthCheckService = healthCheckService;
+    }
 
     @GET
     @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
     public Response isHealthy() {
-        log.trace("isHealthy");
-        return Response.ok("Status OK!").build();
-        //return Response.status(Response.Status.NO_CONTENT).build();
+        boolean ok = healthCheckService.isOK();
+        log.trace("isHealthy={}", ok);
+        if (ok) {
+            //return Response.status(Response.Status.NO_CONTENT).build();
+            return Response.ok("Status OK!").build();
+        } else {
+            //Intentionally not returning anything the client can use to determine what's the error for security reasons.
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
