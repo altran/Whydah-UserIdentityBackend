@@ -103,8 +103,9 @@ public class SecurityFilter implements Filter {
                     }
                     if (!userToken.hasRole(requiredRole)) {
                         logger.trace("Missing required role {}\n - token:", requiredRole, userToken);
-                        setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
-                        return;
+                        //TODO  this test is too simple for the Whydah 2.1 release, as it block 3rd part apps
+                        //setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
+                        //return;
                     }
                     logger.debug("setAuthenticatedUser with usertoken: {}", userToken);
                     Authentication.setAuthenticatedUser(userToken);
@@ -154,12 +155,6 @@ public class SecurityFilter implements Filter {
 
     protected boolean isOpenPath(String pathInfo) {
         if (pathInfo.startsWith(OPEN_PATH)) {
-            return true;
-        }
-        if (pathInfo.contains("applications")) {
-            return true;
-        }
-        if (pathInfo.contains("users/find/")) {
             return true;
         }
         if (pathInfo.startsWith("/health")) {
