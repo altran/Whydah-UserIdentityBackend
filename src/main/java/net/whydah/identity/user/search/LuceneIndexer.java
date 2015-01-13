@@ -119,11 +119,16 @@ public class LuceneIndexer {
 
     private Document createLuceneDocument(UserIdentity user) {
         Document doc = new Document();
-        doc.add(new Field(FIELD_FIRSTNAME, user.getFirstName(), Field.Store.YES, Field.Index.ANALYZED));
-        doc.add(new Field(FIELD_LASTNAME, user.getLastName(), Field.Store.YES, Field.Index.ANALYZED));
         doc.add(new Field(FIELD_UID, user.getUid(), Field.Store.YES, Field.Index.NOT_ANALYZED));
         doc.add(new Field(FIELD_USERNAME, user.getUsername(), Field.Store.YES, Field.Index.ANALYZED));
         doc.add(new Field(FIELD_EMAIL, user.getEmail(), Field.Store.YES, Field.Index.ANALYZED));
+
+        if (user.getFirstName() != null) {
+            doc.add(new Field(FIELD_FIRSTNAME, user.getFirstName(), Field.Store.YES, Field.Index.ANALYZED));
+        }
+        if (user.getLastName() != null) {
+            doc.add(new Field(FIELD_LASTNAME, user.getLastName(), Field.Store.YES, Field.Index.ANALYZED));
+        }
         if (user.getPersonRef() != null) {
             doc.add(new Field(FIELD_PERSONREF, user.getPersonRef(), Field.Store.YES, Field.Index.NO));
         }

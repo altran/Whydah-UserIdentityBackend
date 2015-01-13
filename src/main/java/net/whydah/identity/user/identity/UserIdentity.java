@@ -42,8 +42,6 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
     public void validate() throws InvalidUserIdentityFieldException {
         validateSetAndMinimumLength("uid", uid, 2);
         validateSetAndMinimumLength("username", username, 3);
-        validateSetAndMinimumLength("firstName", firstName, 2);
-        validateSetAndMinimumLength("lastName", lastName, 2);
 
         validateEmail();
 

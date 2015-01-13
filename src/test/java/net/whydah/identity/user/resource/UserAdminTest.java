@@ -321,29 +321,19 @@ public class UserAdminTest {
     }
 
     @Test
-    public void addUserWithMissingPersonRef() {
+    public void addUserAllowMissingPersonRef() {
         String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
         baseResource.path("user/" + uid).get(String.class);
     }
 
     @Test
-    public void thatAddUserDoesNotAllowMissingFirstName() {
-        try {
-            doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
-            fail("Expected 400 BAD_REQUEST");
-        } catch (UniformInterfaceException e) {
-            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
-        }
+    public void addUserAllowMissingFirstName() {
+        doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
     }
 
     @Test
-    public void thatAddUserDoesNotAllowMissingLastName() {
-        try {
-            doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
-            fail("Expected 400 BAD_REQUEST");
-        } catch (UniformInterfaceException e) {
-            assertEquals(ClientResponse.Status.BAD_REQUEST.getStatusCode(), e.getResponse().getStatus());
-        }
+    public void addUserAllowMissingLastName() {
+        doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
     }
 
     @Test
