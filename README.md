@@ -8,7 +8,7 @@ Requires SecurityTokenService if authorization is turned on.
 Celebrating the Upcoming 2.0 release.
 Photo curtesy of Mike's Birds (https://flic.kr/p/o9p1vw) Creative Commons 3 license.
 
-![Architectural Overview](https://raw2.github.com/altran/Whydah-SSOLoginWebApp/master/Whydah%20infrastructure.png)
+![Architectural Overview](https://wiki.cantara.no/download/attachments/37388694/Whydah+infrastructure.png)
 
 
 Installation
