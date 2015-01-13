@@ -162,6 +162,9 @@ public class SecurityFilter implements Filter {
         if (pathInfo.contains("users/find/")) {
             return true;
         }
+        if (pathInfo.startsWith("/health")) {
+            return true;
+        }
         return false;
     }
 
