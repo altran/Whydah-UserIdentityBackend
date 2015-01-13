@@ -129,6 +129,13 @@ public class SecurityFilter implements Filter {
         String pathElement = findPathElement(pathInfo, 2);
         if (pathElement != null) {
             isAuthenticateUserPath = pathElement.startsWith(AUTHENTICATE_USER_PATH);
+        } else {
+            if (pathInfo.contains("password/reset")) {
+                return false;
+            }
+            if (pathInfo.contains("userTokenId/user")) {
+                return false;
+            }
         }
         return isAuthenticateUserPath;
     }
