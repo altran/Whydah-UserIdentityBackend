@@ -25,6 +25,7 @@ public class UserIdentityBackendModule extends AbstractModule {
         log.info("Configure UserIdentityBackendModule (primaryLDAP, secondaryLDAP, roledb (sql), queryRunner and Lucene).");
 
         BasicDataSource dataSource = getDataSource();
+        bind(BasicDataSource.class).toInstance(dataSource);
 
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);

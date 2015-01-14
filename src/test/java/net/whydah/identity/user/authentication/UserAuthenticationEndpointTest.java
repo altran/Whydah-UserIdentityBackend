@@ -3,7 +3,7 @@ package net.whydah.identity.user.authentication;
 import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.dataimport.DatabaseHelper;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
@@ -85,8 +85,7 @@ public class UserAuthenticationEndpointTest {
         PasswordSender passwordSender = new PasswordSender(null, null);
         userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogRepository, pwg, passwordSender, null, null);
 
-        DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
-        databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
         roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);

@@ -5,7 +5,7 @@ CREATE TABLE UserRoles (
   OrganizationName varchar(255),
   RoleName varchar(255),
   RoleValues varchar(256)
-  ));
+  );
 
 CREATE TABLE Applications (
   ID varchar(32) PRIMARY KEY,
@@ -13,7 +13,7 @@ CREATE TABLE Applications (
   DefaultRoleName varchar(256) default null,
   DefaultOrgName varchar(256) default null,
   ApplicationSecret varchar(256) default null
-  ));
+  );
 
 CREATE TABLE Organization (
   ID varchar(32),
@@ -32,4 +32,4 @@ CREATE TABLE AUDITLOG (
   action varchar(255),
   field varchar(255),
   value varchar(4096)
-));
+);

@@ -6,6 +6,7 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import net.whydah.identity.Main;
 import net.whydah.identity.config.AppConfig;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.email.MockMail;
 import net.whydah.identity.util.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -39,6 +40,9 @@ public class UserAdminTest {
         FileUtils.deleteDirectory(new File(ldapPath));
         FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
         uib = new Main();
+
+        uib.getInjector().getInstance(DatabaseMigrationHelper.class).upgradeDatabase();
+
         uib.startEmbeddedDS(AppConfig.appConfig.getProperty("ldap.embedded.directory"), Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port")));
         uib.importUsersAndRoles();
         uib.startHttpServer();

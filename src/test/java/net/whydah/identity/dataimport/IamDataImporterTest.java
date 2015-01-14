@@ -33,8 +33,7 @@ public class IamDataImporterTest {
     private static EmbeddedADS ads;
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static UserPropertyAndRoleRepository roleRepository;
-    private static DatabaseHelper databaseHelper;
-    
+
 	private static OrganizationImporter organizationImporter;
 	private static WhydahUserIdentityImporter userImporter;
 	private static RoleMappingImporter roleMappingImporter;
@@ -65,8 +64,7 @@ public class IamDataImporterTest {
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
         QueryRunner queryRunner = new QueryRunner(dataSource);
 
-        databaseHelper = new DatabaseHelper(queryRunner);
-        databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
         roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
@@ -91,7 +89,7 @@ public class IamDataImporterTest {
     @Test
     public void testDataIsImported() throws Exception {
         
-		IamDataImporter iamDataImporter = new IamDataImporter(databaseHelper, applicationImporter, organizationImporter, userImporter, roleMappingImporter);
+		IamDataImporter iamDataImporter = new IamDataImporter(applicationImporter, organizationImporter, userImporter, roleMappingImporter);
         iamDataImporter.importIamData();
         
         UserIdentity thomaspUserIdentity = ldapUserIdentityDao.getUserIndentity("thomasp");

@@ -8,13 +8,10 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
-import net.whydah.identity.dataimport.DatabaseHelper;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
-import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
-import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -44,9 +41,9 @@ public class LogonServiceTest {
 
     private static EmbeddedADS ads;
     private static LdapUserIdentityDao ldapUserIdentityDao;
-    private static LdapAuthenticator ldapAuthenticator;
+    //private static LdapAuthenticator ldapAuthenticator;
     private static UserPropertyAndRoleRepository roleRepository;
-    private static UserAdminHelper userAdminHelper;
+    //private static UserAdminHelper userAdminHelper;
     private static QueryRunner queryRunner;
     private static Main uib=null;
 
@@ -70,7 +67,7 @@ public class LogonServiceTest {
 
         }
         ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials",Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly")));
-        ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials");
+        //ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials");
 
 
         roleRepository = new UserPropertyAndRoleRepository();
@@ -81,8 +78,8 @@ public class LogonServiceTest {
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
         queryRunner = new QueryRunner(dataSource);
 
-        DatabaseHelper databaseHelper = new DatabaseHelper(queryRunner);
-        databaseHelper.initDB(DatabaseHelper.DB_DIALECT.HSSQL);
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+
 
         roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
@@ -90,7 +87,7 @@ public class LogonServiceTest {
         roleRepository.setApplicationRepository(configDataRepository);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
+        //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
         try {
             uib = new Main();
             uib.importUsersAndRoles();
