@@ -4,10 +4,7 @@ import net.whydah.identity.application.authentication.ApplicationTokenService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +64,7 @@ public class SecurityFilterTest {
         verifyNoMoreInteractions(chain);
     }
 
+    @Ignore
     @Test
     public void testSecuredTokenOkMissingGroup() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" +userTokenMissingGroup +"/users");
