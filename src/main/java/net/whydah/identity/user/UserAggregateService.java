@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserIdentity;
@@ -33,13 +33,13 @@ public class UserAggregateService {
     private final UserIdentityService userIdentityService;
     private final UserPropertyAndRoleRepository userPropertyAndRoleRepository;
     private final LuceneIndexer luceneIndexer;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogDao auditLogDao;
 
     @Inject
     public UserAggregateService(UserIdentityService userIdentityService, UserPropertyAndRoleRepository userPropertyAndRoleRepository,
-                                LuceneIndexer luceneIndexer, AuditLogRepository auditLogRepository) {
+                                LuceneIndexer luceneIndexer, AuditLogDao auditLogDao) {
         this.luceneIndexer = luceneIndexer;
-        this.auditLogRepository = auditLogRepository;
+        this.auditLogDao = auditLogDao;
         this.userPropertyAndRoleRepository = userPropertyAndRoleRepository;
         this.userIdentityService = userIdentityService;
     }
@@ -122,7 +122,7 @@ public class UserAggregateService {
         String userId = authenticatedUser.getName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
+        auditLogDao.store(actionPerformed);
     }
 
     private void audit(String uid, String action, String what, String value) {
@@ -134,7 +134,7 @@ public class UserAggregateService {
         String userId = authenticatedUser.getName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(uid, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
+        auditLogDao.store(actionPerformed);
     }
 
     public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {

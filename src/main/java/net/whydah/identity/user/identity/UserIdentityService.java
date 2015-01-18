@@ -5,7 +5,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.ConflictException;
 import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.search.LuceneIndexer;
@@ -36,7 +36,7 @@ public class UserIdentityService {
     //@Inject @Named("internal") private LdapAuthenticatorImpl internalLdapAuthenticator;
     private final LdapAuthenticator primaryLdapAuthenticator;
     private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogDao auditLogDao;
 
     private final PasswordGenerator passwordGenerator;
     private final PasswordSender passwordSender;
@@ -47,11 +47,11 @@ public class UserIdentityService {
 
     @Inject
     public UserIdentityService(@Named("primaryLdap") LdapAuthenticator primaryLdapAuthenticator,
-                               LdapUserIdentityDao ldapUserIdentityDao, AuditLogRepository auditLogRepository, PasswordGenerator passwordGenerator,
+                               LdapUserIdentityDao ldapUserIdentityDao, AuditLogDao auditLogDao, PasswordGenerator passwordGenerator,
                                PasswordSender passwordSender, LuceneIndexer luceneIndexer, LuceneSearch searcher) {
         this.primaryLdapAuthenticator = primaryLdapAuthenticator;
         this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.auditLogRepository = auditLogRepository;
+        this.auditLogDao = auditLogDao;
         this.passwordGenerator = passwordGenerator;
         this.passwordSender = passwordSender;
         this.luceneIndexer = luceneIndexer;
@@ -209,7 +209,7 @@ public class UserIdentityService {
     private void audit(String uid,String action, String what, String value) {
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(uid, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
+        auditLogDao.store(actionPerformed);
     }
 
     //FIXME baardl: implement verification that admin is allowed to update this password.

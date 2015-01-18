@@ -1,7 +1,7 @@
 package net.whydah.identity.user.identity;
 
 import net.whydah.identity.application.ApplicationDao;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.resource.UserAdminHelper;
@@ -12,7 +12,6 @@ import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.AfterClass;
@@ -33,9 +32,6 @@ public class UserIdentityServiceTest {
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
     private static UserPropertyAndRoleRepository roleRepository;
-    private static QueryRunner queryRunner;
-
-
     private static LuceneIndexer luceneIndexer;
     private static UserAdminHelper userAdminHelper;
 
@@ -56,8 +52,7 @@ public class UserIdentityServiceTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-        queryRunner = new QueryRunner(dataSource);
-        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
 
         ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
@@ -66,7 +61,7 @@ public class UserIdentityServiceTest {
 
         Directory index = new NIOFSDirectory(new File("lucene"));
 
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, roleRepository);
 
         String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();
         File workDir = new File(workDirPath);

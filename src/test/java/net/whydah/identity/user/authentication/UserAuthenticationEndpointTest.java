@@ -1,7 +1,7 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.application.ApplicationDao;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.UserAggregate;
@@ -14,7 +14,6 @@ import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.AfterClass;
@@ -73,9 +72,8 @@ public class UserAuthenticationEndpointTest {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
-        QueryRunner queryRunner = new QueryRunner(dataSource);
 
-        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
 
         boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
         LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
@@ -83,7 +81,7 @@ public class UserAuthenticationEndpointTest {
 
         PasswordGenerator pwg = new PasswordGenerator();
         PasswordSender passwordSender = new PasswordSender(null, null);
-        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogRepository, pwg, passwordSender, null, null);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, passwordSender, null, null);
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
@@ -92,7 +90,7 @@ public class UserAuthenticationEndpointTest {
 
 
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, roleRepository);
     }
 
     @AfterClass

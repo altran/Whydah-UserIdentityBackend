@@ -1,6 +1,6 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,15 +18,15 @@ import static org.mockito.Mockito.mock;
  */
 public class ApplicationServiceTest {
     ApplicationDao applicationDaoMock;
-    AuditLogRepository auditLogRepositoryMock;
+    AuditLogDao auditLogDaoMock;
     ApplicationService applicationService;
     ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void setUp() throws Exception {
         applicationDaoMock = mock(ApplicationDao.class);
-        auditLogRepositoryMock = mock(AuditLogRepository.class);
-        applicationService = new ApplicationService(applicationDaoMock, auditLogRepositoryMock);
+        auditLogDaoMock = mock(AuditLogDao.class);
+        applicationService = new ApplicationService(applicationDaoMock, auditLogDaoMock);
 
     }
     @Test

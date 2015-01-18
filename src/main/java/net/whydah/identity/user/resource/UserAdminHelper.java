@@ -2,7 +2,7 @@ package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
 import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.authentication.UserToken;
@@ -37,14 +37,14 @@ public class UserAdminHelper {
 
     private final LdapUserIdentityDao ldapUserIdentityDao;
     private final LuceneIndexer luceneIndexer;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogDao auditLogDao;
     private final UserPropertyAndRoleRepository roleRepository;
 
     @Inject
-    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer, AuditLogRepository auditLogRepository, UserPropertyAndRoleRepository roleRepository) {
+    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer, AuditLogDao auditLogDao, UserPropertyAndRoleRepository roleRepository) {
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.luceneIndexer = luceneIndexer;
-        this.auditLogRepository = auditLogRepository;
+        this.auditLogDao = auditLogDao;
         this.roleRepository = roleRepository;
     }
 
@@ -241,7 +241,7 @@ public class UserAdminHelper {
         String userId = authenticatedUser.getName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
+        auditLogDao.store(actionPerformed);
     }
 
 

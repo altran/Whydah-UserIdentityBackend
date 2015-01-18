@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.sun.jersey.api.view.Viewable;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
@@ -51,7 +51,7 @@ public class UserAuthenticationEndpoint {
     //private final String hostname;
 
     @Inject
-    private AuditLogRepository auditLogRepository;
+    private AuditLogDao auditLogDao;
 
     @Inject
     public UserAuthenticationEndpoint(UserPropertyAndRoleRepository roleRepository, UserAdminHelper userAdminHelper,

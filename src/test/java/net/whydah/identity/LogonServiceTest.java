@@ -6,7 +6,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.MediaTypes;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import net.whydah.identity.application.ApplicationDao;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
@@ -15,7 +15,6 @@ import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.junit.*;
@@ -45,7 +44,6 @@ public class LogonServiceTest {
     //private static LdapAuthenticator ldapAuthenticator;
     private static UserPropertyAndRoleRepository roleRepository;
     //private static UserAdminHelper userAdminHelper;
-    private static QueryRunner queryRunner;
     private static Main uib=null;
 
 
@@ -77,14 +75,13 @@ public class LogonServiceTest {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
-        queryRunner = new QueryRunner(dataSource);
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
         ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
 
-        AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
+        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
         try {

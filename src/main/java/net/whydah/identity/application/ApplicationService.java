@@ -3,7 +3,7 @@ package net.whydah.identity.application;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +20,12 @@ public class ApplicationService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final ApplicationDao applicationDao;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogDao auditLogDao;
 
     @Inject
-    public ApplicationService(ApplicationDao applicationDao, AuditLogRepository auditLogRepository) {
+    public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao) {
         this.applicationDao = applicationDao;
-        this.auditLogRepository = auditLogRepository;
+        this.auditLogDao = auditLogDao;
     }
 
     public Application createApplication(String applicationJson) throws java.lang.IllegalArgumentException {
@@ -43,7 +43,7 @@ public class ApplicationService {
     private void audit(String action, String what, String value) {
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogRepository.store(actionPerformed);
+        auditLogDao.store(actionPerformed);
     }
 
 

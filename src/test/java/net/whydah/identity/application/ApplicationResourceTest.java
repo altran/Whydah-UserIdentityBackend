@@ -1,6 +1,6 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.audit.AuditLogRepository;
+import net.whydah.identity.audit.AuditLogDao;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 public class ApplicationResourceTest {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResourceTest.class);
     ApplicationDao applicationDaoMock;
-    AuditLogRepository auditLogRepositoryMock;
+    AuditLogDao auditLogDaoMock;
     ApplicationService applicationService;
     ApplicationResource applicationResource;
     ApplicationsResource applicationsResource;
@@ -31,9 +31,9 @@ public class ApplicationResourceTest {
     @Before
     public void setUp() throws Exception {
         applicationDaoMock = mock(ApplicationDao.class);
-        auditLogRepositoryMock = mock(AuditLogRepository.class);
+        auditLogDaoMock = mock(AuditLogDao.class);
 
-        applicationService = new ApplicationService(applicationDaoMock, auditLogRepositoryMock);
+        applicationService = new ApplicationService(applicationDaoMock, auditLogDaoMock);
         applicationResource = new ApplicationResource(applicationService);
         applicationsResource = new ApplicationsResource(applicationService);
         request = mock(HttpServletRequest.class);
