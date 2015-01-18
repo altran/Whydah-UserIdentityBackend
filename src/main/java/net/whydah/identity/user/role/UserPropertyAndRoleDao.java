@@ -19,7 +19,7 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-01-18
  */
 public class UserPropertyAndRoleDao {
-    private static final Logger logger = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(UserPropertyAndRoleRepository.class);
     private JdbcTemplate jdbcTemplate;
 
     @Inject
@@ -28,16 +28,20 @@ public class UserPropertyAndRoleDao {
     }
 
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
-        logger.debug("getUserPropertyAndRole for roleId {}", roleId);
+        log.debug("getUserPropertyAndRole for roleId {}", roleId);
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
-        return this.jdbcTemplate.queryForObject(sql, new String[]{roleId}, new UserPropertyAndRoleMapper());
+        List<UserPropertyAndRole> roles = jdbcTemplate.query(sql, new String[]{roleId}, new UserPropertyAndRoleMapper());
+        if (roles.isEmpty()) {
+            return null;
+        }
+        return roles.get(0);
     }
 
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        logger.debug("getUserPropertyAndRoles for uid={}", uid);
+        log.debug("getUserPropertyAndRoles for uid={}", uid);
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
         List<UserPropertyAndRole> roles = this.jdbcTemplate.query(sql, new String[]{uid}, new UserPropertyAndRoleMapper());
-        logger.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
+        log.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
         return roles;
     }
 
@@ -72,7 +76,7 @@ public class UserPropertyAndRoleDao {
     public int countUserRolesInDB() {
         String sql = "SELECT count(*) FROM UserRoles";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
-        logger.debug("countUserRolesInDB={}", count);
+        log.debug("countUserRolesInDB={}", count);
         return count;
     }
 
@@ -80,26 +84,26 @@ public class UserPropertyAndRoleDao {
     public boolean hasRole(String uid, UserPropertyAndRole role) {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
-            logger.trace("hasRole - checking existing.applicationID {} against applicationID {}", existingRole.getApplicationId(), role.getApplicationId());
-            logger.trace("hasRole - checking existing.getOrganizationName {} against getOrganizationName {}", existingRole.getOrganizationName(), role.getOrganizationName());
-            logger.trace("hasRole - checking existing.getApplicationRoleName {} against getApplicationRoleName {}", existingRole.getApplicationRoleName(), role.getApplicationRoleName());
+            log.trace("hasRole - checking existing.applicationID {} against applicationID {}", existingRole.getApplicationId(), role.getApplicationId());
+            log.trace("hasRole - checking existing.getOrganizationName {} against getOrganizationName {}", existingRole.getOrganizationName(), role.getOrganizationName());
+            log.trace("hasRole - checking existing.getApplicationRoleName {} against getApplicationRoleName {}", existingRole.getApplicationRoleName(), role.getApplicationRoleName());
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
                     && existingRole.getOrganizationName().equals(role.getOrganizationName())
                     && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
             if (roleExist) {
-                logger.trace("Found role");
+                log.trace("Found role");
                 return true;
             }
         }
-        logger.trace("Not Found role");
+        log.trace("Not Found role");
         return false;
     }
 
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
-        logger.trace("addUserPropertyAndRole:" + userPropertyAndRole);
+        log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
         if (hasRole(userPropertyAndRole.getUid(), userPropertyAndRole)) {
-            logger.trace("Trying to add an existing role, ignoring");
+            log.trace("Trying to add an existing role, ignoring");
             return;
         }
 
@@ -117,8 +121,8 @@ public class UserPropertyAndRoleDao {
                 userPropertyAndRole.getApplicationRoleValue()
 
         );
-        logger.trace(rows + " roles added");
-        logger.trace(sql +":" + userPropertyAndRole);
+        log.trace(rows + " roles added");
+        log.trace(sql + ":" + userPropertyAndRole);
     }
 
     /**

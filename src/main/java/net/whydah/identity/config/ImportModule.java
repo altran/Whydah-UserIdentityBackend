@@ -1,6 +1,7 @@
 package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
@@ -45,6 +46,9 @@ public class ImportModule extends AbstractModule {
 
         UserPropertyAndRoleDao roleDao = new UserPropertyAndRoleDao(dataSource);
         bind(UserPropertyAndRoleDao.class).toInstance(roleDao);
+
+        ApplicationDao applicationDao = new ApplicationDao(dataSource);
+        bind(ApplicationDao.class).toInstance(applicationDao);
 
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);

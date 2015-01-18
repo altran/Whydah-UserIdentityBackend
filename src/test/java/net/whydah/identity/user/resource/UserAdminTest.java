@@ -41,7 +41,9 @@ public class UserAdminTest {
         FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
         uib = new Main();
 
-        uib.getInjector().getInstance(DatabaseMigrationHelper.class).upgradeDatabase();
+        DatabaseMigrationHelper dbHelper = uib.getInjector().getInstance(DatabaseMigrationHelper.class);
+        dbHelper.cleanDatabase();
+        dbHelper.upgradeDatabase();
 
         uib.startEmbeddedDS(AppConfig.appConfig.getProperty("ldap.embedded.directory"), Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port")));
         uib.importUsersAndRoles();

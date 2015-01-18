@@ -19,12 +19,12 @@ public class ApplicationService {
     private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationDao applicationDao;
     private final AuditLogRepository auditLogRepository;
 
     @Inject
-    public ApplicationService(ApplicationRepository applicationRepository, AuditLogRepository auditLogRepository) {
-        this.applicationRepository = applicationRepository;
+    public ApplicationService(ApplicationDao applicationDao, AuditLogRepository auditLogRepository) {
+        this.applicationDao = applicationDao;
         this.auditLogRepository = auditLogRepository;
     }
 
@@ -32,7 +32,7 @@ public class ApplicationService {
         Application application=null;
         try {
              application = Application.fromJson(applicationJson);
-            applicationRepository.create(application);
+            applicationDao.create(application);
             audit(ActionPerformed.ADDED, "application", application.toString());
         } catch (Exception e){
             throw new java.lang.IllegalArgumentException("Illegal application arguments:"+applicationJson);
@@ -48,12 +48,12 @@ public class ApplicationService {
 
 
     public Application getApplication(String applicationId) {
-        return applicationRepository.getApplication(applicationId);
+        return applicationDao.getApplication(applicationId);
     }
 
     public List<Application> getApplications() {
-        log.trace("Found applications:"+applicationRepository.getApplications().size());
-        return applicationRepository.getApplications();
+        log.trace("Found applications:"+ applicationDao.getApplications().size());
+        return applicationDao.getApplications();
     }
 
 }

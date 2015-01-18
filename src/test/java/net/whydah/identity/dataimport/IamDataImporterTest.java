@@ -1,6 +1,6 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.EmbeddedADS;
@@ -67,7 +67,7 @@ public class IamDataImporterTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
 
         Directory index = new NIOFSDirectory(new File(lucenePath));

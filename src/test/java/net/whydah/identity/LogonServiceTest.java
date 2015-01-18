@@ -5,7 +5,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.header.MediaTypes;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
@@ -81,7 +81,7 @@ public class LogonServiceTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
 
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);

@@ -2,24 +2,24 @@ package net.whydah.identity.user.role;
 
 import com.google.inject.Inject;
 import net.whydah.identity.application.Application;
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.ApplicationDao;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserPropertyAndRoleRepository {
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationDao applicationDao;
 
     @Inject
-    public UserPropertyAndRoleRepository(UserPropertyAndRoleDao userPropertyAndRoleDao, ApplicationRepository applicationRepository) {
+    public UserPropertyAndRoleRepository(UserPropertyAndRoleDao userPropertyAndRoleDao, ApplicationDao applicationDao) {
         this.userPropertyAndRoleDao = userPropertyAndRoleDao;
-        this.applicationRepository = applicationRepository;
+        this.applicationDao = applicationDao;
     }
 
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
         UserPropertyAndRole role = userPropertyAndRoleDao.getUserPropertyAndRole(roleId);
-        Application application = applicationRepository.getApplication(role.getApplicationId());
+        Application application = applicationDao.getApplication(role.getApplicationId());
         if (application != null) {
             role.setApplicationName(application.getName());
         }
@@ -29,7 +29,7 @@ public class UserPropertyAndRoleRepository {
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
         List<UserPropertyAndRole> roles = userPropertyAndRoleDao.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole role : roles) {
-            Application application = applicationRepository.getApplication(role.getApplicationId());
+            Application application = applicationDao.getApplication(role.getApplicationId());
             if (application != null) {
                 role.setApplicationName(application.getName());
             }

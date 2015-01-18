@@ -14,14 +14,13 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
  */
 public class ApplicationResourceTest {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResourceTest.class);
-    ApplicationRepository applicationRepositoryMock;
+    ApplicationDao applicationDaoMock;
     AuditLogRepository auditLogRepositoryMock;
     ApplicationService applicationService;
     ApplicationResource applicationResource;
@@ -31,10 +30,10 @@ public class ApplicationResourceTest {
 
     @Before
     public void setUp() throws Exception {
-        applicationRepositoryMock = mock(ApplicationRepository.class);
+        applicationDaoMock = mock(ApplicationDao.class);
         auditLogRepositoryMock = mock(AuditLogRepository.class);
 
-        applicationService = new ApplicationService(applicationRepositoryMock, auditLogRepositoryMock);
+        applicationService = new ApplicationService(applicationDaoMock, auditLogRepositoryMock);
         applicationResource = new ApplicationResource(applicationService);
         applicationsResource = new ApplicationsResource(applicationService);
         request = mock(HttpServletRequest.class);

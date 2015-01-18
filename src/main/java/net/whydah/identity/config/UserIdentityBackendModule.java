@@ -2,6 +2,7 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
@@ -30,6 +31,9 @@ public class UserIdentityBackendModule extends AbstractModule {
 
         UserPropertyAndRoleDao roleDao = new UserPropertyAndRoleDao(dataSource);
         bind(UserPropertyAndRoleDao.class).toInstance(roleDao);
+
+        ApplicationDao applicationDao = new ApplicationDao(dataSource);
+        bind(ApplicationDao.class).toInstance(applicationDao);
 
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);

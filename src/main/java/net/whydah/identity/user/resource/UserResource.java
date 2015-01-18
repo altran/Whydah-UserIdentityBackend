@@ -2,7 +2,7 @@ package net.whydah.identity.user.resource;
 
 import com.google.inject.Inject;
 import com.sun.jersey.api.ConflictException;
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
@@ -33,7 +33,7 @@ public class UserResource {
 
     private final UserIdentityService userIdentityService;
     private final UserAggregateService userAggregateService;
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationDao applicationDao;
 
     private final ObjectMapper mapper;
 
@@ -41,10 +41,10 @@ public class UserResource {
     private UriInfo uriInfo;
 
     @Inject
-    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ApplicationRepository applicationRepository) {
+    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ApplicationDao applicationDao) {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
-        this.applicationRepository = applicationRepository;
+        this.applicationDao = applicationDao;
         this.mapper = new ObjectMapper();
         log.info("Started: UserResource");
     }

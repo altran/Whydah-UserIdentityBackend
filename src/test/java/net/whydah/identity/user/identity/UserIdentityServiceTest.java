@@ -1,6 +1,6 @@
 package net.whydah.identity.user.identity;
 
-import net.whydah.identity.application.ApplicationRepository;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
@@ -59,7 +59,7 @@ public class UserIdentityServiceTest {
         queryRunner = new QueryRunner(dataSource);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
 
-        ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
+        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
 
 

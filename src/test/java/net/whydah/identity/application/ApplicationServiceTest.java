@@ -17,16 +17,16 @@ import static org.mockito.Mockito.mock;
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
  */
 public class ApplicationServiceTest {
-    ApplicationRepository applicationRepositoryMock;
+    ApplicationDao applicationDaoMock;
     AuditLogRepository auditLogRepositoryMock;
     ApplicationService applicationService;
     ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void setUp() throws Exception {
-        applicationRepositoryMock = mock(ApplicationRepository.class);
+        applicationDaoMock = mock(ApplicationDao.class);
         auditLogRepositoryMock = mock(AuditLogRepository.class);
-        applicationService = new ApplicationService(applicationRepositoryMock, auditLogRepositoryMock);
+        applicationService = new ApplicationService(applicationDaoMock, auditLogRepositoryMock);
 
     }
     @Test
