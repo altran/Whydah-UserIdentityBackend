@@ -1,6 +1,8 @@
 package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.identity.LdapAuthenticator;
@@ -24,10 +26,10 @@ public class UserIdentityBackendModule extends AbstractModule {
     protected void configure() {
         log.info("Configure UserIdentityBackendModule (primaryLDAP, secondaryLDAP, roledb (sql), queryRunner and Lucene).");
 
-        BasicDataSource dataSource = getDataSource();
-        bind(BasicDataSource.class).toInstance(dataSource);
+        //BasicDataSource dataSource = getDataSource();
+        //bind(BasicDataSource.class).toInstance(dataSource);
 
-        QueryRunner queryRunner = new QueryRunner(dataSource);
+        QueryRunner queryRunner = new QueryRunner(getDataSource());
         bind(QueryRunner.class).toInstance(queryRunner);
 
         bindLuceneServices();
@@ -39,7 +41,9 @@ public class UserIdentityBackendModule extends AbstractModule {
     }
 
 
-    private BasicDataSource getDataSource() {
+    @Provides
+    @Singleton
+    public BasicDataSource getDataSource() {
         String jdbcdriver = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
         String jdbcurl = AppConfig.appConfig.getProperty("roledb.jdbc.url");
         String roledbuser = AppConfig.appConfig.getProperty("roledb.jdbc.user");
