@@ -3,7 +3,9 @@ package net.whydah.identity.user.identity;
 import net.whydah.identity.application.ApplicationRepository;
 import net.whydah.identity.audit.AuditLogRepository;
 import net.whydah.identity.config.AppConfig;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.resource.UserAdminHelper;
+import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.user.search.LuceneSearch;
@@ -44,19 +46,23 @@ public class UserIdentityServiceTest {
         String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
         boolean readOnly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
         ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
+
+
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         dataSource.setUrl("jdbc:hsqldb:file:" + "hsqldbtest");
+
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+
         queryRunner = new QueryRunner(dataSource);
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
 
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
-        roleRepository = new UserPropertyAndRoleRepository();
+        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
 
-        roleRepository.setApplicationRepository(configDataRepository);
-        roleRepository.setQueryRunner(queryRunner);
+
 
         Directory index = new NIOFSDirectory(new File("lucene"));
 
@@ -69,7 +75,6 @@ public class UserIdentityServiceTest {
             fail("Error creating working directory " + workDirPath);
 
         }
-
 
         luceneIndexer = new LuceneIndexer(index);
 

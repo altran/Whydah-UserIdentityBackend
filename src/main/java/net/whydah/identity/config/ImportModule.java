@@ -2,6 +2,7 @@ package net.whydah.identity.config;
 
 import com.google.inject.AbstractModule;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
+import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -41,6 +42,9 @@ public class ImportModule extends AbstractModule {
         dataSource.setUrl(jdbcurl);//"jdbc:hsqldb:file:" + basepath + "hsqldb");
         dataSource.setUsername(roledbuser);
         dataSource.setPassword(roledbpasswd);
+
+        UserPropertyAndRoleDao roleDao = new UserPropertyAndRoleDao(dataSource);
+        bind(UserPropertyAndRoleDao.class).toInstance(roleDao);
 
         QueryRunner queryRunner = new QueryRunner(dataSource);
         bind(QueryRunner.class).toInstance(queryRunner);

@@ -39,6 +39,7 @@ public class DatabaseMigrationHelper {
     }
 
     public void upgradeDatabase() {
+        log.info("Upgrading database with url={} using migration files from {}", dbUrl, flyway.getLocations());
         try {
             flyway.migrate();
         } catch (FlywayException e) {

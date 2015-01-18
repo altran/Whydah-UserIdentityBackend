@@ -7,6 +7,7 @@ import net.whydah.identity.user.identity.EmbeddedADS;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
@@ -56,7 +57,7 @@ public class IamDataImporterTest {
         ldapUserIdentityDao = new LdapUserIdentityDao(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
 
 
-        roleRepository = new UserPropertyAndRoleRepository();
+
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
@@ -66,10 +67,9 @@ public class IamDataImporterTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-        roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
-        //configDataRepository.setQueryRunner(queryRunner);
-        roleRepository.setApplicationRepository(configDataRepository);
+        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
+
         Directory index = new NIOFSDirectory(new File(lucenePath));
         LuceneIndexer luceneIndexer = new LuceneIndexer(index);
 

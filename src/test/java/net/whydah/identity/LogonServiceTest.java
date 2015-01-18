@@ -11,6 +11,7 @@ import net.whydah.identity.config.AppConfig;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.identity.EmbeddedADS;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
+import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -70,7 +71,7 @@ public class LogonServiceTest {
         //ldapAuthenticator = new LdapAuthenticator(LDAP_URL, "uid=admin,ou=system", "secret", "uid", "initials");
 
 
-        roleRepository = new UserPropertyAndRoleRepository();
+
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
@@ -80,11 +81,9 @@ public class LogonServiceTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-
-        roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
-        //configDataRepository.setQueryRunner(queryRunner);
-        roleRepository.setApplicationRepository(configDataRepository);
+        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
+
         AuditLogRepository auditLogRepository = new AuditLogRepository(queryRunner);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);

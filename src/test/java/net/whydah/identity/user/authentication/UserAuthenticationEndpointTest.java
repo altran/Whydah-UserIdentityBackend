@@ -8,6 +8,7 @@ import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.*;
 import net.whydah.identity.user.resource.UserAdminHelper;
+import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
@@ -67,7 +68,6 @@ public class UserAuthenticationEndpointTest {
 
         }
 
-        roleRepository = new UserPropertyAndRoleRepository();
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
@@ -87,10 +87,9 @@ public class UserAuthenticationEndpointTest {
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-        roleRepository.setQueryRunner(queryRunner);
         ApplicationRepository configDataRepository = new ApplicationRepository(queryRunner);
-        //configDataRepository.setQueryRunner(queryRunner);
-        roleRepository.setApplicationRepository(configDataRepository);
+        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
+
 
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);

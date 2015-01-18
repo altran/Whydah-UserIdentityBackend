@@ -14,6 +14,7 @@ import java.util.UUID;
 
 /**
  * Responsible for fetching any user roles or properties stored in RDBMS.
+ * Backed by spring-jdbc, http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-01-18
  */
