@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import net.whydah.identity.application.Application;
 import net.whydah.identity.application.ApplicationDao;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserPropertyAndRoleRepository {
@@ -37,7 +36,7 @@ public class UserPropertyAndRoleRepository {
         return roles;
     }
 
-    public int countUserRolesInDB() throws SQLException{
+    public int countUserRolesInDB() {
         return userPropertyAndRoleDao.countUserRolesInDB();
     }
 
