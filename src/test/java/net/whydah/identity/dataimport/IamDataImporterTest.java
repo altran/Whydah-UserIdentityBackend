@@ -88,7 +88,6 @@ public class IamDataImporterTest {
     
     @Test
     public void testDataIsImported() throws Exception {
-        
 		IamDataImporter iamDataImporter = new IamDataImporter(applicationImporter, organizationImporter, userImporter, roleMappingImporter);
         iamDataImporter.importIamData();
         

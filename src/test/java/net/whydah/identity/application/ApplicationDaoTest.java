@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -41,7 +43,15 @@ public class ApplicationDaoTest {
 
     @Test
     public void testAddAndGet() {
-        Application application = new Application("appId1", "appName1", "defaultRoleName1", "defaultOrgName1");
+        Application application = new Application("appId1", "appName1");
+        application.setSecret("verySecretKeyHere");
+        application.setDefaultRoleName("defaultRoleName1");
+        application.setDefaultOrgName("defaultOrgName1");
+        application.setDescription("description1");
+        application.addRole(new Role("roleId1", "roleName1"));
+        application.addRole(new Role("roleId2", "roleName2"));
+        application.setAvailableOrgNames(Arrays.asList("orgName1", "orgName2", "orgName3"));
+
         Application fromDb = applicationDao.create(application);
 
         assertNotNull(fromDb.getId());
@@ -50,5 +60,8 @@ public class ApplicationDaoTest {
         assertEquals(application.getName(), fromDb.getName());
         assertEquals(application.getDefaultRoleName(), fromDb.getDefaultRoleName());
         assertEquals(application.getDefaultOrgName(), fromDb.getDefaultOrgName());
+        assertEquals(fromDb.getAvailableRoles().size(), 2);
+        assertEquals(fromDb.getAvailableOrgNames().size(), 3);
+        assertEquals(fromDb.getSecret(), application.getSecret());
     }
 }

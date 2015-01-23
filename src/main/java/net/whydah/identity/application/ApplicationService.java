@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -29,13 +31,13 @@ public class ApplicationService {
     }
 
     public Application createApplication(String applicationJson) throws java.lang.IllegalArgumentException {
-        Application application=null;
+        Application application = null;
         try {
-             application = Application.fromJson(applicationJson);
+            application = fromJson(applicationJson);
             applicationDao.create(application);
             audit(ActionPerformed.ADDED, "application", application.toString());
         } catch (Exception e){
-            throw new java.lang.IllegalArgumentException("Illegal application arguments:"+applicationJson);
+            throw new IllegalArgumentException("Illegal application arguments:" + applicationJson);
         }
         return application;
     }
@@ -56,4 +58,25 @@ public class ApplicationService {
         return applicationDao.getApplications();
     }
 
+    public static String toJson(Application application) {
+        String applicationJson = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            applicationJson =  mapper.writeValueAsString(application);
+        } catch (IOException e) {
+            log.info("Could not create json from this object {}", application.toString(), e);
+        }
+        log.trace("JSON serialization:",applicationJson);
+        return applicationJson;
+    }
+
+    public static Application fromJson(String applicationJson) throws  IllegalArgumentException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Application application = mapper.readValue(applicationJson, Application.class);
+            return application;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error mapping json for " + applicationJson, e);
+        }
+    }
 }

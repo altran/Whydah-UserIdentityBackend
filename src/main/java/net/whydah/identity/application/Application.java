@@ -1,13 +1,9 @@
 package net.whydah.identity.application;
 
-import com.google.common.base.Joiner;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,76 +25,92 @@ public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     private String id;
     private String name;
-    private String defaultRoleName;
-    private String defaultOrgName;
+    @JsonIgnore
+    private String secret;
+    private String description;
 
+    //private List<String> availableRoleNames;    //roleName or roleId here?
+    private List<Role> availableRoles;
+    private String defaultRoleName;     //roleName or roleId here?
 
     private List<String> availableOrgNames;
-    private List<String> availableRoleNames;
+    private String defaultOrgName;
+
 
     private Application() {
     }
 
     public Application(String id, String name) {
-        this(id, name, null, null);
-    }
-    public Application(String id, String name, String defaultRoleName, String defaultOrgName) {
         this.id = id;
         this.name = name;
-        this.defaultRoleName = defaultRoleName;
-        this.defaultOrgName = defaultOrgName;
+        this.availableRoles = new ArrayList<>();
+        this.availableOrgNames = new ArrayList<>();
     }
 
-
-    public Application(String id, String name, String defaultRoleName, String defaultOrgName, List<String> availableOrgNames, List<String> availableRoleNames) {
-        this.id = id;
-        this.name = name;
-        this.defaultRoleName = defaultRoleName;
-        this.defaultOrgName = defaultOrgName;
-        this.availableOrgNames = availableOrgNames;
-        this.availableRoleNames = availableRoleNames;
-    }
-
-    /**
-     * {
-     "id": "id1",
-     "name": "test",
-     "defaultRoleName": "default1role",
-     "defaultOrgName": "defaultorgid",
-     "availableOrgNames": [
-     "developer@customer",
-     "consultant@customer"
-     ]
-     }
-     * @param applicationJson
-     * @return
-     */
-    public static Application fromJson(String applicationJson) throws  IllegalArgumentException {
-            try {
-                Application application;
-
-                ObjectMapper mapper = new ObjectMapper();
-                application = mapper.readValue(applicationJson, Application.class);
-                return application;
-            } catch (JsonMappingException e) {
-                throw new IllegalArgumentException("Error mapping json for " + applicationJson, e);
-            } catch (JsonParseException e) {
-                throw new IllegalArgumentException("Error parsing json for " + applicationJson, e);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Error reading json for " + applicationJson, e);
-            }
-    }
-
-    public String toJson() {
-        String applicationJson = null;
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            applicationJson =  mapper.writeValueAsString(this);
-        } catch (IOException e) {
-            log.info("Could not create json from this object {}", toString(), e);
+    public List<String> getAvailableRoleNames() {
+        List<String> names = new ArrayList<>(availableRoles.size());
+        for (Role role : availableRoles) {
+            names.add(role.getName());
         }
-        log.trace("JSON serialization:",applicationJson);
-        return applicationJson;
+        if (names.isEmpty()) {
+            return null;
+        }
+        return names;
+    }
+
+    public void addRole(Role role) {
+        availableRoles.add(role);
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public void setAvailableRoles(List<Role> availableRoles) {
+        this.availableRoles = availableRoles;
+    }
+    public void setDefaultRoleName(String defaultRoleName) {
+        this.defaultRoleName = defaultRoleName;
+    }
+    public void setAvailableOrgNames(List<String> availableOrgNames) {
+        this.availableOrgNames = availableOrgNames;
+    }
+    public void setDefaultOrgName(String defaultOrgName) {
+        this.defaultOrgName = defaultOrgName;
+    }
+
+    public String getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getSecret() {
+        return secret;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public List<Role> getAvailableRoles() {
+        return availableRoles;
+    }
+    public String getDefaultRoleName() {
+        return defaultRoleName;
+    }
+    public List<String> getAvailableOrgNames() {
+        return availableOrgNames;
+    }
+    public String getDefaultOrgName() {
+        return defaultOrgName;
     }
 
     public String toXML() {
@@ -125,42 +137,21 @@ public class Application {
             return availableXml.toString();
         }
     }
+
     private String buildAvailableRoleAsXml() {
-        if(availableRoleNames == null || availableRoleNames.size() == 0) {
+        if (getAvailableRoleNames() == null || getAvailableRoleNames().size() == 0) {
             return "<rolenames/>";
-        }else {
+        } else {
             StringBuilder availableXml = new StringBuilder("<rolenames>\n");
-            for (String availableroleName : availableRoleNames) {
-                availableXml.append("<roleName>").append(availableroleName).append("</roleName>").append("\n");
+            for (String roleName : getAvailableRoleNames()) {
+                availableXml.append("<roleName>").append(roleName).append("</roleName>").append("\n");
             }
             availableXml.append("</rolenames>");
             return availableXml.toString();
         }
     }
 
-    public String getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public String getDefaultRoleName() {
-        return defaultRoleName;
-    }
-    public String getDefaultOrgName() {
-        return defaultOrgName;
-    }
-
-    public List<String> getAvailableOrgNames() {
-        return availableOrgNames;
-    }
-
-    public void setAvailableOrgNames(List<String> availableOrgNames) {
-        if (availableOrgNames != null) {
-            this.availableOrgNames = availableOrgNames;
-        }
-    }
-
+    /*
     public void addAvailableOrgName(String availableOrgName) {
         if (availableOrgNames == null) {
             availableOrgNames = new ArrayList();
@@ -169,24 +160,11 @@ public class Application {
             this.availableOrgNames.add(availableOrgName);
         }
     }
-
     public void removeAvailableOrgName(String availableOrgName) {
         if (availableOrgNames != null && availableOrgName != null) {
             availableOrgNames.remove(availableOrgName);
         }
     }
-
-
-    public List<String> getAvailableRoleNames() {
-        return availableRoleNames;
-    }
-
-    public void setAvailableRoleNames(List<String> availableRoleName) {
-        if (availableRoleName != null) {
-            this.availableRoleNames = availableRoleName;
-        }
-    }
-
     public void addAvailableRoleName(String availableRoleName) {
         if (availableRoleNames == null) {
             availableRoleNames = new ArrayList();
@@ -202,13 +180,6 @@ public class Application {
         }
     }
 
-    public void setDefaultOrgName(String defaultOrgName) {
-        this.defaultOrgName = defaultOrgName;
-    }
-
-    public void setDefaultRoleName(String defaultRoleName) {
-        this.defaultRoleName = defaultRoleName;
-    }
 
     @Override
     public String toString() {
@@ -229,8 +200,5 @@ public class Application {
                 ", availablerolenames = '" + availableRoleNamesString  + '\'' +
                 '}';
     }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    */
 }

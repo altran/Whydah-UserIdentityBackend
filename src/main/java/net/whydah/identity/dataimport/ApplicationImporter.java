@@ -39,7 +39,7 @@ public class ApplicationImporter {
 	private void saveApplications(List<Application> applications) {
         for (Application application: applications) {
             try {
-                queryRunner.update("INSERT INTO Applications (Id, Name, DefaultRoleName, DefaultOrgName,ApplicationSecret) values (?, ?, ?, ?, ?)",
+                queryRunner.update("INSERT INTO Application (Id, Name, DefaultRoleName, DefaultOrgName, Secret) values (?, ?, ?, ?, ?)",
                         application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
                 log.info("Imported Application. Id {}, Name {}", application.getId(), application.getName());
             } catch(SQLException e) {

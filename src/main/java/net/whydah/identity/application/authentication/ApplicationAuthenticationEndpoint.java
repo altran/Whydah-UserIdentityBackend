@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -30,6 +29,7 @@ public class ApplicationAuthenticationEndpoint {
 
         Application mockApplication = new Application("9999", "applicationNameMock");
         String applicationXml = mockApplication.toXML();
+        //String applicationXml = "";
         log.debug("Application authentication ok. XML: {}", applicationXml);
         return Response.status(Response.Status.OK).entity(applicationXml).build();
         /*

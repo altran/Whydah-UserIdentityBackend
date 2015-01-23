@@ -51,27 +51,15 @@ public class UserPropertyAndRoleRepository {
 
 
     public void deleteUser(String uid) {
-        userPropertyAndRoleDao.deleteUser(uid);
+        userPropertyAndRoleDao.deleteAllRolesForUser(uid);
     }
 
     public void deleteUserRole(String uid, String roleId) {
         userPropertyAndRoleDao.deleteUserRole(uid, roleId);
     }
 
-    public void deleteUserAppRoles(String uid, String appid) {
-        userPropertyAndRoleDao.deleteUserAppRoles(uid, appid);
-    }
-
     public void updateUserRoleValue(UserPropertyAndRole role) {
-        userPropertyAndRoleDao.updateUserRoleValue(role.getUid(), role.getRoleId(), role.getApplicationRoleValue());
-    }
-
-    public void updateUserRoleValue(String uid, String roleId, String rolevalue) {
-        userPropertyAndRoleDao.updateUserRoleValue(uid, roleId, rolevalue);
-    }
-
-    public String getOrgname(String orgid) {
-        return userPropertyAndRoleDao.getOrgname(orgid);
+        userPropertyAndRoleDao.updateUserRoleValue(role);
     }
 
     public void deleteRole(String roleId) {

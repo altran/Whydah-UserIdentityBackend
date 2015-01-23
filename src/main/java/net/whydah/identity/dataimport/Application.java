@@ -40,11 +40,22 @@ public class Application {
     }
 
     @Override
+    public String toString() {
+        return "Application{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", defaultRoleName='" + defaultRoleName + '\'' +
+                ", defaultOrganizationId='" + defaultOrganizationId + '\'' +
+                '}';
+    }
+    /*
+    @Override
 	public String toString() {
 		return "Application [id=" + id + ", name=" + name
 				+ ", defaultRoleName=" + defaultRoleName
 				+ ", defaultOrganizationId=" + defaultOrganizationId + "]";
 	}
+	*/
 
 	@Override
 	public int hashCode() {

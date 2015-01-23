@@ -56,13 +56,6 @@ public class UserPropertyAndRoleDao {
             //userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString("RoleValues")));
             userPropertyAndRole.setApplicationRoleValue(rs.getString("RoleValues"));
 
-            //TODO
-                /*
-                Application application = applicationRepository.getApplication(userPropertyAndRole.getApplicationId());
-                if (application != null) {
-                    userPropertyAndRole.setApplicationName(application.getName());
-                }
-                */
             return userPropertyAndRole;
         }
         /*
@@ -125,19 +118,19 @@ public class UserPropertyAndRoleDao {
         log.trace(sql + ":" + userPropertyAndRole);
     }
 
-    /**
-     * Removes any roles for a user.
-     * @param uid userid
-     */
-    public void deleteUser(String uid) {
+
+    public void deleteAllRolesForUser(String uid) {
         String sql = "DELETE FROM UserRoles WHERE UserID=?";
         jdbcTemplate.update(sql, uid);
     }
 
-
-    //TODO This looks like a bug!
+    //TODO Is roleId globally unique?
     public void deleteUserRole(String uid, String roleId) {
         deleteRole(roleId);
+    }
+    public void deleteRole(String roleId) {
+        String sql = "DELETE FROM UserRoles WHERE RoleID=?";
+        jdbcTemplate.update(sql, roleId);
     }
 
     public void deleteUserAppRoles(String uid, String appid) {
@@ -145,25 +138,10 @@ public class UserPropertyAndRoleDao {
         jdbcTemplate.update(sql, uid, appid);
     }
 
+
     public void updateUserRoleValue(UserPropertyAndRole role) {
-        updateUserRoleValue(role.getUid(), role.getRoleId(), role.getApplicationRoleValue());
-    }
-    //TODO What about uid?
-    public void updateUserRoleValue(String uid, String roleId, String rolevalue) {
-        String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=?";
-        jdbcTemplate.update(sql, rolevalue, roleId);
-    }
-
-
-    //TODO Bug? orgid vs AppID?
-    public String getOrgname(String orgid) {
-        String sql = "SELECT Name from Organization WHERE AppID=?";
-        return jdbcTemplate.queryForObject(sql, new String[]{orgid}, String.class);
-    }
-
-    public void deleteRole(String roleId) {
-        String sql = "DELETE FROM UserRoles WHERE RoleID=?";
-        jdbcTemplate.update(sql, roleId);
+        String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";
+        jdbcTemplate.update(sql, role.getApplicationRoleValue(), role.getRoleId(), role.getUid());
     }
 }
 

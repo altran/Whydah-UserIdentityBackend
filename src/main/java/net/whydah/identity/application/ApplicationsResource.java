@@ -58,9 +58,9 @@ public class ApplicationsResource {
                 }
             }
             for (int i = 0; i < applications.size() ; i++) {
-                Application a = applications.get(i);
-                a.setAvailableOrgNames(availableOrgNames);
-                a.setAvailableRoleNames(availableRoleNames);
+                Application application = applications.get(i);
+                application.setAvailableOrgNames(availableOrgNames);
+                //application.setAvailableRoleNames(availableRoleNames);    //TODO
             }
 
             String applicationCreatedJson = buildApplicationsJson(applications);

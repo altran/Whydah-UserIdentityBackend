@@ -72,6 +72,7 @@ public class UserPropertyAndRoleDaoTest {
         assertEquals(roleRepository.countUserRolesInDB(), added3.size() + added4.size());
     }
 
+    /*
     @Test
     public void testDeleteRolesForUid() {
         String uid3 = "uid3";
@@ -84,6 +85,7 @@ public class UserPropertyAndRoleDaoTest {
         assertEquals(roleRepository.countUserRolesInDB(), added3.size());
         assertEquals(roleRepository.getUserPropertyAndRoles(uid4).size(), 0);
     }
+    */
 
     @Test
     public void testDeleteUserAppRoles() {

@@ -195,6 +195,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>4.1.4.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.googlecode.flyway</groupId>
@@ -226,7 +232,7 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.7</version>
         </dependency>
-        <!-- Flyway 2.3.1 and httpclient use Commons logging -->
+        <!-- Flyway 2.3.1, httpclient and spring use Commons logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>

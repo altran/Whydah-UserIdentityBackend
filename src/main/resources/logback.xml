@@ -26,6 +26,8 @@
 
 
 
+
+    <logger name="org.springframework.jdbc.core" level="WARN" />
     <logger name="hsqldb.db" level="WARN" />
     <logger name="org.apache.directory" level="WARN" />
     <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
