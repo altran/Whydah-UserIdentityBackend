@@ -1,5 +1,6 @@
 package net.whydah.identity.application;
 
+import com.google.common.base.Joiner;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,6 +152,35 @@ public class Application {
         }
     }
 
+    @Override
+    public String toString() {
+        String availableOrgNamesString = "";
+        if (this.availableOrgNames != null) {
+            availableOrgNamesString = Joiner.on(", ").join(this.availableOrgNames);
+        }
+
+        String roleNamesString = null;
+        if (availableRoles != null) {
+            StringBuilder strb = new StringBuilder();
+            for (Role role : availableRoles) {
+                strb.append(role.getName()).append(",");
+            }
+            roleNamesString = strb.toString();
+        }
+
+
+        return "Application{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", secret='" + secret + '\'' +
+                ", description='" + description + '\'' +
+                ", availableRoles=" + roleNamesString +
+                ", defaultRoleName='" + defaultRoleName + '\'' +
+                ", availableOrgNames=" + availableOrgNamesString +
+                ", defaultOrgName='" + defaultOrgName + '\'' +
+                '}';
+    }
+
     /*
     public void addAvailableOrgName(String availableOrgName) {
         if (availableOrgNames == null) {
@@ -178,27 +208,6 @@ public class Application {
         if (availableRoleNames != null && availableRoleName != null) {
             availableRoleNames.remove(availableRoleName);
         }
-    }
-
-
-    @Override
-    public String toString() {
-        String availableOrgNamesString = "";
-         if (this.availableOrgNames != null) {
-             availableOrgNamesString = Joiner.on(", ").join(this.availableOrgNames);
-         }
-        String availableRoleNamesString = "";
-        if (this.availableRoleNames != null) {
-            availableRoleNamesString = Joiner.on(", ").join(this.availableRoleNames);
-        }
-        return "Application{" +
-                "appId='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", defaultrolename='" + defaultRoleName + '\'' +
-                ", defaultorganizationname='" + defaultOrgName + '\'' +
-                ", availableorganizationnames = '" + availableOrgNamesString  + '\'' +
-                ", availablerolenames = '" + availableRoleNamesString  + '\'' +
-                '}';
     }
     */
 }
