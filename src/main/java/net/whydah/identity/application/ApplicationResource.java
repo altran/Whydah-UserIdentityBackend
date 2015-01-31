@@ -9,7 +9,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by baardl on 29.03.14.
@@ -34,9 +33,9 @@ public class ApplicationResource {
      * @return  Application
      */
     @POST
-     @Path("/")
-     @Consumes(MediaType.APPLICATION_JSON)
-     public Response createApplication(String applicationJson)  {
+    @Path("/")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createApplication(String applicationJson)  {
         log.trace("createApplication is called with applicationJson={}", applicationJson);
         Application application;
         try {
