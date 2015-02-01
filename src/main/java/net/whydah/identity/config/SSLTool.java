@@ -1,10 +1,5 @@
 package net.whydah.identity.config;
 
-/**
- * Created by totto on 11/23/14.
- */
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +7,13 @@ import javax.net.ssl.*;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
+/**
+ * Created by totto on 11/23/14.
+ */
 public class SSLTool {
-
     private static final Logger log = LoggerFactory.getLogger(SSLTool.class);
 
-
     public static void disableCertificateValidation() {
-
         log.warn("Installing a trust manager which does not validate SSL/TLS certificates, DO NOT USE IN PRODUCTION!!");
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[]{

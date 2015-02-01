@@ -23,120 +23,106 @@ import org.glassfish.grizzly.servlet.ServletHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
+    public static String version;
+    private final Injector injector;
+
     private EmbeddedADS ads;
     private HttpServer httpServer;
     private int webappPort;
-    private final Injector injector;
     private String contextpath = "/uib";
-    public static String version;
 
-    public Main() {
+
+    public Main(Integer webappPort) {
         version = this.getClass().getPackage().getImplementationVersion();
         injector = Guice.createInjector(new UserIdentityBackendModule());
+        this.webappPort = webappPort;
     }
 
 
     public static void main(String[] args) {
-        final Main main = new Main();
+        boolean importEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled"));
+        boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                log.debug("ShutdownHook triggered. Exiting application");
+        String ldapEmbeddedpath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
+        String roleDBDirectory = AppConfig.appConfig.getProperty("roledb.directory");
+        String luceneDirectory = AppConfig.appConfig.getProperty("lucene.directory");
+        Integer ldapPort = Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port"));
+
+        String sslVerification = AppConfig.appConfig.getProperty("sslverification");
+        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
+        Integer webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("service.port"));
+
+
+        log.info("Starting UserIdentityBackend version={}, import.enabled={}, embeddedDSEnabled={}", version, importEnabled, embeddedDSEnabled);
+        try {
+            final Main main = new Main(webappPort);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    log.debug("ShutdownHook triggered. Exiting application");
+                    main.stop();
+                }
+            });
+
+            if (importEnabled) {
+                FileUtils.deleteDirectories(ldapEmbeddedpath, roleDBDirectory, luceneDirectory);
+            }
+
+
+            if (embeddedDSEnabled) {
+                main.startEmbeddedDS(ldapEmbeddedpath, ldapPort);
+            }
+
+            main.upgradeDatabase();
+
+            // Populate ldap, database and lucene index
+            if (importEnabled) {
+                main.importUsersAndRoles();
+            }
+
+            main.startHttpServer(sslVerification, requiredRoleName);
+
+            if (!embeddedDSEnabled) {
+                try {
+                    // wait forever...
+                    Thread.currentThread().join();
+                } catch (InterruptedException ie) {
+                    log.warn("Thread was interrupted.", ie);
+                }
+                log.debug("Finished waiting for Thread.currentThread().join()");
                 main.stop();
             }
-        });
-
-        /*
-        //TODO remove the "PROD" hack when the previous TODO is fixed!
-        boolean importUsers = !"PROD".equals(System.getProperty(AppConfig.IAM_MODE_KEY).toUpperCase()) && shouldImportUsers();
-        */
-
-        main.getInjector().getInstance(DatabaseMigrationHelper.class).upgradeDatabase();
-
-
-        boolean importEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled"));
-
-        // Start ldap embedded server
-        boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
-        if (embeddedDSEnabled) {
-            String ldapPath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
-            if (importEnabled) {
-                FileUtils.deleteDirectory(new File(ldapPath));
-            }
-            try {
-                Integer ldapPort = Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-                main.startEmbeddedDS(ldapPath, ldapPort);
-            } catch (Exception e) {
-                log.error("Could not start embedded ApacheDS. Shutting down UserIdentityBackend.", e);
-                System.exit(1);
-            }
-        }
-
-        // Populate ldap, database and lucene index
-        //if (!canAccessDBWithUserRoles || importTestData) {
-        if (importEnabled) {
-            try {
-                main.deleteDirectoryByProperty("roledb.directory");
-                main.deleteDirectoryByProperty("lucene.directory");
-                main.importUsersAndRoles();
-            } catch (RuntimeException e) {
-                log.error("Import failed. Shutting down UserIdentityBackend.", e);
-                System.exit(2);
-            }
-        }
-
-        try {
-            main.startHttpServer();
-        } catch (Exception e) {
-            log.error("Could not start HTTP Server. Shutting down UserIdentityBackend.", e);
-            System.exit(3);
-        }
-
-        if (!embeddedDSEnabled) {
-            try {
-                // wait forever...
-                Thread.currentThread().join();
-            } catch (InterruptedException ie) {
-                log.warn("Thread was interrupted.", ie);
-            }
-            log.debug("Finished waiting for Thread.currentThread().join()");
-            main.stop();
+        } catch (RuntimeException e) {
+            log.error("Error during startup. Shutting down UserIdentityBackend.", e);
+            System.exit(1);
         }
     }
 
-    void deleteDirectoryByProperty(String key) {
-        String dirPath = AppConfig.appConfig.getProperty(key);
-        if (dirPath != null) {
-            FileUtils.deleteDirectory(new File(dirPath));
-        }
+
+    private void upgradeDatabase() {
+        injector.getInstance(DatabaseMigrationHelper.class).upgradeDatabase();
     }
 
     public void importUsersAndRoles() {
         Injector injector = Guice.createInjector(new ImportModule());
-
         IamDataImporter iamDataImporter = injector.getInstance(IamDataImporter.class);
         iamDataImporter.importIamData();
-
     }
 
     public Injector getInjector() {
         return injector;
     }
 
-    public void startHttpServer() throws Exception {
-        log.trace("Starting UserIdentityBackend");
-
-
+    public void startHttpServer(String sslVerification, String requiredRoleName) {
         // Property-overwrite of SSL verification to support weak ssl certificates
-        if ("disabled".equalsIgnoreCase(AppConfig.appConfig.getProperty("sslverification"))) {
+        if ("disabled".equalsIgnoreCase(sslVerification)) {
             SSLTool.disableCertificateValidation();
-
         }
 
         ServletHandler servletHandler = new ServletHandler();
@@ -149,29 +135,26 @@ public class Main {
         GuiceFilter filter = new GuiceFilter();
         servletHandler.addFilter(filter, "guiceFilter", null);
 
-        addSecurityFilterForUserAdmin(servletHandler);
-
+        addSecurityFilterForUserAdmin(servletHandler, requiredRoleName);
 
         GuiceContainer container = new GuiceContainer(injector);
         servletHandler.setServletInstance(container);
 
-
-        // TODO: use AppConfig.appConfig.getProperty("myuri") instead of hardcoded values
-        webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("service.port"));
         httpServer = new HttpServer();
         ServerConfiguration serverconfig = httpServer.getServerConfiguration();
         serverconfig.addHttpHandler(servletHandler, "/");
         NetworkListener listener = new NetworkListener("grizzly", NetworkListener.DEFAULT_NETWORK_HOST, webappPort);
         httpServer.addListener(listener);
-        httpServer.start();
-        log.info("UserIdentityBackend - import.enabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled")));
-        log.info("UserIdentityBackend - embeddedDSEnabled=" + Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded")));
-        log.info("UserIdentityBackend version:{} started on port {}", version, webappPort + " context-path:" + contextpath);
+        try {
+            httpServer.start();
+        } catch (IOException e) {
+            throw new RuntimeException("grizzly server start failed", e);
+        }
+        log.info("UserIdentityBackend version:{} started on port {}.", version, webappPort + " context-path:" + contextpath);
     }
 
 
-    private void addSecurityFilterForUserAdmin(ServletHandler servletHandler) {
-        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
+    private void addSecurityFilterForUserAdmin(ServletHandler servletHandler, String requiredRoleName) {
         if (StringUtils.isEmpty(requiredRoleName)) {
             log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
         }
@@ -185,16 +168,9 @@ public class Main {
         return webappPort;
     }
 
-    public void startEmbeddedDS(String ldapPath, int ldapPort) throws Exception {
-        log.info("Starting embedded ApacheDS");
+    public void startEmbeddedDS(String ldapPath, int ldapPort) {
         ads = new EmbeddedADS(ldapPath);
-
         ads.startServer(ldapPort);
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            log.error("Thread interrupted.", e);
-        }
     }
 
     public void stop() {

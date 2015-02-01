@@ -1,7 +1,6 @@
 package net.whydah.identity.user.identity;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -12,9 +11,7 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 
@@ -69,45 +66,49 @@ public class EmbeddedADS {
      * }
      */
 
-    private void init(String INSTANCE_PATH) throws Exception, IOException, LdapException, NamingException {
-        //Used by http://svn.apache.org/repos/asf/directory/apacheds/tags/2.0.0-M7/core-annotations/src/main/java/org/apache/directory/server/core/factory/DefaultDirectoryServiceFactory.java
-        String instanceDirectory = System.setProperty("workingDirectory", INSTANCE_PATH);
+    private void init(String INSTANCE_PATH) {
+        try {
+            //Used by http://svn.apache.org/repos/asf/directory/apacheds/tags/2.0.0-M7/core-annotations/src/main/java/org/apache/directory/server/core/factory/DefaultDirectoryServiceFactory.java
+            String instanceDirectory = System.setProperty("workingDirectory", INSTANCE_PATH);
 
-        DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
-        factory.init(INSTANCE_NAME);
+            DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
+            factory.init(INSTANCE_NAME);
 
-        service = factory.getDirectoryService();
-        service.getChangeLog().setEnabled(false);
-        service.setShutdownHookEnabled(true);
+            service = factory.getDirectoryService();
+            service.getChangeLog().setEnabled(false);
+            service.setShutdownHookEnabled(true);
 
-        InstanceLayout il = new InstanceLayout(INSTANCE_PATH);
-        service.setInstanceLayout(il);
+            InstanceLayout il = new InstanceLayout(INSTANCE_PATH);
+            service.setInstanceLayout(il);
 
 
-        AvlPartition partition = new AvlPartition(service.getSchemaManager());
-        partition.setId("Test");
-        partition.setSuffixDn(new Dn(service.getSchemaManager(), BASE_DN));
-        logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
-        partition.initialize();
-        service.addPartition(partition);
+            AvlPartition partition = new AvlPartition(service.getSchemaManager());
+            partition.setId("Test");
+            partition.setSuffixDn(new Dn(service.getSchemaManager(), BASE_DN));
+            logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
+            partition.initialize();
+            service.addPartition(partition);
 
-        AvlPartition mypartition = new AvlPartition(service.getSchemaManager());
-        mypartition.setId(INSTANCE_NAME);
-        mypartition.setSuffixDn(new Dn(service.getSchemaManager(), "dc=external,dc=" + dc + ",dc=no"));
-        logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
-        mypartition.initialize();
-        service.addPartition(mypartition);
+            AvlPartition mypartition = new AvlPartition(service.getSchemaManager());
+            mypartition.setId(INSTANCE_NAME);
+            mypartition.setSuffixDn(new Dn(service.getSchemaManager(), "dc=external,dc=" + dc + ",dc=no"));
+            logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
+            mypartition.initialize();
+            service.addPartition(mypartition);
 
-        //         Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
+            //         Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
 
-        Dn dnApache = new Dn("dc=external,dc=" + dc + ",dc=no");
-        Entry entryApache = service.newEntry(dnApache);
-        entryApache.add("objectClass", "top", "domain", "extensibleObject");
-        entryApache.add("dc", dc);
-        service.getAdminSession().add(entryApache);
-        Entry entryApache2 = service.newEntry(new Dn("ou=users,dc=external,dc=" + dc + ",dc=no"));
-        entryApache2.add("objectClass", "top", "organizationalUnit");
-        service.getAdminSession().add(entryApache2);
+            Dn dnApache = new Dn("dc=external,dc=" + dc + ",dc=no");
+            Entry entryApache = service.newEntry(dnApache);
+            entryApache.add("objectClass", "top", "domain", "extensibleObject");
+            entryApache.add("dc", dc);
+            service.getAdminSession().add(entryApache);
+            Entry entryApache2 = service.newEntry(new Dn("ou=users,dc=external,dc=" + dc + ",dc=no"));
+            entryApache2.add("objectClass", "top", "organizationalUnit");
+            service.getAdminSession().add(entryApache2);
+        } catch (Exception e) {
+            throw new RuntimeException("init failed", e);
+        }
 
         //server = new LdapServer();
         //server.setTransports(new TcpTransport("localhost", DEFAULT_SERVER_PORT));
@@ -121,7 +122,7 @@ public class EmbeddedADS {
      * @param workDir the directory to be used for storing the data
      * @throws Exception if there were some problems while initializing the system
      */
-    private void initDirectoryService(File workDir) throws Exception {
+    private void initDirectoryService(File workDir) {
         if (!workDir.exists()) {
             boolean dirsCreated = workDir.mkdirs();
             if (!dirsCreated) {
@@ -150,7 +151,7 @@ public class EmbeddedADS {
      *
      * @throws Exception If something went wrong
      */
-    public EmbeddedADS(File workDir) throws Exception {
+    public EmbeddedADS(File workDir) {
         initDirectoryService(workDir);
     }
 
@@ -159,7 +160,7 @@ public class EmbeddedADS {
      *
      * @throws Exception If something went wrong
      */
-    public EmbeddedADS(String workDir) throws Exception {
+    public EmbeddedADS(String workDir) {
         this(new File(workDir));
     }
 
@@ -174,12 +175,23 @@ public class EmbeddedADS {
      *
      * @throws Exception
      */
-    public void startServer(int serverPort) throws Exception {
-        server = new LdapServer();
-        server.setTransports(new TcpTransport(serverPort));
-        server.setDirectoryService(service);
-        server.start();
-        logger.info("Apache DS Started, port: {}", serverPort);
+    public void startServer(int serverPort) {
+        logger.info("Starting embedded ApacheDS");
+
+        try {
+            server = new LdapServer();
+            server.setTransports(new TcpTransport(serverPort));
+            server.setDirectoryService(service);
+            server.start();
+            logger.info("Apache DS Started, port: {}", serverPort);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                logger.error("Thread interrupted.", e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("startServer failed", e);
+        }
     }
 
     public void stopServer() {

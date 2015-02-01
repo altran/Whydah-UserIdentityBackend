@@ -85,12 +85,15 @@ public class LogonServiceTest {
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
         //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
         try {
-            uib = new Main();
+            uib = new Main(Integer.valueOf(AppConfig.appConfig.getProperty("service.port")));
             uib.importUsersAndRoles();
         } catch (Exception e){
 
         }
-        uib.startHttpServer();
+
+        String sslVerification = AppConfig.appConfig.getProperty("sslverification");
+        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
+        uib.startHttpServer(sslVerification, requiredRoleName);
 
         baseUri = UriBuilder.fromUri("http://localhost/uib/").port(HTTP_PORT).build();
     }

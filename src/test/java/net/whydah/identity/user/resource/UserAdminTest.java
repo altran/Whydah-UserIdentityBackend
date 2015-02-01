@@ -39,7 +39,7 @@ public class UserAdminTest {
         String ldapPath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
         FileUtils.deleteDirectory(new File(ldapPath));
         FileUtils.deleteDirectory(new File("target/bootstrapdata/"));
-        uib = new Main();
+        uib = new Main(Integer.valueOf(AppConfig.appConfig.getProperty("service.port")));
 
         DatabaseMigrationHelper dbHelper = uib.getInjector().getInstance(DatabaseMigrationHelper.class);
         dbHelper.cleanDatabase();
@@ -47,7 +47,10 @@ public class UserAdminTest {
 
         uib.startEmbeddedDS(AppConfig.appConfig.getProperty("ldap.embedded.directory"), Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port")));
         uib.importUsersAndRoles();
-        uib.startHttpServer();
+        String sslVerification = AppConfig.appConfig.getProperty("sslverification");
+        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
+        uib.startHttpServer(sslVerification, requiredRoleName);
+
         URI baseUri = UriBuilder.fromUri("http://localhost/uib/uib/useradmin/").port(uib.getPort()).build();
         URI logonUri = UriBuilder.fromUri("http://localhost/uib/").port(uib.getPort()).build();
         //String authentication = "usrtk1";

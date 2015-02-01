@@ -10,6 +10,19 @@ import java.io.*;
 public class FileUtils {
     private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
+
+    public static void deleteDirectories(String... paths) {
+        for (String path : paths) {
+            deleteDirectory(path);
+        }
+    }
+
+    public static void deleteDirectory(String pathAsString) {
+        if (pathAsString != null) {
+            deleteDirectory(new File(pathAsString));
+        }
+    }
+
     public static void deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
