@@ -3,7 +3,7 @@ DROP TABLE Applications IF EXISTS;
 
 
 CREATE TABLE Application (
-  ID varchar(32) PRIMARY KEY,
+  ID varchar(64) PRIMARY KEY,
   Name varchar(255),
   Secret varchar(255) default null,
   AvailableOrgNames varchar(255) default null,

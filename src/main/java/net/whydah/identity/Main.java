@@ -35,7 +35,7 @@ public class Main {
     private EmbeddedADS ads;
     private HttpServer httpServer;
     private int webappPort;
-    private String contextpath = "/uib";
+    public static final String contextpath = "/uib";
 
 
     public Main(Integer webappPort) {
@@ -105,7 +105,7 @@ public class Main {
     }
 
 
-    private void upgradeDatabase() {
+    public void upgradeDatabase() {
         injector.getInstance(DatabaseMigrationHelper.class).upgradeDatabase();
     }
 
@@ -164,10 +164,6 @@ public class Main {
         log.info("SecurityFilter initialized with params:", initParams);
     }
 
-    public int getPort() {
-        return webappPort;
-    }
-
     public void startEmbeddedDS(String ldapPath, int ldapPort) {
         ads = new EmbeddedADS(ldapPath);
         ads.startServer(ldapPort);
@@ -182,5 +178,9 @@ public class Main {
             log.info("Stopping embedded Apache DS.");
             ads.stopServer();
         }
+    }
+
+    public int getPort() {
+        return webappPort;
     }
 }

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by baardl on 29.03.14.
@@ -30,16 +31,11 @@ public class ApplicationService {
         this.auditLogDao = auditLogDao;
     }
 
-    public Application createApplication(String applicationJson) throws java.lang.IllegalArgumentException {
-        Application application = null;
-        try {
-            application = fromJson(applicationJson);
-            applicationDao.create(application);
-            audit(ActionPerformed.ADDED, "application", application.toString());
-        } catch (Exception e){
-            throw new IllegalArgumentException("Illegal application arguments:" + applicationJson);
-        }
-        return application;
+    public Application createApplication(Application application) {
+        application.setId(UUID.randomUUID().toString());
+        Application persisted = applicationDao.create(application);
+        audit(ActionPerformed.ADDED, "application", application.toString());
+        return persisted;
     }
 
     private void audit(String action, String what, String value) {
@@ -68,15 +64,5 @@ public class ApplicationService {
         }
         log.trace("JSON serialization:",applicationJson);
         return applicationJson;
-    }
-
-    public static Application fromJson(String applicationJson) throws  IllegalArgumentException {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            Application application = mapper.readValue(applicationJson, Application.class);
-            return application;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Error mapping json for " + applicationJson, e);
-        }
     }
 }
