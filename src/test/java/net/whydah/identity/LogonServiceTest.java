@@ -143,7 +143,7 @@ public class LogonServiceTest {
         String responseBody = response.getEntity(String.class);
         System.out.println(responseBody);
         //assertTrue(responseBody.contains("Logon ok"));
-        assertTrue(responseBody.contains("thomas.pringle@altran.com"));
+        assertTrue(responseBody.contains("username@emailaddress.com"));
     }
 
     @Test

@@ -72,7 +72,7 @@ public class UserAdminTest {
 
     @Test
     public void getuser() {
-        WebResource webResource = baseResource.path("user/thomas.pringle@altran.com");
+        WebResource webResource = baseResource.path("user/username@emailaddress.com");
         String s = webResource.get(String.class);
         //System.out.println(s);
         assertTrue(s.contains("\"firstName\":\"Thomas\""));
@@ -81,7 +81,7 @@ public class UserAdminTest {
     @Test
     public void getnonexistinguser() {
         WebResource webResource = baseResource.path("user/");
-        webResource.path("thomas.pringle@altran.com").get(String.class); // verify that path works with existing user
+        webResource.path("username@emailaddress.com").get(String.class); // verify that path works with existing user
         try {
             String s = webResource.path("bantelonga@gmail.com").get(String.class);
             fail("Expected 404, got " + s);

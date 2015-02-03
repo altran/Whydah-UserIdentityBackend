@@ -19,15 +19,15 @@ public class RoleMappingImporterTest {
 		List<UserPropertyAndRole> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingStream);
 		
 //		#userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
-//		thomas.pringle@altran.com, 42, mobilefirst, 23, altran, developer, 30 
-//		thomas.pringle@altran.com, 42, mobilefirst, 23, altran, client, 10
-//		thomas.pringle@altran.com, 11, whydah, 7, whydah, developer, 20
+//		username@emailaddress.com, 42, mobilefirst, 23, altran, developer, 30
+//		username@emailaddress.com, 42, mobilefirst, 23, altran, client, 10
+//		username@emailaddress.com, 11, whydah, 7, whydah, developer, 20
 //		erik.drolshammer, 42, mobilefirst, 23, altran, admin, 70
 
 		assertEquals("All rolemappings must be found.", 4, roleMappings.size());
 		
 		UserPropertyAndRole roleMapping1 = roleMappings.get(0);
-		assertEquals("UserId must be set.", "thomas.pringle@altran.com", roleMapping1.getUid());
+		assertEquals("UserId must be set.", "username@emailaddress.com", roleMapping1.getUid());
 		assertEquals("applicationId must be set.", "2", roleMapping1.getApplicationId());
 		assertEquals("applicationName must be set.", "Mobilefirst", roleMapping1.getApplicationName());
 		assertEquals("organizationName must be set.", "Altran", roleMapping1.getOrganizationName());

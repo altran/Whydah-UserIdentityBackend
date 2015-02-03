@@ -94,7 +94,7 @@ public class IamDataImporterTest {
         UserIdentity thomaspUserIdentity = ldapUserIdentityDao.getUserIndentity("thomasp");
         assertEquals("Name must be set", "Thomas", thomaspUserIdentity.getFirstName());
         assertEquals("Lastname must be set", "Pringle", thomaspUserIdentity.getLastName());
-        assertEquals("UserId must be set", "thomas.pringle@altran.com", thomaspUserIdentity.getUid());
+        assertEquals("UserId must be set", "username@emailaddress.com", thomaspUserIdentity.getUid());
 
         UserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
         assertEquals("Name must be set", "Erik", erikdUserIdentity.getFirstName());
@@ -105,8 +105,8 @@ public class IamDataImporterTest {
         
         List<UserPropertyAndRole> propsAndRoles = userAggregate1.getRoles();
         assertEquals("All roles must be found", 3, propsAndRoles.size());
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "12", "UserAdminService", "Altran", "developer", "30"));
-        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "thomas.pringle@altran.com", "15", "SSOLoginWebApplication", "Whydah", "developer", "20"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "username@emailaddress.com", "12", "UserAdminService", "Altran", "developer", "30"));
+        assertTrue("The role must be found", containsRoleMapping(propsAndRoles, "username@emailaddress.com", "15", "SSOLoginWebApplication", "Whydah", "developer", "20"));
 
         UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, roleRepository.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
