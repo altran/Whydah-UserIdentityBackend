@@ -56,7 +56,7 @@
     <properties>
         <service.name>Whydah-UserIdentityBackend</service.name>
         <jersey.version>1.6</jersey.version>
-        <grizzy.version>2.1</grizzy.version>
+        <grizzy.version>2.1.11</grizzy.version>
         <apache.ds.version>2.0.0-M17</apache.ds.version>
     </properties>
 
