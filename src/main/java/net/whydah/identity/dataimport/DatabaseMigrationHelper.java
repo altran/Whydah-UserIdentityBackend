@@ -1,9 +1,9 @@
 package net.whydah.identity.dataimport;
 
 import com.google.inject.Inject;
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.FlywayException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
