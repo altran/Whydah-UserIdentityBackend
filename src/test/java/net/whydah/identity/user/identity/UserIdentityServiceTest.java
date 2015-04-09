@@ -48,7 +48,7 @@ public class UserIdentityServiceTest {
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
-        dataSource.setUrl("jdbc:hsqldb:file:" + "hsqldbtest");
+        dataSource.setUrl("jdbc:hsqldb:file:" + "target/" + UserIdentityServiceTest.class.getSimpleName()  + "/hsqldb");
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
@@ -83,7 +83,10 @@ public class UserIdentityServiceTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        ads.stopServer();
+        if (ads != null) {
+            ads.stopServer();
+        }
+
     }
 
     @Test
