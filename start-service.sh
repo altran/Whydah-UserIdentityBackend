@@ -18,6 +18,10 @@ else
     Version=UserIdentityBackend.jar
 fi
 
-
-nohup /usr/bin/java -DIAM_MODE=$IAM_MODE -DIAM_CONFIG=$IAM_CONFIG -jar  $Version
+# If IAM_CONFIG not set, use embedded
+if [ -z "$IAM_CONFIG" ]; then
+  nohup /usr/bin/java -DIAM_MODE=$IAM_MODE   -jar  $Version &
+else  
+  nohup /usr/bin/java -DIAM_MODE=$IAM_MODE  -DIAM_CONFIG=$IAM_CONFIG -jar  $Version &
+fi
 
