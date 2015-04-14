@@ -5,10 +5,6 @@ if [ -z "$IAM_MODE" ]; then
   IAM_MODE=PROD
 fi
 
-# If IAM_CONFOG not set, use PROD properties from local directory
-if [ -z "$IAM_CONFIG" ]; then 
-  IAM_CONFIG=useridentitybackend.PROD.properties
-fi
 
 # If Version is from source, find the artifact
 if [ "$Version" = "FROM_SOURCE" ]; then 
