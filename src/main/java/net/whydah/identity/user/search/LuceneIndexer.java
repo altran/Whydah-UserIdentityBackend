@@ -153,6 +153,8 @@ public class LuceneIndexer {
         }
         if (user.getPersonRef() != null) {
             doc.add(new Field(FIELD_PERSONREF, user.getPersonRef(), ftNotIndexed));  //Field.Index.NO
+            //For Lucene 5
+            //doc.add(new StoredField(FIELD_PERSONREF, user.getPersonRef()));
         }
 
         if (user.getCellPhone() != null) {
