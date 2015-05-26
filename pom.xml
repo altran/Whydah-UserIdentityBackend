@@ -56,7 +56,7 @@
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserIdentityBackend.git</developerConnection>
         <connection>scm:git:https://github.com/altran/Whydah-UserIdentityBackend.git</connection>
-        <url>Whydah-UserIdentityBackend</url>
+        <url>https://wiki.cantara.no/display/whydah/UserIdentityBackend+-+UIB</url>
     </scm>
 
     <properties>
@@ -76,19 +76,20 @@
         </repository>
     </repositories>
 
+
+    <!-- mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates -->
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>3.0</version>
         </dependency>
-
-
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
             <version>3.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-framework</artifactId>
@@ -111,12 +112,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.22</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
             <version>${jersey.version}</version>
@@ -133,10 +128,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20090211</version>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.22</version>
         </dependency>
+
 
         <!-- com.google.common used by Application, ApplicationDao, UserAuthenticationEndpoint -->
         <dependency>
@@ -150,6 +146,12 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.13</version>
+        </dependency>
+        <!-- Deprecated! used in UserIdentity, PasswordResource -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
         </dependency>
 
         <dependency>
