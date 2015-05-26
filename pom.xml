@@ -136,11 +136,11 @@
             <version>20090211</version>
         </dependency>
 
-        <!--added for String building-->
+        <!-- com.google.common used by Application, ApplicationDao, UserAuthenticationEndpoint -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0.1</version>
+            <version>18.0</version>
         </dependency>
 
         <!--Jackson Json mapper-->
@@ -223,13 +223,6 @@
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>2.3</version>
-        </dependency>
-
-        <!-- Used by UserAuthenticationEndpoint -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava-io</artifactId>
-            <version>r03</version>
         </dependency>
 
         <dependency>
