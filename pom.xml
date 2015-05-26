@@ -74,6 +74,8 @@
         </repository>
     </repositories>
 
+    <!-- mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates -->
+
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -130,11 +132,6 @@
             <version>${jersey.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20090211</version>
-        </dependency>
 
         <!-- com.google.common used by Application, ApplicationDao, UserAuthenticationEndpoint -->
         <dependency>
@@ -148,6 +145,12 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.13</version>
+        </dependency>
+        <!-- Deprecated! used in UserIdentity, PasswordResource -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
         </dependency>
 
         <dependency>
