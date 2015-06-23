@@ -178,7 +178,7 @@
             <version>2.3.22</version>
         </dependency>
 
-        <!-- com.google.common used by Application, ApplicationDao, UserAuthenticationEndpoint -->
+        <!-- com.google.common used by UserAuthenticationEndpoint -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
