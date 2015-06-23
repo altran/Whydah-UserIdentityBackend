@@ -140,17 +140,13 @@ public class UserIdentityService {
             try {
                 internetAddress.validate();
             } catch (AddressException e) {
-                //log.error(String.format("E-mail: %s is of wrong format.", email));
-                //return Response.status(Response.Status.BAD_REQUEST).build();
-                //TODO use BadRequestException from jersey 2.7
-                throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+                throw new WebApplicationException(String.format("E-mail: %s is of wrong format.", email), Response.Status.BAD_REQUEST);
             }
 
             List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
             if (!usersWithSameEmail.isEmpty()) {
                 String msg = "E-mail " + email + " is already in use (in lucene index), could not create user with username=" + username;
                 log.info(msg);
-                //throw new ConflictException(msg);
                 throw new WebApplicationException(msg, Response.Status.CONFLICT);
 
             }
