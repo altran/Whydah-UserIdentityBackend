@@ -47,20 +47,18 @@ public class ApplicationsResource {
     public Response getApplications(){
         log.trace("getApplications is called ");
         try {
+            List<String> availableOrgNames =  new LinkedList<>();
+            List<String> availableRoleNames =  new LinkedList<>();
             List<Application> applications = applicationService.getApplications();
-            List<String> availableOrgNames =  new LinkedList<String>();
-            List<String> availableRoleNames =  new LinkedList<String>();
-            for (int i = 0; i < applications.size() ; i++) {
-                Application a =applications.get(i);
-                if (!availableOrgNames.contains(a.getDefaultOrgName())){
+            for (Application a : applications) {
+                if (!availableOrgNames.contains(a.getDefaultOrgName())) {
                     availableOrgNames.add(a.getDefaultOrgName());
                 }
-                if (!availableRoleNames.contains(a.getDefaultRoleName())){
+                if (!availableRoleNames.contains(a.getDefaultRoleName())) {
                     availableRoleNames.add(a.getDefaultRoleName());
                 }
             }
-            for (int i = 0; i < applications.size() ; i++) {
-                Application application = applications.get(i);
+            for (Application application : applications) {
                 application.setAvailableOrgNames(availableOrgNames);
                 //application.setAvailableRoleNames(availableRoleNames);    //TODO
             }

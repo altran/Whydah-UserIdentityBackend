@@ -50,8 +50,9 @@ public class ApplicationService {
     }
 
     public List<Application> getApplications() {
-        log.trace("Found applications:"+ applicationDao.getApplications().size());
-        return applicationDao.getApplications();
+        List<Application> applications = applicationDao.getApplications();
+        log.trace("Found applications:" + applications.size());
+        return applications;
     }
 
     public static String toJson(Application application) {

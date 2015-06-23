@@ -23,7 +23,7 @@ public class ApplicationDao {
     private static final Logger log = LoggerFactory.getLogger(ApplicationDao.class);
 
     private static String APPLICATIONS_SQL = "SELECT Id, Name, Secret, AvailableOrgNames, DefaultRoleName, DefaultOrgName from Application";
-    private static String APPLICATION_SQL = APPLICATIONS_SQL + " WHERE id=?";
+    private static String APPLICATION_SQL =  "SELECT Id, Name, Secret, AvailableOrgNames, DefaultRoleName, DefaultOrgName from Application WHERE id=?";
 
     private JdbcTemplate jdbcTemplate;
 
