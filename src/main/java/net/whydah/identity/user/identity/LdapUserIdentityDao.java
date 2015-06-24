@@ -305,7 +305,6 @@ public class LdapUserIdentityDao {
     }
 
     private Attributes getAttributesForUid(String uid) throws NamingException {
-        log.debug("getAttributesForUid, uid=" + uid);
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration results = null;
@@ -325,7 +324,7 @@ public class LdapUserIdentityDao {
             SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
         }
-        log.trace("No attributes found for uid. Search on: {}={}", uidAttribute, uid);
+        log.trace("getAttributesForUid found no attributes for {}={}.", uidAttribute, uid);
         return null;
     }
 
@@ -358,7 +357,7 @@ public class LdapUserIdentityDao {
                 throw pre;
             }
         }
-        log.trace("No attributes found for username. Search on: {}={}", usernameAttribute, username);
+        log.trace("getUserAttributesForUsername found no attributes for {}={}.", usernameAttribute, username);
         return null;
     }
 
