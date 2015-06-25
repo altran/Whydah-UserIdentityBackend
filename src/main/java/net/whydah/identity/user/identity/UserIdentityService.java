@@ -175,11 +175,12 @@ public class UserIdentityService {
 
 
     public UserIdentity getUserIdentityForUid(String uid) throws NamingException {
-        if (ldapUserIdentityDao.getUserIndentityForUid(uid) == null) {
+        UserIdentity userIdentity = ldapUserIdentityDao.getUserIndentityByUid(uid);
+        if (userIdentity == null) {
             log.warn("Trying to access non-existing UID, removing form index: " + uid);
             luceneIndexer.removeFromIndex(uid);
         }
-        return ldapUserIdentityDao.getUserIndentityForUid(uid);
+        return userIdentity;
     }
 
     public void updateUserIdentityForUid(String uid, UserIdentity newUserIdentity) {

@@ -163,7 +163,7 @@ public class LdapUserIdentityDao {
             setUp();
         }
         try {
-            UserIdentity olduser = getUserIndentityForUid(uid);
+            UserIdentity olduser = getUserIndentityByUid(uid);
             updateLdapAttributesForUser(uid, newuser, olduser);
             log.debug("updateUserIdentityForUid updated LDAP - newuser={} olduser:{]", newuser, olduser);
         } catch (NamingException ne) {
@@ -257,7 +257,7 @@ public class LdapUserIdentityDao {
         return id;
     }
 
-    public UserIdentity getUserIndentityForUid(String uid) throws NamingException {
+    public UserIdentity getUserIndentityByUid(String uid) throws NamingException {
         if (!connected) {
             setUp();
         }

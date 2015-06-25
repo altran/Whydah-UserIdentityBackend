@@ -169,8 +169,8 @@ public class UserResource {
 
     @DELETE
     @Path("/{uid}")
-    public Response deleteUserAggregate(@PathParam("uid") String uid) {
-        log.trace("deleteUserAggregate: uid={}", uid);
+    public Response deleteUserIdentityAndRoles(@PathParam("uid") String uid) {
+        log.trace("deleteUserIdentityAndRoles: uid={}", uid);
 
         try {
             userAggregateService.deleteUserAggregateByUid(uid);
@@ -183,6 +183,8 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
 
 
     // ROLES
