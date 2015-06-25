@@ -52,9 +52,11 @@ public class UsersResource {
     /**
      * Get user details.
      *
+     *
      * @param username Username
      * @return user details and roles.
      */
+    @Deprecated //ED: I think this endpoint should be removed! Use /useraggregate/uid instead...
     @GET
     @Path("/username/{username}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
