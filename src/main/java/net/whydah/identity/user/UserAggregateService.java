@@ -46,15 +46,15 @@ public class UserAggregateService {
     }
 
 
-    public UserAggregate getUserAggregateByUsername(String username) {
+    public UserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
         UserIdentity userIdentity;
         try {
-            userIdentity = userIdentityService.getUserIdentity(username);
+            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
         } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIdentity with username=" + username, e);
+            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
         }
         if (userIdentity == null) {
-            log.trace("getUserAggregateByUsername could not find user with username={}", username);
+            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
             return null;
         }
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleRepository.getUserPropertyAndRoles(userIdentity.getUid());

@@ -63,7 +63,7 @@ public class UsersResource {
 
         UserAggregate user;
         try {
-            user = userAggregateService.getUserAggregateByUsername(username);
+            user = userAggregateService.getUserAggregateByUsernameOrUid(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("{\"error\":\"user not found\"}'").build();
             }
