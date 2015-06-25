@@ -247,12 +247,12 @@ public class LdapUserIdentityDao {
         return uidAttribute + '=' + uid + "," + USERS_OU;
     }
 
-    public UserIdentity getUserIndentity(String username) throws NamingException {
+    public UserIdentity getUserIndentity(String usernameOrUid) throws NamingException {
         if (!connected) {
             setUp();
         }
 
-        Attributes attributes = getUserAttributesForUsernameOrUid(username);
+        Attributes attributes = getUserAttributesForUsernameOrUid(usernameOrUid);
         UserIdentity id = fromLdapAttributes(attributes);
         return id;
     }
@@ -294,14 +294,14 @@ public class LdapUserIdentityDao {
     }
 
 
-    private Attributes getUserAttributesForUsernameOrUid(String username) throws NamingException {
-        Attributes userAttributesForUsername = getUserAttributesForUsername(username);
+    private Attributes getUserAttributesForUsernameOrUid(String usernameOrUid) throws NamingException {
+        Attributes userAttributesForUsername = getUserAttributesForUsername(usernameOrUid);
         if (userAttributesForUsername != null) {
             return userAttributesForUsername;
         }
 
-        log.debug("No attributes found for username=" + username + ", trying uid");
-        return getAttributesForUid(username);
+        log.debug("No attributes found for username=" + usernameOrUid + ", trying uid");
+        return getAttributesForUid(usernameOrUid);
     }
 
     private Attributes getAttributesForUid(String uid) throws NamingException {

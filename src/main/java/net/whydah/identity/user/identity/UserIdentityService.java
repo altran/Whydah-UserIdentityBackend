@@ -189,8 +189,8 @@ public class UserIdentityService {
     }
 
 
-    public UserIdentity getUserIdentity(String username) throws NamingException {
-        return ldapUserIdentityDao.getUserIndentity(username);
+    public UserIdentity getUserIdentity(String usernameOrUid) throws NamingException {
+        return ldapUserIdentityDao.getUserIndentity(usernameOrUid);
     }
     public void updateUserIdentity(String username, UserIdentity newuser) {
         ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
