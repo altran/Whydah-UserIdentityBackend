@@ -54,8 +54,8 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@github.com/altran/Whydah-UserIdentityBackend.git</developerConnection>
-        <connection>scm:git:https://github.com/altran/Whydah-UserIdentityBackend.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/cantara/Whydah-UserIdentityBackend.git</developerConnection>
+        <connection>scm:git:https://github.com/cantara/Whydah-UserIdentityBackend.git</connection>
         <url>https://wiki.cantara.no/display/whydah/UserIdentityBackend+-+UIB</url>
     </scm>
 
