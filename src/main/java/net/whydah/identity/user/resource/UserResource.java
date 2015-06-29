@@ -141,7 +141,7 @@ public class UserResource {
         try {
             userIdentity = mapper.readValue(userIdentityJson, UserIdentity.class);
         } catch (IOException e) {
-            log.error("updateUserIdentityForUsername, invalid json. userIdentityJson={}", userIdentityJson, e);
+            log.error("updateUserIdentity failed for uid={}, invalid json. userIdentityJson={}", uid, userIdentityJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
