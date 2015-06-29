@@ -147,7 +147,6 @@ public class UserResource {
 
         try {
             UserIdentity updatedUserIdentity = userAggregateService.updateUserIdentity(uid, userIdentity);
-
             try {
                 String json = mapper.writeValueAsString(updatedUserIdentity);
                 return Response.ok(json).build();
@@ -157,10 +156,10 @@ public class UserResource {
             }
         } catch (InvalidUserIdentityFieldException iuife) {
             log.warn("updateUserIdentity returned {} because {}.", Response.Status.BAD_REQUEST.toString(), iuife.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(iuife.getMessage()).build();
         } catch (IllegalArgumentException iae) {
             log.info("updateUserIdentity: Invalid json={}", userIdentityJson, iae);
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid json").build();
         } catch (RuntimeException e) {
             log.error("updateUserIdentity: RuntimeError json={}", userIdentityJson, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
