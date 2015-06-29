@@ -31,7 +31,7 @@ public class ApplicationEndpointTest {
 
     @Before
     public void startServer() {
-        ApplicationMode.setTags(ApplicationMode.DEV_MODE, ApplicationMode.NO_SECURITY_FILTER);
+        ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))

@@ -68,7 +68,7 @@ public class UserAuthenticationEndpointTest {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        ApplicationMode.setDevMode();
+        ApplicationMode.setCIMode();
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
