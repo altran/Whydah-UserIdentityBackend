@@ -8,6 +8,8 @@ import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.application.Application;
+import net.whydah.sso.application.ApplicationSerializer;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -76,10 +78,9 @@ public class ApplicationEndpointTest {
 
     @Test
     public void testCreateApplication() throws Exception {
-        //String url = "http://localhost:" + main.getPort() + "/applicationtokenid1/userTokenId1/application";
-        //Application application = new Application("id1", "appName1");
-        //String json = mapper.writeValueAsString(application);
-        String json = "{\"id\":\"id1\",\"name\":\"appName1\",\"description\":null,\"availableRoles\":[],\"defaultRoleName\":null,\"availableOrgNames\":[],\"defaultOrgName\":null,\"availableRoleNames\":null}";
+        //String json = "{\"id\":\"id1\",\"name\":\"appName1\",\"description\":null,\"availableRoles\":[],\"defaultRoleName\":null,\"availableOrgNames\":[],\"defaultOrgName\":null,\"availableRoleNames\":null}";
+        Application app = new Application("id1", "appName1");
+        String json = ApplicationSerializer.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application";
         Response response = given()

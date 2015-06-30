@@ -1,6 +1,7 @@
 package net.whydah.identity.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whydah.sso.application.Application;
+import net.whydah.sso.application.ApplicationSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,9 +17,7 @@ import java.util.List;
 @Path("/{applicationtokenid}/{userTokenId}/")
 public class ApplicationsResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationsResource.class);
-    ApplicationService applicationService;
-    ObjectMapper mapper = new ObjectMapper();
-
+    private final ApplicationService applicationService;
 
     @Autowired
     public ApplicationsResource(ApplicationService applicationService) {
@@ -37,7 +35,6 @@ public class ApplicationsResource {
 
         //FIXME check applicationSecret against applicationID
         return Response.ok().build();
-
     }
 
 
@@ -51,21 +48,21 @@ public class ApplicationsResource {
             List<String> availableRoleNames =  new LinkedList<>();
             List<Application> applications = applicationService.getApplications();
             for (Application a : applications) {
-                if (!availableOrgNames.contains(a.getDefaultOrgName())) {
-                    availableOrgNames.add(a.getDefaultOrgName());
+                if (!availableOrgNames.contains(a.getDefaultOrganizationName())) {
+                    availableOrgNames.add(a.getDefaultOrganizationName());
                 }
                 if (!availableRoleNames.contains(a.getDefaultRoleName())) {
                     availableRoleNames.add(a.getDefaultRoleName());
                 }
             }
             for (Application application : applications) {
-                application.setAvailableOrgNames(availableOrgNames);
+                application.setOrganizationNames(availableOrgNames);
                 //application.setAvailableRoleNames(availableRoleNames);    //TODO
             }
 
-            String applicationCreatedJson = buildApplicationsJson(applications);
-            log.trace("Returning {} applications: {}", applications.size(), applicationCreatedJson);
-            return Response.ok(applicationCreatedJson).build();
+            String json = ApplicationSerializer.toJson(applications);
+            log.trace("Returning {} applications: {}", applications.size(), json);
+            return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
             log.error("getApplications failed because Invalid json. {}.",  iae);
             return Response.status(Response.Status.BAD_REQUEST).entity(iae.getMessage()).build();
@@ -76,17 +73,6 @@ public class ApplicationsResource {
             log.error("getApplications failed because {}.", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-
-    protected String buildApplicationsJson(List<Application> applications) {
-        String applicationsCreatedJson = null;
-        try {
-            applicationsCreatedJson = mapper.writeValueAsString(applications);
-        } catch (IOException e) {
-            log.warn("Could not convert application to Json {}", applications.toString());
-        }
-        return applicationsCreatedJson;
     }
 }
 

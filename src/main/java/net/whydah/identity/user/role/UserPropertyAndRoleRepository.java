@@ -1,7 +1,7 @@
 package net.whydah.identity.user.role;
 
-import net.whydah.identity.application.Application;
 import net.whydah.identity.application.ApplicationDao;
+import net.whydah.sso.application.Application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

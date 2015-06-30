@@ -1,6 +1,7 @@
 package net.whydah.identity.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whydah.sso.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

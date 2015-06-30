@@ -1,5 +1,7 @@
 package net.whydah.identity.application;
 
+import net.whydah.sso.application.Application;
+import net.whydah.sso.application.Role;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,7 @@ public class ApplicationDao {
         }
         Application application = applications.get(0);
         List<Role> roles = findRolesForApplication(application.getId());
-        application.setAvailableRoles(roles);
+        application.setRoles(roles);
         return application;
     }
 
@@ -67,12 +69,12 @@ public class ApplicationDao {
     public Application create(Application application) {
         Application applicationStored = null;
         String sql = "INSERT INTO Application (ID, Name, Secret, AvailableOrgNames, DefaultRoleName, DefaultOrgName) VALUES (?,?,?,?,?,?)";
-        String availableOrgNames = String.join(",", application.getAvailableOrgNames());
+        String availableOrgNames = String.join(",", application.getOrganizationNames());
         int numRowsUpdated = jdbcTemplate.update(sql, application.getId(), application.getName(), application.getSecret(),
-                availableOrgNames, application.getDefaultRoleName(), application.getDefaultOrgName());
+                availableOrgNames, application.getDefaultRoleName(), application.getDefaultOrganizationName());
 
         String roleSql = "INSERT INTO Role(Id, Name, applicationId) VALUES (?,?,?)";
-        for (Role role : application.getAvailableRoles()) {
+        for (Role role : application.getRoles()) {
             jdbcTemplate.update(roleSql, role.getId(), role.getName(), application.getId());
         }
 
@@ -84,7 +86,8 @@ public class ApplicationDao {
     }
 
 
-    public int countApplications() {
+    //used by ApplicationDaoTest
+    int countApplications() {
         String sql = "SELECT count(*) FROM Application";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
         log.debug("applicationCount={}", count);
@@ -97,10 +100,10 @@ public class ApplicationDao {
             application.setSecret(rs.getString("Secret"));
             String availableOrgNames = rs.getString("availableOrgNames");
             if (availableOrgNames != null) {
-                application.setAvailableOrgNames(Arrays.asList(availableOrgNames.split(",")));
+                application.setOrganizationNames(Arrays.asList(availableOrgNames.split(",")));
             }
             application.setDefaultRoleName(rs.getString("DefaultRoleName"));
-            application.setDefaultOrgName(rs.getString("DefaultOrgName"));
+            application.setDefaultOrganizationName(rs.getString("DefaultOrgName"));
             return application;
         }
     }

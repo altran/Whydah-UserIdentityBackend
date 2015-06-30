@@ -1,14 +1,13 @@
 package net.whydah.identity.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
+import net.whydah.sso.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +33,7 @@ public class ApplicationService {
     public Application createApplication(Application application) {
         application.setId(UUID.randomUUID().toString());
         Application persisted = applicationDao.create(application);
-        audit(ActionPerformed.ADDED, "application", application.toString());
+        audit(ActionPerformed.ADDED, "application", application.getId() + ", " + application.getName() );
         return persisted;
     }
 
@@ -52,17 +51,5 @@ public class ApplicationService {
     public List<Application> getApplications() {
         List<Application> applications = applicationDao.getApplications();
         return applications;
-    }
-
-    public static String toJson(Application application) {
-        String applicationJson = null;
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            applicationJson =  mapper.writeValueAsString(application);
-        } catch (IOException e) {
-            log.info("Could not create json from this object {}", application.toString(), e);
-        }
-        log.trace("JSON serialization:",applicationJson);
-        return applicationJson;
     }
 }

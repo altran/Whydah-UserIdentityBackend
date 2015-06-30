@@ -3,14 +3,7 @@ package net.whydah.identity.application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
 import org.junit.Before;
-import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -40,48 +33,6 @@ public class ApplicationServiceTest {
         auditLogDaoMock = mock(AuditLogDao.class);
         applicationService = new ApplicationService(applicationDaoMock, auditLogDaoMock);
     }
-
-    @Test
-    public void testToJsonMinimum() throws Exception {
-        Application application = new Application("id1", "name1");
-        application.setSecret("verySecretKeyHere");
-        String json = ApplicationService.toJson(application);
-        JSONAssert.assertEquals(minApplication, json, false);
-        assertFalse(json.contains(application.getSecret()));
-    }
-
-    @Test
-    public void testToJsonComplete() throws Exception {
-        Application application = new Application("appId1", "appName1");
-        application.setSecret("verySecretKeyHere");
-        application.setDefaultRoleName("defaultRoleName1");
-        application.setDefaultOrgName("defaultOrgName1");
-        application.setDescription("description1");
-        application.addRole(new Role("roleId1", "roleName1"));
-        application.addRole(new Role("roleId2", "roleName2"));
-        application.setAvailableOrgNames(Arrays.asList("orgName1", "orgName2", "orgName3"));
-        String json = ApplicationService.toJson(application);
-        JSONAssert.assertEquals(maxApplication, json, false);
-        assertFalse(json.contains(application.getSecret()));
-    }
-
-
-    /*
-    @Test
-    public void testToJson() throws Exception {
-        Application application = new Application("id1", "test");
-        JSONAssert.assertEquals(minimumApplication, ApplicationService.toJson(application), false);
-        application = new Application("id1", "test");
-        application.setDefaultRoleName("defaultrole");
-        application.setDefaultOrgName("defaultorgname");
-        JSONAssert.assertEquals(mostApplication, ApplicationService.toJson(application), false);
-        List<String> availableOrgNames = new ArrayList<>();
-        availableOrgNames.add("developer@customer");
-        availableOrgNames.add("consultant@customer");
-        application.setAvailableOrgNames(availableOrgNames);
-        JSONAssert.assertEquals(allApplication, ApplicationService.toJson(application), false);
-    }
-    */
 
     /*
     @Test
@@ -117,18 +68,6 @@ public class ApplicationServiceTest {
         applications.add(application_2);
         assertNotNull(applications);
         assertEquals(2,applications.size());
-
-        //System.out.println(buildApplicationsJson(applications));
     }
     */
-
-
-    protected String buildApplicationsJson(List<Application> applications) {
-        String applicationsCreatedJson = null;
-        try {
-            applicationsCreatedJson = mapper.writeValueAsString(applications);
-        } catch (IOException e) {
-        }
-        return applicationsCreatedJson;
-    }
 }
