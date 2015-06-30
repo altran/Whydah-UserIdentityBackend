@@ -9,6 +9,7 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
@@ -16,7 +17,6 @@ import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
@@ -52,11 +52,12 @@ import static org.junit.Assert.*;
  */
 public class UserAuthenticationEndpointTest {
     private static DatabaseMigrationHelper dbHelper;
-    private static UserPropertyAndRoleRepository roleRepository;
+    private static UserPropertyAndRoleDao userPropertyAndRoleDao;
     private static UserAdminHelper userAdminHelper;
     private static UserIdentityService userIdentityService;
 
     private static Main main = null;
+    private static ApplicationDao applicationDao;
 
 
     @BeforeClass
@@ -89,9 +90,9 @@ public class UserAuthenticationEndpointTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
-        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
-        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
-        assertEquals(roleRepository.countUserRolesInDB(), 0);
+        userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
+        applicationDao = new ApplicationDao(dataSource);
+        assertEquals(userPropertyAndRoleDao.countUserRolesInDB(), 0);
 
         new IamDataImporter(dataSource, configuration).importIamData();
 
@@ -115,7 +116,7 @@ public class UserAuthenticationEndpointTest {
 
 
         Directory index = new NIOFSDirectory(new File(luceneDir));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, roleRepository, configuration);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, userPropertyAndRoleDao, configuration);
 
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
@@ -208,7 +209,9 @@ public class UserAuthenticationEndpointTest {
         String email = "e@mail.com";
         newIdentity.setEmail(email);
 
-        UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(roleRepository, userAdminHelper, userIdentityService);
+        UserAggregateService userAggregateService = new UserAggregateService(userIdentityService, userPropertyAndRoleDao,
+                applicationDao, null, null);
+        UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(userAggregateService, userAdminHelper, userIdentityService);
 
         String roleValue = "roleValue";
         Response response = resource.createAndAuthenticateUser(newIdentity, roleValue, false);

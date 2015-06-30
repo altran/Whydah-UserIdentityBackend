@@ -3,7 +3,6 @@ package net.whydah.identity.dataimport;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.role.UserPropertyAndRoleRepository;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -25,7 +24,7 @@ public class IamDataImporter {
     private final QueryRunner queryRunner;
     private final LdapUserIdentityDao ldapUserIdentityDao;
     private final String luceneDir;
-    private final UserPropertyAndRoleRepository userPropertyAndRoleRepository;
+    private final UserPropertyAndRoleDao userPropertyAndRoleDao;
 
 
     private String applicationsImportSource;
@@ -41,7 +40,7 @@ public class IamDataImporter {
         //String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
         this.luceneDir = configuration.evaluateToString("lucene.directory");
 
-        this.userPropertyAndRoleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), new ApplicationDao(dataSource));
+        this.userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
 
         /*
         this.applicationsImportSource = AppConfig.appConfig.getProperty("import.applicationssource");
@@ -96,7 +95,7 @@ public class IamDataImporter {
             new WhydahUserIdentityImporter(ldapUserIdentityDao, new LuceneIndexer(index)).importUsers(uis);
 
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
-            new RoleMappingImporter(userPropertyAndRoleRepository).importRoleMapping(rmis);
+            new RoleMappingImporter(userPropertyAndRoleDao).importRoleMapping(rmis);
         } finally {
             FileUtils.close(ais);
             FileUtils.close(ois);
@@ -159,7 +158,7 @@ public class IamDataImporter {
     LdapUserIdentityDao getLdapUserIdentityDao() {
         return ldapUserIdentityDao;
     }
-    UserPropertyAndRoleRepository getUserPropertyAndRoleRepository() {
-        return userPropertyAndRoleRepository;
+    UserPropertyAndRoleDao getUserPropertyAndRoleDao() {
+        return userPropertyAndRoleDao;
     }
 }
