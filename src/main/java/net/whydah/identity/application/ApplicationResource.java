@@ -34,17 +34,17 @@ public class ApplicationResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createApplication(String applicationJson)  {
-        log.trace("createApplication is called with applicationJson={}", applicationJson);
+        log.trace("create is called with applicationJson={}", applicationJson);
         Application application;
         try {
             application = ApplicationSerializer.fromJson(applicationJson);
         } catch (IllegalArgumentException iae) {
-            log.error("createApplication: Invalid json={}", applicationJson, iae);
+            log.error("create: Invalid json={}", applicationJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         Application persisted;
         try {
-            persisted = applicationService.createApplication(application);
+            persisted = applicationService.create(application);
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -52,10 +52,10 @@ public class ApplicationResource {
             
         /*
         try {
-            application = applicationService.createApplication(applicationJson);
+            application = applicationService.create(applicationJson);
             //return Response.status(Response.Status.OK).build();
         } catch (IllegalArgumentException iae) {
-            log.error("createApplication: Invalid json={}", applicationJson, iae);
+            log.error("create: Invalid json={}", applicationJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (IllegalStateException ise) {
             log.error(ise.getMessage());
@@ -85,7 +85,7 @@ public class ApplicationResource {
             String json = ApplicationSerializer.toJson(application);
             return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
-            log.error("createApplication: Invalid json={}", applicationId, iae);
+            log.error("create: Invalid json={}", applicationId, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (IllegalStateException ise) {
             log.error(ise.getMessage());

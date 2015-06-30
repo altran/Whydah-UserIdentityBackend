@@ -4,6 +4,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
@@ -57,7 +58,7 @@ public class UserAuthenticationEndpointTest {
     private static UserIdentityService userIdentityService;
 
     private static Main main = null;
-    private static ApplicationDao applicationDao;
+    private static ApplicationService applicationService;
 
 
     @BeforeClass
@@ -91,7 +92,7 @@ public class UserAuthenticationEndpointTest {
         dbHelper.upgradeDatabase();
 
         userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
-        applicationDao = new ApplicationDao(dataSource);
+        applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
         assertEquals(userPropertyAndRoleDao.countUserRolesInDB(), 0);
 
         new IamDataImporter(dataSource, configuration).importIamData();
@@ -210,7 +211,7 @@ public class UserAuthenticationEndpointTest {
         newIdentity.setEmail(email);
 
         UserAggregateService userAggregateService = new UserAggregateService(userIdentityService, userPropertyAndRoleDao,
-                applicationDao, null, null);
+                applicationService, null, null);
         UserAuthenticationEndpoint resource = new UserAuthenticationEndpoint(userAggregateService, userAdminHelper, userIdentityService);
 
         String roleValue = "roleValue";

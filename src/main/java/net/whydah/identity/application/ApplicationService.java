@@ -30,8 +30,13 @@ public class ApplicationService {
         this.auditLogDao = auditLogDao;
     }
 
-    public Application createApplication(Application application) {
-        application.setId(UUID.randomUUID().toString());
+    public Application create(Application application) {
+        return create(UUID.randomUUID().toString(), application);
+    }
+
+    //used by ApplicationImporter, should be remove later
+    public Application create(String applicationId, Application application) {
+        application.setId(applicationId);
         Application persisted = applicationDao.create(application);
         audit(ActionPerformed.ADDED, "application", application.getId() + ", " + application.getName() );
         return persisted;

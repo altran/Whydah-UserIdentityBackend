@@ -40,7 +40,7 @@ public class ApplicationDao {
     }
 
 
-    public Application getApplication(String applicationId) {
+    Application getApplication(String applicationId) {
         List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper());
         if (applications.isEmpty()) {
             return null;
@@ -59,7 +59,7 @@ public class ApplicationDao {
     }
     */
 
-    public List<Application> getApplications() {
+    List<Application> getApplications() {
         return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper());
     }
 
@@ -68,7 +68,7 @@ public class ApplicationDao {
      * @param application
      * @return application, with new Id inserted.
      */
-    public Application create(Application application) {
+    Application create(Application application) {
         String json = ApplicationSerializer.toJson(application);
         String sql = "INSERT INTO Application (id, json) VALUES (?,?)";
         int numRowsUpdated = jdbcTemplate.update(sql, application.getId(), json);

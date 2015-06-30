@@ -1,6 +1,6 @@
 package net.whydah.identity.user;
 
-import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
@@ -34,13 +34,13 @@ public class UserAggregateService {
 
     private final UserIdentityService userIdentityService;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
-    private final ApplicationDao applicationDao;
+    private final ApplicationService applicationDao;
     private final LuceneIndexer luceneIndexer;
     private final AuditLogDao auditLogDao;
 
     @Autowired
     public UserAggregateService(UserIdentityService userIdentityService, UserPropertyAndRoleDao userPropertyAndRoleDao,
-                                ApplicationDao applicationDao, LuceneIndexer luceneIndexer, AuditLogDao auditLogDao) {
+                                ApplicationService applicationDao, LuceneIndexer luceneIndexer, AuditLogDao auditLogDao) {
         this.luceneIndexer = luceneIndexer;
         this.auditLogDao = auditLogDao;
         this.userPropertyAndRoleDao = userPropertyAndRoleDao;

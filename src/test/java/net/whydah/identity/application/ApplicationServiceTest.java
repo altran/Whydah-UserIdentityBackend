@@ -37,7 +37,7 @@ public class ApplicationServiceTest {
     /*
     @Test
     public void testCreateApplication() throws Exception {
-        Application application = applicationService.createApplication(allApplication);
+        Application application = applicationService.create(allApplication);
         assertNotNull(application);
         assertEquals("11", application.getId());
         assertEquals("SecurityTokenService", application.getName());
@@ -47,22 +47,22 @@ public class ApplicationServiceTest {
         assertNotNull(availableOrgNames);
         assertEquals("Whydah", availableOrgNames.get(0));
         assertEquals("ACSOrganization", availableOrgNames.get(1));
-        Application aapplication = applicationService.createApplication(allApplication);
+        Application aapplication = applicationService.create(allApplication);
 
     }
 
     @Test
     public void testCreateDuplicateApplication() throws Exception {
-        Application application = applicationService.createApplication(allApplication);
-        applicationService.createApplication(allApplication);
-        applicationService.createApplication(allApplication);
-        applicationService.createApplication(allApplication);
+        Application application = applicationService.create(allApplication);
+        applicationService.create(allApplication);
+        applicationService.create(allApplication);
+        applicationService.create(allApplication);
     }
 
     @Test
     public void testGetApplications() throws Exception {
-        Application application = applicationService.createApplication(allApplication);
-        Application application_2 = applicationService.createApplication(application2);
+        Application application = applicationService.create(allApplication);
+        Application application_2 = applicationService.create(application2);
         List<Application> applications = new LinkedList();
         applications.add(application);
         applications.add(application_2);

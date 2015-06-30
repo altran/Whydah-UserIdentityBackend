@@ -1,6 +1,6 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationService;
 import net.whydah.sso.application.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +22,11 @@ public class ApplicationImporter {
 	private static final int DEFAULTORGANIZATIONNAME = 3;
     private static final int APPLICATIONSECRET = 4;
 
-    private ApplicationDao applicationDao;
+    private ApplicationService applicationService;
 
 
-    public ApplicationImporter(ApplicationDao applicationDao) {
-        this.applicationDao = applicationDao;
+    public ApplicationImporter(ApplicationService applicationService) {
+        this.applicationService = applicationService;
     }
 
 	public void importApplications(InputStream applicationsSource) {
@@ -38,7 +38,7 @@ public class ApplicationImporter {
 	private void saveApplications(List<Application> applications) {
         for (Application application: applications) {
             try {
-                applicationDao.create(application);
+                applicationService.create(application.getId(), application);
                 /*
                 queryRunner.update("INSERT INTO Application (Id, Name, DefaultRoleName, DefaultOrgName, Secret) values (?, ?, ?, ?, ?)",
                         application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());

@@ -3,6 +3,7 @@ package net.whydah.identity.dataimport;
 import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
@@ -140,9 +141,9 @@ public class IamDataImporterTest {
         assertEquals("Lastname must be set", "Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("UserId must be set", "erik.drolshammer", erikdUserIdentity.getUid());
 
-
+        ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), null);
         UserAggregateService userAggregateService = new UserAggregateService(null, dataImporter.getUserPropertyAndRoleDao(),
-                new ApplicationDao(dataSource), null, null);
+                applicationService, null, null);
         UserAggregate userAggregate1 = new UserAggregate(thomaspUserIdentity, userAggregateService.getUserPropertyAndRoles(thomaspUserIdentity.getUid()));
         List<UserPropertyAndRole> propsAndRoles = userAggregate1.getRoles();
 

@@ -1,6 +1,8 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
@@ -85,7 +87,8 @@ public class IamDataImporter {
         InputStream rmis = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);
-            new ApplicationImporter(new ApplicationDao(dataSource)).importApplications(ais);
+            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+            new ApplicationImporter(applicationService).importApplications(ais);
 
             ois = openInputStream("Organizations", organizationsImportSource);
             new OrganizationImporter(queryRunner).importOrganizations(ois);
