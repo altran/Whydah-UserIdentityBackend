@@ -1,7 +1,7 @@
 package net.whydah.identity.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.sso.application.Application;
+import net.whydah.sso.application.ApplicationSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 /**
  * Created by baardl on 29.03.14.
@@ -17,9 +16,7 @@ import java.io.IOException;
 @Path("/{applicationtokenid}/{userTokenId}/application")
 public class ApplicationResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResource.class);
-    ApplicationService applicationService;
-    ObjectMapper mapper = new ObjectMapper();
-
+    private final ApplicationService applicationService;
 
     @Autowired
     public ApplicationResource(ApplicationService applicationService) {
@@ -40,7 +37,7 @@ public class ApplicationResource {
         log.trace("createApplication is called with applicationJson={}", applicationJson);
         Application application;
         try {
-            application = fromJson(applicationJson);
+            application = ApplicationSerializer.fromJson(applicationJson);
         } catch (IllegalArgumentException iae) {
             log.error("createApplication: Invalid json={}", applicationJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -70,8 +67,8 @@ public class ApplicationResource {
         */
 
         if (persisted != null) {
-            String applicationCreatedJson = buildApplicationJson(application);
-            return Response.ok(applicationCreatedJson).build();
+            String json = ApplicationSerializer.toJson(persisted);
+            return Response.ok(json).build();
         } else {
             //TODO If it was not persisted, should return error message
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -85,8 +82,8 @@ public class ApplicationResource {
         log.trace("getApplication is called with applicationId={}", applicationId);
         try {
             Application application = applicationService.getApplication(applicationId);
-            String applicationCreatedJson = buildApplicationJson(application);
-            return Response.ok(applicationCreatedJson).build();
+            String json = ApplicationSerializer.toJson(application);
+            return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
             log.error("createApplication: Invalid json={}", applicationId, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -98,26 +95,4 @@ public class ApplicationResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
-    protected String buildApplicationJson(Application application) {
-        String applicationCreatedJson = null;
-        try {
-            applicationCreatedJson = mapper.writeValueAsString(application);
-        } catch (IOException e) {
-            log.warn("Could not convert application to Json {}", application.toString());
-        }
-        return applicationCreatedJson;
-    }
-
-    public static Application fromJson(String applicationJson) throws  IllegalArgumentException {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            Application application = mapper.readValue(applicationJson, Application.class);
-            return application;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Error mapping json for " + applicationJson, e);
-        }
-    }
-
 }
