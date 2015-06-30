@@ -3,8 +3,6 @@ package net.whydah.identity.application;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.sso.application.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +16,6 @@ import java.util.UUID;
  */
 @Service
 public class ApplicationService {
-    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final ApplicationDao applicationDao;
@@ -33,21 +30,13 @@ public class ApplicationService {
     public Application create(Application application) {
         return create(UUID.randomUUID().toString(), application);
     }
-
     //used by ApplicationImporter, should be remove later
     public Application create(String applicationId, Application application) {
         application.setId(applicationId);
         Application persisted = applicationDao.create(application);
-        audit(ActionPerformed.ADDED, "application", application.getId() + ", " + application.getName() );
+        audit(ActionPerformed.ADDED, application.getId() + ", " + application.getName());
         return persisted;
     }
-
-    private void audit(String action, String what, String value) {
-        String now = sdf.format(new Date());
-        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, what, value);
-        auditLogDao.store(actionPerformed);
-    }
-
 
     public Application getApplication(String applicationId) {
         return applicationDao.getApplication(applicationId);
@@ -56,5 +45,21 @@ public class ApplicationService {
     public List<Application> getApplications() {
         List<Application> applications = applicationDao.getApplications();
         return applications;
+    }
+
+    public void update(Application application) {
+        applicationDao.update(application);
+        audit(ActionPerformed.MODIFIED, application.getId() + ", " + application.getName());
+    }
+
+    public void delete(String applicationId) {
+        applicationDao.delete(applicationId);
+        audit(ActionPerformed.DELETED, applicationId);
+    }
+
+    private void audit(String action, String value) {
+        String now = sdf.format(new Date());
+        ActionPerformed actionPerformed = new ActionPerformed(value, now, action, "application", value);
+        auditLogDao.store(actionPerformed);
     }
 }

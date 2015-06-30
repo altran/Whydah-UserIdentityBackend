@@ -40,30 +40,6 @@ public class ApplicationDao {
     }
 
 
-    Application getApplication(String applicationId) {
-        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper());
-        if (applications.isEmpty()) {
-            return null;
-        }
-        Application application = applications.get(0);
-        //List<Role> roles = findRolesForApplication(application.getId());
-        //application.setRoles(roles);
-        return application;
-    }
-
-    /*
-    private List<Role> findRolesForApplication(String applicationId) {
-        String sql = "SELECT Id, Name from Role where applicationId=?";
-        List<Role> roles = jdbcTemplate.query(sql, new String[]{applicationId}, new RoleMapper());
-        return roles;
-    }
-    */
-
-    List<Application> getApplications() {
-        return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper());
-    }
-
-
     /**
      * @param application
      * @return application, with new Id inserted.
@@ -92,6 +68,30 @@ public class ApplicationDao {
         }
         return applicationStored;
         */
+    }
+
+    Application getApplication(String applicationId) {
+        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper());
+        if (applications.isEmpty()) {
+            return null;
+        }
+        Application application = applications.get(0);
+        return application;
+    }
+
+    List<Application> getApplications() {
+        return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper());
+    }
+
+    void update(Application application) {
+        String json = ApplicationSerializer.toJson(application);
+        String sql = "UPDATE Application set json=? WHERE id=?";
+        int numRowsUpdated = jdbcTemplate.update(sql, json, application.getId());
+    }
+
+    void delete(String applicationId) {
+        String sql = "DELETE FROM Application WHERE id=?";
+        jdbcTemplate.update(sql, applicationId);
     }
 
 
