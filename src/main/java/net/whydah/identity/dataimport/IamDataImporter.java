@@ -86,7 +86,7 @@ public class IamDataImporter {
         InputStream rmis = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);
-            new ApplicationImporter(queryRunner).importApplications(ais);
+            new ApplicationImporter(new ApplicationDao(dataSource)).importApplications(ais);
 
             ois = openInputStream("Organizations", organizationsImportSource);
             new OrganizationImporter(queryRunner).importOrganizations(ois);

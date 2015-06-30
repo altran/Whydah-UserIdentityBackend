@@ -1,7 +1,6 @@
 package net.whydah.identity.application;
 
 import net.whydah.identity.audit.AuditLogDao;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,11 +39,6 @@ public class ApplicationResourceTest {
         response = mock(HttpServletResponse.class);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
     @Test
     public void testCreateApplication() throws Exception {
         applicationResource.createApplication(allApplication);
@@ -52,7 +46,6 @@ public class ApplicationResourceTest {
 
     @Test
     public void testGetApplications() throws Exception {
-
         applicationResource.createApplication(allApplication);
         applicationResource.createApplication(application2);
         Response res = applicationsResource.getApplications();

@@ -29,7 +29,6 @@ import org.constretto.model.Resource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.w3c.dom.Document;
 
 import javax.naming.NamingException;
@@ -42,8 +41,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.*;
@@ -54,6 +51,7 @@ import static org.junit.Assert.*;
  * @since 10/18/12
  */
 public class UserAuthenticationEndpointTest {
+    private static DatabaseMigrationHelper dbHelper;
     private static UserPropertyAndRoleRepository roleRepository;
     private static UserAdminHelper userAdminHelper;
     private static UserIdentityService userIdentityService;
@@ -63,10 +61,12 @@ public class UserAuthenticationEndpointTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        /*
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
+        */
 
         ApplicationMode.setCIMode();
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
@@ -85,14 +85,17 @@ public class UserAuthenticationEndpointTest {
         main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
-        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+        dbHelper = new DatabaseMigrationHelper(dataSource);
+        dbHelper.cleanDatabase();
+        dbHelper.upgradeDatabase();
+
+        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
+        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
+        assertEquals(roleRepository.countUserRolesInDB(), 0);
 
         new IamDataImporter(dataSource, configuration).importIamData();
 
         main.start();
-
-        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
-
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -105,12 +108,12 @@ public class UserAuthenticationEndpointTest {
         LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
 
+        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         PasswordGenerator pwg = new PasswordGenerator();
         PasswordSender passwordSender = new PasswordSender(null, null, null);
         userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, passwordSender, null, null);
 
-        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
-        roleRepository = new UserPropertyAndRoleRepository(new UserPropertyAndRoleDao(dataSource), configDataRepository);
+
         Directory index = new NIOFSDirectory(new File(luceneDir));
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, roleRepository, configuration);
 
