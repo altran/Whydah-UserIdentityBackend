@@ -1,7 +1,6 @@
 package net.whydah.identity.user.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
@@ -40,7 +39,7 @@ public class UserResource {
     private UriInfo uriInfo;
 
     @Autowired
-    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ApplicationDao applicationDao) {
+    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService) {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
         this.mapper = new ObjectMapper();
@@ -146,9 +145,9 @@ public class UserResource {
         }
 
         try {
-            UserIdentity updatedUserIdentity = userAggregateService.updateUserIdentity(uid, userIdentity);
+            userIdentityService.updateUserIdentity(uid, userIdentity);
             try {
-                String json = mapper.writeValueAsString(updatedUserIdentity);
+                String json = mapper.writeValueAsString(userIdentity);
                 return Response.ok(json).build();
             } catch (IOException e) {
                 log.error("Error converting to json. {}", userIdentity.toString(), e);
