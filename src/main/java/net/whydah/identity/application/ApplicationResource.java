@@ -11,7 +11,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by baardl on 29.03.14.
+ * CRUD, http endpoint for Application
+ *
+ * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
 @Path("/{applicationtokenid}/{userTokenId}/application")
 public class ApplicationResource {
@@ -49,22 +51,6 @@ public class ApplicationResource {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-            
-        /*
-        try {
-            application = applicationService.create(applicationJson);
-            //return Response.status(Response.Status.OK).build();
-        } catch (IllegalArgumentException iae) {
-            log.error("create: Invalid json={}", applicationJson, iae);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (IllegalStateException ise) {
-            log.error(ise.getMessage());
-            return Response.status(Response.Status.CONFLICT).build();
-        } catch (RuntimeException e) {
-            log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        */
 
         if (persisted != null) {
             String json = ApplicationSerializer.toJson(persisted);
@@ -90,6 +76,43 @@ public class ApplicationResource {
         } catch (IllegalStateException ise) {
             log.error(ise.getMessage());
             return Response.status(Response.Status.CONFLICT).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PUT
+    @Path("/{applicationId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateApplication(@PathParam("applicationId") String applicationId, String applicationJson)  {
+        log.trace("updateApplication applicationId={}, applicationJson={}", applicationId, applicationJson);
+        Application application;
+        try {
+            application = ApplicationSerializer.fromJson(applicationJson);
+        } catch (IllegalArgumentException iae) {
+            log.error("create: Invalid json={}", applicationJson, iae);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        try {
+            applicationService.update(application);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DELETE
+    @Path("/{applicationId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteApplication(@PathParam("applicationId") String applicationId){
+        log.trace("deleteApplication is called with applicationId={}", applicationId);
+
+        try {
+            applicationService.delete(applicationId);
+            return Response.status(Response.Status.NO_CONTENT).build();
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -43,8 +43,7 @@ public class ApplicationService {
     }
 
     public List<Application> getApplications() {
-        List<Application> applications = applicationDao.getApplications();
-        return applications;
+        return applicationDao.getApplications();
     }
 
     public void update(Application application) {

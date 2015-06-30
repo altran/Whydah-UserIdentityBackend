@@ -1,72 +1,99 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.audit.AuditLogDao;
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+import net.whydah.identity.Main;
+import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.application.Application;
+import net.whydah.sso.application.ApplicationSerializer;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.constretto.ConstrettoBuilder;
+import org.constretto.ConstrettoConfiguration;
+import org.constretto.model.Resource;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
+import static com.jayway.restassured.RestAssured.given;
+import static org.junit.Assert.*;
 
 /**
- * @author <a href="bard.lind@gmail.com">Bard Lind</a>
+ * End-to-end test against the exposed HTTP endpoint and down to the in-mem HSQLDB.
+ *
+ * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
 public class ApplicationResourceTest {
-    private static final Logger log = LoggerFactory.getLogger(ApplicationResourceTest.class);
-    ApplicationDao applicationDaoMock;
-    AuditLogDao auditLogDaoMock;
-    ApplicationService applicationService;
-    ApplicationResource applicationResource;
-    ApplicationsResource applicationsResource;
-    private HttpServletRequest request;
-    private HttpServletResponse response;
+    private Main main;
 
     @Before
-    public void setUp() throws Exception {
-        applicationDaoMock = mock(ApplicationDao.class);
-        auditLogDaoMock = mock(AuditLogDao.class);
+    public void startServer() {
+        ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
+        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+                .createPropertiesStore()
+                .addResource(Resource.create("classpath:useridentitybackend.properties"))
+                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                .done()
+                .getConfiguration();
 
-        applicationService = new ApplicationService(applicationDaoMock, auditLogDaoMock);
-        applicationResource = new ApplicationResource(applicationService);
-        applicationsResource = new ApplicationsResource(applicationService);
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
+        //String roleDBDirectory = AppConfig.appConfig.getProperty("roledb.directory");
+        String roleDBDirectory = configuration.evaluateToString("roledb.directory");
+        FileUtils.deleteDirectory(roleDBDirectory);
+
+        BasicDataSource dataSource = initBasicDataSource(configuration);
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+
+        main = new Main(6644);
+        main.start();
+        RestAssured.port = main.getPort();
+        RestAssured.basePath = Main.CONTEXT_PATH;
+    }
+
+    private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
+        String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
+        String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
+        String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
+        String roledbpasswd = configuration.evaluateToString("roledb.jdbc.password");
+
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(jdbcdriver);
+        dataSource.setUrl(jdbcurl);
+        dataSource.setUsername(roledbuser);
+        dataSource.setPassword(roledbpasswd);
+        return dataSource;
+    }
+
+    @After
+    public void stop() {
+        if (main != null) {
+            main.stop();
+        }
     }
 
     @Test
     public void testCreateApplication() throws Exception {
-        applicationResource.createApplication(allApplication);
+        //String json = "{\"id\":\"id1\",\"name\":\"appName1\",\"description\":null,\"availableRoles\":[],\"defaultRoleName\":null,\"availableOrgNames\":[],\"defaultOrgName\":null,\"availableRoleNames\":null}";
+        Application app = new Application("id1", "appName1");
+        String json = ApplicationSerializer.toJson(app);
+
+        String path = "/{applicationtokenid}/{userTokenId}/application";
+        Response response = given()
+                .body(json)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .post(path, "appToken1", "userToken1");
+
+        String jsonResponse = response.body().asString();
+        Application applicationResponse = ApplicationSerializer.fromJson(jsonResponse);
+        assertNotNull(applicationResponse.getId());
+        assertFalse("expect incoming id to be ignored by UIB", "id1".equals(applicationResponse.getId()));
+        assertEquals(applicationResponse.getName(), "appName1");
+        assertNull(applicationResponse.getSecret());    //secret should never be returned
     }
-
-    @Test
-    public void testGetApplications() throws Exception {
-        applicationResource.createApplication(allApplication);
-        applicationResource.createApplication(application2);
-        Response res = applicationsResource.getApplications();
-        res.getStatus();
-    }
-
-
-    @Test
-    @Ignore
-    public void testCreateApplicationFails() throws Exception {
-        try {
-            Response res = applicationResource.createApplication("malformedjson");
-            System.out.println(res.getStatus());
-            fail("Creation of non-valid application allowed");
-        } catch (IllegalArgumentException iae) {
-
-        } catch (Exception jpe){
-
-        }
-    }
-    private final String allApplication = "{\"id\":\"id1\",\"name\":\"test\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgid\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
-    private final String application2 = "{\"id\":\"id2\",\"name\":\"test2\",\"defaultRoleName\":\"default1role\",\"defaultOrgName\":\"defaultorgid\",\"availableOrgNames\":[\"developer@customer\",\"consultant@customer\"]}";
 }
-
