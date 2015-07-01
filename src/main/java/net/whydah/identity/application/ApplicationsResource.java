@@ -7,10 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -24,53 +25,18 @@ public class ApplicationsResource {
         this.applicationService = applicationService;
     }
 
-
-    //ED: Does this belong here?
-    @POST
-    @Path("/verifyApplicationAuth")
-    @Consumes(MediaType.APPLICATION_XML)
-    @Produces(MediaType.APPLICATION_XML)
-    public Response verifyApplicationAuth(String applicationCredential) {
-        log.trace("verifyApplicationAuth is called ");
-
-        //FIXME check applicationSecret against applicationID
-        return Response.ok().build();
-    }
-
-
     @GET
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApplications(){
         log.trace("getApplications is called.");
         try {
-            List<String> availableOrgNames =  new LinkedList<>();
-            List<String> availableRoleNames =  new LinkedList<>();
             List<Application> applications = applicationService.getApplications();
-            for (Application a : applications) {
-                if (!availableOrgNames.contains(a.getDefaultOrganizationName())) {
-                    availableOrgNames.add(a.getDefaultOrganizationName());
-                }
-                if (!availableRoleNames.contains(a.getDefaultRoleName())) {
-                    availableRoleNames.add(a.getDefaultRoleName());
-                }
-            }
-            for (Application application : applications) {
-                application.setOrganizationNames(availableOrgNames);
-                //application.setAvailableRoleNames(availableRoleNames);    //TODO
-            }
-
             String json = ApplicationSerializer.toJson(applications);
             log.trace("Returning {} applications: {}", applications.size(), json);
             return Response.ok(json).build();
-        } catch (IllegalArgumentException iae) {
-            log.error("getApplications failed because Invalid json. {}.",  iae);
-            return Response.status(Response.Status.BAD_REQUEST).entity(iae.getMessage()).build();
-        } catch (IllegalStateException ise) {
-            log.error("getApplications failed because {}.", ise.getMessage());
-            return Response.status(Response.Status.CONFLICT).entity(ise.getMessage()).build();
         } catch (RuntimeException e) {
-            log.error("getApplications failed because {}.", e);
+            log.error("getApplications failed.", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
