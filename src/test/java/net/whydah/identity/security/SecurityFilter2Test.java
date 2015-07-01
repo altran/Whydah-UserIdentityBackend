@@ -1,6 +1,6 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.application.authentication.ApplicationTokenService;
+import net.whydah.identity.application.authentication.old.ApplicationTokenService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;

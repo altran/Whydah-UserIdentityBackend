@@ -1,4 +1,4 @@
-package net.whydah.identity.application.authentication;
+package net.whydah.identity.application.authentication.old;
 
 /**
  * Created by baardl on 22.03.14.

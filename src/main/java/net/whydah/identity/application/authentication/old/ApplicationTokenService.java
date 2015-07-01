@@ -1,4 +1,4 @@
-package net.whydah.identity.application.authentication;
+package net.whydah.identity.application.authentication.old;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,9 @@ package net.whydah.identity.application;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.sso.application.Application;
+import net.whydah.sso.application.ApplicationCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
  */
 @Service
 public class ApplicationService {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final ApplicationDao applicationDao;
@@ -26,6 +30,8 @@ public class ApplicationService {
         this.applicationDao = applicationDao;
         this.auditLogDao = auditLogDao;
     }
+
+    ////// CRUD
 
     public Application create(Application application) {
         return create(UUID.randomUUID().toString(), application);
@@ -62,5 +68,24 @@ public class ApplicationService {
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(value, now, action, "application", value);
         auditLogDao.store(actionPerformed);
+    }
+
+
+    ////// Authentication
+
+    public Application authenticate(ApplicationCredential credential) {
+        Application application = applicationDao.getApplication(credential.getApplicationID());
+        if (application == null) {
+            return null;
+        }
+        String applicationSecret = application.getSecurity().getSecret();
+        if (applicationSecret == null || applicationSecret.isEmpty()) {
+            log.warn("secret is not set for applicationId=, name={}, all attempts at authentication will fail.", application.getId(), application.getName());
+            return null;
+        }
+        if (applicationSecret.equals(credential.getApplicationSecret())) {
+            return application;
+        }
+        return null;
     }
 }
