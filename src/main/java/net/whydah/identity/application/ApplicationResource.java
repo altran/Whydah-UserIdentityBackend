@@ -25,13 +25,6 @@ public class ApplicationResource {
         this.applicationService = applicationService;
     }
 
-    /**
-     * Create a new application from json
-     * Add default
-     *
-     * @param applicationJson  json representing an Application
-     * @return  Application
-     */
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
