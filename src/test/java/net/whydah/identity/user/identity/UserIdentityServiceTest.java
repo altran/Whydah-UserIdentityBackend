@@ -24,6 +24,8 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -158,6 +160,29 @@ public class UserIdentityServiceTest {
         assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
     }
 
+    @Test
+    public void testAddTestUserToLdap() throws Exception {
+        UserIdentityService userIdentityService =
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
+
+        Random rand = new Random();
+        rand.setSeed(new java.util.Date().getTime());
+        UserIdentity userIdentity = new UserIdentity("uid",
+                "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
+                "Mt Test",
+                "Testesen",
+                UUID.randomUUID().toString().replace("-", "").replace("_", "") + "@getwhydah.com",
+                "47" + Integer.toString(rand.nextInt(100000000)),
+                null,
+                "pref");
+
+        userAdminHelper.addUser(userIdentity);
+
+        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
+
+        assertEquals(userIdentity, fromLdap);
+
+    }
 
     @Test
     public void testAddUserStrangeCellPhone() throws Exception {

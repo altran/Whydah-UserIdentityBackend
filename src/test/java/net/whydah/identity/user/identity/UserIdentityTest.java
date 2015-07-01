@@ -3,6 +3,9 @@ package net.whydah.identity.user.identity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.util.Random;
+import java.util.UUID;
+
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2014-11-05
  */
@@ -54,4 +57,20 @@ public class UserIdentityTest {
         representation = mapper.readValue(userIdentityJson, UserIdentityRepresentation.class);
     }
 
+    @Test
+    public void testtestTypeUserJson() throws Exception {
+
+        Random rand = new Random();
+        rand.setSeed(new java.util.Date().getTime());
+        UserIdentity userIdentity = new UserIdentity("uid",
+                "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
+                "Mt Test",
+                "Testesen",
+                UUID.randomUUID().toString().replace("-", "").replace("_", "") + "@getwhydah.com",
+                "47" + Integer.toString(rand.nextInt(100000000)),
+                null,
+                "pref");
+
+        userIdentity.validate();
+    }
 }
