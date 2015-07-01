@@ -44,21 +44,16 @@ public class ApplicationResource {
             log.error("create: Invalid json={}", applicationJson, iae);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Application persisted;
         try {
-            persisted = applicationService.create(application);
+            Application persisted = applicationService.create(application);
+            if (persisted != null) {
+                String json = ApplicationSerializer.toJson(persisted);
+                return Response.ok(json).build();
+            }
         } catch (RuntimeException e) {
             log.error("", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-
-        if (persisted != null) {
-            String json = ApplicationSerializer.toJson(persisted);
-            return Response.ok(json).build();
-        } else {
-            //TODO If it was not persisted, should return error message
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
     @GET
@@ -68,6 +63,10 @@ public class ApplicationResource {
         log.trace("getApplication is called with applicationId={}", applicationId);
         try {
             Application application = applicationService.getApplication(applicationId);
+            if (application == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
             String json = ApplicationSerializer.toJson(application);
             return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
@@ -96,8 +95,16 @@ public class ApplicationResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         try {
-            applicationService.update(application);
-            return Response.status(Response.Status.NO_CONTENT).build();
+            int numRowsAffected = applicationService.update(application);
+            switch(numRowsAffected) {
+                case 0 :
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                case 1 :
+                    return Response.status(Response.Status.NO_CONTENT).build();
+                default:
+                    log.error("numRowsAffected={}, if more than one row was updated, this means that the database is in an unexpected state. Manual correction is needed!", numRowsAffected);
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -111,8 +118,16 @@ public class ApplicationResource {
         log.trace("deleteApplication is called with applicationId={}", applicationId);
 
         try {
-            applicationService.delete(applicationId);
-            return Response.status(Response.Status.NO_CONTENT).build();
+            int numRowsAffected = applicationService.delete(applicationId);
+            switch(numRowsAffected) {
+                case 0 :
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                case 1 :
+                    return Response.status(Response.Status.NO_CONTENT).build();
+                default:
+                    log.error("numRowsAffected={}, if more than one row was deleted, this means that the database is in an unexpected state. Data may be lost!", numRowsAffected);
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
         } catch (RuntimeException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

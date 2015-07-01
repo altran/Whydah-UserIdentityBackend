@@ -13,12 +13,14 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * End-to-end test against the exposed HTTP endpoint and down to the in-mem HSQLDB.
@@ -26,9 +28,13 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
 public class ApplicationResourceTest {
+    private final String appToken1 = "appToken1";
+    private final String userToken1 = "userToken1";
     private Main main;
+    private String appId1FromCreatedResponse;
+    private Application app;
 
-    @Before
+    @BeforeClass
     public void startServer() {
         ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
@@ -38,12 +44,12 @@ public class ApplicationResourceTest {
                 .done()
                 .getConfiguration();
 
-        //String roleDBDirectory = AppConfig.appConfig.getProperty("roledb.directory");
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);
-
         BasicDataSource dataSource = initBasicDataSource(configuration);
-        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+        DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
+        dbHelper.cleanDatabase();
+        dbHelper.upgradeDatabase();
 
         main = new Main(6644);
         main.start();
@@ -65,7 +71,7 @@ public class ApplicationResourceTest {
         return dataSource;
     }
 
-    @After
+    @AfterClass
     public void stop() {
         if (main != null) {
             main.stop();
@@ -74,8 +80,9 @@ public class ApplicationResourceTest {
 
     @Test
     public void testCreateApplication() throws Exception {
-        //String json = "{\"id\":\"id1\",\"name\":\"appName1\",\"description\":null,\"availableRoles\":[],\"defaultRoleName\":null,\"availableOrgNames\":[],\"defaultOrgName\":null,\"availableRoleNames\":null}";
-        Application app = new Application("id1", "appName1");
+        app = new Application("ignoredId", "appName1");
+        app.setSecret("secret1");
+        app.setDefaultRoleName("originalDefaultRoleName");
         String json = ApplicationSerializer.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application";
@@ -87,13 +94,105 @@ public class ApplicationResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .post(path, "appToken1", "userToken1");
+                .post(path, appToken1, userToken1);
+
+        String jsonResponse = response.body().asString();
+        Application applicationResponse = ApplicationSerializer.fromJson(jsonResponse);
+
+        assertNotNull(applicationResponse.getId());
+        assertNotEquals(app.getId(), applicationResponse.getId());
+        appId1FromCreatedResponse = applicationResponse.getId();
+        assertEquals(applicationResponse.getName(), app.getName());
+        assertEquals(applicationResponse.getSecret(), app.getSecret());
+        assertEquals(applicationResponse.getDefaultRoleName(), app.getDefaultRoleName());
+    }
+
+    @Test(dependsOnMethods = "testCreateApplication")
+    public void testGetApplicationOK() throws Exception {
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        Response response = given()
+                .log().everything()
+                .expect()
+                .statusCode(200)
+                .log().ifError()
+                .when()
+                .get(path, appToken1, userToken1, appId1FromCreatedResponse);
 
         String jsonResponse = response.body().asString();
         Application applicationResponse = ApplicationSerializer.fromJson(jsonResponse);
         assertNotNull(applicationResponse.getId());
-        assertFalse("expect incoming id to be ignored by UIB", "id1".equals(applicationResponse.getId()));
-        assertEquals(applicationResponse.getName(), "appName1");
-        assertNull(applicationResponse.getSecret());    //secret should never be returned
+        assertEquals(appId1FromCreatedResponse, applicationResponse.getId());
+        assertEquals(applicationResponse.getName(), app.getName());
+        assertEquals(applicationResponse.getDefaultRoleName(), "originalDefaultRoleName");
+    }
+
+    @Test(dependsOnMethods = "testGetApplicationOK")
+    public void testUpdateApplicationNotFound() throws Exception {
+        String json = ApplicationSerializer.toJson(app);
+
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        given()
+                .body(json)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(404)
+                .log().ifError()
+                .when()
+                .put(path, appToken1, userToken1, appId1FromCreatedResponse);
+    }
+
+    @Test(dependsOnMethods = "testUpdateApplicationNotFound")
+    public void testUpdateApplicationNoContent() throws Exception {
+        app.setId(appId1FromCreatedResponse);
+        app.setDefaultRoleName("anotherRoleName");
+        String json = ApplicationSerializer.toJson(app);
+
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        Response response = given()
+                .body(json)
+                .contentType(ContentType.JSON)
+                .log().everything()
+                .expect()
+                .statusCode(204)
+                .log().ifError()
+                .when()
+                .put(path, appToken1, userToken1, appId1FromCreatedResponse);
+    }
+
+
+    @Test(dependsOnMethods = "testUpdateApplicationNoContent")
+    public void testDeleteApplication() throws Exception {
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        given()
+                .log().everything()
+                .expect()
+                .statusCode(204)
+                .log().ifError()
+                .when()
+                .delete(path, appToken1, userToken1, appId1FromCreatedResponse);
+    }
+    @Test(dependsOnMethods = "testDeleteApplication")
+    public void testDeleteApplicationNotFound() throws Exception {
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        given()
+                .log().everything()
+                .expect()
+                .statusCode(404)
+                .log().ifError()
+                .when()
+                .delete(path, appToken1, userToken1, appId1FromCreatedResponse);
+    }
+
+    @Test(dependsOnMethods = "testDeleteApplication")
+    public void testGetApplicationNotFound() throws Exception {
+        String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
+        given()
+                .log().everything()
+                .expect()
+                .statusCode(404)
+                .log().ifError()
+                .when()
+                .get(path, appToken1, userToken1, appId1FromCreatedResponse);
     }
 }

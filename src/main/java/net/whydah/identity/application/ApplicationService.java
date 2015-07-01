@@ -33,9 +33,9 @@ public class ApplicationService {
     //used by ApplicationImporter, should be remove later
     public Application create(String applicationId, Application application) {
         application.setId(applicationId);
-        Application persisted = applicationDao.create(application);
+        int numRowsAffected = applicationDao.create(application);
         audit(ActionPerformed.ADDED, application.getId() + ", " + application.getName());
-        return persisted;
+        return application;
     }
 
     public Application getApplication(String applicationId) {
@@ -46,14 +46,16 @@ public class ApplicationService {
         return applicationDao.getApplications();
     }
 
-    public void update(Application application) {
-        applicationDao.update(application);
+    public int update(Application application) {
+        int numRowsAffected = applicationDao.update(application);
         audit(ActionPerformed.MODIFIED, application.getId() + ", " + application.getName());
+        return numRowsAffected;
     }
 
-    public void delete(String applicationId) {
-        applicationDao.delete(applicationId);
+    public int delete(String applicationId) {
+        int numRowsAffected = applicationDao.delete(applicationId);
         audit(ActionPerformed.DELETED, applicationId);
+        return numRowsAffected;
     }
 
     private void audit(String action, String value) {

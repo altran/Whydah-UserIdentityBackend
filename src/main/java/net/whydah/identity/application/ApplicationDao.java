@@ -40,15 +40,11 @@ public class ApplicationDao {
     }
 
 
-    /**
-     * @param application
-     * @return application, with new Id inserted.
-     */
-    Application create(Application application) {
+    int create(Application application) {
         String json = ApplicationSerializer.toJson(application);
         String sql = "INSERT INTO Application (id, json) VALUES (?,?)";
-        int numRowsUpdated = jdbcTemplate.update(sql, application.getId(), json);
-        return application; //make this void?
+        int numRowsAffected = jdbcTemplate.update(sql, application.getId(), json);
+        return numRowsAffected;
 
         /*
         Application applicationStored = null;
@@ -83,17 +79,18 @@ public class ApplicationDao {
         return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper());
     }
 
-    void update(Application application) {
+    int update(Application application) {
         String json = ApplicationSerializer.toJson(application);
-        String sql = "UPDATE Application set json=? WHERE id=?";
-        int numRowsUpdated = jdbcTemplate.update(sql, json, application.getId());
+        String sql = "UPDATE Application set Json=? WHERE ID=?";
+        int numRowsAffected = jdbcTemplate.update(sql, json, application.getId());
+        return numRowsAffected;
     }
 
-    void delete(String applicationId) {
-        String sql = "DELETE FROM Application WHERE id=?";
-        jdbcTemplate.update(sql, applicationId);
+    int delete(String applicationId) {
+        String sql = "DELETE FROM Application WHERE ID=?";
+        int numRowsAffected = jdbcTemplate.update(sql, applicationId);
+        return numRowsAffected;
     }
-
 
     //used by ApplicationDaoTest
     int countApplications() {
@@ -105,27 +102,8 @@ public class ApplicationDao {
 
     private static final class ApplicationMapper implements RowMapper<Application> {
         public Application mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Application application = ApplicationSerializer.fromJson(rs.getString("json"));
-            /*
-            Application application = new Application(rs.getString("id"), rs.getString("Name"));
-            application.setSecret(rs.getString("Secret"));
-            String availableOrgNames = rs.getString("availableOrgNames");
-            if (availableOrgNames != null) {
-                application.setOrganizationNames(Arrays.asList(availableOrgNames.split(",")));
-            }
-            application.setDefaultRoleName(rs.getString("DefaultRoleName"));
-            application.setDefaultOrganizationName(rs.getString("DefaultOrgName"));
-            */
-            return application;
+            String json = rs.getString("json");
+            return ApplicationSerializer.fromJson(json);
         }
     }
-
-    /*
-    private static final class RoleMapper implements RowMapper<Role> {
-        public Role mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Role role = new Role(rs.getString("Id"), rs.getString("Name"));
-            return role;
-        }
-    }
-    */
 }

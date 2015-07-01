@@ -54,10 +54,9 @@ public class ApplicationDaoTest {
         application.addRole(new Role("roleId2", "roleName2"));
         application.setOrganizationNames(Arrays.asList("orgName1", "orgName2", "orgName3"));
 
-        Application fromDb = applicationDao.create(application);
-
+        applicationDao.create(application);
+        Application fromDb = applicationDao.getApplication(application.getId());
         assertNotNull(fromDb.getId());
-
         assertEquals(application.getId(), fromDb.getId());
         assertEquals(application.getName(), fromDb.getName());
         assertEquals(application.getDefaultRoleName(), fromDb.getDefaultRoleName());
