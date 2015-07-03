@@ -18,7 +18,6 @@ import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -140,12 +139,14 @@ public class UserIdentityService {
                 throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
             }
 
+            /*
             List<UserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
             if (!usersWithSameEmail.isEmpty()) {
                 //(in lucene index)
                 String msg = "E-mail " + email + " is already in use, could not create user with username=" + username;
                 throw new IllegalStateException(msg);
             }
+            */
         }
 
         String uid = UUID.randomUUID().toString();

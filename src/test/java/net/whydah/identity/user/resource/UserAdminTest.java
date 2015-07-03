@@ -344,7 +344,7 @@ public class UserAdminTest {
         }
     }
 
-
+    /*
     @Test
     public void testAddUserWillRespondWithConflictWhenEmailIsAlreadyInUseByAnotherUser() {
         doAddUser("riffraff", "another", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
@@ -357,6 +357,7 @@ public class UserAdminTest {
             assertNotNull(entity);
         }
     }
+    */
 
 
     @Test
