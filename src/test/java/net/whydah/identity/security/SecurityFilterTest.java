@@ -1,6 +1,5 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.application.authentication.old.ApplicationTokenService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
@@ -24,14 +23,12 @@ public class SecurityFilterTest {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilterTest.class);
     private SecurityFilter securityFilter;
     private SecurityTokenServiceHelper tokenHelper;
-    private ApplicationTokenService applicationTokenService;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain chain;
 
     private final static String tokenOther = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"Vaktmester\"/></application>";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"WhydahUserAdmin\"/></application>";
-    private final static String applicationToken = "<application ID=\"abcdefgid\"></application>";
     private final static String applicationTokenId="abcdefgid";
     private final static String userAdminUserTokenId ="au123";
     private final static String userTokenInvalid ="uti123";
@@ -65,9 +62,8 @@ public class SecurityFilterTest {
     @Before
     public void init() throws ServletException {
         tokenHelper = mock(SecurityTokenServiceHelper.class);
-        applicationTokenService = mock(ApplicationTokenService.class);
 
-        securityFilter = new SecurityFilter(tokenHelper, applicationTokenService);
+        securityFilter = new SecurityFilter(tokenHelper);
 
         securityFilter.init(null);
         request = mock(HttpServletRequest.class);
@@ -152,7 +148,7 @@ public class SecurityFilterTest {
     @Test
     public void verifyAuthenticateUserUrl() throws Exception {
         when(request.getPathInfo()).thenReturn("/" +applicationTokenId + "/authenticate/user");
-        when(applicationTokenService.verifyApplication(anyString())).thenReturn(true);
+        //when(applicationTokenService.verifyApplication(anyString())).thenReturn(true);
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());

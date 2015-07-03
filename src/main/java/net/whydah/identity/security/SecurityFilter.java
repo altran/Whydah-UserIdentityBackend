@@ -1,6 +1,5 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.application.authentication.old.ApplicationTokenService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
@@ -25,7 +24,6 @@ import java.util.List;
 public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
-    private final ApplicationTokenService applicationTokenService;
     private final SecurityTokenServiceHelper securityTokenHelper;
 
     //public static final String OPEN_PATH = "/authenticate";
@@ -38,9 +36,8 @@ public class SecurityFilter implements Filter {
     //private String requiredRole;
 
     @Autowired
-    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, ApplicationTokenService applicationTokenService) {
+    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper) {
         this.securityTokenHelper = securityTokenHelper;
-        this.applicationTokenService = applicationTokenService;
     }
 
     @Override
@@ -69,7 +66,8 @@ public class SecurityFilter implements Filter {
         //match /password/{applicationtokenid}
         if (pathElement1.startsWith("/password")) {  //TODO change path
             String applicationTokenId = findPathElement(pathInfo, 2);
-            boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
+            //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
+            boolean applicationVerified = true;
             if (applicationVerified) {
                 log.trace("application verified {}. Moving to next in chain.", applicationTokenId);
                 return null;
@@ -79,7 +77,8 @@ public class SecurityFilter implements Filter {
             }
         }
         String applicationTokenId = pathElement1.substring(1); //strip leading /
-        boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
+        //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
+        boolean applicationVerified = true;
         if (!applicationVerified) {
             log.trace("Application not Authorized=" + pathElement1);
             return HttpServletResponse.SC_UNAUTHORIZED;

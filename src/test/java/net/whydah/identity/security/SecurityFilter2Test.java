@@ -1,11 +1,9 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.application.authentication.old.ApplicationTokenService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.servlet.FilterChain;
@@ -21,23 +19,18 @@ import static org.mockito.Mockito.*;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-06-30
  */
 public class SecurityFilter2Test {
-    private static ApplicationTokenService applicationTokenService;
     private SecurityTokenServiceHelper stsHelper;
     private SecurityFilter securityFilter;
 
     private final static String userAdminUserTokenId ="au123";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"WhydahUserAdmin\"/></application>";
 
-    @BeforeClass
-    public static void setDefaultApplicationMode() {
-        applicationTokenService = new ApplicationTokenService();
-    }
 
     @Before
     public void setup() throws ServletException {
         ApplicationMode.clearTags();
         stsHelper = mock(SecurityTokenServiceHelper.class);
-        securityFilter = new SecurityFilter(stsHelper, applicationTokenService);
+        securityFilter = new SecurityFilter(stsHelper);
     }
 
     @Test
