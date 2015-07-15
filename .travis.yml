@@ -3,3 +3,6 @@ jdk:
 - oraclejdk8
 script:
   mvn clean source:jar deploy
+branches:
+  except:
+    - travis
