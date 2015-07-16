@@ -8,6 +8,9 @@ script:
 branches:
   except:
     - travis
+cache:
+  directories:
+    - '$HOME/.m2/repository'
 env:
   global:
     - secure: "u+xtj7tnEX3VNwmkV5YUEZjf9RxL3HrTCAxIyHnwqOKJSVOxHkKkG0NSnmIs9JzBlb0J3Eq6RG1a9oBXWnT8CAvIdqDQWhCjFKoD72KvkXqCVNMrR6Egt0fkVmVj+ZU/LOX95K2GlHfKOqBxxkjh/3+/G1MN9tNLakhLRrPuSqhkQxYF22Y0sgMZKSwr3EYjrHFtPPjey00IeIN12UCxlIPVWAsNMkKOxG7sqqmgNC8Ro/3o2AaGwglLfTlUdBQ4d40VvPrAUk+rvv0kr82L02H6tqPGVgeqiuYyELDdG81e7T+WpLViYKEddEdsb2ghaxwv+zzzuykqnGQqwfP3ozrP5+pbKfFdDxSjyAW1DxJkauOgC+P/ynTMtDkdM5A0JhDatyePA8Ju2Fex7vcafmF6s8xX9qrHAsTU4kxY/Qpzb8F5LnxMglA6JhbmQuScd1MMWe7RrwcZa9O7F2HfiPOwI5F13i21uahdaEzsOmDWPJxtL4/chcezjFBbvG9wPMJsaLh/aJG6SHRG2ArzmKb1s/A0kQvrvGQFDigb1X4tCObFyGgjiHFBPd+qDTbDXEY3yFqrGyjj7/OyRhmu+unTYkur7+EhBmBHnlfFNZHGp4dwCjTpu28U9HQuWrwwH48a6YT6OcJrMA/ePHPHqSMwSISsJcXa7MXEqj86cf0="
