@@ -1,10 +1,20 @@
 package net.whydah.identity.user.identity;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapEntryAlreadyExistsException;
+import org.apache.directory.api.ldap.model.ldif.LdifEntry;
+import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import net.whydah.identity.user.identity.FileDirectoryServiceFactory;
+import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -12,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -69,43 +82,64 @@ public class EmbeddedADS {
     private void init(String INSTANCE_PATH) {
         try {
             //Used by http://svn.apache.org/repos/asf/directory/apacheds/tags/2.0.0-M7/core-annotations/src/main/java/org/apache/directory/server/core/factory/DefaultDirectoryServiceFactory.java
-            String instanceDirectory = System.setProperty("workingDirectory", INSTANCE_PATH);
+            System.setProperty("workingDirectory", INSTANCE_PATH);
+            logger.trace("ApacheDS instanceDir: " + INSTANCE_PATH);
 
-            DefaultDirectoryServiceFactory factory = new DefaultDirectoryServiceFactory();
+            DirectoryServiceFactory factory = new FileDirectoryServiceFactory();
             factory.init(INSTANCE_NAME);
 
             service = factory.getDirectoryService();
             service.getChangeLog().setEnabled(false);
             service.setShutdownHookEnabled(true);
 
+
             InstanceLayout il = new InstanceLayout(INSTANCE_PATH);
             service.setInstanceLayout(il);
 
 
-            AvlPartition partition = new AvlPartition(service.getSchemaManager());
-            partition.setId("Test");
-            partition.setSuffixDn(new Dn(service.getSchemaManager(), BASE_DN));
-            logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
-            partition.initialize();
-            service.addPartition(partition);
 
-            AvlPartition mypartition = new AvlPartition(service.getSchemaManager());
-            mypartition.setId(INSTANCE_NAME);
-            mypartition.setSuffixDn(new Dn(service.getSchemaManager(), "dc=external,dc=" + dc + ",dc=no"));
-            logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
-            mypartition.initialize();
-            service.addPartition(mypartition);
+            if (true) {
+                AvlPartition partition = new AvlPartition(service.getSchemaManager());
+                partition.setId("Test");
+                partition.setSuffixDn(new Dn(service.getSchemaManager(), BASE_DN));
+                logger.trace("Initializing partition {} instance {}", BASE_DN, "Test");
+                partition.setCacheService(service.getCacheService());
+                partition.initialize();
+                service.addPartition(partition);
+                SchemaManager schemaManager = service.getSchemaManager();
+                partition.setSchemaManager(schemaManager);
 
-            //         Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
+                AvlPartition mypartition = new AvlPartition(service.getSchemaManager());
+                mypartition.setId(INSTANCE_NAME);
+                mypartition.setSuffixDn(new Dn(service.getSchemaManager(), "dc=external,dc=" + dc + ",dc=no"));
+                logger.trace("Initializing LDAP partition {} instance {}", "dc=external,dc=" + dc + ",dc=no", INSTANCE_NAME);
+                mypartition.setCacheService(service.getCacheService());
+                mypartition.initialize();
+                mypartition.setSchemaManager(schemaManager);
+                service.addPartition(mypartition);
 
-            Dn dnApache = new Dn("dc=external,dc=" + dc + ",dc=no");
-            Entry entryApache = service.newEntry(dnApache);
-            entryApache.add("objectClass", "top", "domain", "extensibleObject");
-            entryApache.add("dc", dc);
-            service.getAdminSession().add(entryApache);
-            Entry entryApache2 = service.newEntry(new Dn("ou=users,dc=external,dc=" + dc + ",dc=no"));
-            entryApache2.add("objectClass", "top", "organizationalUnit");
-            service.getAdminSession().add(entryApache2);
+                //         Partition apachePartition = addPartition(dc, "dc=external,dc="+dc+",dc=no");
+                Dn dnApache = new Dn("dc=external,dc=" + dc + ",dc=no");
+                Entry entryApache2 = service.newEntry(new Dn("ou=users,dc=external,dc=" + dc + ",dc=no"));
+
+                Entry entryApache = service.newEntry(dnApache);
+                entryApache.add("objectClass", "top", "domain", "extensibleObject");
+                entryApache.add("dc", dc);
+                service.getAdminSession().add(entryApache);
+                entryApache2.add("objectClass", "top", "organizationalUnit");
+                service.getAdminSession().add(entryApache2);
+
+
+            }
+
+/**
+            String entryLdif =
+                    "dn: " + entryApache2  + "\n" +
+                            "dc: " + dnApache + "\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n";
+            importLdifContent(service,entryLdif);
+ */
         } catch (Exception e) {
             throw new RuntimeException("init failed", e);
         }
@@ -113,6 +147,23 @@ public class EmbeddedADS {
         //server = new LdapServer();
         //server.setTransports(new TcpTransport("localhost", DEFAULT_SERVER_PORT));
         //server.setDirectoryService(service);
+    }
+
+
+    private static void importLdifContent(DirectoryService directoryService, String ldifContent) throws Exception {
+        LdifReader ldifReader = new LdifReader(IOUtils.toInputStream(ldifContent));
+
+        try {
+            for (LdifEntry ldifEntry : ldifReader) {
+                try {
+                    directoryService.getAdminSession().add(new DefaultEntry(directoryService.getSchemaManager(), ldifEntry.getEntry()));
+                } catch (LdapEntryAlreadyExistsException ignore) {
+                    logger.info("Entry " + ldifEntry.getDn() + " already exists. Ignoring");
+                }
+            }
+        } finally {
+            ldifReader.close();
+        }
     }
 
     /**
@@ -129,16 +180,6 @@ public class EmbeddedADS {
                 logger.debug("Not all directories could be created. " + workDir.getAbsolutePath());
             }
         }
-        /*
-        WhydahConfig fCconfig = new WhydahConfig();
-        if (fCconfig.getProptype().equals("FCDEV")) {
-            dc = "WHYDAH";
-        } else if (fCconfig.getProptype().equals("DEV")) {
-            dc = "WHYDAH";
-        } else {
-            dc = "WHYDAH";
-        }
-        */
         init(workDir.getPath());
 
         // And start the identity
@@ -184,21 +225,27 @@ public class EmbeddedADS {
             server.setDirectoryService(service);
             server.start();
             logger.info("Apache DS Started, port: {}", serverPort);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                logger.error("Thread interrupted.", e);
-            }
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                @Override
+                public void run() {
+                    try {
+                        server.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            });
         } catch (Exception e) {
             throw new RuntimeException("startServer failed", e);
         }
     }
 
     public void stopServer() {
-        server.stop();
-        DirectoryService directoryService = server.getDirectoryService();
+        stopLdapServer();
         try {
-            directoryService.shutdown();
+            shutdownDirectoryService();
         } catch (Exception e) {
             logger.error("Error shutting down DirectoryService.", e);
         }
@@ -209,6 +256,28 @@ public class EmbeddedADS {
         } catch (InterruptedException ie) {
         }
     }
+
+
+    protected void stopLdapServer() {
+        logger.info("Stopping LDAP server.");
+        server.stop();
+    }
+
+    protected void shutdownDirectoryService() throws Exception {
+        logger.info("Stopping Directory service.");
+        DirectoryService directoryService = server.getDirectoryService();
+        directoryService.shutdown();
+
+        // Delete workfiles just for 'inmemory' implementation used in tests. Normally we want LDAP data to persist
+        File instanceDir = directoryService.getInstanceLayout().getInstanceDirectory();
+        if (false) {
+            logger.info("Removing Directory service workfiles: %s", instanceDir.getAbsolutePath());
+            FileUtils.deleteDirectory(instanceDir);
+        } else {
+            logger.info("Working LDAP directory not deleted. Delete it manually if you want to start with fresh LDAP data. Directory location: " + instanceDir.getAbsolutePath());
+        }
+    }
+
 
     /**
      * Main class for standalone test and configuration of ApacheDS embedded.

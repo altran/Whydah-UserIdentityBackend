@@ -59,6 +59,7 @@ public class UserIdentityServiceTest {
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
+ //       String ldapPath = "/tmp";
         String luceneDir = configuration.evaluateToString("lucene.directory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
