@@ -19,6 +19,7 @@ import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -199,5 +200,36 @@ public class UserIdentityServiceTest {
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
         assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
+    }
+
+    @Test
+    public void testPersistanceAddTestUserToLdap() throws Exception {
+        UserIdentityService userIdentityService =
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
+
+        Random rand = new Random();
+        rand.setSeed(new java.util.Date().getTime());
+        UserIdentity userIdentity = new UserIdentity("uid",
+                "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
+                "Mt Test",
+                "Testesen",
+                UUID.randomUUID().toString().replace("-", "").replace("_", "") + "@getwhydah.com",
+                "47" + Integer.toString(rand.nextInt(100000000)),
+                null,
+                "pref");
+
+        userAdminHelper.addUser(userIdentity);
+
+        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
+
+        assertEquals(userIdentity, fromLdap);
+        stop();
+        setUp();
+        UserIdentityService userIdentityService2 =
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, null, luceneIndexer, Mockito.mock(LuceneSearch.class));
+        UserIdentityRepresentation fromLdap2 = userIdentityService2.getUserIdentity(userIdentity.getUsername());
+
+        assertEquals(userIdentity, fromLdap2);
+
     }
 }
