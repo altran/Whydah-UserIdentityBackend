@@ -40,14 +40,17 @@ public class EmbeddedADS2 {
     public static final String PROPERTY_SASL_PRINCIPAL = "ldap.saslPrincipal";
     public static final String PROPERTY_DSF = "ldap.dsf";
 
-    private static final String DEFAULT_BASE_DN = "dc=keycloak,dc=org";
+    // dc=external,dc=WHYDAH,dc=no instance Whydah
+    private static final String DEFAULT_BASE_DN = "dc=external,dc=WHYDAH,dc=no";
     private static final String DEFAULT_BIND_HOST = "localhost";
     private static final String DEFAULT_BIND_PORT = "10389";
-    private static final String DEFAULT_LDIF_FILE = "classpath:ldap/default-users.ldif";
+    private static final String DEFAULT_LDIF_FILE = "classpath:prodInitData/ldap/default-users.ldif";
 
     public static final String DSF_INMEMORY = "mem";
     public static final String DSF_FILE = "file";
     public static final String DEFAULT_DSF = DSF_FILE;
+
+
 
     protected Properties defaultProperties;
 
