@@ -92,6 +92,11 @@ public class SecurityFilter implements Filter {
             return null;
         }
 
+        if (pathElement2.equals("/signup")) {
+            log.debug("{} was matched to /{applicationTokenId}/signup/user", pathInfo);
+            return null;
+        }
+
         //Authenticate and authorize userTokenId
         /* Paths:
         /{applicationtokenid}/{userTokenId}/application

@@ -192,7 +192,7 @@ public class UserResource {
     @Path("/{uid}/role/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addRole(@PathParam("uid") String uid, String roleJson) {
+    public Response addRole(@PathParam("uid") String userId, String roleJson) {
         log.trace("addRole, roleJson={}", roleJson);
 
         RoleRepresentationRequest request;
@@ -204,7 +204,7 @@ public class UserResource {
         }
 
         try {
-            UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, request);
+            UserPropertyAndRole updatedRole = userAggregateService.addRole(userId, request);
 
             String json;
             try {
