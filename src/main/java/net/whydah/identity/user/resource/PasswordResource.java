@@ -1,5 +1,6 @@
 package net.whydah.identity.user.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
@@ -15,6 +16,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
@@ -25,14 +28,16 @@ public class PasswordResource {
     private static final Logger log = LoggerFactory.getLogger(PasswordResource.class);
 
     private final UserIdentityService userIdentityService;
+    private final ObjectMapper objectMapper;
 
     @Context
     private UriInfo uriInfo;
 
 
     @Autowired
-    public PasswordResource(UserIdentityService userIdentityService) {
+    public PasswordResource(UserIdentityService userIdentityService, ObjectMapper objectMapper) {
         this.userIdentityService = userIdentityService;
+        this.objectMapper = objectMapper;
         log.info("Started: PasswordResource");
     }
 
@@ -47,7 +52,13 @@ public class PasswordResource {
             }
 
             String resetPasswordToken = userIdentityService.resetPassword(username, user.getUid());
-            return Response.ok().entity(resetPasswordToken).build();
+            Map<String,String> retVal = new HashMap<>();
+            retVal.put("username", username);
+            retVal.put("email", user.getEmail());
+            retVal.put("cellPhone", user.getCellPhone());
+            retVal.put("resetPasswordToken", resetPasswordToken);
+            String retValJson = objectMapper.writeValueAsString(retVal);
+            return Response.ok().entity(retValJson).build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
