@@ -24,11 +24,13 @@ public class UserSignupService {
     private final UserAggregateService userAggregateService;
     private final UserIdentityService userIdentityService;
 
+
     @Autowired
     public UserSignupService(UserAggregateService userAggregateService, UserIdentityService userIdentityService) {
         this.userAggregateService = userAggregateService;
         this.userIdentityService = userIdentityService;
     }
+
 
     public UserAggregate createUserWithRoles(UserAggregateRepresentation createFromRepresentation) {
         UserAggregate userAggregate = null;
@@ -46,4 +48,6 @@ public class UserSignupService {
         }
         return userAggregate;
     }
+
+
 }

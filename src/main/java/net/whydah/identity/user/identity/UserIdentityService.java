@@ -162,7 +162,7 @@ public class UserIdentityService {
         return userIdentity;
     }
 
-    private static String replacePlusWithEmpty(String email){
+    public static String replacePlusWithEmpty(String email){
         String[] words = email.split("[+]");
         if (words.length == 1) {
             return email;

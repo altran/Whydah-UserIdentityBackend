@@ -104,6 +104,7 @@ public class UserAggregateService {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
         if (authenticatedUser == null) {
             log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
+            //FIXME https://github.com/Cantara/Whydah-UserIdentityBackend/issues/34
             return;
         }
         String userId = authenticatedUser.getName();
@@ -157,6 +158,7 @@ public class UserAggregateService {
             throw new WebApplicationException(msg, Response.Status.CONFLICT);
         }
 
+        role.setUid(uid);
         userPropertyAndRoleDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         audit(ActionPerformed.ADDED, "role", value);
