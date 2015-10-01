@@ -19,6 +19,8 @@ public class RoleRepresentation extends RoleRepresentationRequest {
         return representation;
     }
 
+
+
     public String getId() {
         return id;
     }

@@ -1,9 +1,9 @@
 package net.whydah.identity.user.signup;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.resource.UserAggregateRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +29,17 @@ public class UserSignupEndpoint {
 
 //    private final UserAggregateService userAggregateService;
 //    private final UserAdminHelper userAdminHelper;
-    private final UserIdentityService userIdentityService;
+    private final UserSignupService userSignupService;
     private final ObjectMapper objectMapper;
-    //private final String hostname;
-
-
     private final AuditLogDao auditLogDao;
 
     @Autowired
-    public UserSignupEndpoint(UserIdentityService userIdentityService, ObjectMapper objectMapper, AuditLogDao auditLogDao) {
-        this.userIdentityService = userIdentityService;
+    public UserSignupEndpoint(UserSignupService userSignupService, ObjectMapper objectMapper, AuditLogDao auditLogDao) {
+        this.userSignupService = userSignupService;
         this.objectMapper = objectMapper;
         this.auditLogDao = auditLogDao;
     }
+
 
     /**
      * Signup using json.  Format
@@ -54,22 +52,30 @@ public class UserSignupEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response signupUser(String userJson) {
         log.trace("signupUser: {}", userJson);
-        UserAggregateRepresentation userAggregate = null;
+        UserAggregateRepresentation createFromRepresentation = null;
         try {
-            userAggregate = objectMapper.readValue(userJson, UserAggregateRepresentation.class);
+            createFromRepresentation = objectMapper.readValue(userJson, UserAggregateRepresentation.class);
         } catch (IOException ioe) {
             log.trace("Failed to parse UserAggregateRepresentation from json {}", userJson);
         }
 
-        if (userAggregate == null) {
+        if (createFromRepresentation == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse " + userJson + ".").build();
         }
 
-        UserIdentity userIdentity = null; //TODO BLI UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
-
-        if (userIdentity == null) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
+        UserAggregate userAggregate = userSignupService.createUserWithRoles(createFromRepresentation);
+        String createdUserAsJson = null;
+        if (userAggregate != null) {
+            try {
+                createdUserAsJson = objectMapper.writeValueAsString(userAggregate);
+            } catch (JsonProcessingException e) {
+                log.trace("Failed to create json form userAggregate {}", userAggregate);
+            }
         }
+
+//        if (userIdentity == null) {
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
+//        }
 
 
         /*
@@ -77,7 +83,7 @@ public class UserSignupEndpoint {
         //String facebookUserAsString = getFacebookDataAsXmlString(input);
         return createAndAuthenticateUser(userIdentity, facebookUserAsString, true);
         */
-        return  null;
+        return Response.status(Response.Status.CREATED).entity(createdUserAsJson).build();
     }
 
 

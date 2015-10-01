@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -132,6 +133,25 @@ public class UserAggregateService {
         role.setApplicationRoleName(request.getApplicationRoleName());
         role.setApplicationRoleValue(request.getApplicationRoleValue());
 
+        return addRole(uid, role);
+    }
+
+    public List<UserPropertyAndRole> addRoles(String uid, List<UserPropertyAndRole> roles) {
+        List<UserPropertyAndRole> createdRoles = new ArrayList<>();
+        if (roles != null && roles.size() > 0) {
+            for (UserPropertyAndRole role : roles) {
+                try {
+                    UserPropertyAndRole createdRole = addRole(uid, role);
+                    createdRoles.add(createdRole);
+                } catch (WebApplicationException e) {
+                    log.trace("User {}, has this role  {} already. The role is not re-applied.", uid,role );
+                }
+            }
+        }
+        return roles;
+    }
+
+    public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
             throw new WebApplicationException(msg, Response.Status.CONFLICT);

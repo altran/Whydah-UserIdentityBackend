@@ -39,10 +39,10 @@ public class UserResource {
     private UriInfo uriInfo;
 
     @Autowired
-    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService) {
+    public UserResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ObjectMapper mapper) {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
-        this.mapper = new ObjectMapper();
+        this.mapper = mapper;
         log.info("Started: UserResource");
     }
 

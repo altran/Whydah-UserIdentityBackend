@@ -46,6 +46,36 @@ public class UserAggregateRepresentation {
         dto.setRoles(roleRepresentations);
         return dto;
     }
+    public UserAggregate buildUserAggregate() {
+        List<UserPropertyAndRole> userPropertyAndRoles = buildUserPropertyAndRoles();
+
+        UserIdentity userIdentity = buildUserIdentity();
+        UserAggregate userAggregate = new UserAggregate(userIdentity, userPropertyAndRoles);
+        return userAggregate;
+    }
+
+    private UserIdentity buildUserIdentity() {
+        UserIdentity userIdentity = new UserIdentity(getUid(),getUsername(),getFirstName(),getLastName(),getEmail(),getPassword(),getCellPhone(),getPersonRef());
+        return userIdentity;
+    }
+
+    public List<UserPropertyAndRole> buildUserPropertyAndRoles() {
+        List<UserPropertyAndRole>  userRoles = new ArrayList<>();
+        if (roles != null && roles.size() > 0) {
+            for (RoleRepresentation role : roles) {
+                UserPropertyAndRole userRole = new UserPropertyAndRole();
+                userRole.setUid(getUid());
+                userRole.setRoleId(role.getId());
+                userRole.setApplicationId(role.getApplicationId());
+                userRole.setApplicationName(role.getApplicationName());
+                userRole.setOrganizationName(role.getOrganizationName());
+                userRole.setApplicationRoleName(role.getApplicationRoleName());
+                userRole.setApplicationRoleValue(role.getApplicationRoleValue());
+                userRoles.add(userRole);
+            }
+        }
+        return userRoles;
+    }
 
 
     public void setUid(String uid) {
