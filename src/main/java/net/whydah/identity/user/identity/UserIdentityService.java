@@ -61,9 +61,10 @@ public class UserIdentityService {
     }
 
 
-    public void resetPassword(String username, String uid, String userEmail) {
-        String token = setTempPassword(username, uid);
-        passwordSender.sendResetPasswordEmail(username, token, userEmail);
+    public String resetPassword(String username, String uid) {
+        String resetPasswordToken = setTempPassword(username, uid);
+//        passwordSender.sendResetPasswordEmail(username, token, userEmail);
+        return resetPasswordToken;
     }
     private String setTempPassword(String username, String uid) {
         String newPassword = passwordGenerator.generate();

@@ -46,8 +46,8 @@ public class PasswordResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
+            String resetPasswordToken = userIdentityService.resetPassword(username, user.getUid());
+            return Response.ok().entity(resetPasswordToken).build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -64,8 +64,8 @@ public class PasswordResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            userIdentityService.resetPassword(username, user.getUid(), user.getEmail());
-            return Response.ok().build();
+            String resetPasswordToken = userIdentityService.resetPassword(username, user.getUid());
+            return Response.ok().entity(resetPasswordToken).build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

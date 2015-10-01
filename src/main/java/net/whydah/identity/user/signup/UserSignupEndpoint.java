@@ -83,7 +83,7 @@ public class UserSignupEndpoint {
         //String facebookUserAsString = getFacebookDataAsXmlString(input);
         return createAndAuthenticateUser(userIdentity, facebookUserAsString, true);
         */
-        return Response.status(Response.Status.CREATED).entity(createdUserAsJson).build();
+        return Response.status(Response.Status.OK).entity(createdUserAsJson).build();
     }
 
 

@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * @Deprecated Functionallity is moved to UserAdminService
  * Send reset password email to user.
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 18.08.13
  */
+@Deprecated
 @Service
 public class PasswordSender {
     private static final Logger log = LoggerFactory.getLogger(PasswordSender.class);

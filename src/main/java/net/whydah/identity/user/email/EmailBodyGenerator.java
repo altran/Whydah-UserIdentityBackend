@@ -9,6 +9,10 @@ import java.io.StringWriter;
 import java.util.HashMap;
 
 
+/**
+ * @Deprecated Functionallity is moved to UserAdminService
+ */
+@Deprecated
 @Component
 public class EmailBodyGenerator {
     private final Configuration freemarkerConfig;

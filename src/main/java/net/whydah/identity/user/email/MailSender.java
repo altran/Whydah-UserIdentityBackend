@@ -13,8 +13,10 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 /**
+ * @Deprecated Functionallity is moved to UserAdminService
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
  */
+@Deprecated
 @Component
 public class MailSender {
     private static final Logger log = LoggerFactory.getLogger(MailSender.class);
