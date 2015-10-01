@@ -102,12 +102,13 @@ public class UserAggregateService {
 
     private void audit(String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
+        String userId = null;
         if (authenticatedUser == null) {
-            log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
-            //FIXME https://github.com/Cantara/Whydah-UserIdentityBackend/issues/34
-            return;
+//            log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
+            userId = "-no-admin-user-";
+        } else {
+            userId = authenticatedUser.getName();
         }
-        String userId = authenticatedUser.getName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
         auditLogDao.store(actionPerformed);
