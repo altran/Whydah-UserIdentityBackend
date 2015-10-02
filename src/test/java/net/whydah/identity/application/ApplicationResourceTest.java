@@ -7,7 +7,7 @@ import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.util.FileUtils;
-import net.whydah.sso.application.Application;
+import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.ApplicationSerializer;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;

@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.application.ApplicationService;
-import net.whydah.sso.application.Application;
+import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

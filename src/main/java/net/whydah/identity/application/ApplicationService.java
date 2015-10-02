@@ -2,8 +2,8 @@ package net.whydah.identity.application;
 
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.sso.application.Application;
-import net.whydah.sso.application.ApplicationCredential;
+import net.whydah.sso.application.types.Application;
+import net.whydah.sso.application.types.ApplicationCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by baardl on 29.03.14.
- */
 @Service
 public class ApplicationService {
     private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);

@@ -11,7 +11,7 @@ import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
-import net.whydah.sso.application.Application;
+import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

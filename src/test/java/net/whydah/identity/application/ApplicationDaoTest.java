@@ -1,8 +1,8 @@
 package net.whydah.identity.application;
 
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
-import net.whydah.sso.application.Application;
-import net.whydah.sso.application.ApplicationRole;
+import net.whydah.sso.application.types.Application;
+import net.whydah.sso.application.types.ApplicationRole;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Before;
 import org.junit.BeforeClass;

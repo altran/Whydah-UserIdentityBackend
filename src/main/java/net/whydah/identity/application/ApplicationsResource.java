@@ -1,6 +1,6 @@
 package net.whydah.identity.application;
 
-import net.whydah.sso.application.Application;
+import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.ApplicationSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

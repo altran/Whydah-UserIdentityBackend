@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.util.FileUtils;
-import net.whydah.sso.application.Application;
+import net.whydah.sso.application.types.Application;
 import org.junit.Test;
 
 import java.io.InputStream;
