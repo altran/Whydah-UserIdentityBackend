@@ -1,7 +1,7 @@
 package net.whydah.identity.application;
 
 import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.ApplicationSerializer;
+import net.whydah.sso.application.ApplicationMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class ApplicationsResource {
         log.trace("getApplications is called.");
         try {
             List<Application> applications = applicationService.getApplications();
-            String json = ApplicationSerializer.toJson(applications);
+            String json = ApplicationMapper.toJson(applications);
             log.trace("Returning {} applications: {}", applications.size(), json);
             return Response.ok(json).build();
         } catch (RuntimeException e) {

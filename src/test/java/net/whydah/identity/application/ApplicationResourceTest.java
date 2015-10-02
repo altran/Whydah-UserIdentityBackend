@@ -8,7 +8,7 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.ApplicationSerializer;
+import net.whydah.sso.application.ApplicationMapper;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -83,7 +83,7 @@ public class ApplicationResourceTest {
         app = new Application("ignoredId", "appName1");
         app.getSecurity().setSecret("secret1");
         app.setDefaultRoleName("originalDefaultRoleName");
-        String json = ApplicationSerializer.toJson(app);
+        String json = ApplicationMapper.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application";
         Response response = given()
@@ -97,7 +97,7 @@ public class ApplicationResourceTest {
                 .post(path, appToken1, userToken1);
 
         String jsonResponse = response.body().asString();
-        Application applicationResponse = ApplicationSerializer.fromJson(jsonResponse);
+        Application applicationResponse = ApplicationMapper.fromJson(jsonResponse);
 
         assertNotNull(applicationResponse.getId());
         assertNotEquals(app.getId(), applicationResponse.getId());
@@ -119,7 +119,7 @@ public class ApplicationResourceTest {
                 .get(path, appToken1, userToken1, appId1FromCreatedResponse);
 
         String jsonResponse = response.body().asString();
-        Application applicationResponse = ApplicationSerializer.fromJson(jsonResponse);
+        Application applicationResponse = ApplicationMapper.fromJson(jsonResponse);
         assertNotNull(applicationResponse.getId());
         assertEquals(appId1FromCreatedResponse, applicationResponse.getId());
         assertEquals(applicationResponse.getName(), app.getName());
@@ -128,7 +128,7 @@ public class ApplicationResourceTest {
 
     @Test(dependsOnMethods = "testGetApplicationOK")
     public void testUpdateApplicationNotFound() throws Exception {
-        String json = ApplicationSerializer.toJson(app);
+        String json = ApplicationMapper.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
@@ -146,7 +146,7 @@ public class ApplicationResourceTest {
     public void testUpdateApplicationNoContent() throws Exception {
         app.setId(appId1FromCreatedResponse);
         app.setDefaultRoleName("anotherRoleName");
-        String json = ApplicationSerializer.toJson(app);
+        String json = ApplicationMapper.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         Response response = given()

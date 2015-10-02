@@ -1,7 +1,7 @@
 package net.whydah.identity.application;
 
 import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.ApplicationSerializer;
+import net.whydah.sso.application.ApplicationMapper;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class ApplicationDao {
 
 
     int create(Application application) {
-        String json = ApplicationSerializer.toJson(application);
+        String json = ApplicationMapper.toJson(application);
         String sql = "INSERT INTO Application (id, json) VALUES (?,?)";
         int numRowsAffected = jdbcTemplate.update(sql, application.getId(), json);
         return numRowsAffected;
@@ -67,7 +67,7 @@ public class ApplicationDao {
     }
 
     Application getApplication(String applicationId) {
-        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper());
+        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper2());
         if (applications.isEmpty()) {
             return null;
         }
@@ -76,11 +76,11 @@ public class ApplicationDao {
     }
 
     List<Application> getApplications() {
-        return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper());
+        return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper2());
     }
 
     int update(Application application) {
-        String json = ApplicationSerializer.toJson(application);
+        String json = ApplicationMapper.toJson(application);
         String sql = "UPDATE Application set Json=? WHERE ID=?";
         int numRowsAffected = jdbcTemplate.update(sql, json, application.getId());
         return numRowsAffected;
@@ -100,10 +100,10 @@ public class ApplicationDao {
         return count;
     }
 
-    private static final class ApplicationMapper implements RowMapper<Application> {
+    private static final class ApplicationMapper2 implements RowMapper<Application> {
         public Application mapRow(ResultSet rs, int rowNum) throws SQLException {
             String json = rs.getString("json");
-            return ApplicationSerializer.fromJson(json);
+            return ApplicationMapper.fromJson(json);
         }
     }
 }

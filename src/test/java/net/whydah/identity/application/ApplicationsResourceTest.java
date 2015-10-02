@@ -8,7 +8,7 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.ApplicationSerializer;
+import net.whydah.sso.application.ApplicationMapper;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -88,7 +88,7 @@ public class ApplicationsResourceTest {
                 .get(path, appToken1, userToken1);
 
         String jsonResponse = response.body().asString();
-        List<Application> applications = ApplicationSerializer.fromJsonList(jsonResponse);
+        List<Application> applications = ApplicationMapper.fromJsonList(jsonResponse);
         assertEquals(applications.size(), 0);
     }
 
@@ -99,7 +99,7 @@ public class ApplicationsResourceTest {
         String createPath = "/{applicationtokenid}/{userTokenId}/application";
         String json;
         for (int i = 0; i < nrOfApplications; i++) {
-            json = ApplicationSerializer.toJson(new Application("ignoredId", "appName" + i));
+            json = ApplicationMapper.toJson(new Application("ignoredId", "appName" + i));
             given()
                     .body(json)
                     .contentType(ContentType.JSON)
@@ -122,7 +122,7 @@ public class ApplicationsResourceTest {
                 .get(path, appToken1, userToken1);
 
         String jsonResponse = response.body().asString();
-        List<Application> applications = ApplicationSerializer.fromJsonList(jsonResponse);
+        List<Application> applications = ApplicationMapper.fromJsonList(jsonResponse);
         assertEquals(applications.size(), nrOfApplications);
     }
 }
