@@ -97,26 +97,26 @@ public class UserAdminTest {
 
     @Test
     public void testFind() {
-        WebTarget webResource = baseResource.path("users/find/Thomas");
+        WebTarget webResource = baseResource.path("users/find/Admin");
         Response response = webResource.request().get(Response.class);
         String entity = response.readEntity(String.class);
-        assertTrue(entity.contains("\"firstName\":\"Thomas\""));
+        assertTrue(entity.contains("\"firstName\":\"Admin\""));
     }
 
     @Test
-    public void getuser() {
-        WebTarget webResource = baseResource.path("user/username@emailaddress.com");
+    public void getUser() {
+        WebTarget webResource = baseResource.path("user/useradmin");
         String s = webResource.request().get(String.class);
         //System.out.println(s);
-        assertTrue(s.contains("\"firstName\":\"Thomas\""));
+        assertTrue(s.contains("\"lastName\":\"Admin\""));
     }
 
     @Test
-    public void getnonexistinguser() {
+    public void getNonExistingUser() {
         WebTarget webResource = baseResource.path("user/");
-        webResource.path("username@emailaddress.com").request().get(String.class); // verify that path works with existing user
+        webResource.path("useradmin").request().get(String.class); // verify that path works with existing user
         try {
-            String s = webResource.path("bantelonga@gmail.com").request().get(String.class);
+            String s = webResource.path("pettersmart@gmail.com").request().get(String.class);
             fail("Expected 404, got " + s);
         } catch (NotFoundException e) {
             assertEquals(Response.Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
