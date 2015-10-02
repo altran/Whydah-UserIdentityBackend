@@ -87,10 +87,6 @@ public class IamDataImporterTest {
     public void testDataIsImported() throws Exception {
         dataImporter.importIamData();
         LdapUserIdentityDao ldapUserIdentityDao = dataImporter.getLdapUserIdentityDao();
-        UserIdentity thomaspUserIdentity = ldapUserIdentityDao.getUserIndentity("thomasp");
-        assertEquals("Thomas", thomaspUserIdentity.getFirstName());
-        assertEquals("Pringle", thomaspUserIdentity.getLastName());
-        assertEquals("username@emailaddress.com", thomaspUserIdentity.getUid());
 
         UserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
         assertEquals("Erik", erikdUserIdentity.getFirstName());
@@ -100,14 +96,7 @@ public class IamDataImporterTest {
         ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), null);
         UserAggregateService userAggregateService = new UserAggregateService(null, dataImporter.getUserPropertyAndRoleDao(),
                 applicationService, null, null);
-        UserAggregate userAggregate1 = new UserAggregate(thomaspUserIdentity, userAggregateService.getUserPropertyAndRoles(thomaspUserIdentity.getUid()));
-        List<UserPropertyAndRole> propsAndRoles = userAggregate1.getRoles();
 
-        //List<UserPropertyAndRole> propsAndRoles = userPropertyAndRoleDao.getUserPropertyAndRoles(thomaspUserIdentity.getUid());
-
-        assertEquals(3, propsAndRoles.size());
-        assertTrue(containsRoleMapping(propsAndRoles, "username@emailaddress.com", "12", "UserAdminService", "Altran", "developer", "30"));
-        assertTrue(containsRoleMapping(propsAndRoles, "username@emailaddress.com", "15", "SSOLoginWebApplication", "Whydah", "developer", "20"));
 
         UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, userAggregateService.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
