@@ -11,20 +11,6 @@ objectClass: top
 objectClass: organizationalUnit
 ou: users
 
-dn: uid=thomas.pringle@altran.com,ou=users,dc=external,dc=WHYDAH,dc=no
-objectClass: top
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-objectClass: person
-cn: Thomas Pringle
-sn: Pringle
-employeeNumber: 1
-givenName: Thomas
-initials: thomasp
-mail: thomas.pringle@altran.com
-mobile: 46707771841
-uid: thomas.pringle@altran.com
-userpassword:: bG9nTWVJblBsZWFzZQ==
 
 dn: uid=erik.drolshammer,ou=users,dc=external,dc=WHYDAH,dc=no
 objectClass: top
