@@ -21,15 +21,7 @@ public class WhydahUserIdentityImporterTest {
 		assertEquals("All users must be found.", 2, users.size());
 		
 		UserIdentity user1 = users.get(0);
-		assertEquals("UserId must be set.", "username@emailaddress.com", user1.getUid());
-		assertEquals("UserName must be set.", "thomasp", user1.getUsername());
-		assertEquals("Password must be set.", "logMeInPlease", user1.getPassword());
-		assertEquals("Firstname must be set.", "Thomas", user1.getFirstName());
-		assertEquals("Lastname must be set.", "Pringle", user1.getLastName());
-		assertEquals("email must be set.", "username@emailaddress.com", user1.getEmail());
-		assertEquals("cellPhone must be set.", "+46707771841", user1.getCellPhone());
-		assertEquals("personRef must be set.", "1", user1.getPersonRef());
-		
+
 		UserIdentity user2 = users.get(1);
 		assertEquals("UserId must be set.", "erik.drolshammer", user2.getUid());
 		assertEquals("UserName must be set.", "erikd", user2.getUsername());
