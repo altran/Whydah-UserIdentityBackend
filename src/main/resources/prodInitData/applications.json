@@ -1,0 +1,85 @@
+{
+  "_comment": "TODO: Convert old applicationdata to risher AppModel format",
+  "_comment": "",
+  "_comment": "#applicationId, applicationName, defaultRole, defaultOrgName, applicationSecret",
+  "_comment": "11, SecurityTokenService, SSOApplication, Whydah, 6r46g3q986Ep6By7B9J46m96D",
+  "_comment": "12, UserAdminService, WhydahUserAdmin, Whydah, 9ju592A4t8dzz8mz7a5QQJ7Px",
+  "_comment": "15, SSOLoginWebApplication, SSOApplication, Whydah, 33779936R6Jr47D4Hj5R6p9qT",
+  "_comment": "19, UserAdminWebApp, WhydahUserAdmin, Whydah, 9EH5u5wJFKsUvJFmhypwK7j6D",
+  "_comment": "99, WhydahTestWebApplication, SSOApplication, Whydah, 33879936R6Jr47D4Hj5R6p9qT",
+  "_comment": "100, ACS, Employee, ACSOrganization, 45fhRM6nbKZ2wfC6RMmMuzXpk",
+  "_comment": "2001, m2Circle, member, Whydah, YKHH54bNpnvQEF2vCJSWtctB",
+
+  "applications": [
+    {
+      "id": "appId1",
+      "name": "applicationName1",
+      "description": "description of application",
+      "applicationUrl": "https://webtest.exapmle.com/test.png",
+      "logoUrl": "https://webtest.example.com",
+      "roles": [
+        {
+          "id": "roleId1",
+          "name": "roleName1"
+        }
+      ],
+      "organizationNames": [
+        "organizationName1",
+        "defaultOrgName"
+      ],
+      "defaultRoleName": "roleName1",
+      "defaultOrganizationName": "defaultOrgName",
+      "security": {
+        "minSecurityLevel": "0",
+        "minDEFCON": "DEFCON5",
+        "maxSessionTimoutSeconds": "86400",
+        "allowedIpAddresses": [
+          "0.0.0.0/0"
+        ],
+        "userTokenFilter": "true",
+        "secret": "veryVerySecret"
+      },
+      "acl": [
+        {
+          "applicationId": "11",
+          "applicationACLPath": "/user"
+        }
+      ]
+    },
+    {
+      "id": "appId1",
+      "name": "applicationName1",
+      "description": "description of application",
+      "applicationUrl": "https://webtest.exapmle.com/test.png",
+      "logoUrl": "https://webtest.example.com",
+      "roles": [
+        {
+          "id": "roleId1",
+          "name": "roleName1"
+        }
+      ],
+      "organizationNames": [
+        "organizationName1",
+        "defaultOrgName"
+      ],
+      "defaultRoleName": "roleName1",
+      "defaultOrganizationName": "defaultOrgName",
+      "security": {
+        "minSecurityLevel": "0",
+        "minDEFCON": "DEFCON5",
+        "maxSessionTimoutSeconds": "86400",
+        "allowedIpAddresses": [
+          "0.0.0.0/0"
+        ],
+        "userTokenFilter": "true",
+        "secret": "veryVerySecret"
+      },
+      "acl": [
+        {
+          "applicationId": "11",
+          "applicationACLPath": "/user"
+        }
+      ]
+    }
+  ]
+}
