@@ -9,6 +9,7 @@ import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.ApplicationMapper;
+import net.whydah.sso.application.types.ApplicationRole;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -16,6 +17,8 @@ import org.constretto.model.Resource;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
@@ -83,6 +86,11 @@ public class ApplicationResourceTest {
         app = new Application("ignoredId", "appName1");
         app.getSecurity().setSecret("secret1");
         app.setDefaultRoleName("originalDefaultRoleName");
+        app.setApplicationUrl("https://myapp.net/");
+        app.addRole(new ApplicationRole("roleId1", "roleName1"));
+        app.addRole(new ApplicationRole("roleId2", "roleName2"));
+        app.setOrganizationNames(Arrays.asList("orgName1", "orgName2", "orgName3"));
+
         String json = ApplicationMapper.toJson(app);
 
         String path = "/{applicationtokenid}/{userTokenId}/application";
