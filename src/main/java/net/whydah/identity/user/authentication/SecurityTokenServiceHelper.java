@@ -1,6 +1,9 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.user.UserRole;
+import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
+import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenIdWithStubbedFallback;
+import net.whydah.sso.commands.userauth.CommandLogonUserByUserCredentialWithStubbedFallback;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +37,17 @@ public class SecurityTokenServiceHelper {
         tokenServiceResource = client.target(usertokenserviceUri);
     }
 
-    public UserToken getUserToken(String appTokenId, String usertokenid) {
+    public UserToken getUserToken(String appTokenId, String usertokenid){
+        String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(), appTokenId, myAppTokenXML, usertokenid).execute();
+        if (userToken!=null && userToken.length()>10) {
+            log.debug("usertoken: {}", userToken);
+            return new UserToken(userToken);
+        }
+        log.error("getUserToken failed");
+        return null;
+    }
+
+    public UserToken getUserToken2(String appTokenId, String usertokenid) {
         //log.debug("usertokenid={}", usertokenid);
         //log.debug("myAppTokenXML={}", myAppTokenXML);
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
