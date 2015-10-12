@@ -1,6 +1,7 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.user.UserRole;
+import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
 import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenIdWithStubbedFallback;
 import net.whydah.sso.commands.userauth.CommandLogonUserByUserCredentialWithStubbedFallback;
@@ -35,6 +36,8 @@ public class SecurityTokenServiceHelper {
     @Configure
     public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenserviceUri) {
         tokenServiceResource = client.target(usertokenserviceUri);
+        // TODO - get the real values here
+        myAppTokenXML=new ApplicationCredential("","").toString();
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid){
