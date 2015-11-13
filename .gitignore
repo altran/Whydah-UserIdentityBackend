@@ -18,3 +18,4 @@ target/
 /bootstrapdata
 /lucene
 useridentitybackend_override.properties
+/data/
