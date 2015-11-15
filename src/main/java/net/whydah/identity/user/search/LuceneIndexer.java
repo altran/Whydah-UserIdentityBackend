@@ -76,7 +76,7 @@ public class LuceneIndexer {
         IndexWriter w = null;
         try {
             w = getWriter();
-            log.debug("LuceneIndexer initialized. lockId={}", index.getLockID());
+            log.trace("LuceneIndexer initialized. lockId={}", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
         } finally {

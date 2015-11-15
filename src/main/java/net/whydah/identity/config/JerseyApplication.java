@@ -20,6 +20,6 @@ public class JerseyApplication extends ResourceConfig {
         ResourceConfig resourceConfig = packages("net.whydah.identity");
         resourceConfig.register(org.glassfish.jersey.server.mvc.freemarker.FreemarkerMvcFeature.class);
         resourceConfig.property(FreemarkerMvcFeature.TEMPLATE_BASE_PATH, "/templates");
-        log.debug(this.getClass().getSimpleName() + " started!");
+        log.trace(this.getClass().getSimpleName() + " started!");
     }
 }

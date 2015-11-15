@@ -13,7 +13,7 @@
     -->
     <logger name="org.apache.directory" level="WARN" />
     <logger name="net.whydah.identity.util.FileUtils" level="INFO" />
-    <logger name="net.whydah" level="TRACE" />
+    <logger name="net.whydah" level="INFO" />
 
 
     <root level="INFO">

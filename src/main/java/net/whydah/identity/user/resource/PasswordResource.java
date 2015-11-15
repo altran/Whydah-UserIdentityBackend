@@ -38,7 +38,7 @@ public class PasswordResource {
     public PasswordResource(UserIdentityService userIdentityService, ObjectMapper objectMapper) {
         this.userIdentityService = userIdentityService;
         this.objectMapper = objectMapper;
-        log.info("Started: PasswordResource");
+        log.trace("Started: PasswordResource");
     }
 
     @GET

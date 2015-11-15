@@ -43,7 +43,7 @@ public class UserResource {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
         this.mapper = mapper;
-        log.info("Started: UserResource");
+        log.trace("Started: UserResource");
     }
 
     /**
