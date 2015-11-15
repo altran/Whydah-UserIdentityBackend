@@ -26,7 +26,6 @@ public class HealthResource {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
     public Response isHealthy() {
         boolean ok = healthCheckService.isOK();

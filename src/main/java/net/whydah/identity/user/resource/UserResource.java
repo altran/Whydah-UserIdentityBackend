@@ -56,7 +56,6 @@ public class UserResource {
      * no password
      */
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addUserIdentity(String userIdentityJson) {
