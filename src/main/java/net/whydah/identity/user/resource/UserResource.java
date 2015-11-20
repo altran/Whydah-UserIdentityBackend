@@ -15,7 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.naming.NamingException;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -191,8 +199,21 @@ public class UserResource {
     @Path("/{uid}/role/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addRole(@PathParam("uid") String userId, String roleJson) {
-        log.trace("addRole, roleJson={}", roleJson);
+    public Response addRole(@PathParam("uid") String uid, String roleJson) {
+        log.trace("addRole for uid={}, roleJson={}", uid, roleJson);
+
+        UserIdentity user;
+        String msg = "addRole failed. No user with uid=" + uid;
+        try {
+            user = userIdentityService.getUserIdentityForUid(uid);
+        } catch (NamingException e) {
+            log.info(msg, e);
+            return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
+        }
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
+        }
+
 
         RoleRepresentationRequest request;
         try {
@@ -203,7 +224,7 @@ public class UserResource {
         }
 
         try {
-            UserPropertyAndRole updatedRole = userAggregateService.addRole(userId, request);
+            UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, request);
 
             String json;
             try {
