@@ -11,7 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,6 +46,7 @@ public class PasswordResource {
         log.trace("Started: PasswordResource");
     }
 
+    @Deprecated
     @GET
     @Path("/reset/username/{username}")
     public Response resetPassword(@PathParam("username") String username) {
@@ -51,7 +57,7 @@ public class PasswordResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            String resetPasswordToken = userIdentityService.resetPassword(username, user.getUid());
+            String resetPasswordToken = userIdentityService.setTempPassword(username, user.getUid());
             Map<String,String> retVal = new HashMap<>();
             retVal.put("username", username);
             retVal.put("email", user.getEmail());
@@ -65,6 +71,7 @@ public class PasswordResource {
         }
     }
 
+    @Deprecated
     @POST
     @Path("/reset/username/{username}")
     public Response resetPasswordPOST(@PathParam("username") String username) {
@@ -75,7 +82,7 @@ public class PasswordResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
-            String resetPasswordToken = userIdentityService.resetPassword(username, user.getUid());
+            String resetPasswordToken = userIdentityService.setTempPassword(username, user.getUid());
             return Response.ok().entity(resetPasswordToken).build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
@@ -83,6 +90,7 @@ public class PasswordResource {
         }
     }
 
+    @Deprecated
     @POST
     @Path("/reset/username/{username}/newpassword/{token}")
     public Response setPassword(@PathParam("username") String username, @PathParam("token") String changePasswordTokenAsString, String passwordJson) {

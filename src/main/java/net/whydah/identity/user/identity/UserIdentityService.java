@@ -61,12 +61,7 @@ public class UserIdentityService {
     }
 
 
-    public String resetPassword(String username, String uid) {
-        String resetPasswordToken = setTempPassword(username, uid);
-//        passwordSender.sendResetPasswordEmail(username, token, userEmail);
-        return resetPasswordToken;
-    }
-    private String setTempPassword(String username, String uid) {
+    public String setTempPassword(String username, String uid) {
         String newPassword = passwordGenerator.generate();
         String salt = passwordGenerator.generate();
         ldapUserIdentityDao.setTempPassword(username, newPassword, salt);

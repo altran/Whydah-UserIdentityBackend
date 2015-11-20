@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-06-30
@@ -34,7 +36,7 @@ public class SecurityFilter2Test {
     }
 
     @Test
-    public void testHealthEndpoint() {
+    public void testOpenEndpoints() {
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/health"));
     }
 
@@ -46,12 +48,11 @@ public class SecurityFilter2Test {
     }
 
     @Test
-    public void testPasswordEndpoint() {
-        assertNull(securityFilter.authenticateAndAuthorizeRequest("/password/appTokenIdPassword"));
-    }
-    @Test
-    public void testAuthenticateUserEndpoint() {
+    public void testOnlyApplicationTokenIdEndpoints() {
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/authenticate/user"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/signup/user"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/reset_password"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/change_password"));
     }
 
     @Test
