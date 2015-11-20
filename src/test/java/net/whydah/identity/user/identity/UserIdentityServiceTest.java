@@ -5,7 +5,7 @@ import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
-import net.whydah.identity.user.resource.UserAdminHelper;
+import net.whydah.identity.user.authentication.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.user.search.LuceneSearch;
@@ -19,7 +19,6 @@ import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -160,7 +159,8 @@ public class UserIdentityServiceTest {
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
-        assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
+        assertTrue("Expected ConflictException because user should already exist.",
+                response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
     }
 
     @Test

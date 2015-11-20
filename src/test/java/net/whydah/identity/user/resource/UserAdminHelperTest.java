@@ -1,5 +1,6 @@
 package net.whydah.identity.user.resource;
 
+import net.whydah.identity.user.authentication.UserAdminHelper;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import org.junit.Test;
 import org.w3c.dom.Document;
