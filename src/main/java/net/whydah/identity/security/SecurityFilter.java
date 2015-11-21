@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -59,12 +58,19 @@ public class SecurityFilter implements Filter {
      * @return HttpServletResponse.SC_UNAUTHORIZED if authentication fails, otherwise null
      */
     Integer authenticateAndAuthorizeRequest(String pathInfo) {
-        //Open paths without authentication
         log.debug("filter path {}", pathInfo);
-        if (pathInfo.startsWith("/health")) {
+
+        //match /
+        if (pathInfo == null || pathInfo.equals("/")) {
+            return HttpServletResponse.SC_NOT_FOUND;
+        }
+
+        String path = pathInfo.substring(1); //strip leading /
+
+        //Open paths without authentication
+        if (path.startsWith("health")) {
             return null;
         }
-        //TODO See ApplicationAuthenticationEndpoint
 
         if (ApplicationMode.skipSecurityFilter()) {
             log.warn("Running in noSecurityFilter mode, security is omitted for users.");
@@ -73,77 +79,44 @@ public class SecurityFilter implements Filter {
         }
 
 
-        //Require authenticated and authorized applicationtokenid
-        String pathElement1 = findPathElement(pathInfo, 1);
-        //match /
-        if (pathElement1 == null) {
-            return HttpServletResponse.SC_NOT_FOUND;
+        // TODO fetch UAS applicationTokenId from http header, call CommandValidateApplicationTokenId
+        // /{stsApplicationtokenId}/application/auth        //ApplicationAuthenticationEndpoint
+
+
+        //strip applicationTokenId from pathInfo
+        path = path.substring(path.indexOf("/"));
+
+
+        //paths without userTokenId verification
+        /*
+        /{applicationTokenId}/user/{uid}/reset_password     //PasswordResource2
+        /{applicationTokenId}/user/{uid}/change_password    //PasswordResource2
+        /{applicationTokenId}/authenticate/user/*           //UserAuthenticationEndpoint
+        /{applicationTokenId}/signup/user                   //UserSignupEndpoint
+        */
+        String pwPattern = "/user/.+/(reset|change)_password";
+        String userAuthPattern = "/authenticate/user(|/.*)";
+        String userSignupPattern = "/signup/user";
+        String [] patternsWithoutUserTokenId = {pwPattern, userAuthPattern, userSignupPattern};
+        for (String pattern : patternsWithoutUserTokenId) {
+            if (Pattern.compile(pattern).matcher(path).matches()) {
+                log.debug("{} was matched to {}. SecurityFilter passed.", path, pattern);
+                return null;
+            }
         }
+
 
         /*
-        //match /password/{applicationtokenid}
-        if (pathElement1.startsWith("/password")) {
-            String applicationTokenId = findPathElement(pathInfo, 2);
-            //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
-            boolean applicationVerified = true;
-            if (applicationVerified) {
-                log.trace("application verified {}. Moving to next in chain.", applicationTokenId);
-                return null;
-            } else {
-                log.trace("Application not Authorized=" + applicationTokenId);
-                return HttpServletResponse.SC_UNAUTHORIZED;
-            }
-        }
-        */
-        // match /applicationTokenId
-        String applicationTokenId = pathElement1.substring(1); //strip leading /
-        //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
-        boolean applicationVerified = true;
-        if (!applicationVerified) {
-            log.debug("Application unauthorized={}", applicationTokenId);
-            return HttpServletResponse.SC_UNAUTHORIZED;
-        }
-
-
-        //match /{applicationTokenId}/authenticate/user
-        String pathElement2 = findPathElement(pathInfo, 2);
-        if (pathElement2.equals("/authenticate")) {     //UserAuthenticationEndpoint
-            log.debug("{} was matched to /{applicationTokenId}/authenticate", pathInfo);
-            return null;
-        }
-        if (pathElement2.equals("/signup")) {           //UserSignupEndpoint
-            log.debug("{} was matched to /{applicationTokenId}/signup", pathInfo);
-            return null;
-        }
-
-
-        // /{applicationTokenId}/user/{uid}/reset_password
-        // /{applicationTokenId}/user/{uid}/change_password
-        //PasswordResource2
-        if (pathElement2.equals("/user")) {
-            String pathElement4 = findPathElement(pathInfo, 4);
-            String pwPattern = "/(reset|change)_password";
-            Pattern pattern = Pattern.compile("/(reset|change)_password");
-            Matcher matcher = pattern.matcher(pathElement4);
-            if (matcher.matches()) {
-                log.debug("{} was matched to /{applicationTokenId}/{}", pathInfo, pwPattern);
-                return null;
-            }
-        }
-
-
-        //Authenticate and authorize userTokenId
-        /* Paths:
-        /{applicationtokenid}/{userTokenId}/application
-        /{applicationtokenid}/{userTokenId}/applications
-        /{applicationtokenid}/{userTokenId}/user
-        /{applicationtokenid}/{usertokenid}/useraggregate
-        /{applicationtokenid}/{usertokenid}/users
-
-        /{applicationtokenid}/{userTokenId}/verifyApplicationAuth
+        /{applicationtokenid}/{userTokenId}/application     //ApplicationResource
+        /{applicationtokenid}/{userTokenId}/applications    //ApplicationsResource
+        /{applicationtokenid}/{userTokenId}/user            //UserResource
+        /{applicationtokenid}/{usertokenid}/useraggregate   //UserAggregateResource
+        /{applicationtokenid}/{usertokenid}/users           //UsersResource
          */
-        //String usertokenId = pathElement2;
-        String usertokenId = pathElement2.substring(1); //strip leading /
+        //paths WITH userTokenId verification
+        String pathElement1 = findPathElement(pathInfo, 1);
+        String applicationTokenId = findPathElement(pathInfo, 1).substring(1);
+        String usertokenId = findPathElement(pathInfo, 2).substring(1);
         UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
         if (userToken == null || userToken.toString().length() < 10) {
             return HttpServletResponse.SC_UNAUTHORIZED;
@@ -184,169 +157,6 @@ public class SecurityFilter implements Filter {
         }
     }
 
-
-    /*
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest servletRequest = (HttpServletRequest) request;
-        String pathInfo = servletRequest.getPathInfo();
-        log.trace("filter path {}", pathInfo);
-        if (pathInfo == null) {
-            log.trace("No data in input - probably due to error in URL.  Configured (eg: ...:9995/uib)");
-            return;
-        }
-
-        if (isOpenPath(pathInfo)) {
-            log.trace("accessing open path {}", pathInfo);
-            chain.doFilter(request, response);
-        } else {
-            if (isAuthenticateUserPath(pathInfo)) {
-                //Verify applicationTokenId
-                String applicationTokenId = findPathElement(pathInfo, 1);
-                if (applicationTokenService.verifyApplication(applicationTokenId)) {
-                    log.trace("application verified {}. Moving to next in chain.", applicationTokenId);
-                    chain.doFilter(request, response);
-                } else {
-                    log.trace("Application not Authorized=" + applicationTokenId);
-                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-            } else if (isPasswordPath(pathInfo)) {
-                //TODO bli: Needs improvement -aka dont repeat your self.
-                String applicationTokenId = findPathElement(pathInfo, 2);
-                if (applicationTokenService.verifyApplication(applicationTokenId)) {
-                    log.trace("application verified {}. Moving to next in chain.", applicationTokenId);
-                    chain.doFilter(request, response);
-                } else {
-                    log.trace("Application not Authorized=" + applicationTokenId);
-                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-            } else {
-                //Verify userTokenId
-                String usertokenId = findUserTokenId(pathInfo);
-                String applicationTokenId = findApplicationTokenId(pathInfo);
-                if (usertokenId == null) {
-                    log.trace("userTokenId not found");
-                    setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_BAD_REQUEST);
-                    return;
-                }
-                //log.trace("ApplicationMode -{}-", ApplicationMode.getApplicationMode());
-                //if (ApplicationMode.getApplicationMode().equals(ApplicationMode.DEV)) {
-                //log.warn("Running in DEV mode, security is ommited for users.");
-                if (ApplicationMode.skipSecurityFilter()) {
-                    log.warn("Running in noSecurityFilter mode, security is omitted for users.");
-                    Authentication.setAuthenticatedUser(buildMockedUserToken());
-                } else {
-                    UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
-
-                    if (userToken == null || userToken.toString().length()<10) {
-                        log.warn("Could not find usertoken with tokenID=" + usertokenId+ " or had problems connecting to SecurityTokenService");
-                        setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_UNAUTHORIZED);
-                        return;
-                    }
-                    if (!userToken.hasRole(REQUIRED_ROLE_USERS)) {
-                        log.warn("Missing required role {}\n - userToken={}", REQUIRED_ROLE_USERS, userToken);
-                        //TODO  this test is too simple for the Whydah 2.1 release, as it block 3rd part apps
-                        //setResponseStatus((HttpServletResponse) response, HttpServletResponse.SC_FORBIDDEN);
-                        //return;
-                    }
-                    log.debug("setAuthenticatedUser with usertoken: {}", userToken);
-                    Authentication.setAuthenticatedUser(userToken);
-                }
-                chain.doFilter(request, response);
-            }
-        }
-        Authentication.clearAuthentication();
-    }
-
-
-    private boolean isAuthenticateUserPath(String pathInfo) {
-        boolean isAuthenticateUserPath = false;
-        String pathElement = findPathElement(pathInfo, 2);
-        if (pathElement != null) {
-            isAuthenticateUserPath = pathElement.startsWith(AUTHENTICATE_USER_PATH);
-        } else {
-            if (pathInfo.contains("password/reset")) {
-                return false;
-            }
-            if (pathInfo.contains("userTokenId/user")) {
-                return false;
-            }
-        }
-        return isAuthenticateUserPath;
-    }
-
-    private boolean isPasswordPath(String pathInfo) {
-        boolean authenticataApplicationOnly = false;
-        String pathElement = findPathElement(pathInfo, 1);
-        if (pathElement != null) {
-            authenticataApplicationOnly = pathElement.startsWith(PASSWORD_RESET_PATH);
-        }
-        return authenticataApplicationOnly;
-    }
-
-    protected boolean isOpenPath(String pathInfo) {
-        if (pathInfo.startsWith(OPEN_PATH)) {
-            return true;
-        }
-        if (pathInfo.startsWith("/health")) {
-            return true;
-        }
-        return false;
-    }
-
-    private void setResponseStatus(HttpServletResponse response, int statuscode) {
-        response.setStatus(statuscode);
-    }
-
-    protected String findApplicationTokenId(String pathInfo) {
-        if (pathInfo != null && !pathInfo.startsWith("/")) {
-            log.error("Call to UIB does not start with '/' . Problematic Path: {}", pathInfo);
-        }
-        String tokenIdPath = findPathElement(pathInfo, 1);
-        String tokenId = null;
-        if (tokenIdPath != null) {
-            tokenId = tokenIdPath.substring(1);
-        }
-        return tokenId;
-
-    }
-    */
-
-    /**
-     * Plukker element 2 fra path som usertokenid. F.eks. /useradmin/1kj2h1j12jh/users/add gir 1kj2h1j12jh.
-     *
-     * @param pathInfo fra servletRequest.getPathInfo()
-     * @return authentication
-     */
-    @Deprecated
-    protected String findUserTokenId(String pathInfo) {
-        if (pathInfo != null && !pathInfo.startsWith("/")) {
-            log.error("Call to UIB does not start with '/' which can be because of configuration problem. Problematic Path: {}", pathInfo);
-        }
-        String tokenIdPath = findPathElement(pathInfo, 2);
-        String tokenId = null;
-        if (tokenIdPath != null) {
-            tokenId = tokenIdPath.substring(1);
-        }
-        return tokenId;
-
-    }
-
-
-    /*
-    private boolean isSecuredPath(String pathInfo) {
-        for (String securedPath : securedPaths) {
-            if (pathInfo.startsWith(securedPath)) {
-                log.info("Secured: {}", pathInfo);
-                return true;
-            }
-        }
-        log.info("Not secured: {}", pathInfo);
-        return false;
-    }
-    */
 
     @Override
     public void destroy() {

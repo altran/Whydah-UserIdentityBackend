@@ -48,7 +48,7 @@ public class SecurityFilter2Test {
     }
 
     @Test
-    public void testOnlyApplicationTokenIdEndpoints() {
+    public void testPathsWithoutUserTokenIdOK() {
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/authenticate/user"));
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/signup/user"));
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/reset_password"));
