@@ -10,16 +10,16 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-public class LdapSearchCommand extends HystrixCommand<SearchResult> {
+public class CommandLdapSearch extends HystrixCommand<SearchResult> {
 
-    private static final Logger log = LoggerFactory.getLogger(LdapSearchCommand.class);
+    private static final Logger log = LoggerFactory.getLogger(CommandLdapSearch.class);
 
     private final InitialDirContext context;
     private final String baseDN;
     private final String filter;
     private final SearchControls constraints;
 
-    public LdapSearchCommand(InitialDirContext context, String baseDN, String filter, SearchControls constraints) {
+    public CommandLdapSearch(InitialDirContext context, String baseDN, String filter, SearchControls constraints) {
         super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"));
         this.context = context;
         this.baseDN = baseDN;

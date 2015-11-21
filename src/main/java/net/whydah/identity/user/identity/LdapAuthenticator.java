@@ -132,7 +132,7 @@ public class LdapAuthenticator {
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String baseDN = "";
             String filter = "(" + usernameAttribute + "=" + username + ")";
-            SearchResult searchResult = new LdapSearchCommand(adminContext, baseDN, filter, constraints).execute();
+            SearchResult searchResult = new CommandLdapSearch(adminContext, baseDN, filter, constraints).execute();
             if (searchResult == null) {
                 log.trace("findUserDN, empty searchResult for username={}", username);
                 return null;
@@ -156,7 +156,7 @@ public class LdapAuthenticator {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String baseDN = "";
         String filter = "(" + usernameAttribute + "=" + username + ")";
-        SearchResult searchResult = new LdapSearchCommand(context, baseDN, filter, constraints).execute();
+        SearchResult searchResult = new CommandLdapSearch(context, baseDN, filter, constraints).execute();
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
             log.info("User has temp password, must change before logon");
