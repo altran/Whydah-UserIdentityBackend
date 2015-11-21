@@ -16,7 +16,6 @@ import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.resource.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.util.FileUtils;
@@ -44,7 +43,9 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**

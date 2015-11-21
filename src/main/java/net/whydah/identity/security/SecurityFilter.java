@@ -9,12 +9,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Sjekker om request path krever autentisering, og i såfall sjekkes authentication.
@@ -46,9 +53,14 @@ public class SecurityFilter implements Filter {
     }
 
 
+    /**
+     *
+     * @param pathInfo  the path to apply the filter to
+     * @return HttpServletResponse.SC_UNAUTHORIZED if authentication fails, otherwise null
+     */
     Integer authenticateAndAuthorizeRequest(String pathInfo) {
         //Open paths without authentication
-        log.trace("filter path {}", pathInfo);
+        log.debug("filter path {}", pathInfo);
         if (pathInfo.startsWith("/health")) {
             return null;
         }
@@ -68,8 +80,9 @@ public class SecurityFilter implements Filter {
             return HttpServletResponse.SC_NOT_FOUND;
         }
 
+        /*
         //match /password/{applicationtokenid}
-        if (pathElement1.startsWith("/password")) {  //TODO change path
+        if (pathElement1.startsWith("/password")) {
             String applicationTokenId = findPathElement(pathInfo, 2);
             //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
             boolean applicationVerified = true;
@@ -81,26 +94,43 @@ public class SecurityFilter implements Filter {
                 return HttpServletResponse.SC_UNAUTHORIZED;
             }
         }
+        */
+        // match /applicationTokenId
         String applicationTokenId = pathElement1.substring(1); //strip leading /
         //boolean applicationVerified = applicationTokenService.verifyApplication(applicationTokenId);
         boolean applicationVerified = true;
         if (!applicationVerified) {
-            log.trace("Application not Authorized=" + pathElement1);
+            log.debug("Application unauthorized={}", applicationTokenId);
             return HttpServletResponse.SC_UNAUTHORIZED;
         }
 
 
         //match /{applicationTokenId}/authenticate/user
         String pathElement2 = findPathElement(pathInfo, 2);
-        if (pathElement2.equals("/authenticate")) {
-            log.debug("{} was matched to /{applicationTokenId}/authenticate/user", pathInfo);
+        if (pathElement2.equals("/authenticate")) {     //UserAuthenticationEndpoint
+            log.debug("{} was matched to /{applicationTokenId}/authenticate", pathInfo);
+            return null;
+        }
+        if (pathElement2.equals("/signup")) {           //UserSignupEndpoint
+            log.debug("{} was matched to /{applicationTokenId}/signup", pathInfo);
             return null;
         }
 
-        if (pathElement2.equals("/signup")) {
-            log.debug("{} was matched to /{applicationTokenId}/signup/user", pathInfo);
-            return null;
+
+        // /{applicationTokenId}/user/{uid}/reset_password
+        // /{applicationTokenId}/user/{uid}/change_password
+        //PasswordResource2
+        if (pathElement2.equals("/user")) {
+            String pathElement4 = findPathElement(pathInfo, 4);
+            String pwPattern = "/(reset|change)_password";
+            Pattern pattern = Pattern.compile("/(reset|change)_password");
+            Matcher matcher = pattern.matcher(pathElement4);
+            if (matcher.matches()) {
+                log.debug("{} was matched to /{applicationTokenId}/{}", pathInfo, pwPattern);
+                return null;
+            }
         }
+
 
         //Authenticate and authorize userTokenId
         /* Paths:

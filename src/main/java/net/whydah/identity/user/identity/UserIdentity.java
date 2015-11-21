@@ -18,10 +18,10 @@ import java.io.Serializable;
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserIdentity extends UserIdentityRepresentation implements Serializable {
+    public static final String UID = "uid";
     private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
     private static final long serialVersionUID = 1;
     private static final TelephoneNumberSyntaxChecker telephoneNumberSyntaxChecker = new TelephoneNumberSyntaxChecker();
-
     private String uid;
 
     public UserIdentity() {
@@ -40,7 +40,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
     }
 
     public void validate() throws InvalidUserIdentityFieldException {
-        validateSetAndMinimumLength("uid", uid, 2);
+        validateSetAndMinimumLength(UID, uid, 2);
         validateSetAndMinimumLength("username", username, 3);
 
         validateEmail();

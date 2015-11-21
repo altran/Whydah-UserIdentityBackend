@@ -1,9 +1,8 @@
-package net.whydah.identity.user.resource;
+package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;

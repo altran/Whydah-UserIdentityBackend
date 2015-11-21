@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.util.Hashtable;
 
 /**
@@ -24,6 +27,7 @@ public class LdapAuthenticator {
     private final Hashtable<String,String> admenv;
     private final String uidAttribute;
     private final String usernameAttribute;
+    private boolean aBoolean;
     //private static final String uidAttributeForActiveDirectory = "userprincipalname";
 
     @Autowired
@@ -128,21 +132,22 @@ public class LdapAuthenticator {
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String baseDN = "";
             String filter = "(" + usernameAttribute + "=" + username + ")";
-            NamingEnumeration results = adminContext.search(baseDN, filter, constraints);
-            if (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
-                String userDN = searchResult.getNameInNamespace();
-                if (userDN == null) {
-                    log.trace("findUserDN, userDN not found for username={}", username);
-                    return null;
-                }
-                log.trace("findUserDN with username={} found userDN={}", username, userDN);
-                return userDN;
+            SearchResult searchResult = new LdapSearchCommand(adminContext, baseDN, filter, constraints).execute();
+            if (searchResult == null) {
+                log.trace("findUserDN, empty searchResult for username={}", username);
+                return null;
             }
+            String userDN = searchResult.getNameInNamespace();
+            if (userDN == null) {
+                log.trace("findUserDN, userDN not found for username={}", username);
+                return null;
+            }
+            log.trace("findUserDN with username={} found userDN={}", username, userDN);
+            return userDN;
         } catch (Exception e) {
             log.info("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute,username, e);
+            return null;
         }
-        return null;
     }
 
 
@@ -151,13 +156,7 @@ public class LdapAuthenticator {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String baseDN = "";
         String filter = "(" + usernameAttribute + "=" + username + ")";
-        NamingEnumeration results = context.search(baseDN, filter, constraints);
-        // NamingEnumeration results =context.search(GROUPS_OU, filter, cons);
-        if (!results.hasMore()) {
-            return null;
-        }
-
-        SearchResult searchResult = (SearchResult) results.next();
+        SearchResult searchResult = new LdapSearchCommand(context, baseDN, filter, constraints).execute();
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
             log.info("User has temp password, must change before logon");

@@ -31,7 +31,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class UserAdminTest {
@@ -262,6 +266,18 @@ public class UserAdminTest {
         } catch (ClientErrorException e) {
             assertEquals(Response.Status.CONFLICT.getStatusCode(), e.getResponse().getStatus());
         }
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void addRoleNonExistingUser() {
+        String uid = "nonExistingUserId";
+        WebTarget webResource = baseResource.path("user/" + uid + "/role");
+        String payload = "{\"organizationName\": \"" + "0005" + "\",\n" +
+                "        \"applicationId\": \"" + "testappId" + "\",\n" +
+                "        \"applicationRoleName\": \"" + "KK" + "\",\n" +
+                "        \"applicationRoleValue\": \"" + "test" + "\"}";
+
+        String postResponseJson = webResource.request().post(Entity.json(payload), String.class);
     }
 
     @Test
