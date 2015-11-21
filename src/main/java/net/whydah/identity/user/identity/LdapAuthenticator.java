@@ -1,5 +1,6 @@
 package net.whydah.identity.user.identity;
 
+import com.netflix.hystrix.exception.HystrixBadRequestException;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -132,7 +133,15 @@ public class LdapAuthenticator {
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String baseDN = "";
             String filter = "(" + usernameAttribute + "=" + username + ")";
-            SearchResult searchResult = new CommandLdapSearch(adminContext, baseDN, filter, constraints).execute();
+            SearchResult searchResult;
+            try {
+                searchResult = new CommandLdapSearch(adminContext, baseDN, filter, constraints).execute();
+            } catch (HystrixBadRequestException he) {
+                if (he.getCause() instanceof NamingException) {
+                    throw (NamingException) he.getCause();
+                }
+                throw he;
+            }
             if (searchResult == null) {
                 log.trace("findUserDN, empty searchResult for username={}", username);
                 return null;
@@ -156,7 +165,15 @@ public class LdapAuthenticator {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String baseDN = "";
         String filter = "(" + usernameAttribute + "=" + username + ")";
-        SearchResult searchResult = new CommandLdapSearch(context, baseDN, filter, constraints).execute();
+        SearchResult searchResult;
+        try {
+            searchResult = new CommandLdapSearch(context, baseDN, filter, constraints).execute();
+        } catch (HystrixBadRequestException he) {
+            if (he.getCause() instanceof NamingException) {
+                throw (NamingException) he.getCause();
+            }
+            throw he;
+        }
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
             log.info("User has temp password, must change before logon");

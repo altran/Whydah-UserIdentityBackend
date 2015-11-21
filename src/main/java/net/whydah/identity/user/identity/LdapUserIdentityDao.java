@@ -281,7 +281,7 @@ public class LdapUserIdentityDao {
             setUp();
         }
 
-        Attributes attributes = getAttributesForUid(uid);
+        Attributes attributes = getAttributesFor(uidAttribute, uid);
         UserIdentity id = fromLdapAttributes(attributes);
         return id;
     }
@@ -314,70 +314,38 @@ public class LdapUserIdentityDao {
 
 
     private Attributes getUserAttributesForUsernameOrUid(String usernameOrUid) throws NamingException {
-        Attributes userAttributesForUsername = getUserAttributesForUsername(usernameOrUid);
+        Attributes userAttributesForUsername = getAttributesFor(usernameAttribute, usernameOrUid);
         if (userAttributesForUsername != null) {
             return userAttributesForUsername;
         }
 
         log.debug("No attributes found for username=" + usernameOrUid + ", trying uid");
-        return getAttributesForUid(usernameOrUid);
+        return getAttributesFor(uidAttribute, usernameOrUid);
     }
 
-    private Attributes getAttributesForUid(String uid) throws NamingException {
+    private Attributes getAttributesFor(String attributeName, String attributeValue) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = null;
+        log.trace("getAttributesForUid using {}={}", attributeName, attributeValue);
         try {
-            log.trace("getAttributesForUid using {}={}", uidAttribute, uid);
-            results = ctx.search("", "(" + uidAttribute + "=" + uid + ")", constraints);
-        } catch (NamingException pre) {
-            if (pre instanceof PartialResultException) {
-                log.trace("Partial Search only. Due to speed optimization, full search in LDAP/AD is not enabled. uid: {},PartialResultException: {}", uid, pre.getMessage());
-            } else {
-                log.trace("NamingException. uidAttribute {}, username {}", uidAttribute, uid);
-                throw pre;
+            SearchResult searchResult = new CommandLdapSearch(ctx, "", "(" + attributeName + "=" + attributeValue + ")", constraints).execute();
+            if (searchResult == null) {
+                log.trace("getAttributesForUid found no attributes for {}={}.", attributeName, attributeValue);
+                return null;
             }
-        }
-
-        if (hasResults(results)) {
-            SearchResult searchResult = (SearchResult) results.next();
             return searchResult.getAttributes();
-        }
-        log.trace("getAttributesForUid found no attributes for {}={}.", uidAttribute, uid);
-        return null;
-    }
-
-    private Attributes getUserAttributesForUsername(String username) throws NamingException {
-        SearchControls constraints = new SearchControls();
-        constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        NamingEnumeration results = null;
-        try {
-            log.trace("getUserAttributesForUsername using {}={}", usernameAttribute, username);
-            results = ctx.search("", "(" + usernameAttribute + "=" + username + ")", constraints);
-        } catch (NamingException pre) {
-            if (pre instanceof PartialResultException) {
-                log.trace("Partial Search only. Due to speed optimization, full search in LDAP/AD is not enabled. Username: {},PartialResultException: {}", username, pre.getMessage());
-            } else {
-                log.trace("NamingException. usernameAttribute {}, username {}", usernameAttribute, username);
-                throw pre;
+        } catch (HystrixBadRequestException he) {
+            if (he.getCause() instanceof NamingException) {
+                NamingException pre = (NamingException) he.getCause();
+                if (pre instanceof PartialResultException) {
+                    log.trace("Partial Search only. Due to speed optimization, full search in LDAP/AD is not enabled. {}: {}, PartialResultException: {}", attributeName, attributeValue, pre.getMessage());
+                } else {
+                    log.trace("NamingException. {}: {}", attributeName, attributeValue);
+                    throw pre;
+                }
             }
+            throw he;
         }
-
-        try {
-            if (hasResults(results)) {
-                SearchResult searchResult = (SearchResult) results.next();
-                return searchResult.getAttributes();
-            }
-        } catch (NamingException pre) {
-            if (pre instanceof PartialResultException) {
-                log.trace("Failed to extract attributes. Username: {},PartialResultException: {}", username, pre.getMessage());
-            } else {
-                log.trace("Failed to extract attributes. usernameAttribute {}, username {}", usernameAttribute, username);
-                throw pre;
-            }
-        }
-        log.trace("getUserAttributesForUsername found no attributes for {}={}.", usernameAttribute, username);
-        return null;
     }
 
     private boolean hasResults(NamingEnumeration results) throws NamingException {
