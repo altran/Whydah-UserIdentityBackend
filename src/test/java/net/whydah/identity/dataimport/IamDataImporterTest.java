@@ -48,12 +48,8 @@ public class IamDataImporterTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
-
-        String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
-        Integer ldapPort = configuration.evaluateToInt("ldap.embedded.port");
-
         main = new Main(6655);
-        main.startEmbeddedDS(ldapEmbeddedpath, ldapPort);
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         dataImporter = new IamDataImporter(dataSource, configuration);
 

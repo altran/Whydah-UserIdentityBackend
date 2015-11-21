@@ -33,7 +33,7 @@ public class WadlAndWelcomePageTest {
     //    private final static int LDAP_PORT = 10937;
     //private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
-    //private static EmbeddedADS ads;
+    //private static EmbeddedADS2 ads;
     //private static LdapUserIdentityDao ldapUserIdentityDao;
     //private static LdapAuthenticator ldapAuthenticator;
     //private static UserPropertyAndRoleRepository roleRepository;
@@ -60,7 +60,7 @@ public class WadlAndWelcomePageTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
@@ -109,7 +109,7 @@ public class WadlAndWelcomePageTest {
 
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
-        ads = new EmbeddedADS(ldappath);
+        ads = new EmbeddedADS2(ldappath);
         try {
             ads.startServer(LDAP_PORT);
         } catch (Exception e){

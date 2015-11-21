@@ -3,7 +3,7 @@ package net.whydah.identity;
 import net.whydah.identity.config.SSLTool;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.ldapserver.EmbeddedADS;
+import net.whydah.identity.ldapserver.EmbeddedADS2;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -26,7 +28,7 @@ public class Main {
     public static final String CONTEXT_PATH = "/uib";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private EmbeddedADS ads;
+    private EmbeddedADS2 ads;
     //private HttpServer httpServer;
     private int webappPort;
     private Server server;
@@ -101,13 +103,16 @@ public class Main {
             String luceneDirectory = configuration.evaluateToString("lucene.directory");
 
             if (importEnabled) {
-                FileUtils.deleteDirectories(ldapEmbeddedpath, roleDBDirectory, luceneDirectory);
+                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory);
             }
             FileUtils.createDirectory(luceneDirectory);
 
             if (embeddedDSEnabled) {
-                Integer ldapPort = configuration.evaluateToInt("ldap.embedded.port");
-                main.startEmbeddedDS(ldapEmbeddedpath, ldapPort);
+                if (importEnabled) {
+                    FileUtils.deleteDirectories(ldapEmbeddedpath);
+                }
+                Map<Object, Object> ldapProperties = subProperties(configuration, "ldap.embedded.");
+                main.startEmbeddedDS(ldapProperties);
             }
 
             BasicDataSource dataSource = initBasicDataSource(configuration);
@@ -144,6 +149,16 @@ public class Main {
             log.error("Error during startup. Shutting down UserIdentityBackend.", e);
             System.exit(1);
         }
+    }
+
+    public static Map<Object, Object> subProperties(ConstrettoConfiguration configuration, String prefix) {
+        final Map<Object, Object> ldapProperties = new HashMap<>();
+        configuration.forEach(property -> {
+            if (property.getKey().startsWith(prefix)) {
+                ldapProperties.put(property.getKey(), property.getValue());
+            }
+        });
+        return ldapProperties;
     }
 
     /*
@@ -215,7 +230,11 @@ public class Main {
 
         if (ads != null) {
             log.info("Stopping embedded Apache DS.");
-            ads.stopServer();
+            try {
+                ads.stop();
+            } catch (Exception e) {
+                runtimeException(e);
+            }
         }
     }
 
@@ -269,9 +288,21 @@ public class Main {
     */
 
 
-    public void startEmbeddedDS(String ldapPath, int ldapPort) {
-        ads = new EmbeddedADS(ldapPath);
-        ads.startServer(ldapPort);
+    public void startEmbeddedDS(Map<Object, Object> properties) {
+        ads = new EmbeddedADS2(properties);
+        try {
+            ads.init();
+            ads.start();
+        } catch (Exception e) {
+            runtimeException(e);
+        }
+    }
+
+    private void runtimeException(Exception e) {
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e;
+        }
+        throw new RuntimeException(e);
     }
 
     /*

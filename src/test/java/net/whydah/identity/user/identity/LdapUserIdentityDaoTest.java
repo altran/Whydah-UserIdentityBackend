@@ -36,7 +36,7 @@ public class LdapUserIdentityDaoTest {
         FileUtils.deleteDirectories(ldapPath);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -62,7 +62,7 @@ public class LdapUserIdentityDaoTest {
             fail("Error creating working directory " + workDirPath);
         }
         // Create the server
-        ads = new EmbeddedADS(workDir);
+        ads = new EmbeddedADS2(workDir);
         ads.startServer(LDAP_PORT);
         Thread.sleep(1000);
         */

@@ -7,8 +7,8 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.ResourceMap;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.ResourceMap;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
 import org.jboss.logging.Logger;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * In-memory schema-only partition which loads the data in the similar way as the
- * {@link org.apache.directory.api.ldap.schemaloader.JarLdifSchemaLoader}.
+ * {@link org.apache.directory.api.ldap.schema.loader.JarLdifSchemaLoader}.
  *
  * @author Josef Cacek
  */

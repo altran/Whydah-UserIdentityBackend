@@ -18,7 +18,8 @@ import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -31,20 +32,22 @@ import java.util.Properties;
  */
 public class EmbeddedADS2 {
 
-    private static final Logger log = Logger.getLogger(EmbeddedADS2.class);
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedADS2.class);
 
-    public static final String PROPERTY_BASE_DN = "ldap.baseDN";
-    public static final String PROPERTY_BIND_HOST = "ldap.host";
-    public static final String PROPERTY_BIND_PORT = "ldap.port";
-    public static final String PROPERTY_LDIF_FILE = "ldap.ldif";
-    public static final String PROPERTY_SASL_PRINCIPAL = "ldap.saslPrincipal";
-    public static final String PROPERTY_DSF = "ldap.dsf";
+    public static final String PROPERTY_BASE_DN = "ldap.embedded.baseDN";
+    public static final String PROPERTY_BIND_HOST = "ldap.embedded.host";
+    public static final String PROPERTY_BIND_PORT = "ldap.embedded.port";
+    public static final String PROPERTY_LDIF_FILE = "ldap.embedded.ldif";
+    public static final String PROPERTY_SASL_PRINCIPAL = "ldap.embedded.saslPrincipal";
+    public static final String PROPERTY_DSF = "ldap.embedded.dsf";
+    public static final String PROPERTY_DIRECTORY = "ldap.embedded.directory";
 
     // dc=external,dc=WHYDAH,dc=no instance Whydah
     private static final String DEFAULT_BASE_DN = "dc=external,dc=WHYDAH,dc=no";
     private static final String DEFAULT_BIND_HOST = "localhost";
     private static final String DEFAULT_BIND_PORT = "10389";
     private static final String DEFAULT_LDIF_FILE = "classpath:prodInitData/ldap/default-users.ldif";
+    private static final String DEFAULT_DIRECTORY = "data/ldap";
 
     public static final String DSF_INMEMORY = "mem";
     public static final String DSF_FILE = "file";
@@ -52,7 +55,7 @@ public class EmbeddedADS2 {
 
 
 
-    protected Properties defaultProperties;
+    protected Map<Object, Object> defaultProperties;
 
     protected String baseDN;
     protected String bindHost;
@@ -60,6 +63,7 @@ public class EmbeddedADS2 {
     protected String ldifFile;
     protected String ldapSaslPrincipal;
     protected String directoryServiceFactory;
+    protected String workingDirectory;
 
     protected DirectoryService directoryService;
     protected LdapServer ldapServer;
@@ -91,7 +95,7 @@ public class EmbeddedADS2 {
         });
     }
 
-    public EmbeddedADS2(Properties defaultProperties) {
+    public EmbeddedADS2(Map<Object, Object> defaultProperties) {
         this.defaultProperties = defaultProperties;
 
         this.baseDN = readProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);
@@ -101,6 +105,7 @@ public class EmbeddedADS2 {
         this.ldifFile = readProperty(PROPERTY_LDIF_FILE, DEFAULT_LDIF_FILE);
         this.ldapSaslPrincipal = readProperty(PROPERTY_SASL_PRINCIPAL, null);
         this.directoryServiceFactory = readProperty(PROPERTY_DSF, DEFAULT_DSF);
+        this.workingDirectory = readProperty(PROPERTY_DIRECTORY, DEFAULT_DIRECTORY);
     }
 
     protected String readProperty(String propertyName, String defaultValue) {
@@ -148,6 +153,7 @@ public class EmbeddedADS2 {
         if (this.directoryServiceFactory.equals(DSF_INMEMORY)) {
             dsf = new InMemoryDirectoryServiceFactory();
         } else if (this.directoryServiceFactory.equals(DSF_FILE)) {
+            System.setProperty("workingDirectory", workingDirectory);
             dsf = new FileDirectoryServiceFactory();
         } else {
             throw new IllegalStateException("Unknown value of directoryServiceFactory: " + this.directoryServiceFactory);
@@ -266,7 +272,7 @@ public class EmbeddedADS2 {
         // Delete workfiles just for 'inmemory' implementation used in tests. Normally we want LDAP data to persist
         File instanceDir = directoryService.getInstanceLayout().getInstanceDirectory();
         if (this.directoryServiceFactory.equals(DSF_INMEMORY)) {
-            log.infof("Removing Directory service workfiles: %s", instanceDir.getAbsolutePath());
+            log.info("Removing Directory service workfiles: {}", instanceDir.getAbsolutePath());
             FileUtils.deleteDirectory(instanceDir);
         } else {
             log.info("Working LDAP directory not deleted. Delete it manually if you want to start with fresh LDAP data. Directory location: " + instanceDir.getAbsolutePath());

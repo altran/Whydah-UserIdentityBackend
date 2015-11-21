@@ -85,7 +85,7 @@ public class UserAuthenticationEndpointTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         dbHelper = new DatabaseMigrationHelper(dataSource);

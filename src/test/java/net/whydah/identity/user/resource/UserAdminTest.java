@@ -60,7 +60,7 @@ public class UserAdminTest {
 
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         DatabaseMigrationHelper dbHelper =  new DatabaseMigrationHelper(dataSource);

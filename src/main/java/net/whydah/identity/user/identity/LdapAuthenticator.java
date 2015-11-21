@@ -143,15 +143,15 @@ public class LdapAuthenticator {
                 throw he;
             }
             if (searchResult == null) {
-                log.trace("findUserDN, empty searchResult for username={}", username);
+                log.trace("findUserDN, empty searchResult for {}={}", usernameAttribute, username);
                 return null;
             }
             String userDN = searchResult.getNameInNamespace();
             if (userDN == null) {
-                log.trace("findUserDN, userDN not found for username={}", username);
+                log.trace("findUserDN, userDN not found for {}={}", usernameAttribute, username);
                 return null;
             }
-            log.trace("findUserDN with username={} found userDN={}", username, userDN);
+            log.trace("findUserDN with {}={} found userDN={}", usernameAttribute, username, userDN);
             return userDN;
         } catch (Exception e) {
             log.info("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute,username, e);

@@ -34,7 +34,6 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
 public class UserIdentityServiceTest {
-    //private static EmbeddedADS ads;
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
     private static LuceneIndexer luceneIndexer;
@@ -63,7 +62,7 @@ public class UserIdentityServiceTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
@@ -115,7 +114,7 @@ public class UserIdentityServiceTest {
         luceneIndexer = new LuceneIndexer(index);
 
         // Create the server
-        ads = new EmbeddedADS(workDir);
+        ads = new EmbeddedADS2(workDir);
         ads.startServer(LDAP_PORT);
         Thread.sleep(1000);
         */
