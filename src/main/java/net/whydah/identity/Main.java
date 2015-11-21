@@ -111,8 +111,7 @@ public class Main {
                 if (importEnabled) {
                     FileUtils.deleteDirectories(ldapEmbeddedpath);
                 }
-                Map<Object, Object> ldapProperties = subProperties(configuration, "ldap.embedded.");
-                main.startEmbeddedDS(ldapProperties);
+                main.startEmbeddedDS(configuration.asMap());
             }
 
             BasicDataSource dataSource = initBasicDataSource(configuration);
@@ -288,7 +287,7 @@ public class Main {
     */
 
 
-    public void startEmbeddedDS(Map<Object, Object> properties) {
+    public void startEmbeddedDS(Map<String, String> properties) {
         ads = new EmbeddedADS2(properties);
         try {
             ads.init();

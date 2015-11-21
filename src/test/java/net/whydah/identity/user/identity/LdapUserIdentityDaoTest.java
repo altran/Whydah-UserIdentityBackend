@@ -36,7 +36,7 @@ public class LdapUserIdentityDaoTest {
         FileUtils.deleteDirectories(ldapPath);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
+        main.startEmbeddedDS(configuration.asMap());
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");

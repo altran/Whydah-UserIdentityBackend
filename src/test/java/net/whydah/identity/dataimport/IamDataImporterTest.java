@@ -49,7 +49,7 @@ public class IamDataImporterTest {
         dbHelper.upgradeDatabase();
 
         main = new Main(6655);
-        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
+        main.startEmbeddedDS(configuration.asMap());
 
         dataImporter = new IamDataImporter(dataSource, configuration);
 

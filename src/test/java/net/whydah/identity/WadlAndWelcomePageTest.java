@@ -60,7 +60,7 @@ public class WadlAndWelcomePageTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(Main.subProperties(configuration, "ldap.embedded."));
+        main.startEmbeddedDS(configuration.asMap());
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();

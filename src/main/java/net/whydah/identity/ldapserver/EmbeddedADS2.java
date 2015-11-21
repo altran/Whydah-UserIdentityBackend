@@ -41,6 +41,7 @@ public class EmbeddedADS2 {
     public static final String PROPERTY_SASL_PRINCIPAL = "ldap.embedded.saslPrincipal";
     public static final String PROPERTY_DSF = "ldap.embedded.dsf";
     public static final String PROPERTY_DIRECTORY = "ldap.embedded.directory";
+    public static final String PROPERTY_IMPORT = "import.enabled";
 
     // dc=external,dc=WHYDAH,dc=no instance Whydah
     private static final String DEFAULT_BASE_DN = "dc=external,dc=WHYDAH,dc=no";
@@ -55,7 +56,7 @@ public class EmbeddedADS2 {
 
 
 
-    protected Map<Object, Object> defaultProperties;
+    protected Map<String, String> defaultProperties;
 
     protected String baseDN;
     protected String bindHost;
@@ -64,6 +65,7 @@ public class EmbeddedADS2 {
     protected String ldapSaslPrincipal;
     protected String directoryServiceFactory;
     protected String workingDirectory;
+    protected final boolean importEnabled;
 
     protected DirectoryService directoryService;
     protected LdapServer ldapServer;
@@ -77,7 +79,9 @@ public class EmbeddedADS2 {
     }
 
     public static void execute(String[] args, Properties defaultProperties) throws Exception {
-        final EmbeddedADS2 ldapEmbeddedServer = new EmbeddedADS2(defaultProperties);
+        final HashMap<String, String> defaultMap = new HashMap<>();
+        defaultProperties.forEach((k, v) -> defaultMap.put((String)k, (String)v));
+        final EmbeddedADS2 ldapEmbeddedServer = new EmbeddedADS2(defaultMap);
         ldapEmbeddedServer.init();
         ldapEmbeddedServer.start();
 
@@ -95,7 +99,7 @@ public class EmbeddedADS2 {
         });
     }
 
-    public EmbeddedADS2(Map<Object, Object> defaultProperties) {
+    public EmbeddedADS2(Map<String, String> defaultProperties) {
         this.defaultProperties = defaultProperties;
 
         this.baseDN = readProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);
@@ -106,6 +110,7 @@ public class EmbeddedADS2 {
         this.ldapSaslPrincipal = readProperty(PROPERTY_SASL_PRINCIPAL, null);
         this.directoryServiceFactory = readProperty(PROPERTY_DSF, DEFAULT_DSF);
         this.workingDirectory = readProperty(PROPERTY_DIRECTORY, DEFAULT_DIRECTORY);
+        this.importEnabled = Boolean.parseBoolean(readProperty(PROPERTY_IMPORT, "false"));
     }
 
     protected String readProperty(String propertyName, String defaultValue) {
@@ -129,8 +134,10 @@ public class EmbeddedADS2 {
 
         this.directoryService = createDirectoryService();
 
-        log.info("Importing LDIF: " + ldifFile);
-        importLdif();
+        if (importEnabled) {
+            log.info("Importing LDIF: " + ldifFile);
+            importLdif();
+        }
 
         log.info("Creating LDAP Server");
         this.ldapServer = createLdapServer();
@@ -184,13 +191,15 @@ public class EmbeddedADS2 {
         // Inject the partition into the DirectoryService
         service.addPartition( partition );
 
-        // Last, process the context entry
-        String entryLdif =
-                "dn: " + baseDN + "\n" +
-                        "dc: " + dcName + "\n" +
-                        "objectClass: top\n" +
-                        "objectClass: domain\n\n";
-        importLdifContent(service, entryLdif);
+        if (importEnabled) {
+            // Last, process the context entry
+            String entryLdif =
+                    "dn: " + baseDN + "\n" +
+                            "dc: " + dcName + "\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n";
+            importLdifContent(service, entryLdif);
+        }
 
         return service;
     }
