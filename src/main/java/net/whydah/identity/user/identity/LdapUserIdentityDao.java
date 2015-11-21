@@ -206,7 +206,14 @@ public class LdapUserIdentityDao {
         addModificationItem(modificationItems, ATTRIBUTE_NAME_PERSONREF, olduser.getPersonRef(), newuser.getPersonRef());
         addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
 
-        ctx.modifyAttributes(createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()]));
+        try {
+            new CommandLdapModifyAttributes(ctx, createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()])).execute();
+        } catch(HystrixBadRequestException he) {
+            if (he.getCause() instanceof NamingException) {
+                throw (NamingException) he.getCause();
+            }
+            throw he;
+        }
     }
 
     public void updateUserIdentityForUsername(String username, UserIdentity newuser) {
@@ -224,7 +231,10 @@ public class LdapUserIdentityDao {
             UserIdentity olduser = getUserIndentity(username);
             updateLdapAttributesForUser(username, newuser, olduser);
         } catch (NamingException ne) {
-            log.error("", ne);
+            String msg = "updateUserIdentityForUsername could not update LDAP. newUser=" + newuser.toString();
+            log.error(msg, ne);
+            //Should validate client input and return 4xx response.
+            throw new IllegalArgumentException(msg, ne);
         }
     }
 
@@ -459,20 +469,34 @@ public class LdapUserIdentityDao {
             if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
-                ctx.modifyAttributes(userDN, mis);
+                try {
+                    new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+                } catch(HystrixBadRequestException he) {
+                    log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: ADD TEMPPWD_SALT.", username, getAdminPrincipal(), he.getCause());
+                    return;
+                }
             } else {
                 ModificationItem mif = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
-                ctx.modifyAttributes(userDN, mis);
+                try {
+                    new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+                } catch(HystrixBadRequestException he) {
+                    log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE TEMPPWD_SALT.", username, getAdminPrincipal(), he.getCause());
+                    return;
+                }
             }
             ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
             ModificationItem[] mis = {mip};
-            ctx.modifyAttributes(userDN, mis);
+            try {
+                new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+            } catch(HystrixBadRequestException he) {
+                log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE PASSWORD.", username, getAdminPrincipal(), he.getCause());
+                return;
+            }
         } catch (NoPermissionException np) {
             log.error("setTempPassword failed for username={}, not sufficient access rights using admin principal={}. NoPermissionException msg={} ",
                     username, getAdminPrincipal(), np.getMessage());
-        }
-        catch (NamingException ne) {
+        } catch (NamingException ne) {
             log.error("setTempPassword failed for username={} using admin principal={}. ", username, getAdminPrincipal(), ne);
         }
     }
