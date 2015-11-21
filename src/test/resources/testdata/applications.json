@@ -1,0 +1,290 @@
+[
+  {
+    "id": "100",
+    "name": "ACS",
+    "description": "Finn den kompetansen du trenger, når du trenger det. Lag eksklusive CV'er tillpasset leseren.",
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "Employee",
+    "defaultOrganizationName": "ACSOrganization",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "45fhRM6nbKZ2wfC6RMmMuzXpk"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "101",
+    "name": "ACSResource",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "Employee",
+    "defaultOrganizationName": "ACSOrganization",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "55fhRM6nbKZ2wfC6RMmMuzXpk"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "11",
+    "name": "SecurityTokenService",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "SSOApplication",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "6r46g3q986Ep6By7B9J46m96D"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "12",
+    "name": "UserAdminService",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "WhydahUserAdmin",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "9ju592A4t8dzz8mz7a5QQJ7Px"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "15",
+    "name": "SSOLoginWebApplication",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "SSOApplication",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "33779936R6Jr47D4Hj5R6p9qT"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "19",
+    "name": "UserAdminWebApp",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "WhydahUserAdmin",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "9EH5u5wJFKsUvJFmhypwK7j6D"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "2001",
+    "name": "m2Circle",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "member",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "YKHH54bNpnvQEF2vCJSWtctB"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "99",
+    "name": "WhydahTestWebApplication",
+    "description": null,
+    "company" : "Norway AS",
+    "tags" : "HIDDEN, JURISTICTION_NORWAY",
+    "applicationUrl": null,
+    "logoUrl": null,
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "roleName1"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "SSOApplication",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "33879936R6Jr47D4Hj5R6p9qT"
+    },
+    "acl": [{
+      "applicationId" : "11",
+      "applicationACLPath" : "/user"
+    }]
+  }
+]
