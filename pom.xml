@@ -62,7 +62,7 @@
 
     <properties>
         <service.name>Whydah-UserIdentityBackend</service.name>
-        <whydah-typelib.version>0.7-ALPHA-3</whydah-typelib.version>
+        <whydah-typelib.version>0.8-SNAPSHOT</whydah-typelib.version>
         <whydah-jdk.version>2.1-ALPHA-3</whydah-jdk.version>
         <apache.ds.version>2.0.0-M17</apache.ds.version>
         <lucene.version>4.10.4</lucene.version>
