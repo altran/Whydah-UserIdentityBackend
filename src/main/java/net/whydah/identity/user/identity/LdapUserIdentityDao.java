@@ -428,21 +428,44 @@ public class LdapUserIdentityDao {
         if (!connected) {
             setUp();
         }
+
+        Attributes attributes;
         try {
-            Attributes attributes = getUserAttributesForUsernameOrUid(username);
-            String userDN = createUserDNFromUsername(username);
-            if (attributes.get(ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
-                ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
-                ModificationItem[] mis = {mif};
-                ctx.modifyAttributes(userDN, mis);
-            }
-            ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
-            ModificationItem[] mis = {mi};
-            ctx.modifyAttributes(userDN, mis);
-            log.trace("Password successfully changed for user with username={}", username);
-        } catch (NamingException ne) {
-            log.error("Error when changing password. Uncertain whether password was changed or not for username=", username, ne);
+            attributes = getUserAttributesForUsernameOrUid(username);
+        } catch (NamingException e) {
+            log.error("Error when changing password. Could not get user attributes for username=", username, e);
+            return;
         }
+
+        String userDN;
+        try {
+            userDN = createUserDNFromUsername(username);
+        } catch (NamingException e) {
+            log.error("Error when changing password. Could not create user DN for username=", username, e);
+            return;
+        }
+
+        if (attributes.get(ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
+            ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
+            ModificationItem[] mis = {mif};
+            try {
+                new CommandModifyAttributes(ctx, userDN, mis).execute();
+            } catch (HystrixBadRequestException he) {
+                log.error("Error when changing password. Could not remove attribute " + ATTRIBUTE_NAME_TEMPPWD_SALT + "for username=", username, he.getCause());
+                return;
+            }
+        }
+
+        ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
+        ModificationItem[] mis = {mi};
+        try {
+            new CommandModifyAttributes(ctx, userDN, mis).execute();
+        } catch(HystrixBadRequestException he) {
+            log.error("Error when changing password. Could not replace password for username=", username, he.getCause());
+            return;
+        }
+
+        log.trace("Password successfully changed for user with username={}", username);
     }
 
 
