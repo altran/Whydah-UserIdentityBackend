@@ -30,9 +30,9 @@ import java.util.Properties;
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class EmbeddedADS2 {
+public class EmbeddedADS {
 
-    private static final Logger log = LoggerFactory.getLogger(EmbeddedADS2.class);
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedADS.class);
 
     public static final String PROPERTY_BASE_DN = "ldap.embedded.baseDN";
     public static final String PROPERTY_BIND_HOST = "ldap.embedded.host";
@@ -81,7 +81,7 @@ public class EmbeddedADS2 {
     public static void execute(String[] args, Properties defaultProperties) throws Exception {
         final HashMap<String, String> defaultMap = new HashMap<>();
         defaultProperties.forEach((k, v) -> defaultMap.put((String)k, (String)v));
-        final EmbeddedADS2 ldapEmbeddedServer = new EmbeddedADS2(defaultMap);
+        final EmbeddedADS ldapEmbeddedServer = new EmbeddedADS(defaultMap);
         ldapEmbeddedServer.init();
         ldapEmbeddedServer.start();
 
@@ -99,7 +99,7 @@ public class EmbeddedADS2 {
         });
     }
 
-    public EmbeddedADS2(Map<String, String> defaultProperties) {
+    public EmbeddedADS(Map<String, String> defaultProperties) {
         this.defaultProperties = defaultProperties;
 
         this.baseDN = readProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);

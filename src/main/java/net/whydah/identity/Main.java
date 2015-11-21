@@ -3,7 +3,7 @@ package net.whydah.identity;
 import net.whydah.identity.config.SSLTool;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.ldapserver.EmbeddedADS2;
+import net.whydah.identity.ldapserver.EmbeddedADS;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
@@ -28,7 +28,7 @@ public class Main {
     public static final String CONTEXT_PATH = "/uib";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    private EmbeddedADS2 ads;
+    private EmbeddedADS ads;
     //private HttpServer httpServer;
     private int webappPort;
     private Server server;
@@ -288,7 +288,7 @@ public class Main {
 
 
     public void startEmbeddedDS(Map<String, String> properties) {
-        ads = new EmbeddedADS2(properties);
+        ads = new EmbeddedADS(properties);
         try {
             ads.init();
             ads.start();

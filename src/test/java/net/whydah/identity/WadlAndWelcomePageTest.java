@@ -33,7 +33,7 @@ public class WadlAndWelcomePageTest {
     //    private final static int LDAP_PORT = 10937;
     //private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
 
-    //private static EmbeddedADS2 ads;
+    //private static EmbeddedADS ads;
     //private static LdapUserIdentityDao ldapUserIdentityDao;
     //private static LdapAuthenticator ldapAuthenticator;
     //private static UserPropertyAndRoleRepository roleRepository;
@@ -49,7 +49,7 @@ public class WadlAndWelcomePageTest {
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
-                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
                 .done()
                 .getConfiguration();
 
@@ -109,7 +109,7 @@ public class WadlAndWelcomePageTest {
 
         File ldapdir = new File(ldappath);
         ldapdir.mkdirs();
-        ads = new EmbeddedADS2(ldappath);
+        ads = new EmbeddedADS(ldappath);
         try {
             ads.startServer(LDAP_PORT);
         } catch (Exception e){

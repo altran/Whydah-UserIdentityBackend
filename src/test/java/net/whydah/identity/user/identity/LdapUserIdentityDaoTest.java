@@ -28,7 +28,7 @@ public class LdapUserIdentityDaoTest {
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
-                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
                 .done()
                 .getConfiguration();
 
@@ -62,7 +62,7 @@ public class LdapUserIdentityDaoTest {
             fail("Error creating working directory " + workDirPath);
         }
         // Create the server
-        ads = new EmbeddedADS2(workDir);
+        ads = new EmbeddedADS(workDir);
         ads.startServer(LDAP_PORT);
         Thread.sleep(1000);
         */
