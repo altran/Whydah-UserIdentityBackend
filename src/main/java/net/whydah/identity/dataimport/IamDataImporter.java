@@ -88,7 +88,13 @@ public class IamDataImporter {
         try {
             ais = openInputStream("Applications", applicationsImportSource);
             ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
-            new ApplicationImporter(applicationService).importApplications(ais);
+
+            if (applicationsImportSource.endsWith(".csv")){
+                new ApplicationImporter(applicationService).importApplications(ais);
+            } else {
+                new ApplicationJsonImporter(applicationService).importApplications(ais);
+            }
+
 
             ois = openInputStream("Organizations", organizationsImportSource);
             new OrganizationImporter(queryRunner).importOrganizations(ois);
