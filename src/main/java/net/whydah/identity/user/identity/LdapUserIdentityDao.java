@@ -1,6 +1,7 @@
 package net.whydah.identity.user.identity;
 
 
+import com.netflix.hystrix.exception.HystrixBadRequestException;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -8,8 +9,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.naming.*;
-import javax.naming.directory.*;
+import javax.naming.Context;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.PartialResultException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -103,24 +118,28 @@ public class LdapUserIdentityDao {
         // Create the entry
         String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
         try {
-            ctx.createSubcontext(userdn, attributes);
+            new CommandCreateSubcontext(ctx, userdn, attributes).execute();
             log.trace("Added {} with dn={}", userIdentity, userdn);
             return true;
-        } catch (NoPermissionException pe) {
-            log.error("addUserIdentity failed. Not allowed to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), pe.getMessage());
-        } catch (NameAlreadyBoundException nabe) {
-            log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
-        } catch (InvalidAttributeValueException iave) {
-            StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
-            strb.append(userIdentity.toString());
-            if (log.isDebugEnabled()) {
-                strb.append("\n").append(iave);
-            } else {
-                strb.append("ExceptionMessage: ").append(iave.getMessage());
+        } catch(HystrixBadRequestException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof NoPermissionException) {
+                log.error("addUserIdentity failed. Not allowed to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), cause.getMessage());
+            } else if (cause instanceof NameAlreadyBoundException) {
+                log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
+            } else if (cause instanceof InvalidAttributeValueException) {
+                InvalidAttributeValueException iave = (InvalidAttributeValueException) cause;
+                StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
+                strb.append(userIdentity.toString());
+                if (log.isDebugEnabled()) {
+                    strb.append("\n").append(iave);
+                } else {
+                    strb.append("ExceptionMessage: ").append(iave.getMessage());
+                }
+                log.warn(strb.toString());
             }
-            log.warn(strb.toString());
+            return false;
         }
-        return false;
     }
 
     /**
