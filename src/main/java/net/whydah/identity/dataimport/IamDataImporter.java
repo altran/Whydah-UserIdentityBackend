@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 public class IamDataImporter {
     private static final Logger log = LoggerFactory.getLogger(IamDataImporter.class);
-    static final String CHARSET_NAME = "ISO-8859-1";
+    static final String CHARSET_NAME = "UTF-8";
 
     private final BasicDataSource dataSource;
     private final QueryRunner queryRunner;
