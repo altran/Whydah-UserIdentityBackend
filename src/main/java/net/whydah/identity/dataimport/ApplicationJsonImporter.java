@@ -29,7 +29,7 @@ public class ApplicationJsonImporter {
     public void importApplications(InputStream applicationsSource) {
         log.info("Importing basis applications from file: {}", applicationsSource);
         BufferedReader reader = null;
-        String applicationsJson = null;
+        String applicationsJson = "";
         try {
             reader = new BufferedReader(new InputStreamReader(applicationsSource, IamDataImporter.CHARSET_NAME));
             String line=null;
@@ -50,7 +50,11 @@ public class ApplicationJsonImporter {
         }
         log.info("Importing applications: {}", applicationsJson);
         List<Application> applications = ApplicationMapper.fromJsonList(applicationsJson);
-        saveApplications(applications);
+        if (applications.size()>0){
+            saveApplications(applications);
+        } else {
+            log.warn("Empty applications list detected, no import.");
+        }
         log.info("{} applications imported.", applications.size());
     }
 
