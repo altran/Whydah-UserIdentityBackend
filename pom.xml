@@ -65,6 +65,7 @@
         <whydah-typelib.version>0.8-SNAPSHOT</whydah-typelib.version>
         <whydah-javasdk.version>2.1.9-SNAPSHOT</whydah-javasdk.version>
         <apache.ds.version>2.0.0-M20</apache.ds.version>
+        <api-ldap.version>1.0.0-M30</api-ldap.version><!-- Make sure api-ldap.version is compatible with apache.ds.version -->
         <lucene.version>4.10.4</lucene.version>
         <jersey.version>2.18</jersey.version>
         <jetty.version>9.3.0.v20150612</jetty.version>
@@ -102,28 +103,44 @@
             <version>${whydah-javasdk.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.servlet</artifactId>
-            <version>3.0</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://jersey.java.net/documentation/latest/spring.html, allows Spring to inject into Jersey managed components -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-spring3</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jvnet</groupId>
+                    <artifactId>tiger-types</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- used by UserAuthenticationEndpoint, UsersResource, FreemarkerViewProcessor-->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-mvc</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- support for Freemarker templates -->
         <dependency>
@@ -169,6 +186,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>aopalliance</groupId>
+                    <artifactId>aopalliance</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -191,6 +214,12 @@
             <groupId>org.constretto</groupId>
             <artifactId>constretto-spring</artifactId>
             <version>2.2.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>jsr250-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -355,6 +384,7 @@
 
 
         <!-- Apache DS dependencies -->
+        <!--
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
@@ -369,6 +399,12 @@
                     <artifactId>api-ldap-schema-data</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-schema-data</artifactId>
+            <version>${api-ldap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
