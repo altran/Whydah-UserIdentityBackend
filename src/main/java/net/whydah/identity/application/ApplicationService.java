@@ -70,7 +70,15 @@ public class ApplicationService {
 
     ////// Authentication
 
+    /**
+     * @param credential    the application credential to verify
+     * @return  application if successful authentication, else null
+     */
     public Application authenticate(ApplicationCredential credential) {
+        if (credential == null) {
+            return null;
+        }
+        List<Application> applications = applicationDao.getApplications();
         Application application = applicationDao.getApplication(credential.getApplicationID());
         if (application == null) {
             return null;
