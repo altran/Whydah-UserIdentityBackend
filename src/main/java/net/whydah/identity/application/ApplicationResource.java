@@ -55,11 +55,15 @@ public class ApplicationResource {
         log.trace("getApplication is called with applicationId={}", applicationId);
         try {
             Application application = applicationService.getApplication(applicationId);
+            if (application != null) {
+                log.debug("application {}", application.toString());
+            }
             if (application == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
             String json = ApplicationMapper.toJson(application);
+            log.debug("applicationJson {}", json);
             return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
             log.error("create: Invalid json={}", applicationId, iae);
