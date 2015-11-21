@@ -39,7 +39,7 @@ public class CommandLdapSearch extends HystrixCommand<SearchResult> {
 
     @Override
     protected SearchResult getFallback() {
-        log.debug("Ldap search command failed due to timeout. Returning null.");
+        log.warn("Ldap search command failed due to timeout. Returning null.");
         return null;
     }
 }
