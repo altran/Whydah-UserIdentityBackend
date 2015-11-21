@@ -64,13 +64,15 @@
         <service.name>Whydah-UserIdentityBackend</service.name>
         <whydah-typelib.version>0.8-SNAPSHOT</whydah-typelib.version>
         <whydah-javasdk.version>2.1.9-SNAPSHOT</whydah-javasdk.version>
-        <apache.ds.version>2.0.0-M17</apache.ds.version>
+        <apache.ds.version>2.0.0-M20</apache.ds.version>
+        <api-ldap.version>1.0.0-M30</api-ldap.version><!-- Make sure api-ldap.version is compatible with apache.ds.version -->
         <lucene.version>4.10.4</lucene.version>
-        <jersey.version>2.18</jersey.version>
-        <jetty.version>9.3.0.v20150612</jetty.version>
-        <spring.version>4.1.6.RELEASE</spring.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <jersey.version>2.22.1</jersey.version>
+        <jetty.version>9.3.6.v20151106</jetty.version>
+        <spring.version>4.1.8.RELEASE</spring.version>
+        <slf4j.version>1.7.13</slf4j.version>
         <hystrix.version>1.4.21</hystrix.version>
+        <jackson.version>2.6.3</jackson.version>
     </properties>
 
     <repositories>
@@ -102,28 +104,44 @@
             <version>${whydah-javasdk.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.servlet</artifactId>
-            <version>3.0</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://jersey.java.net/documentation/latest/spring.html, allows Spring to inject into Jersey managed components -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-spring3</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jvnet</groupId>
+                    <artifactId>tiger-types</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- used by UserAuthenticationEndpoint, UsersResource, FreemarkerViewProcessor-->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-mvc</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- support for Freemarker templates -->
         <dependency>
@@ -169,6 +187,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>aopalliance</groupId>
+                    <artifactId>aopalliance</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -191,12 +215,18 @@
             <groupId>org.constretto</groupId>
             <artifactId>constretto-spring</artifactId>
             <version>2.2.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>jsr250-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.22</version>
+            <version>2.3.23</version>
         </dependency>
 
         <dependency>
@@ -214,7 +244,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.5.3</version>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <!-- Deprecated! used in UserIdentity, PasswordResource -->
         <dependency>
@@ -266,7 +301,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.35</version>
+            <version>5.1.37</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
@@ -355,13 +390,12 @@
 
 
         <!-- Apache DS dependencies -->
+        <!--
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
             <version>${apache.ds.version}</version>
             <exclusions>
-                <!-- exclude additional LDIF schema files to avoid conflicts through
-                    multiple copies -->
                 <exclusion>
                     <groupId>org.apache.directory.shared</groupId>
                     <artifactId>shared-ldap-schema</artifactId>
@@ -371,6 +405,12 @@
                     <artifactId>api-ldap-schema-data</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-schema-data</artifactId>
+            <version>${api-ldap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
@@ -445,7 +485,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.9.4</version>
+            <version>6.9.9</version>
             <scope>test</scope>
         </dependency>
         <!-- prefer testng, junit should be phased out -->
@@ -464,20 +504,20 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.8-beta</version>
+            <version>2.0.31-beta</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>2.4.1</version>
+            <version>2.7.0</version>
             <scope>test</scope>
         </dependency>
         <!-- used by restassured -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.4.1</version>
+            <version>4.5.1</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

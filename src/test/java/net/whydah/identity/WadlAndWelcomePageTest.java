@@ -49,7 +49,7 @@ public class WadlAndWelcomePageTest {
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
-                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
                 .done()
                 .getConfiguration();
 
@@ -60,7 +60,7 @@ public class WadlAndWelcomePageTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(configuration.asMap());
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();

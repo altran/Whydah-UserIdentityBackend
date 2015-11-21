@@ -16,7 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @Ignore
 public class SecurityFilterTest {
@@ -122,7 +125,7 @@ public class SecurityFilterTest {
     }
 
     @Test
-    public void findPathElement() throws Exception {
+    public void testFindPathElement() throws Exception {
         assertEquals("/usertoken", securityFilter.findPathElement("/123/usertoken/", 2));
         assertEquals("/123", securityFilter.findPathElement("/123/usertoken/", 1));
         assertEquals(null, securityFilter.findPathElement("/123/usertoken/", 3));
@@ -132,8 +135,25 @@ public class SecurityFilterTest {
 
     @Test
     public void findUserTokenId() throws Exception {
-        assertEquals(null, securityFilter.findUserTokenId(null));
-        assertEquals("1234", securityFilter.findUserTokenId("/appd/1234"));
+        assertEquals(null, findUserTokenId(null));
+        assertEquals("1234", findUserTokenId("/appd/1234"));
+    }
+    /**
+     * Plukker element 2 fra path som usertokenid. F.eks. /useradmin/1kj2h1j12jh/users/add gir 1kj2h1j12jh.
+     *
+     * @param pathInfo fra servletRequest.getPathInfo()
+     * @return authentication
+     */
+    protected String findUserTokenId(String pathInfo) {
+        if (pathInfo != null && !pathInfo.startsWith("/")) {
+            log.error("Call to UIB does not start with '/' which can be because of configuration problem. Problematic Path: {}", pathInfo);
+        }
+        String tokenIdPath = securityFilter.findPathElement(pathInfo, 2);
+        String tokenId = null;
+        if (tokenIdPath != null) {
+            tokenId = tokenIdPath.substring(1);
+        }
+        return tokenId;
 
     }
 

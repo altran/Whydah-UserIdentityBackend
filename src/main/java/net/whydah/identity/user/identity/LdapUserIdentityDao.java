@@ -54,10 +54,6 @@ public class LdapUserIdentityDao {
     private final String usernameAttribute;
     private final boolean readOnly;
 
-    private DirContext ctx;
-    private boolean connected = false;
-
-
     //public LdapUserIdentityDao(String ldapUrl, String admPrincipal, String admCredentials, String uidAttribute, String usernameAttribute, boolean readOnly) {
 
     @Autowired
@@ -88,19 +84,6 @@ public class LdapUserIdentityDao {
 
     }
 
-    public void setUp() {
-        try {
-            ctx = new InitialDirContext(admenv);
-        } catch (NamingException ne) {
-            log.error("NamingException in setUp()" + ne.getLocalizedMessage(), ne);
-            connected = false;
-        } catch (Exception e) {
-            log.error("Exception in setUP()" + e.getLocalizedMessage(), e);
-            connected = false;
-        }
-        connected = true;
-    }
-
     public boolean addUserIdentity(UserIdentity userIdentity) throws NamingException {
         if (readOnly) {
             log.warn("addUserIdentity called, but LDAP server is configured read-only. UserIdentity was not added.");
@@ -109,16 +92,12 @@ public class LdapUserIdentityDao {
 
         userIdentity.validate();
 
-        if (!connected) {
-            setUp();
-        }
-
         Attributes attributes = getLdapAttributes(userIdentity);
 
         // Create the entry
         String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
         try {
-            new CommandLdapCreateSubcontext(ctx, userdn, attributes).execute();
+            new CommandLdapCreateSubcontext(new InitialDirContext(admenv), userdn, attributes).execute();
             log.trace("Added {} with dn={}", userIdentity, userdn);
             return true;
         } catch(HystrixBadRequestException e) {
@@ -178,9 +157,6 @@ public class LdapUserIdentityDao {
 
         newuser.validate();
 
-        if (!connected) {
-            setUp();
-        }
         try {
             UserIdentity olduser = getUserIndentityByUid(uid);
             updateLdapAttributesForUser(uid, newuser, olduser);
@@ -207,7 +183,7 @@ public class LdapUserIdentityDao {
         addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
 
         try {
-            new CommandLdapModifyAttributes(ctx, createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()])).execute();
+            new CommandLdapModifyAttributes(new InitialDirContext(admenv), createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()])).execute();
         } catch(HystrixBadRequestException he) {
             if (he.getCause() instanceof NamingException) {
                 throw (NamingException) he.getCause();
@@ -224,9 +200,6 @@ public class LdapUserIdentityDao {
 
         newuser.validate();
 
-        if (!connected) {
-            setUp();
-        }
         try {
             UserIdentity olduser = getUserIndentity(username);
             updateLdapAttributesForUser(username, newuser, olduser);
@@ -277,20 +250,12 @@ public class LdapUserIdentityDao {
     }
 
     public UserIdentity getUserIndentity(String usernameOrUid) throws NamingException {
-        if (!connected) {
-            setUp();
-        }
-
         Attributes attributes = getUserAttributesForUsernameOrUid(usernameOrUid);
         UserIdentity id = fromLdapAttributes(attributes);
         return id;
     }
 
     public UserIdentity getUserIndentityByUid(String uid) throws NamingException {
-        if (!connected) {
-            setUp();
-        }
-
         Attributes attributes = getAttributesFor(uidAttribute, uid);
         UserIdentity id = fromLdapAttributes(attributes);
         return id;
@@ -338,7 +303,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         log.trace("getAttributesForUid using {}={}", attributeName, attributeValue);
         try {
-            SearchResult searchResult = new CommandLdapSearch(ctx, "", "(" + attributeName + "=" + attributeValue + ")", constraints).execute();
+            SearchResult searchResult = new CommandLdapSearch(new InitialDirContext(admenv), "", "(" + attributeName + "=" + attributeValue + ")", constraints).execute();
             if (searchResult == null) {
                 log.trace("getAttributesForUid found no attributes for {}={}.", attributeName, attributeValue);
                 return null;
@@ -395,6 +360,13 @@ public class LdapUserIdentityDao {
             return false;
         }
 
+        DirContext ctx;
+        try {
+            ctx = new InitialDirContext(admenv);
+        } catch (NamingException e) {
+            log.error("deleteUserIdentity failed! Could not create initial context.", e);
+            return false;
+        }
         try {
             new CommandLdapDestroySubcontext(ctx, userDN).execute();
             return true;
@@ -410,10 +382,6 @@ public class LdapUserIdentityDao {
             return;
         }
 
-        if (!connected) {
-            setUp();
-        }
-
         Attributes attributes;
         try {
             attributes = getUserAttributesForUsernameOrUid(username);
@@ -427,6 +395,14 @@ public class LdapUserIdentityDao {
             userDN = createUserDNFromUsername(username);
         } catch (NamingException e) {
             log.error("Error when changing password. Could not create user DN for username=", username, e);
+            return;
+        }
+
+        DirContext ctx;
+        try {
+            ctx = new InitialDirContext(admenv);
+        } catch (NamingException e) {
+            log.error("Error when changing password. Could not create initial context", e);
             return;
         }
 
@@ -460,12 +436,10 @@ public class LdapUserIdentityDao {
             return;
         }
 
-        if (!connected) {
-            setUp();
-        }
         try {
             Attributes attributes = getUserAttributesForUsernameOrUid(username);
             String userDN = createUserDNFromUsername(username);
+            DirContext ctx = new InitialDirContext(admenv);
             if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};

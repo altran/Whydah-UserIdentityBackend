@@ -34,7 +34,6 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
 public class UserIdentityServiceTest {
-    //private static EmbeddedADS ads;
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
     private static LuceneIndexer luceneIndexer;
@@ -51,7 +50,7 @@ public class UserIdentityServiceTest {
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
-                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
                 .done()
                 .getConfiguration();
 
@@ -63,7 +62,7 @@ public class UserIdentityServiceTest {
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(ldapPath, configuration.evaluateToInt("ldap.embedded.port"));
+        main.startEmbeddedDS(configuration.asMap());
 
         BasicDataSource dataSource = initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
