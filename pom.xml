@@ -98,7 +98,7 @@
         <dependency>
             <groupId>net.whydah.sso</groupId>
             <artifactId>Whydah-TypeLib</artifactId>
-            <version>0.8-SNAPSHOT</version>
+            <version>${whydah-typelib.version}</version>
         </dependency>
 
         <dependency>
