@@ -409,12 +409,19 @@ public class LdapUserIdentityDao {
         }
 
         log.info("deleteUserIdentity with username={}", username);
+        String userDN;
         try {
-            String userDN = createUserDNFromUsername(username);
-            ctx.destroySubcontext(userDN);
-            return true;
+            userDN = createUserDNFromUsername(username);
         } catch (NamingException ne) {
-            log.error("deleteUserIdentity failed! username=" + username, ne);
+            log.error("deleteUserIdentity failed! Could not create user DN from username=" + username, ne);
+            return false;
+        }
+
+        try {
+            new CommandDestroySubcontext(ctx, userDN).execute();
+            return true;
+        } catch (HystrixBadRequestException he) {
+            log.error("deleteUserIdentity failed! Could not destroy subcontext. userDN=" + userDN, he.getCause());
             return false;
         }
     }
