@@ -12,15 +12,15 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 
-public class CommandCreateSubcontext extends HystrixCommand<DirContext> {
+public class CommandLdapCreateSubcontext extends HystrixCommand<DirContext> {
 
-    private static final Logger log = LoggerFactory.getLogger(CommandCreateSubcontext.class);
+    private static final Logger log = LoggerFactory.getLogger(CommandLdapCreateSubcontext.class);
 
     private final DirContext ctx;
     private final String userdn;
     private final Attributes attributes;
 
-    public CommandCreateSubcontext(DirContext ctx, String userdn, Attributes attributes) {
+    public CommandLdapCreateSubcontext(DirContext ctx, String userdn, Attributes attributes) {
         super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"));
         this.ctx = ctx;
         this.userdn = userdn;

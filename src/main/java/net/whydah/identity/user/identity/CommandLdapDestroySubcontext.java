@@ -8,27 +8,24 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
-public class CommandModifyAttributes extends HystrixCommand<Void> {
+public class CommandLdapDestroySubcontext extends HystrixCommand<Void> {
 
-    private static final Logger log = LoggerFactory.getLogger(CommandModifyAttributes.class);
+    private static final Logger log = LoggerFactory.getLogger(CommandLdapDestroySubcontext.class);
 
     private final DirContext ctx;
     private final String userDN;
-    private final ModificationItem[] mis;
 
-    public CommandModifyAttributes(DirContext ctx, String userDN, ModificationItem[] mis) {
+    public CommandLdapDestroySubcontext(DirContext ctx, String userDN) {
         super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"));
         this.ctx = ctx;
         this.userDN = userDN;
-        this.mis = mis;
     }
 
     @Override
     protected Void run() throws Exception {
         try {
-            ctx.modifyAttributes(userDN, mis);
+            ctx.destroySubcontext(userDN);
         } catch (NamingException e) {
             throw new HystrixBadRequestException("", e);
         }

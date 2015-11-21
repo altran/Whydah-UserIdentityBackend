@@ -118,7 +118,7 @@ public class LdapUserIdentityDao {
         // Create the entry
         String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
         try {
-            new CommandCreateSubcontext(ctx, userdn, attributes).execute();
+            new CommandLdapCreateSubcontext(ctx, userdn, attributes).execute();
             log.trace("Added {} with dn={}", userIdentity, userdn);
             return true;
         } catch(HystrixBadRequestException e) {
@@ -418,7 +418,7 @@ public class LdapUserIdentityDao {
         }
 
         try {
-            new CommandDestroySubcontext(ctx, userDN).execute();
+            new CommandLdapDestroySubcontext(ctx, userDN).execute();
             return true;
         } catch (HystrixBadRequestException he) {
             log.error("deleteUserIdentity failed! Could not destroy subcontext. userDN=" + userDN, he.getCause());
@@ -456,7 +456,7 @@ public class LdapUserIdentityDao {
             ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
             ModificationItem[] mis = {mif};
             try {
-                new CommandModifyAttributes(ctx, userDN, mis).execute();
+                new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
             } catch (HystrixBadRequestException he) {
                 log.error("Error when changing password. Could not remove attribute " + ATTRIBUTE_NAME_TEMPPWD_SALT + "for username=", username, he.getCause());
                 return;
@@ -466,7 +466,7 @@ public class LdapUserIdentityDao {
         ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
         ModificationItem[] mis = {mi};
         try {
-            new CommandModifyAttributes(ctx, userDN, mis).execute();
+            new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
         } catch(HystrixBadRequestException he) {
             log.error("Error when changing password. Could not replace password for username=", username, he.getCause());
             return;
