@@ -115,7 +115,7 @@ public class ApplicationAuthenticationEndpointTest {
 
     @Test
     public void testWrongUasSecretReturnsForbidden() throws Exception {
-        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "wrongSecret");
+        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "","wrongSecret");
         String uasAppCredentialXml = ApplicationCredentialMapper.toXML(uasAppCredential);
 
         given()
@@ -131,9 +131,9 @@ public class ApplicationAuthenticationEndpointTest {
 
     @Test
     public void testWrongUnknownAppReturnsForbidden() throws Exception {
-        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), UAS_APPLICATION_SECRET);
+        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "",UAS_APPLICATION_SECRET);
         String uasAppCredentialXml = ApplicationCredentialMapper.toXML(uasAppCredential);
-        ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "wrongSecret");
+        ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "","wrongSecret");
         String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
 
         given()
@@ -150,9 +150,9 @@ public class ApplicationAuthenticationEndpointTest {
 
     @Test
     public void testApplicationAuthOK() throws Exception {
-        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), UAS_APPLICATION_SECRET);
+        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "",UAS_APPLICATION_SECRET);
         String uasAppCredentialXml = ApplicationCredentialMapper.toXML(uasAppCredential);
-        ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), TESTAPP_APPLICATION_SECRET);
+        ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "",TESTAPP_APPLICATION_SECRET);
         String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
         given()
             .formParam(ApplicationAuthenticationEndpoint.UAS_APP_CREDENTIAL_XML, uasAppCredentialXml)
