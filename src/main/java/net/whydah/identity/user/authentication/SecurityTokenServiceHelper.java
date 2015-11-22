@@ -37,7 +37,7 @@ public class SecurityTokenServiceHelper {
     public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenserviceUri) {
         tokenServiceResource = client.target(usertokenserviceUri);
         // TODO - get the real values here
-        myAppTokenXML=new ApplicationCredential("","").toString();
+        myAppTokenXML=new ApplicationCredential("","","").toString();
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid){
