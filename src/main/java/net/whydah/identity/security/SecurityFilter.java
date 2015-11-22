@@ -152,11 +152,16 @@ public class SecurityFilter implements Filter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
-        String applicationCredentialXml = "";
-        if (applicationCredentialXmlEncoded != null) {
-            applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded,"UTF-8");
+        //FIXME enable ApplicationCredential check.
+        boolean isUas = true;
+        if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
+            String applicationCredentialXml = "";
+            if (applicationCredentialXmlEncoded != null) {
+                applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded, "UTF-8");
+            }
+            isUas = originatorIsUAS(applicationCredentialXml);
         }
-        boolean isUas = originatorIsUAS(applicationCredentialXml);
+
         if (isUas) {
             Integer statusCode = authenticateAndAuthorizeRequest(servletRequest.getPathInfo());
             if (statusCode == null) {
