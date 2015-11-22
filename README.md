@@ -65,7 +65,7 @@ ldap.embedded=true
 ldap.embedded.port=11389
 ldap.embedded.directory=target/bootstrapdata/ldap
 
-ldap.primary.url=ldap://localhost:11389/dc=external,dc=WHYDAH,dc=no
+ldap.primary.url=ldap://localhost:11389/dc=people,dc=whydah,dc=no
 ldap.primary.admin.principal=uid=admin,ou=system
 ldap.primary.admin.credentials=secret
 ldap.primary.uid.attribute=uid

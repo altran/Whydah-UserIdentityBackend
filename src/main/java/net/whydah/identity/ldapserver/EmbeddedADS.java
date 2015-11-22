@@ -43,8 +43,8 @@ public class EmbeddedADS {
     public static final String PROPERTY_DIRECTORY = "ldap.embedded.directory";
     public static final String PROPERTY_IMPORT = "import.enabled";
 
-    // dc=external,dc=WHYDAH,dc=no instance Whydah
-    private static final String DEFAULT_BASE_DN = "dc=external,dc=WHYDAH,dc=no";
+    // dc=people,dc=whydah,dc=no instance Whydah
+    private static final String DEFAULT_BASE_DN = "dc=people,dc=whydah,dc=no";
     private static final String DEFAULT_BIND_HOST = "localhost";
     private static final String DEFAULT_BIND_PORT = "10389";
     private static final String DEFAULT_LDIF_FILE = "classpath:prodInitData/ldap/default-users.ldif";

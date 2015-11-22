@@ -1,44 +1,42 @@
 version: 1
 
-dn: dc=external,dc=WHYDAH,dc=no
+dn: dc=people,dc=whydah,dc=no
 objectClass: top
 objectClass: extensibleObject
 objectClass: domain
-dc: external
+dc: people
 
-dn: ou=users,dc=external,dc=WHYDAH,dc=no
+dn: ou=users,dc=people,dc=whydah,dc=no
 objectClass: top
 objectClass: organizationalUnit
 ou: users
 
-
-dn: uid=erik.drolshammer,ou=users,dc=external,dc=WHYDAH,dc=no
+dn: uid=uawaadmin,ou=users,dc=people,dc=whydah,dc=no
 objectClass: top
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
-cn: Erik Drolshammer
-sn: Drolshammer
-employeeNumber: 2
-givenName: Erik
-initials: erikd
-mail: erik.drolshammer@altran.com
-mobile: 47123456
-uid: erik.drolshammer
-userpassword:: c2VjcmV0UHc=
-
-dn: uid=useradmin,ou=users,dc=external,dc=WHYDAH,dc=no
-objectClass: top
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-objectClass: person
-cn: User Admin
+cn: UAWA Admin
 sn: Admin
 employeeNumber: 0
-givenName: User
-initials: admin
-mail: useradmin@altran.com
+givenName: UAWA
+initials: uawaadmin
+mail: uawaadmin@cantara.no
 mobile: 1555406789
-uid: useradmin
+uid: uawaadmin
 userpassword:: YWRtaW4=
 
+dn: uid=uasadmin,ou=users,dc=people,dc=whydah,dc=no
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+cn: UAS Admin
+sn: Admin
+employeeNumber: 0
+givenName: UAS
+initials: uasadmin
+mail: uasadmin@cantara.no
+mobile: 1555406789
+uid: uasadmin
+userpassword:: YWRtaW4=

@@ -120,7 +120,7 @@ public class UserIdentityBackendModule extends AbstractModule {
     		usernameAttribute = fCconfig.getfCusernameAttribute();
         }
         //int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        // internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        // internalLdapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
         LdapAuthenticatorImpl internalLdapAuthenticator = new LdapAuthenticatorImpl(internalLdapUrl, admPrincipal, admCredentials, usernameAttribute);
         bind(LdapAuthenticatorImpl.class).annotatedWith(Names.named("internal")).toInstance(internalLdapAuthenticator);
         */

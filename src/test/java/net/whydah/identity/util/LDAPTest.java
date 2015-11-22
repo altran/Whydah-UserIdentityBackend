@@ -25,7 +25,7 @@ public class LDAPTest {
     public static void main(String[] args) throws NamingException {
 
         final String ldapAdServer = "ldap://localhost:389";
-        final String ldapSearchBase = "dc=external,dc=WHYDAH,dc=no";
+        final String ldapSearchBase = "dc=people,dc=whydah,dc=no";
 
         final String ldapUsername = "admin";
         final String ldapPassword = "secret";
@@ -55,7 +55,7 @@ public class LDAPTest {
         Properties prop = new Properties();
         prop.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
         prop.put("java.naming.provider.url", "ldap://localhost:389");
-        prop.put("java.naming.security.principal", "cn=admin,dc=external,dc=WHYDAH,dc=no");
+        prop.put("java.naming.security.principal", "cn=admin,dc=people,dc=whydah,dc=no");
         prop.put("java.naming.security.credentials", "secret");
         LdapContext ctx = new InitialLdapContext(prop, null);
 

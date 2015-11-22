@@ -89,7 +89,7 @@ public class UserIdentityServiceTest {
 
         /*
         int LDAP_PORT = 19389;
-        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
         String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
         ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
 

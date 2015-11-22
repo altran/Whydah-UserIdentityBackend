@@ -31,7 +31,7 @@ public class WadlAndWelcomePageTest {
     //private final static String ldappath = basepath + "hsqldb/ldap/";
     //private final static String dbpath = basepath + "hsqldb/roles";
     //    private final static int LDAP_PORT = 10937;
-    //private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+    //private static String LDAP_URL; // = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
 
     //private static EmbeddedADS ads;
     //private static LdapUserIdentityDao ldapUserIdentityDao;
@@ -103,7 +103,7 @@ public class WadlAndWelcomePageTest {
 
         int HTTP_PORT = configuration.evaluateToInt("service.port");
         int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=external,dc=WHYDAH,dc=no";
+        LDAP_URL = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
 
         FileUtils.deleteDirectory(new File(basepath));
 
