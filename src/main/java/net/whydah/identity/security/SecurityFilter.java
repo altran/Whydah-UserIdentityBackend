@@ -92,6 +92,7 @@ public class SecurityFilter implements Filter {
         /{applicationTokenId}/user/{uid}/reset_password     //PasswordResource2
         /{applicationTokenId}/user/{uid}/change_password    //PasswordResource2
         /{applicationTokenId}/authenticate/user/*           //UserAuthenticationEndpoint
+        /{stsApplicationtokenId}/application/auth")         //Applicationcredential verification endpoint  (ApplicationAuthenticationEndpoint)
         /{applicationTokenId}/signup/user                   //UserSignupEndpoint
         */
         String pwPattern = "/user/.+/(reset|change)_password";
