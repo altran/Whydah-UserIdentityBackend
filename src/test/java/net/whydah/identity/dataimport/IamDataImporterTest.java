@@ -4,6 +4,7 @@ import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
@@ -19,6 +20,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -29,6 +31,7 @@ public class IamDataImporterTest {
     private BasicDataSource dataSource;
     private IamDataImporter dataImporter;
     private Main main;
+    String applicationsImportSource;
 
     @BeforeClass
     public void startServer() {
@@ -42,6 +45,7 @@ public class IamDataImporterTest {
 
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
+        applicationsImportSource = configuration.evaluateToString("import.applicationssource");
         FileUtils.deleteDirectory(roleDBDirectory);
         dataSource = initBasicDataSource(configuration);
         DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
@@ -114,4 +118,38 @@ public class IamDataImporterTest {
 		}
 		return false;
 	}
+
+
+    @Test
+    public void testEmbeddedJsonApplicationsFile() {
+
+
+        InputStream ais = null;
+        try {
+            ais = openInputStream("Applications", applicationsImportSource);
+            System.out.println("Testimporting:"+applicationsImportSource);
+
+            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+
+            if (applicationsImportSource.endsWith(".csv")) {
+                new ApplicationImporter(applicationService).importApplications(ais);
+            } else {
+                new ApplicationJsonImporter(applicationService).importApplications(ais);
+            }
+        } finally {
+            FileUtils.close(ais);
+
+        }
+
+    }
+    InputStream openInputStream(String tableName, String importSource) {
+        InputStream is;
+        if (FileUtils.localFileExist(importSource)) {
+            is = FileUtils.openLocalFile(importSource);
+        } else {
+            is = FileUtils.openFileOnClasspath(importSource);
+        }
+        return is;
+    }
+
 }

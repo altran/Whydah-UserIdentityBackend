@@ -94,12 +94,14 @@ public class SecurityFilter implements Filter {
         /{applicationTokenId}/user/{uid}/reset_password     //PasswordResource2
         /{applicationTokenId}/user/{uid}/change_password    //PasswordResource2
         /{applicationTokenId}/authenticate/user/*           //UserAuthenticationEndpoint
+        /{stsApplicationtokenId}/application/auth")         //Applicationcredential verification endpoint  (ApplicationAuthenticationEndpoint)
         /{applicationTokenId}/signup/user                   //UserSignupEndpoint
         */
         String pwPattern = "/user/.+/(reset|change)_password";
         String userAuthPattern = "/authenticate/user(|/.*)";
+        String applicationAuthPatten="/application/auth";
         String userSignupPattern = "/signup/user";
-        String [] patternsWithoutUserTokenId = {pwPattern, userAuthPattern, userSignupPattern};
+        String [] patternsWithoutUserTokenId = {applicationAuthPatten,pwPattern, userAuthPattern, userSignupPattern};
         for (String pattern : patternsWithoutUserTokenId) {
             if (Pattern.compile(pattern).matcher(path).matches()) {
                 log.debug("{} was matched to {}. SecurityFilter passed.", path, pattern);

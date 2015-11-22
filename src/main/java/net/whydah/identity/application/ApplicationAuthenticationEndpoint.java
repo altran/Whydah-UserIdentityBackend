@@ -51,17 +51,19 @@ public class ApplicationAuthenticationEndpoint {
 
         //verify uasAppCredentialXml
         ApplicationCredential uasAppCredential = ApplicationCredentialMapper.fromXml(uasAppCredentialXml);
+        log.info("UAS ApplicationCredential lookup for applicationID={}",uasAppCredential.getApplicationID());
         Application uasApplication = applicationService.authenticate(uasAppCredential);
         if (uasApplication == null) {
-            log.debug("Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
+            log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
         //verify appCredential for application to verify
         ApplicationCredential appCredentialToVerify = ApplicationCredentialMapper.fromXml(appCredentialXml);
+        log.info("ApplicationCredential lookup for applicationID={}",appCredentialToVerify.getApplicationID());
         Application verifiedApplication = applicationService.authenticate(appCredentialToVerify);
         if (verifiedApplication == null) {
-            log.debug("Application authentication failed for {}. Returning {}", appCredentialToVerify, Response.Status.FORBIDDEN);
+            log.warn("Application authentication failed for {}. Returning {}", appCredentialToVerify, Response.Status.FORBIDDEN);
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
