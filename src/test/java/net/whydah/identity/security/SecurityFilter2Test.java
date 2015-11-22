@@ -13,15 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-06-30
  */
 public class SecurityFilter2Test {
     private SecurityTokenServiceHelper stsHelper;
+    private AuthenticationService authenticationService;
     private SecurityFilter securityFilter;
 
     private final static String userAdminUserTokenId ="au123";
@@ -32,7 +31,8 @@ public class SecurityFilter2Test {
     public void setup() throws ServletException {
         ApplicationMode.clearTags();
         stsHelper = mock(SecurityTokenServiceHelper.class);
-        securityFilter = new SecurityFilter(stsHelper);
+        authenticationService = mock(AuthenticationService.class);
+        securityFilter = new SecurityFilter(stsHelper, authenticationService);
     }
 
     @Test

@@ -16,16 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Ignore
 public class SecurityFilterTest {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilterTest.class);
     private SecurityFilter securityFilter;
     private SecurityTokenServiceHelper tokenHelper;
+    private AuthenticationService authenticationService;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain chain;
@@ -65,8 +63,8 @@ public class SecurityFilterTest {
     @Before
     public void init() throws ServletException {
         tokenHelper = mock(SecurityTokenServiceHelper.class);
-
-        securityFilter = new SecurityFilter(tokenHelper);
+        authenticationService = mock(AuthenticationService.class);
+        securityFilter = new SecurityFilter(tokenHelper, authenticationService);
 
         securityFilter.init(null);
         request = mock(HttpServletRequest.class);

@@ -4,20 +4,19 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
+import net.whydah.sso.application.types.ApplicationCredential;
+import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,7 +29,9 @@ import java.util.regex.Pattern;
 public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
+    public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials/xml";
     private final SecurityTokenServiceHelper securityTokenHelper;
+    private final AuthenticationService authenticationService;
 
     //public static final String OPEN_PATH = "/authenticate";
     //public static final String AUTHENTICATE_USER_PATH = "/authenticate";
@@ -42,8 +43,9 @@ public class SecurityFilter implements Filter {
     //private String requiredRole;
 
     @Autowired
-    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper) {
+    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, AuthenticationService authenticationService) {
         this.securityTokenHelper = securityTokenHelper;
+        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -79,7 +81,7 @@ public class SecurityFilter implements Filter {
         }
 
 
-        // TODO fetch UAS applicationTokenId from http header, call CommandValidateApplicationTokenId
+        // TODO fetch UAS applicationCredential from http header, call CommandValidateApplicationTokenId
         // /{stsApplicationtokenId}/application/auth        //ApplicationAuthenticationEndpoint
 
 
@@ -149,12 +151,34 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
 
-        Integer statusCode = authenticateAndAuthorizeRequest(servletRequest.getPathInfo());
-        if (statusCode == null) {
-            chain.doFilter(request, response);
-        } else {
-            ((HttpServletResponse) response).setStatus(statusCode);
+        String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
+        String applicationCredentialXml = "";
+        if (applicationCredentialXmlEncoded != null) {
+            applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded,"UTF-8");
         }
+        boolean isUas = originatorIsUAS(applicationCredentialXml);
+        if (isUas) {
+            Integer statusCode = authenticateAndAuthorizeRequest(servletRequest.getPathInfo());
+            if (statusCode == null) {
+                chain.doFilter(request, response);
+            } else {
+                ((HttpServletResponse) response).setStatus(statusCode);
+            }
+        } else {
+            ((HttpServletResponse) response).setStatus(Response.SC_FORBIDDEN);
+        }
+    }
+
+    /*
+    Read the credentialXml, and validate this content towards the credentials stored in applicationdatabase.
+     */
+    protected boolean originatorIsUAS(String applicationCredentialXml) {
+        boolean isUAS = false;
+        if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
+            ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
+            isUAS = authenticationService.isAuthenticated(applicationCredential);
+        }
+        return isUAS;
     }
 
 
