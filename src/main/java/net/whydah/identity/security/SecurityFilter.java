@@ -55,8 +55,7 @@ public class SecurityFilter implements Filter {
 
 
     /**
-     *
-     * @param pathInfo  the path to apply the filter to
+     * @param pathInfo the path to apply the filter to
      * @return HttpServletResponse.SC_UNAUTHORIZED if authentication fails, otherwise null
      */
     Integer authenticateAndAuthorizeRequest(String pathInfo) {
@@ -99,9 +98,9 @@ public class SecurityFilter implements Filter {
         */
         String pwPattern = "/user/.+/(reset|change)_password";
         String userAuthPattern = "/authenticate/user(|/.*)";
-        String applicationAuthPatten="/application/auth";
+        String applicationAuthPatten = "/application/auth";
         String userSignupPattern = "/signup/user";
-        String [] patternsWithoutUserTokenId = {applicationAuthPatten,pwPattern, userAuthPattern, userSignupPattern};
+        String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, userAuthPattern, userSignupPattern};
         for (String pattern : patternsWithoutUserTokenId) {
             if (Pattern.compile(pattern).matcher(path).matches()) {
                 log.debug("{} was matched to {}. SecurityFilter passed.", path, pattern);
@@ -121,14 +120,25 @@ public class SecurityFilter implements Filter {
         String pathElement1 = findPathElement(pathInfo, 1);
         String applicationTokenId = findPathElement(pathInfo, 1).substring(1);
         String usertokenId = findPathElement(pathInfo, 2).substring(1);
-        UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
-        if (userToken == null || userToken.toString().length() < 10) {
+        if (applicationTokenId != null) {
+            if (!applicationTokenId.equalsIgnoreCase(securityTokenHelper.getActiveUibApplicationTokenId())) {
+                UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
+                if (userToken == null || userToken.toString().length() < 10) {
+                    return HttpServletResponse.SC_UNAUTHORIZED;
+                }
+
+                // We are happy here :)
+                Authentication.setAuthenticatedUser(userToken);
+            } else {
+                log.info("UIB is calling itself - shuld be OK");
+            }
+        } else {
+            log.warn("Missing applicationTokenId in request ");
             return HttpServletResponse.SC_UNAUTHORIZED;
         }
 
-        //TODO verify required user role
 
-        Authentication.setAuthenticatedUser(userToken);
+
         return null;
     }
 

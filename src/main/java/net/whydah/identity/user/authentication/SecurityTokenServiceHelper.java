@@ -28,7 +28,6 @@ public class SecurityTokenServiceHelper {
     private final WebTarget tokenServiceResource;
     private ApplicationCredential uibAppCredential;
     private ApplicationToken uibApplicationToken;
-    ApplicationDao applicationDao;
 
     @Autowired
     @Configure
@@ -36,6 +35,12 @@ public class SecurityTokenServiceHelper {
         tokenServiceResource = client.target(usertokenserviceUri);
     }
 
+    public String getActiveUibApplicationTokenId(){
+        if (uibApplicationToken!=null){
+            return uibApplicationToken.getApplicationTokenId();
+        }
+        return null;
+    }
     public UserToken getUserToken(String appTokenId, String usertokenid){
         if (true)  { // (uibApplicationToken==null){
             // TODO - get the real values here
