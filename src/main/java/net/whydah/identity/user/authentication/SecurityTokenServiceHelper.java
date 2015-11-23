@@ -42,7 +42,13 @@ public class SecurityTokenServiceHelper {
             uibAppCredential =getAppCredentialForApplicationId("2210");
             log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
             uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
-            log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
+            if (uibApplicationToken!=null){
+                log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
+
+            } else {
+                log.warn("STS session start failed");
+
+            }
         }
 
         log.debug("getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid);
