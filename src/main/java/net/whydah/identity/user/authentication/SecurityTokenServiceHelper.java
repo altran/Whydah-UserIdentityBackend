@@ -37,7 +37,7 @@ public class SecurityTokenServiceHelper {
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid){
-        if (uibApplicationToken==null){
+        if (true)  { // (uibApplicationToken==null){
             // TODO - get the real values here
             uibAppCredential =getAppCredentialForApplicationId("2210");
             log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
