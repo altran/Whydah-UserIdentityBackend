@@ -42,7 +42,7 @@ public class SecurityTokenServiceHelper {
         return null;
     }
     public UserToken getUserToken(String appTokenId, String usertokenid){
-        if (true)  { // (uibApplicationToken==null){
+        if (uibApplicationToken==null){
             // TODO - get the real values here
             uibAppCredential =getAppCredentialForApplicationId("2210");
             log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
@@ -54,11 +54,15 @@ public class SecurityTokenServiceHelper {
                 if (userToken!=null && userToken.length()>10) {
                     log.debug("usertoken: {}", userToken);
                     return new UserToken(userToken);
+                } else {
+                    uibApplicationToken=null;  // Reset UAS application session
                 }
             } else {
+                uibApplicationToken=null;  // Reset UAS application session
                 log.warn("STS session start failed");
             }
         }
+        uibApplicationToken=null;  // Reset UAS application session
         log.error("getUserToken failed");
         return null;
     }
