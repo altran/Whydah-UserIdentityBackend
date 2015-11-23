@@ -42,6 +42,7 @@ public class SecurityTokenServiceHelper {
             uibAppCredential =getAppCredentialForApplicationId("2210");
             log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
             uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
+            log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
         }
 
         log.debug("getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid);
