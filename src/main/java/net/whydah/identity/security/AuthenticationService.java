@@ -33,7 +33,6 @@ public class AuthenticationService {
 
         if (applicationCredential != null && uasApplicationCredential != null) {
             if (applicationCredential.getApplicationID().equals(uasApplicationCredential.getApplicationID()) &&
-                    applicationCredential.getApplicationName().equals(uasApplicationCredential.getApplicationName()) &&
                     applicationCredential.getApplicationSecret().equals(uasApplicationCredential.getApplicationSecret())) {
                 isAuthenticated = true;
             }
