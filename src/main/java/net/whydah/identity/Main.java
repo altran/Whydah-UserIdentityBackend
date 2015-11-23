@@ -69,6 +69,8 @@ public class Main {
                 .done()
                 .getConfiguration();
 
+        printConfiguration(configuration);
+
         /*
         boolean importEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled"));
         boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
@@ -320,5 +322,12 @@ public class Main {
     public int getPort() {
         return webappPort;
         //        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+    }
+
+    private static void printConfiguration(ConstrettoConfiguration configuration) {
+        Map<String, String> properties = configuration.asMap();
+        for (String key : properties.keySet()) {
+            log.info("Using Property: {}, value: {}", key, properties.get(key));
+        }
     }
 }
