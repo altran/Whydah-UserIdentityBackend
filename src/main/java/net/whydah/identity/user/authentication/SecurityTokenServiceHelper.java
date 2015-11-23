@@ -49,8 +49,8 @@ public class SecurityTokenServiceHelper {
             uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
             if (uibApplicationToken!=null){
                 log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
-                log.debug("getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid);
-                String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid).execute();
+                log.warn("###  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML()(uibApplicationToken), usertokenid);
+                String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML()(uibApplicationToken), usertokenid).execute();
                 if (userToken!=null && userToken.length()>10) {
                     log.debug("usertoken: {}", userToken);
                     return new UserToken(userToken);
@@ -63,7 +63,7 @@ public class SecurityTokenServiceHelper {
             }
         }
         uibApplicationToken=null;  // Reset UAS application session
-        log.error("getUserToken failed");
+        log.error("getUserToken failed - resetting uas application session - URI:{}, usertokenid:{}",tokenServiceResource.getUri(), usertokenid);
         return null;
     }
 
