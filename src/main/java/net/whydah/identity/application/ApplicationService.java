@@ -20,12 +20,18 @@ public class ApplicationService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final ApplicationDao applicationDao;
+    public static ApplicationService staticApplicationService;
     private final AuditLogDao auditLogDao;
 
     @Autowired
     public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao) {
         this.applicationDao = applicationDao;
+        staticApplicationService = this;
         this.auditLogDao = auditLogDao;
+    }
+
+    public static ApplicationService getApplicationService(){
+        return staticApplicationService;
     }
 
     ////// CRUD
