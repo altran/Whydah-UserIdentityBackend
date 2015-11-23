@@ -61,6 +61,17 @@ public class SecurityTokenServiceHelper {
                 uibApplicationToken=null;  // Reset UAS application session
                 log.warn("STS session start failed");
             }
+        } else {
+            // Re-use application session
+            log.warn("#  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid);
+            String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
+            if (userToken!=null && userToken.length()>10) {
+                log.debug("usertoken: {}", userToken);
+                return new UserToken(userToken);
+            } else {
+                uibApplicationToken=null;  // Reset UAS application session
+            }
+
         }
         uibApplicationToken=null;  // Reset UAS application session
         log.error("getUserToken failed - resetting uas application session - URI:{}, usertokenid:{}",tokenServiceResource.getUri(), usertokenid);
