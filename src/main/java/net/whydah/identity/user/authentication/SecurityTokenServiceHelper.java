@@ -27,7 +27,7 @@ public class SecurityTokenServiceHelper {
 
     private final WebTarget tokenServiceResource;
     private ApplicationCredential uibAppCredential;
-    private ApplicationToken uibApplicationToken;
+    private static ApplicationToken uibApplicationToken;
 
     @Autowired
     @Configure
