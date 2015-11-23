@@ -36,11 +36,18 @@ public class SecurityTokenServiceHelper {
         tokenServiceResource = client.target(usertokenserviceUri);
         // TODO - get the real values here
         uibAppCredential =getAppCredentialForApplicationId("2210");
-        log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), uibAppCredential);
+        log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
         uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid){
+        if (uibApplicationToken==null){
+            // TODO - get the real values here
+            uibAppCredential =getAppCredentialForApplicationId("2210");
+            log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
+            uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
+        }
+
         log.debug("getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid);
         String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid).execute();
         if (userToken!=null && userToken.length()>10) {
