@@ -40,6 +40,7 @@ public class SecurityTokenServiceHelper {
     }
 
     public UserToken getUserToken(String appTokenId, String usertokenid){
+        log.debug("getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid);
         String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationCredentialMapper.toXML(uibAppCredential), usertokenid).execute();
         if (userToken!=null && userToken.length()>10) {
             log.debug("usertoken: {}", userToken);
