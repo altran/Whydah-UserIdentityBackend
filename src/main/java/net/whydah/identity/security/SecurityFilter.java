@@ -183,7 +183,7 @@ public class SecurityFilter implements Filter {
         boolean isUAS = false;
         if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
-            isUAS = authenticationService.isAuthenticated(applicationCredential);
+            isUAS = authenticationService.isAuthenticatedAsUAS(applicationCredential);
         }
         return isUAS;
     }

@@ -1,6 +1,6 @@
 package net.whydah.identity.security;
 
-import net.whydah.identity.application.ApplicationDao;
+import net.whydah.identity.application.ApplicationCredentialRepository;
 import net.whydah.sso.application.types.ApplicationCredential;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +15,29 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class AuthenticationService {
     private static final Logger log = getLogger(AuthenticationService.class);
 
-    private final ApplicationDao applicationDao;
+    private final ApplicationCredentialRepository appCredRepo;
 
     @Autowired
-    public AuthenticationService(ApplicationDao applicationDao) {
-        this.applicationDao = applicationDao;
+    public AuthenticationService(ApplicationCredentialRepository appCredRepo) {
+        this.appCredRepo = appCredRepo;
     }
 
-    public boolean isAuthenticated(ApplicationCredential applicationCredential) {
-        //TODO https://github.com/Cantara/Whydah-UserAdminService/issues/38 and
-        //https://github.com/Cantara/Whydah-UserIdentityBackend/issues/42
-        return true;
+    /**
+     * Validate UAS application credential.
+     * @param applicationCredential
+     * @return true is applicationCredential match that of UAS.
+     */
+    public boolean isAuthenticatedAsUAS(ApplicationCredential applicationCredential) {
+        ApplicationCredential uasApplicationCredential = appCredRepo.getUasAppCred();
+        boolean isAuthenticated = false;
+
+        if (applicationCredential != null && uasApplicationCredential != null) {
+            if (applicationCredential.getApplicationID().equals(uasApplicationCredential.getApplicationID()) &&
+                    applicationCredential.getApplicationName().equals(uasApplicationCredential.getApplicationName()) &&
+                    applicationCredential.getApplicationSecret().equals(uasApplicationCredential.getApplicationSecret())) {
+                isAuthenticated = true;
+            }
+        }
+        return isAuthenticated;
     }
 }
