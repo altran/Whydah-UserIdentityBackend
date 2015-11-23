@@ -27,9 +27,9 @@ public class ApplicationCredentialRepository {
 
 
     @Autowired
-    public ApplicationCredentialRepository(ApplicationDao applicationDao, @Value("my_applicationid") String uibAppId,
-                                           @Value("securitytokenservice_applicationid") String stsAppId,
-                                           @Value("uas_applicationid") String uasAppId) {
+    public ApplicationCredentialRepository(ApplicationDao applicationDao, @Value("${my_applicationid}") String uibAppId,
+                                           @Value("${securitytokenservice_applicationid}") String stsAppId,
+                                           @Value("${uas_applicationid}") String uasAppId) {
         this.applicationDao = applicationDao;
         this.uibAppId = uibAppId;
         this.stsAppId = stsAppId;
@@ -59,9 +59,13 @@ public class ApplicationCredentialRepository {
 
     protected ApplicationCredential getAppCredentialForApplicationId(String applicationId){
         Application app = applicationDao.getApplication(applicationId);
-        String appid = app.getId();
-        String appname=app.getName();
-        String secret=app.getSecurity().getSecret();
-        return new ApplicationCredential(appid,appname,secret);
+        ApplicationCredential applicationCredential = null;
+        if (app != null) {
+            String appid = app.getId();
+            String appname = app.getName();
+            String secret = app.getSecurity().getSecret();
+            applicationCredential = new ApplicationCredential(appid,appname,secret);
+        }
+        return applicationCredential;
     }
 }
