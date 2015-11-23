@@ -21,7 +21,7 @@ public class AuthenticationServiceTest {
 
     private AuthenticationService authenticationService;
     private ApplicationCredentialRepository appCredRepo;
-    private ApplicationCredential storedUasApplciatinCredential = new ApplicationCredential("2210","UserAdminService","adsfasdfasdasdfasd");
+    private ApplicationCredential storedUasApplciationCredential = new ApplicationCredential("2212","Whydah-UserAdminService","adsfasdfasdasdfasd");
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -31,8 +31,8 @@ public class AuthenticationServiceTest {
 
     @Test
     public void testIsAuthenticatedAsUAS() throws Exception {
-//        log.info("xml:" + ApplicationCredentialMapper.toXML(storedUasApplciatinCredential));
-        when(appCredRepo.getUasAppCred()).thenReturn(storedUasApplciatinCredential);
+//        log.info("xml:" + ApplicationCredentialMapper.toXML(storedUasApplciationCredential));
+        when(appCredRepo.getUasAppCred()).thenReturn(storedUasApplciationCredential);
         ApplicationCredential validAppCred = ApplicationCredentialMapper.fromXml(applicatinCredential);
         assertTrue(authenticationService.isAuthenticatedAsUAS(validAppCred));
 
@@ -45,8 +45,8 @@ public class AuthenticationServiceTest {
     private static String applicatinCredential = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +
             " <applicationcredential>\n" +
             "    <params>\n" +
-            "        <applicationID>2210</applicationID>\n" +
-            "        <applicationName>UserAdminService</applicationName>\n" +
+            "        <applicationID>2212</applicationID>\n" +
+            "        <applicationName>Whydah-UserAdminService</applicationName>\n" +
             "        <applicationSecret>adsfasdfasdasdfasd</applicationSecret>\n" +
             "    </params> \n" +
             "</applicationcredential>";
@@ -54,8 +54,8 @@ public class AuthenticationServiceTest {
     private static String applicatinCredentialMissingSecred = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +
             " <applicationcredential>\n" +
             "    <params>\n" +
-            "        <applicationID>2210</applicationID>\n" +
-            "        <applicationName>UserAdminService</applicationName>\n" +
+            "        <applicationID>2212</applicationID>\n" +
+            "        <applicationName>Whydah-UserAdminService</applicationName>\n" +
             "        <applicationSecret></applicationSecret>\n" +
             "    </params> \n" +
             "</applicationcredential>";
