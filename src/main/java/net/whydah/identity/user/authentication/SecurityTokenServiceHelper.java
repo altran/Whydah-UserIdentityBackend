@@ -49,8 +49,8 @@ public class SecurityTokenServiceHelper {
             uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
             if (uibApplicationToken!=null){
                 log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
-                log.warn("###  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML()(uibApplicationToken), usertokenid);
-                String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML()(uibApplicationToken), usertokenid).execute();
+                log.warn("###  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid);
+                String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
                 if (userToken!=null && userToken.length()>10) {
                     log.debug("usertoken: {}", userToken);
                     return new UserToken(userToken);
