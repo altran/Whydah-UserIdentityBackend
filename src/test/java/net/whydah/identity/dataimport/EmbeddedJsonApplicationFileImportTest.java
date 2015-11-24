@@ -4,12 +4,8 @@ import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
-import net.whydah.identity.user.UserAggregate;
-import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
@@ -19,15 +15,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.List;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import java.io.InputStream;
 
 
-public class IamDataImporterTest {
+public class EmbeddedJsonApplicationFileImportTest {
     private BasicDataSource dataSource;
-    private IamDataImporter dataImporter;
     private Main main;
     String applicationsImportSource;
 
@@ -52,8 +44,6 @@ public class IamDataImporterTest {
 
         main = new Main(6655);
         main.startEmbeddedDS(configuration.asMap());
-
-        dataImporter = new IamDataImporter(dataSource, configuration);
 
         main.start();
         RestAssured.port = main.getPort();
@@ -80,40 +70,35 @@ public class IamDataImporterTest {
             main.stop();
         }
     }
-    
+
     @Test
-    public void testDataIsImported() throws Exception {
-        dataImporter.importIamData();
-        LdapUserIdentityDao ldapUserIdentityDao = dataImporter.getLdapUserIdentityDao();
+    public void testEmbeddedJsonApplicationsFile() {
+        InputStream ais = null;
+        try {
+            ais = openInputStream("Applications", applicationsImportSource);
+            System.out.println("Testimporting:"+applicationsImportSource);
 
-        UserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
-        assertEquals("Erik", erikdUserIdentity.getFirstName());
-        assertEquals("Drolshammer", erikdUserIdentity.getLastName());
-        assertEquals("erik.drolshammer", erikdUserIdentity.getUid());
+            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
 
-        ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), null);
-        UserAggregateService userAggregateService = new UserAggregateService(null, dataImporter.getUserPropertyAndRoleDao(),
-                applicationService, null, null);
+            if (applicationsImportSource.endsWith(".csv")) {
+                new ApplicationImporter(applicationService).importApplications(ais);
+            } else {
+                new ApplicationJsonImporter(applicationService).importApplications(ais);
+            }
+        } finally {
+            FileUtils.close(ais);
 
+        }
 
-        UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, userAggregateService.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
-        
-        List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
-        assertEquals(1, propsAndRoles2.size());
-        assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Altran", "admin", "70"));
+    }
+    InputStream openInputStream(String tableName, String importSource) {
+        InputStream is;
+        if (FileUtils.localFileExist(importSource)) {
+            is = FileUtils.openLocalFile(importSource);
+        } else {
+            is = FileUtils.openFileOnClasspath(importSource);
+        }
+        return is;
     }
 
-    private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {
-        for (UserPropertyAndRole role : propsAndRoles) {
-            if (role.getApplicationId().equals(appId) &&
-			   role.getApplicationName().equals(appName) && 
-			   role.getOrganizationName().equals(orgName) && 
-			   role.getApplicationRoleName().equals(roleName) &&
-                    role.getApplicationRoleValue().equals(roleValue) &&
-                    role.getUid().equals(uid)) {
-                return true;
-			}
-		}
-		return false;
-	}
 }
