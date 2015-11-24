@@ -37,6 +37,7 @@ public class AuthenticationService {
                 isAuthenticated = true;
             }
         }
+        log.trace("AppCredential verification result:"+isAuthenticated);
         return isAuthenticated;
     }
 }
