@@ -165,7 +165,7 @@ public class SecurityFilter implements Filter {
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         //FIXME enable ApplicationCredential check.
-        boolean isUas = true;
+        boolean isUas = false;
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
             String applicationCredentialXml = "";
             if (applicationCredentialXmlEncoded != null) {
