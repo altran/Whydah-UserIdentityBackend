@@ -1,6 +1,7 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class SecurityFilterTest {
     private SecurityFilter securityFilter;
     private SecurityTokenServiceHelper tokenHelper;
     private AuthenticationService authenticationService;
+    private HealthCheckService healthCheckService;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain chain;
@@ -64,7 +66,8 @@ public class SecurityFilterTest {
     public void init() throws ServletException {
         tokenHelper = mock(SecurityTokenServiceHelper.class);
         authenticationService = mock(AuthenticationService.class);
-        securityFilter = new SecurityFilter(tokenHelper, authenticationService);
+        healthCheckService = mock(HealthCheckService.class);
+        securityFilter = new SecurityFilter(tokenHelper, authenticationService, healthCheckService);
 
         securityFilter.init(null);
         request = mock(HttpServletRequest.class);

@@ -19,6 +19,7 @@ public class HealthCheckService {
     private static final Logger log = LoggerFactory.getLogger(HealthCheckService.class);
     private final UserIdentityService identityService;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
+    private long intrusionsDetected = 0;
 
     @Autowired
     public HealthCheckService(UserIdentityService identityService, UserPropertyAndRoleDao userPropertyAndRoleDao) {
@@ -45,6 +46,18 @@ public class HealthCheckService {
             log.error("countUserRolesInDB failed. isOK returned false", e);
         }
         return false;
+    }
+
+    public void addIntrusion(){
+        if (intrusionsDetected > Long.MAX_VALUE -10) {
+            log.warn("IntrusionsDetected is at max value of Long. Resetting. Count {}", intrusionsDetected);
+            intrusionsDetected = 0;
+        }
+        intrusionsDetected += 1;
+    }
+
+    public long countIntrusionAttempts(){
+        return intrusionsDetected;
     }
 
 

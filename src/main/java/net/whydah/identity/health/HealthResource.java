@@ -38,4 +38,15 @@ public class HealthResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("intrusions")
+    public Response countIntrusions() {
+        long intrusions = healthCheckService.countIntrusionAttempts();
+
+            //return Response.status(Response.Status.NO_CONTENT).build();
+            return Response.ok("{\"intrusion-attempt\":" + intrusions +"}").build();
+
+    }
 }

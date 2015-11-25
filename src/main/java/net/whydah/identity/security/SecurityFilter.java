@@ -1,6 +1,7 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
@@ -42,6 +43,7 @@ public class SecurityFilter implements Filter {
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
+    private final HealthCheckService healthCheckService;
 
     //public static final String OPEN_PATH = "/authenticate";
     //public static final String AUTHENTICATE_USER_PATH = "/authenticate";
@@ -53,9 +55,10 @@ public class SecurityFilter implements Filter {
     //private String requiredRole;
 
     @Autowired
-    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, AuthenticationService authenticationService) {
+    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, AuthenticationService authenticationService, HealthCheckService healthCheckService) {
         this.securityTokenHelper = securityTokenHelper;
         this.authenticationService = authenticationService;
+        this.healthCheckService = healthCheckService;
     }
 
     @Override
@@ -169,7 +172,6 @@ public class SecurityFilter implements Filter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
-        //FIXME enable ApplicationCredential check.
         boolean isUas = false;
         log.trace("Embedded appCred:"+applicationCredentialXmlEncoded);
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
@@ -178,7 +180,12 @@ public class SecurityFilter implements Filter {
                 applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded, "UTF-8");
                 log.trace("Encoded appCred:"+applicationCredentialXmlEncoded);
             }
-            isUas = originatorIsUAS(applicationCredentialXml);
+            isUas = requestViaUas(applicationCredentialXml);
+            log.trace("Request via UAS {}", isUas);
+            if (!isUas) {
+                notifyFailedAttempt(servletRequest);
+            }
+
         }
 
         if (isUas) {
@@ -193,10 +200,15 @@ public class SecurityFilter implements Filter {
         }
     }
 
+    protected void notifyFailedAttempt(HttpServletRequest request) {
+        log.trace("Failed intrusion detected {}", request.toString());
+        healthCheckService.addIntrusion();
+    }
+
     /*
     Read the credentialXml, and validate this content towards the credentials stored in applicationdatabase.
      */
-    protected boolean originatorIsUAS(String applicationCredentialXml) {
+    protected boolean requestViaUas(String applicationCredentialXml) {
         boolean isUAS = false;
         if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);

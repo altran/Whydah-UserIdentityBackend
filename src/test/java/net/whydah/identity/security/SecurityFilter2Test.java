@@ -1,6 +1,7 @@
 package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
 import net.whydah.identity.user.authentication.UserToken;
 import org.junit.Before;
@@ -22,6 +23,7 @@ public class SecurityFilter2Test {
     private SecurityTokenServiceHelper stsHelper;
     private AuthenticationService authenticationService;
     private SecurityFilter securityFilter;
+    private HealthCheckService healthCheckService;
 
     private final static String userAdminUserTokenId ="au123";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"WhydahUserAdmin\"/></application>";
@@ -32,7 +34,8 @@ public class SecurityFilter2Test {
         ApplicationMode.clearTags();
         stsHelper = mock(SecurityTokenServiceHelper.class);
         authenticationService = mock(AuthenticationService.class);
-        securityFilter = new SecurityFilter(stsHelper, authenticationService);
+        healthCheckService = mock(HealthCheckService.class);
+        securityFilter = new SecurityFilter(stsHelper, authenticationService, healthCheckService);
     }
 
     @Test
