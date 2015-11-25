@@ -30,6 +30,13 @@ public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
     public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials/xml";
+    public static final String pwPattern = "/user/.+/(reset|change)_password";
+    public static final String pwPattern2 = "/password/.+/reset/username(|/.*)";
+    public static final String userAuthPattern = "/authenticate/user(|/.*)";
+    public static final String applicationAuthPatten = "/application/auth";
+    public static final String userSignupPattern = "/signup/user";
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern};
+
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
 
@@ -96,12 +103,6 @@ public class SecurityFilter implements Filter {
         /{stsApplicationtokenId}/application/auth")         //Applicationcredential verification endpoint  (ApplicationAuthenticationEndpoint)
         /{applicationTokenId}/signup/user                   //UserSignupEndpoint
         */
-        String pwPattern = "/user/.+/(reset|change)_password";
-        String pwPattern2 = "/password/.+/reset/username(|/.*)";
-        String userAuthPattern = "/authenticate/user(|/.*)";
-        String applicationAuthPatten = "/application/auth";
-        String userSignupPattern = "/signup/user";
-        String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern};
         for (String pattern : patternsWithoutUserTokenId) {
             if (Pattern.compile(pattern).matcher(path).matches()) {
                 log.debug("{} was matched to {}. SecurityFilter passed.", path, pattern);
