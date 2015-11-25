@@ -31,11 +31,11 @@ public class SecurityFilter implements Filter {
 
     public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials/xml";
     public static final String pwPattern = "/user/.+/(reset|change)_password";
-    public static final String pwPattern2 = "/password/.+/reset/username";
+    public static final String pwPattern2 = "/password/.+/reset/username(|/.*)";
     public static final String userAuthPattern = "/authenticate/user(|/.*)";
     public static final String applicationAuthPatten = "/application/auth";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, userAuthPattern, userSignupPattern};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern};
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
