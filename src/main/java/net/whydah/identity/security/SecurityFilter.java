@@ -40,6 +40,7 @@ public class SecurityFilter implements Filter {
     public static final String applicationListPatten = "//applications";
     public static final String userSignupPattern = "/signup/user";
     public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern,applicationListPatten};
+    public static final String HEALT_PATH = "health";
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
@@ -82,7 +83,7 @@ public class SecurityFilter implements Filter {
         String path = pathInfo.substring(1); //strip leading /
 
         //Open paths without authentication
-        if (path.startsWith("health")) {
+        if (path.startsWith(HEALT_PATH)) {
             return null;
         }
 
@@ -173,7 +174,7 @@ public class SecurityFilter implements Filter {
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         boolean isUas = false;
-        log.trace("Embedded appCred:"+applicationCredentialXmlEncoded);
+        log.trace("Header appCred: {}",applicationCredentialXmlEncoded);
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
             String applicationCredentialXml = "";
             if (applicationCredentialXmlEncoded != null) {
@@ -185,19 +186,42 @@ public class SecurityFilter implements Filter {
             if (!isUas) {
                 notifyFailedAttempt(servletRequest);
             }
-
+        } else {
+            notifyFailedAnonymousAttempt(servletRequest);
         }
 
+        String pathInfo = servletRequest.getPathInfo();
+
         if (isUas) {
-            Integer statusCode = authenticateAndAuthorizeRequest(servletRequest.getPathInfo());
+            Integer statusCode = authenticateAndAuthorizeRequest(pathInfo);
             if (statusCode == null) {
                 chain.doFilter(request, response);
             } else {
                 ((HttpServletResponse) response).setStatus(statusCode);
             }
         } else {
-            ((HttpServletResponse) response).setStatus(Response.SC_FORBIDDEN);
+            if (isHealthPath(pathInfo)) {
+                chain.doFilter(request, response);
+            } else {
+                ((HttpServletResponse) response).setStatus(Response.SC_FORBIDDEN);
+            }
         }
+    }
+
+    protected boolean isHealthPath(String pathInfo) {
+        boolean isHealthPath = false;
+        if (pathInfo != null) {
+            String path = pathInfo.substring(1);
+            if (path != null && path.startsWith(HEALT_PATH)){
+                isHealthPath = true;
+            }
+        }
+        return isHealthPath;
+    }
+
+    protected void notifyFailedAnonymousAttempt(HttpServletRequest servletRequest) {
+        log.trace("Failed intrusion detected. Header is missing.{}", servletRequest.toString());
+        healthCheckService.addIntrusionAnonymous();
     }
 
     protected void notifyFailedAttempt(HttpServletRequest request) {

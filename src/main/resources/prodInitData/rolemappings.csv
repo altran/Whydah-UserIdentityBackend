@@ -1,4 +1,5 @@
 #userId, applicationId, applicationName, organizationName, roleName, roleValue
 uawaadmin, 2219, Whydah-UserAdminWebApp, Support, WhydahUserAdmin, 1
 uasadmin, 2212, Whydah-UserAdminService, Support, WhydahUserAdmin, 1
+useradmin, 2212, Whydah-UserAdminService, Whydah, WhydahUserAdmin, 1
 erik.drolshammer, 2219, Whydah-UserAdminWebApp, Developer, WhydahUserAdmin, 1

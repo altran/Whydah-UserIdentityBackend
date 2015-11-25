@@ -44,9 +44,10 @@ public class HealthResource {
     @Path("intrusions")
     public Response countIntrusions() {
         long intrusions = healthCheckService.countIntrusionAttempts();
+        long anonymousIntrusions = healthCheckService.countAnonymousIntrusionAttempts();
 
             //return Response.status(Response.Status.NO_CONTENT).build();
-            return Response.ok("{\"intrusion-attempt\":" + intrusions +"}").build();
+            return Response.ok("{\"intrusionAttempt\":" + intrusions +",\"anonymousIntrusionAttempt\":" + anonymousIntrusions +"}").build();
 
     }
 }

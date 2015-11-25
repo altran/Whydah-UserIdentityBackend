@@ -20,6 +20,7 @@ public class HealthCheckService {
     private final UserIdentityService identityService;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
     private long intrusionsDetected = 0;
+    private long anonymousIntrsionsDetected = 0;
 
     @Autowired
     public HealthCheckService(UserIdentityService identityService, UserPropertyAndRoleDao userPropertyAndRoleDao) {
@@ -60,8 +61,20 @@ public class HealthCheckService {
         return intrusionsDetected;
     }
 
+    public long countAnonymousIntrusionAttempts() {
+        return anonymousIntrsionsDetected;
+    }
+
 
     private boolean atLeastOneRoleInDatabase() {
         return userPropertyAndRoleDao.countUserRolesInDB() > 0;
+    }
+
+    public void addIntrusionAnonymous() {
+        if (anonymousIntrsionsDetected > Long.MAX_VALUE -10) {
+            log.warn("AnonymousIntrusionsDetected is at max value of Long. Resetting. Count {}", anonymousIntrsionsDetected);
+            anonymousIntrsionsDetected = 0;
+        }
+        anonymousIntrsionsDetected += 1;
     }
 }
