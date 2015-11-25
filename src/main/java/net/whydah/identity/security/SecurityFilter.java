@@ -35,7 +35,7 @@ public class SecurityFilter implements Filter {
     public static final String userAuthPattern = "/authenticate/user(|/.*)";
     public static final String applicationAuthPatten = "/application/auth";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, userAuthPattern, userSignupPattern};
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
