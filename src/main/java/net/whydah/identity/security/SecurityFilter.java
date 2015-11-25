@@ -97,7 +97,7 @@ public class SecurityFilter implements Filter {
         /{applicationTokenId}/signup/user                   //UserSignupEndpoint
         */
         String pwPattern = "/user/.+/(reset|change)_password";
-        String pwPattern2 = "/password/.+/reset/username";
+        String pwPattern2 = "/password/.+/reset/username(|/.*)";
         String userAuthPattern = "/authenticate/user(|/.*)";
         String applicationAuthPatten = "/application/auth";
         String userSignupPattern = "/signup/user";
