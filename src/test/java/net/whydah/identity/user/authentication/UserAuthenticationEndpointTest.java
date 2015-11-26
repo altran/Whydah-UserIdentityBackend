@@ -28,6 +28,7 @@ import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -122,6 +123,7 @@ public class UserAuthenticationEndpointTest {
         RestAssured.basePath = Main.CONTEXT_PATH;
     }
 
+    @Ignore
     @Test
     public void testAuthenticateUserOK() throws Exception {
         ApplicationMode.setTags(ApplicationMode.NO_SECURITY_FILTER);
