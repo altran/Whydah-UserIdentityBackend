@@ -175,8 +175,12 @@ public class SecurityFilter implements Filter {
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         boolean isUas = false;
-        log.trace("Header appCred: {}", applicationCredentialXmlEncoded);
-
+        //Enable tests to pass through.
+        if (ApplicationMode.skipSecurityFilter()) {
+            log.warn("Running in noSecurityFilter mode, non-authorized applications may access UIB!");
+            isUas = true;
+        }
+        log.trace("Header appCred: {}",applicationCredentialXmlEncoded);
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
             String applicationCredentialXml = "";
             if (applicationCredentialXmlEncoded != null) {
