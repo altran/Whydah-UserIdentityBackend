@@ -19,8 +19,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
@@ -55,7 +53,7 @@ public class ApplicationResourceTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
-        main = new Main(6644);
+        main = new Main(6646);
         main.start();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;

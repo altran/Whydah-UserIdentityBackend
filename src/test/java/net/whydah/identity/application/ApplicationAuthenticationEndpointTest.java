@@ -57,7 +57,7 @@ public class ApplicationAuthenticationEndpointTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
-        main = new Main(6644);
+        main = new Main(6645);
         main.start();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
