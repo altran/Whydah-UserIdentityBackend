@@ -123,7 +123,6 @@ public class UserAuthenticationEndpointTest {
         RestAssured.basePath = Main.CONTEXT_PATH;
     }
 
-    @Ignore
     @Test
     public void testAuthenticateUserOK() throws Exception {
         ApplicationMode.setTags(ApplicationMode.NO_SECURITY_FILTER);
