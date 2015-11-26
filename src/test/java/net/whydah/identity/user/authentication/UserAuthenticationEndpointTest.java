@@ -44,9 +44,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 
 /**
@@ -128,6 +126,7 @@ public class UserAuthenticationEndpointTest {
 
     @Test
     public void testAuthenticateUserOK() throws Exception {
+        ApplicationMode.setTags(ApplicationMode.NO_SECURITY_FILTER);
         String userName = "testMe";
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 " <usercredential>\n" +
