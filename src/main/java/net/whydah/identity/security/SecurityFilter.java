@@ -39,14 +39,14 @@ public class SecurityFilter implements Filter {
     public static final String applicationAuthPatten = "/application/auth";
     public static final String applicationListPatten = "//applications";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern,applicationListPatten};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern, applicationListPatten};
     public static final String HEALT_PATH = "health";
 
     private final SecurityTokenServiceHelper securityTokenHelper;
     private final AuthenticationService authenticationService;
     private final HealthCheckService healthCheckService;
 
-    private static boolean isUAS;
+    private static boolean isCI=false;
     //public static final String OPEN_PATH = "/authenticate";
     //public static final String AUTHENTICATE_USER_PATH = "/authenticate";
     //public static final String PASSWORD_RESET_PATH = "/password";
@@ -66,7 +66,7 @@ public class SecurityFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         //requiredRole = REQUIRED_ROLE_USERS;
-        SecurityFilter.setUASFlag(true);
+        SecurityFilter.setCIFlag(true);
     }
 
 
@@ -149,7 +149,6 @@ public class SecurityFilter implements Filter {
         }
 
 
-
         return null;
     }
 
@@ -176,20 +175,23 @@ public class SecurityFilter implements Filter {
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         boolean isUas = false;
-        log.trace("Header appCred: {}",applicationCredentialXmlEncoded);
-        if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
-            String applicationCredentialXml = "";
-            if (applicationCredentialXmlEncoded != null) {
-                applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded, "UTF-8");
-                log.trace("Encoded appCred:"+applicationCredentialXmlEncoded);
+        log.trace("Header appCred: {}", applicationCredentialXmlEncoded);
+        if (!isCI) {
+
+            if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
+                String applicationCredentialXml = "";
+                if (applicationCredentialXmlEncoded != null) {
+                    applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded, "UTF-8");
+                    log.trace("Encoded appCred:" + applicationCredentialXmlEncoded);
+                }
+                isUas = requestViaUas(applicationCredentialXml);
+                log.trace("Request via UAS {}", isUas);
+                if (!isUas) {
+                    notifyFailedAttempt(servletRequest);
+                }
+            } else {
+                notifyFailedAnonymousAttempt(servletRequest);
             }
-            isUas = requestViaUas(applicationCredentialXml);
-            log.trace("Request via UAS {}", isUas);
-            if (!isUas) {
-                notifyFailedAttempt(servletRequest);
-            }
-        } else {
-            notifyFailedAnonymousAttempt(servletRequest);
         }
 
         String pathInfo = servletRequest.getPathInfo();
@@ -214,7 +216,7 @@ public class SecurityFilter implements Filter {
         boolean isHealthPath = false;
         if (pathInfo != null) {
             String path = pathInfo.substring(1);
-            if (path != null && path.startsWith(HEALT_PATH)){
+            if (path != null && path.startsWith(HEALT_PATH)) {
                 isHealthPath = true;
             }
         }
@@ -235,7 +237,7 @@ public class SecurityFilter implements Filter {
     Read the credentialXml, and validate this content towards the credentials stored in applicationdatabase.
      */
     protected boolean requestViaUas(String applicationCredentialXml) {
-        //boolean isUAS = false;
+        boolean isUAS = false;
         if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
             isUAS = authenticationService.isAuthenticatedAsUAS(applicationCredential);
@@ -244,10 +246,11 @@ public class SecurityFilter implements Filter {
     }
 
 
-    public static void setUASFlag(boolean flag){
-        isUAS=true;
+    public static void setCIFlag(boolean flag) {
+        isCI = true;
 
     }
+
     @Override
     public void destroy() {
     }
