@@ -36,7 +36,7 @@ public class SecurityFilter2Test {
         authenticationService = mock(AuthenticationService.class);
         healthCheckService = mock(HealthCheckService.class);
         securityFilter = new SecurityFilter(stsHelper, authenticationService, healthCheckService);
-        SecurityFilter.setUASFlag(true);
+        SecurityFilter.setCIFlag(true);
     }
 
     @Test

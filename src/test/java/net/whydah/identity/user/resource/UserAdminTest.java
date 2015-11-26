@@ -48,7 +48,7 @@ public class UserAdminTest {
     @Before
     public void init() throws Exception {
         ApplicationMode.setTags(ApplicationMode.DEV_MODE, ApplicationMode.NO_SECURITY_FILTER);
-        SecurityFilter.setUASFlag(true);
+        SecurityFilter.setCIFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))

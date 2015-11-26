@@ -73,7 +73,7 @@ public class UserAuthenticationEndpointTest {
         */
 
         ApplicationMode.setCIMode();
-        SecurityFilter.setUASFlag(true);
+        SecurityFilter.setCIFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
