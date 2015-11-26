@@ -5,6 +5,7 @@ import net.whydah.identity.user.UserRole;
 
 import java.util.List;
 
+@Deprecated
 public class UserTokenID {
 
     public String getId() {

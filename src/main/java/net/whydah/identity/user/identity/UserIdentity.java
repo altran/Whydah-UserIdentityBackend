@@ -16,6 +16,7 @@ import java.io.Serializable;
  * See getLdapAttributes in LDAPHelper for mapping to LDAP attributes.
  *
  */
+@Deprecated
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class UserIdentity extends UserIdentityRepresentation implements Serializable {
     public static final String UID = "uid";

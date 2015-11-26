@@ -1,8 +1,6 @@
 package net.whydah.identity.user.identity;
 
-/**
- * @author totto
- */
+@Deprecated
 public class UserIdentityRepresentation {
     protected String username;
     protected String firstName;

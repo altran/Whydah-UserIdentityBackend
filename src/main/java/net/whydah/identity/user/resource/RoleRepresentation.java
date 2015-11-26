@@ -5,6 +5,7 @@ import net.whydah.identity.user.role.UserPropertyAndRole;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 12/04/14
  */
+@Deprecated
 public class RoleRepresentation extends RoleRepresentationRequest {
     private String id;
 

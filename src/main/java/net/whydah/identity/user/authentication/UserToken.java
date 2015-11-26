@@ -19,6 +19,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class UserToken {
     private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 

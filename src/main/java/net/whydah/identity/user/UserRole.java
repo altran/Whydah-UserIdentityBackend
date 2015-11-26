@@ -1,5 +1,6 @@
 package net.whydah.identity.user;
 
+@Deprecated
 public class UserRole {
     private final String appId;
     private final String orgName;

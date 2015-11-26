@@ -1,5 +1,6 @@
 package net.whydah.identity.user.role;
 
+@Deprecated
 public class UserPropertyAndRole {
     private String roleId;
 
