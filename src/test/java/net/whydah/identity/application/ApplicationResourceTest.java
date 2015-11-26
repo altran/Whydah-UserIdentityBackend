@@ -117,6 +117,7 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), app.getDefaultRoleName());
     }
 
+    @Ignore
     @Test(dependsOnMethods = "testCreateApplication")
     public void testGetApplicationOK() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
@@ -136,7 +137,6 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), "originalDefaultRoleName");
     }
 
-    @Ignore
     @Test(dependsOnMethods = "testGetApplicationOK")
     public void testUpdateApplicationNotFound() throws Exception {
         String json = ApplicationMapper.toJson(app);
