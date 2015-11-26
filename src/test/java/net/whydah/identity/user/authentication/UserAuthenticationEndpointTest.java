@@ -9,6 +9,7 @@ import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
+import net.whydah.identity.security.SecurityFilter;
 import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.email.PasswordSender;
@@ -72,6 +73,7 @@ public class UserAuthenticationEndpointTest {
         */
 
         ApplicationMode.setCIMode();
+        SecurityFilter.setUASFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))

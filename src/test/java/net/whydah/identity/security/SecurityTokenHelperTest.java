@@ -5,9 +5,6 @@ import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
 import org.junit.Test;
 
-/**
- * Created by totto on 23.11.15.
- */
 public class SecurityTokenHelperTest {
 
     String applicationToken=" <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +

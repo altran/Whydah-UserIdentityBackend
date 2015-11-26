@@ -46,6 +46,7 @@ public class SecurityFilter implements Filter {
     private final AuthenticationService authenticationService;
     private final HealthCheckService healthCheckService;
 
+    private static boolean isUAS;
     //public static final String OPEN_PATH = "/authenticate";
     //public static final String AUTHENTICATE_USER_PATH = "/authenticate";
     //public static final String PASSWORD_RESET_PATH = "/password";
@@ -65,6 +66,7 @@ public class SecurityFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         //requiredRole = REQUIRED_ROLE_USERS;
+        SecurityFilter.setUASFlag(true);
     }
 
 
@@ -233,7 +235,7 @@ public class SecurityFilter implements Filter {
     Read the credentialXml, and validate this content towards the credentials stored in applicationdatabase.
      */
     protected boolean requestViaUas(String applicationCredentialXml) {
-        boolean isUAS = false;
+        //boolean isUAS = false;
         if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
             isUAS = authenticationService.isAuthenticatedAsUAS(applicationCredential);
@@ -242,6 +244,10 @@ public class SecurityFilter implements Filter {
     }
 
 
+    public static void setUASFlag(boolean flag){
+        isUAS=true;
+
+    }
     @Override
     public void destroy() {
     }
