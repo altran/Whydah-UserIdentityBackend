@@ -30,6 +30,7 @@ import static org.testng.Assert.assertNotNull;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
+@Ignore
 public class ApplicationResourceTest {
     private final String appToken1 = "appToken1";
     private final String userToken1 = "userToken1";
