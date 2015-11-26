@@ -33,7 +33,7 @@ import static org.testng.Assert.assertNotNull;
 @Ignore
 public class ApplicationResourceTest {
     private final String appToken1 = "appToken1";
-    private final String userToken1 = "userToken1";
+    private final String userTokenID1 = "userTokenID1";
     private Main main;
     private String appId1FromCreatedResponse;
     private Application app;
@@ -105,7 +105,7 @@ public class ApplicationResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .post(path, appToken1, userToken1);
+                .post(path, appToken1, userTokenID1);
 
         String jsonResponse = response.body().asString();
         Application applicationResponse = ApplicationMapper.fromJson(jsonResponse);
@@ -118,8 +118,8 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), app.getDefaultRoleName());
     }
 
-    @Ignore
     @Test(dependsOnMethods = "testCreateApplication")
+    @Ignore
     public void testGetApplicationOK() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         Response response = given()
@@ -128,7 +128,7 @@ public class ApplicationResourceTest {
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .get(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .get(path, appToken1, userTokenID1, appId1FromCreatedResponse);
 
         String jsonResponse = response.body().asString();
         Application applicationResponse = ApplicationMapper.fromJson(jsonResponse);
@@ -139,6 +139,7 @@ public class ApplicationResourceTest {
     }
 
     @Test(dependsOnMethods = "testGetApplicationOK")
+    @Ignore
     public void testUpdateApplicationNotFound() throws Exception {
         String json = ApplicationMapper.toJson(app);
 
@@ -151,7 +152,7 @@ public class ApplicationResourceTest {
                 .statusCode(404)
                 .log().ifError()
                 .when()
-                .put(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .put(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
     @Test(dependsOnMethods = "testUpdateApplicationNotFound")
@@ -169,7 +170,7 @@ public class ApplicationResourceTest {
                 .statusCode(204)
                 .log().ifError()
                 .when()
-                .put(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .put(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
 
@@ -182,7 +183,7 @@ public class ApplicationResourceTest {
                 .statusCode(204)
                 .log().ifError()
                 .when()
-                .delete(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
     @Test(dependsOnMethods = "testDeleteApplication")
     public void testDeleteApplicationNotFound() throws Exception {
@@ -193,7 +194,7 @@ public class ApplicationResourceTest {
                 .statusCode(404)
                 .log().ifError()
                 .when()
-                .delete(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
     @Test(dependsOnMethods = "testDeleteApplication")
@@ -205,6 +206,6 @@ public class ApplicationResourceTest {
                 .statusCode(404)
                 .log().ifError()
                 .when()
-                .get(path, appToken1, userToken1, appId1FromCreatedResponse);
+                .get(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 }
