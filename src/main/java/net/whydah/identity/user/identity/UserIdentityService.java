@@ -3,7 +3,6 @@ package net.whydah.identity.user.identity;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.ChangePasswordToken;
-import net.whydah.identity.user.email.PasswordSender;
 import net.whydah.identity.user.search.LuceneIndexer;
 import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.identity.util.PasswordGenerator;
@@ -36,7 +35,6 @@ public class UserIdentityService {
     private final AuditLogDao auditLogDao;
 
     private final PasswordGenerator passwordGenerator;
-    private final PasswordSender passwordSender;
 
     private final LuceneIndexer luceneIndexer;
     private final LuceneSearch searcher;
@@ -46,12 +44,11 @@ public class UserIdentityService {
     @Autowired
     public UserIdentityService(LdapAuthenticator primaryLdapAuthenticator, LdapUserIdentityDao ldapUserIdentityDao,
                                AuditLogDao auditLogDao, PasswordGenerator passwordGenerator,
-                               PasswordSender passwordSender, LuceneIndexer luceneIndexer, LuceneSearch searcher) {
+                               LuceneIndexer luceneIndexer, LuceneSearch searcher) {
         this.primaryLdapAuthenticator = primaryLdapAuthenticator;
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.auditLogDao = auditLogDao;
         this.passwordGenerator = passwordGenerator;
-        this.passwordSender = passwordSender;
         this.luceneIndexer = luceneIndexer;
         this.searcher = searcher;
     }
