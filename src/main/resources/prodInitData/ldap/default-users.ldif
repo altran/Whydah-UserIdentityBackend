@@ -17,9 +17,9 @@ objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
 cn: UAWA Admin
-sn: Admin
+sn: Bellamy
 employeeNumber: 0
-givenName: UAWA
+givenName:  Samuel "Black Sam"
 initials: uawaadmin
 mail: uawaadmin@cantara.no
 mobile: 1555406789
@@ -31,10 +31,10 @@ objectClass: top
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
-cn: UAS Admin
+cn: Morice
 sn: Admin
 employeeNumber: 0
-givenName: UAS
+givenName: Sir Humphrey
 initials: uasadmin
 mail: uasadmin@cantara.no
 mobile: 1555406789
