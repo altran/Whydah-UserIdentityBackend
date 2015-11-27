@@ -312,7 +312,7 @@
     }]
   },
   {
-    "id": "2299",
+    "id": "9099",
     "name": "Whydah-TestWebApplication",
     "description": "The different example webapps to explain how to use/integrate with the Whydah IAM/SSO",
     "company" : "Teknologihuset",
@@ -348,7 +348,7 @@
     }]
   },
   {
-    "id": "2001",
+    "id": "9001",
     "name": "m2Circle",
     "description": null,
     "company" : "Auke AS",
