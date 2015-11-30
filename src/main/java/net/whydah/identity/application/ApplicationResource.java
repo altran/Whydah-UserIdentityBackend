@@ -1,5 +1,9 @@
 package net.whydah.identity.application;
 
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
+import net.whydah.identity.application.search.LuceneApplicationSearch;
+import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
@@ -19,10 +23,16 @@ import javax.ws.rs.core.Response;
 public class ApplicationResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResource.class);
     private final ApplicationService applicationService;
+    private final LuceneApplicationIndexer luceneApplicationIndexer;
+    private final LuceneApplicationSearch luceneApplicationSearch;
+
 
     @Autowired
-    public ApplicationResource(ApplicationService applicationService) {
+    public ApplicationResource(ApplicationService applicationService,LuceneApplicationIndexer luceneApplicationIndexer,LuceneApplicationSearch luceneApplicationSearch) {
         this.applicationService = applicationService;
+        this.luceneApplicationIndexer=luceneApplicationIndexer;
+        this.luceneApplicationSearch=luceneApplicationSearch;
+
     }
 
     @POST
@@ -40,6 +50,7 @@ public class ApplicationResource {
             Application persisted = applicationService.create(application);
             if (persisted != null) {
                 String json = ApplicationMapper.toJson(persisted);
+                luceneApplicationIndexer.addToIndex(application);
                 return Response.ok(json).build();
             }
         } catch (RuntimeException e) {
@@ -96,6 +107,7 @@ public class ApplicationResource {
                 case 0 :
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
+                    luceneApplicationIndexer.update(application);
                     return Response.status(Response.Status.NO_CONTENT).build();
                 default:
                     log.error("numRowsAffected={}, if more than one row was updated, this means that the database is in an unexpected state. Manual correction is needed!", numRowsAffected);
@@ -119,6 +131,7 @@ public class ApplicationResource {
                 case 0 :
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
+                    luceneApplicationIndexer.removeFromIndex(applicationId);
                     return Response.status(Response.Status.NO_CONTENT).build();
                 default:
                     log.error("numRowsAffected={}, if more than one row was deleted, this means that the database is in an unexpected state. Data may be lost!", numRowsAffected);
