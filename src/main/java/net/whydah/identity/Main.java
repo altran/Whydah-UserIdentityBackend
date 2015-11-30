@@ -71,19 +71,6 @@ public class Main {
 
         printConfiguration(configuration);
 
-        /*
-        boolean importEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("import.enabled"));
-        boolean embeddedDSEnabled = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.embedded"));
-
-        String ldapEmbeddedpath = AppConfig.appConfig.getProperty("ldap.embedded.directory");
-        String roleDBDirectory = AppConfig.appConfig.getProperty("roledb.directory");
-        String luceneDirectory = AppConfig.appConfig.getProperty("lucene.directory");
-        Integer ldapPort = Integer.valueOf(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-
-        String sslVerification = AppConfig.appConfig.getProperty("sslverification");
-        String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
-        Integer webappPort = Integer.valueOf(AppConfig.appConfig.getProperty("service.port"));
-        */
         String version = Main.class.getPackage().getImplementationVersion();
 
         boolean importEnabled = configuration.evaluateToBoolean("import.enabled");
@@ -103,13 +90,13 @@ public class Main {
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
             String luceneDirectory = configuration.evaluateToString("lucene.directory");
-            String luceneApplicationsDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
+            String luceneApplicationDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
 
             if (importEnabled) {
-                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory,luceneApplicationsDirectory);
+                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory,luceneApplicationDirectory);
             }
             FileUtils.createDirectory(luceneDirectory);
-            FileUtils.createDirectory(luceneApplicationsDirectory);
+            FileUtils.createDirectory(luceneApplicationDirectory);
 
             if (embeddedDSEnabled) {
                 if (importEnabled) {
@@ -164,13 +151,6 @@ public class Main {
         return ldapProperties;
     }
 
-    /*
-     String jdbcdriver = AppConfig.appConfig.getProperty("roledb.jdbc.driver");
-     String jdbcurl = AppConfig.appConfig.getProperty("roledb.jdbc.url");
-     String roledbuser = AppConfig.appConfig.getProperty("roledb.jdbc.user");
-     String roledbpasswd = AppConfig.appConfig.getProperty("roledb.jdbc.password");
-     */
-    //"jdbc:hsqldb:file:" + basepath + "hsqldb");
     private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
         String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
         String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
@@ -198,19 +178,6 @@ public class Main {
         handlers.setHandlers(handlerList);
         server.setHandler(handlers);
 
-        //TODO addSecurityFilterForUserAdmin
-        /*
-        SecurityTokenServiceHelper securityTokenHelper = injector.getInstance(SecurityTokenServiceHelper.class);
-        ApplicationTokenService applicationTokenService = injector.getInstance(ApplicationTokenService.class);
-        //addSecurityFilterForUserAdmin
-        if (StringUtils.isEmpty(requiredRoleName)) {
-            log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
-        }
-        SecurityFilter securityFilter = new SecurityFilter(securityTokenHelper, applicationTokenService);
-        HashMap<String, String> initParams = new HashMap<>(1);
-        servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
-        log.info("SecurityFilter initialized with params:", initParams);
-         */
 
 
         try {
@@ -249,47 +216,6 @@ public class Main {
         }
     }
 
-    /*
-    public void startHttpServer(String requiredRoleName) {
-        ServletHandler servletHandler = new ServletHandler();
-        servletHandler.setContextPath(CONTEXT_PATH);
-        servletHandler.addInitParameter("com.sun.jersey.config.property.packages",
-                "net.whydah.identity.user.resource, net.whydah.identity.user.authentication, net.whydah.identity.application, net.whydah.identity.application.authentication, net.whydah.identity.health");
-        servletHandler.addInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
-        servletHandler.setProperty(ServletHandler.LOAD_ON_STARTUP, "1");
-
-        GuiceFilter filter = new GuiceFilter();
-        servletHandler.addFilter(filter, "guiceFilter", null);
-
-        Injector injector = Guice.createInjector(new UserIdentityBackendModule());
-
-        SecurityTokenServiceHelper securityTokenHelper = injector.getInstance(SecurityTokenServiceHelper.class);
-        ApplicationTokenService applicationTokenService = injector.getInstance(ApplicationTokenService.class);
-        //addSecurityFilterForUserAdmin
-        if (StringUtils.isEmpty(requiredRoleName)) {
-            log.warn("Required Role Name is empty! Verify the useradmin.requiredrolename-attribute in the configuration.");
-        }
-        SecurityFilter securityFilter = new SecurityFilter(securityTokenHelper, applicationTokenService);
-        HashMap<String, String> initParams = new HashMap<>(1);
-        servletHandler.addFilter(securityFilter, "SecurityFilter", initParams);
-        log.info("SecurityFilter initialized with params:", initParams);
-
-        GuiceContainer container = new GuiceContainer(injector);
-        servletHandler.setServletInstance(container);
-
-        httpServer = new HttpServer();
-        ServerConfiguration serverconfig = httpServer.getServerConfiguration();
-        serverconfig.addHttpHandler(servletHandler, "/");
-        NetworkListener listener = new NetworkListener("grizzly", NetworkListener.DEFAULT_NETWORK_HOST, webappPort);
-        httpServer.addListener(listener);
-        try {
-            httpServer.start();
-        } catch (IOException e) {
-            throw new RuntimeException("grizzly server start failed", e);
-        }
-    }
-    */
-
 
     public void startEmbeddedDS(Map<String, String> properties) {
         ads = new EmbeddedADS(properties);
@@ -308,18 +234,6 @@ public class Main {
         throw new RuntimeException(e);
     }
 
-    /*
-    public void stop() {
-        log.info("Stopping http server");    //TODO ED: What about hsqldb?  It dies with the process..
-        if (httpServer != null) {
-            httpServer.stop();
-        }
-        if (ads != null) {
-            log.info("Stopping embedded Apache DS.");
-            ads.stopServer();
-        }
-    }
-    */
 
     public int getPort() {
         return webappPort;
