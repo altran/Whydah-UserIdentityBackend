@@ -30,7 +30,6 @@ import static org.testng.Assert.assertNotNull;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
-@Ignore
 public class ApplicationResourceTest {
     private final String appToken1 = "appToken1";
     private final String userTokenID1 = "userTokenID1";
@@ -118,8 +117,7 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), app.getDefaultRoleName());
     }
 
-    @Test(dependsOnMethods = "testCreateApplication")
-    @Ignore
+    @Test(enabled=false,dependsOnMethods = "testCreateApplication")
     public void testGetApplicationOK() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         Response response = given()
