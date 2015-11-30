@@ -136,8 +136,7 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), "originalDefaultRoleName");
     }
 
-    @Test(dependsOnMethods = "testGetApplicationOK")
-    @Ignore
+    @Test(enabled=false,dependsOnMethods = "testGetApplicationOK")
     public void testUpdateApplicationNotFound() throws Exception {
         String json = ApplicationMapper.toJson(app);
 
@@ -153,7 +152,7 @@ public class ApplicationResourceTest {
                 .put(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
-    @Test(dependsOnMethods = "testUpdateApplicationNotFound")
+    @Test(enabled=false,dependsOnMethods = "testUpdateApplicationNotFound")
     public void testUpdateApplicationNoContent() throws Exception {
         app.setId(appId1FromCreatedResponse);
         app.setDefaultRoleName("anotherRoleName");
@@ -172,7 +171,7 @@ public class ApplicationResourceTest {
     }
 
 
-    @Test(dependsOnMethods = "testUpdateApplicationNoContent")
+    @Test(enabled=false,dependsOnMethods = "testUpdateApplicationNoContent")
     public void testDeleteApplication() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
@@ -183,7 +182,7 @@ public class ApplicationResourceTest {
                 .when()
                 .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
-    @Test(dependsOnMethods = "testDeleteApplication")
+    @Test(enabled=false,dependsOnMethods = "testDeleteApplication")
     public void testDeleteApplicationNotFound() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
@@ -195,7 +194,7 @@ public class ApplicationResourceTest {
                 .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
-    @Test(dependsOnMethods = "testDeleteApplication")
+    @Test(enabled=false,dependsOnMethods = "testDeleteApplication")
     public void testGetApplicationNotFound() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
