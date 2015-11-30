@@ -72,7 +72,7 @@ public class EmbeddedJsonApplicationFileImportTest {
     }
 
     @Test
-    public void testEmbeddedJsonApplicationsFile() {
+    public void testEmbeddedJsonApplicationsFile(ConstrettoConfiguration configuration) {
         InputStream ais = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);
@@ -83,7 +83,7 @@ public class EmbeddedJsonApplicationFileImportTest {
             if (applicationsImportSource.endsWith(".csv")) {
                 new ApplicationImporter(applicationService).importApplications(ais);
             } else {
-                new ApplicationJsonImporter(applicationService).importApplications(ais);
+                new ApplicationJsonImporter(applicationService,configuration).importApplications(ais);
             }
         } finally {
             FileUtils.close(ais);
