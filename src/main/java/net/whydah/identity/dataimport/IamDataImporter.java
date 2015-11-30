@@ -27,6 +27,7 @@ public class IamDataImporter {
     private final LdapUserIdentityDao ldapUserIdentityDao;
     private final String luceneDir;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
+    private final ConstrettoConfiguration configuration;
 
 
     private String applicationsImportSource;
@@ -37,6 +38,7 @@ public class IamDataImporter {
 
     public IamDataImporter(BasicDataSource dataSource, ConstrettoConfiguration configuration)  {
         this.dataSource = dataSource;
+        this.configuration=configuration;
         this.queryRunner = new QueryRunner(dataSource);
         this.ldapUserIdentityDao = initLdapUserIdentityDao(configuration);
         //String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
@@ -92,7 +94,7 @@ public class IamDataImporter {
             if (applicationsImportSource.endsWith(".csv")){
                 new ApplicationImporter(applicationService).importApplications(ais);
             } else {
-                new ApplicationJsonImporter(applicationService).importApplications(ais);
+                new ApplicationJsonImporter(applicationService,configuration).importApplications(ais);
             }
 
 
