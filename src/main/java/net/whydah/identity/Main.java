@@ -103,10 +103,10 @@ public class Main {
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
             String luceneDirectory = configuration.evaluateToString("lucene.directory");
-            String luceneApplicationsDirectory = configuration.evaluateToString("lucene.directory"+"/applications");
+            String luceneApplicationsDirectory = configuration.evaluateToString("lucene.applicationsdirector");
 
             if (importEnabled) {
-                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory);
+                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory,luceneApplicationsDirectory);
             }
             FileUtils.createDirectory(luceneDirectory);
             FileUtils.createDirectory(luceneApplicationsDirectory);
