@@ -5,6 +5,8 @@ import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
+import org.apache.lucene.store.NIOFSDirectory;
+import org.constretto.ConstrettoConfiguration;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,10 +38,13 @@ public class ApplicationsResource {
     //}
 
     @Autowired
-    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, LuceneApplicationIndexer luceneApplicationIndexer) {
+    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, ConstrettoConfiguration configuration) {
         this.applicationService = applicationService;
         this.applicationSearch = applicationSearch;
-        this.luceneApplicationIndexer = luceneApplicationIndexer;
+        String luceneApplicationDir = configuration.evaluateToString("lucene.directory");
+        NIOFSDirectory index = createDirectory(luceneApplicationDir);
+        luceneApplicationIndexer = new LuceneApplicationIndexer(index);
+
     }
 
     @GET
@@ -74,6 +81,21 @@ public class ApplicationsResource {
         log.trace("Returning {} applications: {}", applications.size(), json);
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
+    }
+
+    private NIOFSDirectory createDirectory(String luceneDir) {
+        try {
+            File luceneDirectory = new File(luceneDir);
+            if (!luceneDirectory.exists()) {
+                boolean dirsCreated = luceneDirectory.mkdirs();
+                if (!dirsCreated) {
+                    log.debug("{} was not successfully created.", luceneDirectory.getAbsolutePath());
+                }
+            }
+            return new NIOFSDirectory(luceneDirectory);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
