@@ -38,13 +38,6 @@
         </constructor-arg>
     </bean>
 
-    <bean id="luceneApplicationDirectory" class="org.apache.lucene.store.NIOFSDirectory" factory-method="open">
-        <constructor-arg>
-            <bean class="java.io.File">
-                <constructor-arg value="${lucene.applicationsdirectory}" />
-            </bean>
-        </constructor-arg>
-    </bean>
 
     <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
     <!-- <bean id="objectMapper" class="com.company.CustomObjectMapper"/>-->
