@@ -23,15 +23,15 @@ public class ApplicationService {
     private final ApplicationDao applicationDao;
     public static ApplicationService staticApplicationService;
     private final AuditLogDao auditLogDao;
-    private final LuceneApplicationIndexer luceneApplicationIndexer;
+//    private final LuceneApplicationIndexer luceneApplicationIndexer;
 
 
     @Autowired
-    public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao,LuceneApplicationIndexer luceneApplicationIndexer) {
+    public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao) {
         this.applicationDao = applicationDao;
         staticApplicationService = this;
         this.auditLogDao = auditLogDao;
-        this.luceneApplicationIndexer=luceneApplicationIndexer;
+        //this.luceneApplicationIndexer=luceneApplicationIndexer;
     }
 
     public static ApplicationService getApplicationService(){
@@ -47,7 +47,7 @@ public class ApplicationService {
     public Application create(String applicationId, Application application) {
         application.setId(applicationId);
         int numRowsAffected = applicationDao.create(application);
-        luceneApplicationIndexer.addToIndex(application);
+ //       luceneApplicationIndexer.addToIndex(application);
         audit(ActionPerformed.ADDED, application.getId() + ", " + application.getName());
         return application;
     }
@@ -62,14 +62,14 @@ public class ApplicationService {
 
     public int update(Application application) {
         int numRowsAffected = applicationDao.update(application);
-        luceneApplicationIndexer.update(application);
+   //     luceneApplicationIndexer.update(application);
         audit(ActionPerformed.MODIFIED, application.getId() + ", " + application.getName());
         return numRowsAffected;
     }
 
     public int delete(String applicationId) {
         int numRowsAffected = applicationDao.delete(applicationId);
-        luceneApplicationIndexer.removeFromIndex(applicationId);
+  //      luceneApplicationIndexer.removeFromIndex(applicationId);
         audit(ActionPerformed.DELETED, applicationId);
         return numRowsAffected;
     }
