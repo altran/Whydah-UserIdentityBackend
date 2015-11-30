@@ -33,6 +33,8 @@ public class LuceneApplicationSearchTest {
         assertEquals(2, result3.size());
         List<Application> result4 = luceneSearch.search("whydahdev");
         assertEquals(6, result4.size());
+        List<Application> result5 = luceneSearch.search("*");
+        assertEquals(9, result5.size());
 
     }
 

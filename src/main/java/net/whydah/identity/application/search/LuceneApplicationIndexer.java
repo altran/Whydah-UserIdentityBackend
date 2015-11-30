@@ -34,8 +34,8 @@ public class LuceneApplicationIndexer {
     private final Directory index;
 
     @Autowired
-    public LuceneApplicationIndexer(Directory index) {
-        this.index = index;
+    public LuceneApplicationIndexer(Directory luceneApplicationDirectory) {
+        this.index = luceneApplicationDirectory;
         verifyWriter(index);
     }
 
@@ -44,7 +44,7 @@ public class LuceneApplicationIndexer {
         IndexWriter w = null;
         try {
             w = getWriter();
-            log.trace("LuceneApplicationIndexer initialized. lockId={}", index.getLockID());
+            log.trace("LuceneApplicationIndexer initialized. lockId={} ", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
         } finally {

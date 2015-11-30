@@ -34,8 +34,8 @@ public class LuceneApplicationSearch {
 
 
     @Autowired
-    public LuceneApplicationSearch(Directory index) {
-        this.index = index;
+    public LuceneApplicationSearch(Directory luceneApplicationDirectory) {
+        this.index = luceneApplicationDirectory;
     }
 
     public List<Application> search(String queryString) {

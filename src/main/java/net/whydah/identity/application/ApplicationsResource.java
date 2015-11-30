@@ -1,6 +1,7 @@
 package net.whydah.identity.application;
 
 import net.whydah.identity.application.search.ApplicationSearch;
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
@@ -25,6 +26,7 @@ public class ApplicationsResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationsResource.class);
     private final ApplicationService applicationService;
     private final ApplicationSearch applicationSearch;
+    private final LuceneApplicationIndexer luceneApplicationIndexer;
 
     //@Autowired
     //public ApplicationsResource(ApplicationService applicationService) {
@@ -32,9 +34,10 @@ public class ApplicationsResource {
     //}
 
     @Autowired
-    public ApplicationsResource(ApplicationService applicationService,ApplicationSearch applicationSearch) {
+    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, LuceneApplicationIndexer luceneApplicationIndexer) {
         this.applicationService = applicationService;
         this.applicationSearch = applicationSearch;
+        this.luceneApplicationIndexer = luceneApplicationIndexer;
     }
 
     @GET
