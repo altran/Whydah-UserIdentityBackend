@@ -31,6 +31,10 @@ import java.util.Map;
 @Path("/password/{applicationtokenid}")
 public class PasswordResource {
     private static final Logger log = LoggerFactory.getLogger(PasswordResource.class);
+    static final String CHANGE_PASSWORD_TOKEN = "changePasswordToken";
+    static final String NEW_PASSWORD_KEY = "newpassword";
+    static final String EMAIL_KEY = "email";
+    static final String CELLPHONE_KEY = "cellPhone";
 
     private final UserIdentityService userIdentityService;
     private final ObjectMapper objectMapper;
@@ -83,7 +87,14 @@ public class PasswordResource {
             }
 
             String resetPasswordToken = userIdentityService.setTempPassword(username, user.getUid());
-            return Response.ok().entity(resetPasswordToken).build();
+            Map<String, String> map = new HashMap<>();
+            map.put(UserIdentity.UID, user.getUid());
+            map.put(EMAIL_KEY, user.getEmail());
+            map.put(CELLPHONE_KEY, user.getCellPhone());
+            map.put(CHANGE_PASSWORD_TOKEN, resetPasswordToken);
+            String json = objectMapper.writeValueAsString(map);
+
+            return Response.ok().entity(json).build();
         } catch (Exception e) {
             log.error("resetPassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
