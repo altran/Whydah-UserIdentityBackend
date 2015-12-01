@@ -29,6 +29,8 @@ import java.util.Map;
 public class PasswordResource2 {
     static final String CHANGE_PASSWORD_TOKEN = "changePasswordToken";
     static final String NEW_PASSWORD_KEY = "newpassword";
+    static final String EMAIL_KEY = "email";
+    static final String CELLPHONE_KEY = "cellPhone";
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResource2.class);
     private final UserIdentityService userIdentityService;
@@ -59,6 +61,8 @@ public class PasswordResource2 {
             String changePasswordToken = userIdentityService.setTempPassword(uid, user.getUid());
             Map<String, String> map = new HashMap<>();
             map.put(UserIdentity.UID, user.getUid());
+            map.put(EMAIL_KEY, user.getEmail());
+            map.put(CELLPHONE_KEY, user.getCellPhone());
             map.put(CHANGE_PASSWORD_TOKEN, changePasswordToken);
             String json = objectMapper.writeValueAsString(map);
             // ED: I think this information should be communicated with uri, but BLI does not agree, so keep it his way for now.
