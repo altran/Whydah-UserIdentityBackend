@@ -1,7 +1,7 @@
 package net.whydah.identity.application.search;
 
 
-import net.whydah.identity.user.search.LuceneSearch;
+import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.apache.lucene.analysis.Analyzer;
@@ -27,8 +27,8 @@ import java.util.List;
 
 @Service
 public class LuceneApplicationSearch {
-    private static final Logger logger = LoggerFactory.getLogger(LuceneSearch.class);
-    protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneIndexer.ANALYZER?
+    private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearch.class);
+    protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
     private static final int MAX_HITS = 500;
     private final Directory index;
 

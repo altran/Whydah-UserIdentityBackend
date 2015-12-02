@@ -286,7 +286,7 @@
             <artifactId>lucene-analyzers-common</artifactId>
             <version>${lucene.version}</version>
         </dependency>
-        <!-- LuceneSearch use MultiFieldQueryParser -->
+        <!-- LuceneUserSearch use MultiFieldQueryParser -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>

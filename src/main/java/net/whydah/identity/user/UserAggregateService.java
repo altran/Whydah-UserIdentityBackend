@@ -10,7 +10,7 @@ import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +36,12 @@ public class UserAggregateService {
     private final UserIdentityService userIdentityService;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
     private final ApplicationService applicationDao;
-    private final LuceneIndexer luceneIndexer;
+    private final LuceneUserIndexer luceneIndexer;
     private final AuditLogDao auditLogDao;
 
     @Autowired
     public UserAggregateService(UserIdentityService userIdentityService, UserPropertyAndRoleDao userPropertyAndRoleDao,
-                                ApplicationService applicationDao, LuceneIndexer luceneIndexer, AuditLogDao auditLogDao) {
+                                ApplicationService applicationDao, LuceneUserIndexer luceneIndexer, AuditLogDao auditLogDao) {
         this.luceneIndexer = luceneIndexer;
         this.auditLogDao = auditLogDao;
         this.userPropertyAndRoleDao = userPropertyAndRoleDao;

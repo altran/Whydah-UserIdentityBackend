@@ -24,31 +24,31 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
-public class LuceneSearch {
-    private static final Logger logger = LoggerFactory.getLogger(LuceneSearch.class);
-    protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneIndexer.ANALYZER?
+public class LuceneUserSearch {
+    private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearch.class);
+    protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
     private static final int MAX_HITS = 500;
     private final Directory index;
 
 
     @Autowired
-    public LuceneSearch(Directory index) {
+    public LuceneUserSearch(Directory index) {
         this.index = index;
     }
 
     public List<UserIdentityRepresentation> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
-                LuceneIndexer.FIELD_FIRSTNAME,
-                LuceneIndexer.FIELD_LASTNAME,
-                LuceneIndexer.FIELD_EMAIL,
-                LuceneIndexer.FIELD_USERNAME,
-                LuceneIndexer.FIELD_MOBILE
+                LuceneUserIndexer.FIELD_FIRSTNAME,
+                LuceneUserIndexer.FIELD_LASTNAME,
+                LuceneUserIndexer.FIELD_EMAIL,
+                LuceneUserIndexer.FIELD_USERNAME,
+                LuceneUserIndexer.FIELD_MOBILE
         };
         HashMap<String, Float> boosts = new HashMap<>();
-        boosts.put(LuceneIndexer.FIELD_FIRSTNAME, 2.5f);
-        boosts.put(LuceneIndexer.FIELD_LASTNAME, 2f);
-        boosts.put(LuceneIndexer.FIELD_USERNAME, 1.5f);
+        boosts.put(LuceneUserIndexer.FIELD_FIRSTNAME, 2.5f);
+        boosts.put(LuceneUserIndexer.FIELD_LASTNAME, 2f);
+        boosts.put(LuceneUserIndexer.FIELD_USERNAME, 1.5f);
 
         MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(fields, ANALYZER, boosts);
         multiFieldQueryParser.setAllowLeadingWildcard(true);
@@ -72,13 +72,13 @@ public class LuceneSearch {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
                 UserIdentity user = new UserIdentity();
-                user.setFirstName(d.get(LuceneIndexer.FIELD_FIRSTNAME));
-                user.setLastName(d.get(LuceneIndexer.FIELD_LASTNAME));
-                user.setUid(d.get(LuceneIndexer.FIELD_UID));
-                user.setUsername(d.get(LuceneIndexer.FIELD_USERNAME));
-                user.setPersonRef(d.get(LuceneIndexer.FIELD_PERSONREF));
-                user.setCellPhone(d.get(LuceneIndexer.FIELD_MOBILE));
-                user.setEmail(d.get(LuceneIndexer.FIELD_EMAIL));
+                user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
+                user.setLastName(d.get(LuceneUserIndexer.FIELD_LASTNAME));
+                user.setUid(d.get(LuceneUserIndexer.FIELD_UID));
+                user.setUsername(d.get(LuceneUserIndexer.FIELD_USERNAME));
+                user.setPersonRef(d.get(LuceneUserIndexer.FIELD_PERSONREF));
+                user.setCellPhone(d.get(LuceneUserIndexer.FIELD_MOBILE));
+                user.setEmail(d.get(LuceneUserIndexer.FIELD_EMAIL));
                 //System.out.println(user.getUsername() + " : " + hit.score);
                 result.add(user);
             }

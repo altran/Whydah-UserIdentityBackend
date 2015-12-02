@@ -1,5 +1,6 @@
 package net.whydah.identity.user.search;
 
+import net.whydah.identity.user.UserAggregate;
 import net.whydah.identity.user.identity.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -24,7 +25,7 @@ import java.util.List;
  * Indexer for adding users to the index.
  */
 @Service
-public class LuceneIndexer {
+public class LuceneUserIndexer {
     public static final String FIELD_FIRSTNAME = "firstname";
     public static final String FIELD_LASTNAME = "surname";
     public static final String FIELD_UID = "uid";
@@ -32,11 +33,12 @@ public class LuceneIndexer {
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_PERSONREF = "personref";
     public static final String FIELD_MOBILE = "mobile";
+    public static final String FIELD_FULLJSON = "fulljson";
 
     public static final Version LUCENE_VERSION = Version.LUCENE_4_10_4;
     protected static final Analyzer ANALYZER = new StandardAnalyzer();
 
-    private static final Logger log = LoggerFactory.getLogger(LuceneIndexer.class);
+    private static final Logger log = LoggerFactory.getLogger(LuceneUserIndexer.class);
     private final Directory index;
 
     /*
@@ -66,7 +68,7 @@ public class LuceneIndexer {
     */
 
     @Autowired
-    public LuceneIndexer(Directory index) {
+    public LuceneUserIndexer(Directory index) {
         this.index = index;
         verifyWriter(index);
     }
@@ -76,7 +78,7 @@ public class LuceneIndexer {
         IndexWriter w = null;
         try {
             w = getWriter();
-            log.trace("LuceneIndexer initialized. lockId={}", index.getLockID());
+            log.trace("LuceneUserIndexer initialized. lockId={}", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
         } finally {
@@ -92,6 +94,19 @@ public class LuceneIndexer {
             w.addDocument(doc);
         } catch (IOException e) {
             log.error("addToIndex failed for {}.", user.toString(), e);
+        } finally {
+            closeWriter(w);
+        }
+    }
+
+    public void addToUserAggregateIndex(UserAggregate userAggregate) {
+        IndexWriter w = null;
+        try {
+            w = getWriter();
+            Document doc = createLuceneDocument(userAggregate);
+            w.addDocument(doc);
+        } catch (IOException e) {
+            log.error("addToUserAggregateIndex failed for {}.", userAggregate.toString(), e);
         } finally {
             closeWriter(w);
         }
@@ -115,6 +130,24 @@ public class LuceneIndexer {
         }
     }
 
+    public void addToUserAggregateIndex(List<UserAggregate> userAggregates) throws IOException {
+        IndexWriter w = null;
+        try {
+            w = getWriter();
+            for (UserAggregate userAggregate : userAggregates) {
+                try {
+                    Document doc = createLuceneDocument(userAggregate);
+                    w.addDocument(doc);
+                } catch (IOException e) {
+                    log.error("addToUserAggregateIndex failed for {}. User was not added to lucene index.", userAggregate.toString(), e);
+                }
+            }
+        } finally {
+            closeWriter(w);
+        }
+    }
+
+
     public void update(UserIdentity user) {
         IndexWriter w = null;
         try {
@@ -122,6 +155,18 @@ public class LuceneIndexer {
             w.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
         } catch (IOException e) {
             log.error("updating {} failed.", user.toString(), e);
+        } finally {
+            closeWriter(w);
+        }
+    }
+
+    public void updateUserAggregate(UserAggregate userAggregate) {
+        IndexWriter w = null;
+        try {
+            w = getWriter();
+            w.updateDocument(new Term(FIELD_UID, userAggregate.getUid()), createLuceneDocument(userAggregate));
+        } catch (IOException e) {
+            log.error("updating {} failed.", userAggregate.toString(), e);
         } finally {
             closeWriter(w);
         }
@@ -185,6 +230,41 @@ public class LuceneIndexer {
         if (user.getCellPhone() != null) {
             doc.add(new Field(FIELD_MOBILE, user.getCellPhone(), ftTokenized));
         }
+        return doc;
+    }
+
+    private Document createLuceneDocument(UserAggregate userAggregate) {
+        FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
+        ftNotTokenized.setTokenized(false);
+
+        FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
+        ftTokenized.setTokenized(true);
+
+        FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
+        ftNotIndexed.setIndexed(false);
+
+
+        Document doc = new Document();
+        doc.add(new Field(FIELD_UID, userAggregate.getUid(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
+        doc.add(new Field(FIELD_USERNAME, userAggregate.getUsername(), ftTokenized));
+        doc.add(new Field(FIELD_EMAIL, userAggregate.getEmail(), ftTokenized));
+
+        if (userAggregate.getFirstName() != null) {
+            doc.add(new Field(FIELD_FIRSTNAME, userAggregate.getFirstName(), ftTokenized));
+        }
+        if (userAggregate.getLastName() != null) {
+            doc.add(new Field(FIELD_LASTNAME, userAggregate.getLastName(), ftTokenized));
+        }
+        if (userAggregate.getPersonRef() != null) {
+            doc.add(new Field(FIELD_PERSONREF, userAggregate.getPersonRef(), ftNotIndexed));  //Field.Index.NO
+            //For Lucene 5
+            //doc.add(new StoredField(FIELD_PERSONREF, user.getPersonRef()));
+        }
+
+        if (userAggregate.getCellPhone() != null) {
+            doc.add(new Field(FIELD_MOBILE, userAggregate.getCellPhone(), ftTokenized));
+        }
+        doc.add(new Field(FIELD_FULLJSON,userAggregate.toXML(),ftTokenized));
         return doc;
     }
 

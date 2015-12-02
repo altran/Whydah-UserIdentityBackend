@@ -17,7 +17,7 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -28,7 +28,6 @@ import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -117,7 +116,7 @@ public class UserAuthenticationEndpointTest {
 
 
         Directory index = new NIOFSDirectory(new File(luceneDir));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogDao, userPropertyAndRoleDao, configuration);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneUserIndexer(index), auditLogDao, userPropertyAndRoleDao, configuration);
 
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;

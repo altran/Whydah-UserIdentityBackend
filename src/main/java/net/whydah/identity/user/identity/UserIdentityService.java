@@ -3,8 +3,8 @@ package net.whydah.identity.user.identity;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.ChangePasswordToken;
-import net.whydah.identity.user.search.LuceneIndexer;
-import net.whydah.identity.user.search.LuceneSearch;
+import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.PasswordGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,15 +36,15 @@ public class UserIdentityService {
 
     private final PasswordGenerator passwordGenerator;
 
-    private final LuceneIndexer luceneIndexer;
-    private final LuceneSearch searcher;
+    private final LuceneUserIndexer luceneIndexer;
+    private final LuceneUserSearch searcher;
 
 
     //@Named("primaryLdap")
     @Autowired
     public UserIdentityService(LdapAuthenticator primaryLdapAuthenticator, LdapUserIdentityDao ldapUserIdentityDao,
                                AuditLogDao auditLogDao, PasswordGenerator passwordGenerator,
-                               LuceneIndexer luceneIndexer, LuceneSearch searcher) {
+                               LuceneUserIndexer luceneIndexer, LuceneUserSearch searcher) {
         this.primaryLdapAuthenticator = primaryLdapAuthenticator;
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.auditLogDao = auditLogDao;

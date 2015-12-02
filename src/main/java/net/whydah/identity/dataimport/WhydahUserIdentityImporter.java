@@ -2,7 +2,7 @@ package net.whydah.identity.dataimport;
 
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +27,9 @@ public class WhydahUserIdentityImporter {
 	private static final int PERSONREF = 7;
 	
     private LdapUserIdentityDao ldapUserIdentityDao;
-    private LuceneIndexer luceneIndexer;
+    private LuceneUserIndexer luceneIndexer;
     
-	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer) {
+	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserIndexer luceneIndexer) {
 		this.ldapUserIdentityDao = ldapUserIdentityDao;
 		this.luceneIndexer = luceneIndexer;
 	}

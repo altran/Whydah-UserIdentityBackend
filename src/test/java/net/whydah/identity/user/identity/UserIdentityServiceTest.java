@@ -7,8 +7,8 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.authentication.UserAdminHelper;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.search.LuceneIndexer;
-import net.whydah.identity.user.search.LuceneSearch;
+import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 public class UserIdentityServiceTest {
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
-    private static LuceneIndexer luceneIndexer;
+    private static LuceneUserIndexer luceneIndexer;
     private static UserAdminHelper userAdminHelper;
 
     private static Main main = null;
@@ -82,7 +82,7 @@ public class UserIdentityServiceTest {
         UserPropertyAndRoleDao userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
 
         Directory index = new NIOFSDirectory(new File(luceneDir));
-        luceneIndexer = new LuceneIndexer(index);
+        luceneIndexer = new LuceneUserIndexer(index);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userPropertyAndRoleDao, configuration);
         passwordGenerator = new PasswordGenerator();
@@ -111,7 +111,7 @@ public class UserIdentityServiceTest {
 
         }
 
-        luceneIndexer = new LuceneIndexer(index);
+        luceneIndexer = new LuceneUserIndexer(index);
 
         // Create the server
         ads = new EmbeddedADS(workDir);
@@ -147,7 +147,7 @@ public class UserIdentityServiceTest {
     @Test
     public void testAddUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneSearch.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         String username = "username123";
         UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
@@ -165,7 +165,7 @@ public class UserIdentityServiceTest {
     @Test
     public void testAddTestUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneSearch.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
@@ -189,7 +189,7 @@ public class UserIdentityServiceTest {
     @Test
     public void testAddUserStrangeCellPhone() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneSearch.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         String username = "username1234";
         UserIdentity userIdentity = new UserIdentity("uid2", username, "firstName2", "lastName2", "test2@test.no", "password2", "+47 123 45 678", "personRef2"
@@ -206,7 +206,7 @@ public class UserIdentityServiceTest {
     @Test
     public void testPersistenceAddTestUserToLdap() throws Exception {
         UserIdentityService userIdentityService =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneSearch.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
@@ -227,7 +227,7 @@ public class UserIdentityServiceTest {
         stop();
         setUp();
         UserIdentityService userIdentityService2 =
-                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneSearch.class));
+                new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
         UserIdentityRepresentation fromLdap2 = userIdentityService2.getUserIdentity(userIdentity.getUsername());
 
         // TODO: Still not working

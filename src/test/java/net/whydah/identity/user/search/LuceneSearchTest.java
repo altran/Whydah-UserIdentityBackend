@@ -20,7 +20,7 @@ public class LuceneSearchTest {
         RAMDirectory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneSearch luceneSearch = new LuceneSearch(index);
+        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Norman");
@@ -37,9 +37,9 @@ public class LuceneSearchTest {
     public void testRemoveuser() throws IOException {
         RAMDirectory index = new RAMDirectory();
 
-        LuceneIndexer luceneIndexer = addUsers(index);
+        LuceneUserIndexer luceneIndexer = addUsers(index);
 
-        LuceneSearch luceneSearch = new LuceneSearch(index);
+        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         luceneIndexer.removeFromIndex("ola@example.com");
@@ -51,9 +51,9 @@ public class LuceneSearchTest {
     @Test
     public void testModifyUser() throws IOException {
         RAMDirectory index = new RAMDirectory();
-        LuceneIndexer luceneIndexer = addUsers(index);
+        LuceneUserIndexer luceneIndexer = addUsers(index);
 
-        LuceneSearch luceneSearch = new LuceneSearch(index);
+        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
@@ -71,7 +71,7 @@ public class LuceneSearchTest {
         Directory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneSearch luceneSearch = new LuceneSearch(index);
+        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
@@ -88,15 +88,15 @@ public class LuceneSearchTest {
         Directory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneSearch luceneSearch = new LuceneSearch(index);
+        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
         List<UserIdentityRepresentation> result = luceneSearch.search("Norman");
         assertEquals(2, result.size());
         assertEquals("ola@example.com", result.get(1).getUsername());
     }
 
 
-    private LuceneIndexer addUsers(Directory index) throws IOException {
-        LuceneIndexer luceneIndexer = new LuceneIndexer(index);
+    private LuceneUserIndexer addUsers(Directory index) throws IOException {
+        LuceneUserIndexer luceneIndexer = new LuceneUserIndexer(index);
         List<UserIdentity> users = new ArrayList<UserIdentity>(){{
             add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
             add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));

@@ -134,7 +134,7 @@ public class WadlAndWelcomePageTest {
 
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         Directory index = new NIOFSDirectory(new File(basepath + "lucene"));
-        //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneIndexer(index), auditLogRepository, roleRepository);
+        //userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneUserIndexer(index), auditLogRepository, roleRepository);
         try {
             main = new Main(HTTP_PORT);
             //main.importUsersAndRoles();

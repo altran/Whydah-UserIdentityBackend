@@ -19,11 +19,11 @@ import java.util.List;
 public class UserSearch {
     private static final Logger log = LoggerFactory.getLogger(UserSearch.class);
     private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final LuceneSearch luceneSearch;
-    private final LuceneIndexer luceneIndexer;
+    private final LuceneUserSearch luceneSearch;
+    private final LuceneUserIndexer luceneIndexer;
 
     @Autowired
-    public UserSearch(LdapUserIdentityDao ldapUserIdentityDao, LuceneSearch luceneSearch, LuceneIndexer luceneIndexer) {
+    public UserSearch(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserSearch luceneSearch, LuceneUserIndexer luceneIndexer) {
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.luceneSearch = luceneSearch;
         this.luceneIndexer = luceneIndexer;

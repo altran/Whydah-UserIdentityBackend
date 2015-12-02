@@ -7,7 +7,7 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.search.LuceneIndexer;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import org.constretto.ConstrettoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class UserAdminHelper {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final LuceneIndexer luceneIndexer;
+    private final LuceneUserIndexer luceneIndexer;
     private final AuditLogDao auditLogDao;
     private final UserPropertyAndRoleDao userPropertyAndRoleDao;
 
@@ -56,7 +56,7 @@ public class UserAdminHelper {
     private String fbRoleName;
 
     @Autowired
-    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, LuceneIndexer luceneIndexer,
+    public UserAdminHelper(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserIndexer luceneIndexer,
                            AuditLogDao auditLogDao, UserPropertyAndRoleDao userPropertyAndRoleDao,
                            ConstrettoConfiguration configuration) {
         this.ldapUserIdentityDao = ldapUserIdentityDao;

@@ -6,6 +6,7 @@ import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class UserAuthenticationEndpoint {
     private final UserAggregateService userAggregateService;
     private final UserAdminHelper userAdminHelper;
     private final UserIdentityService userIdentityService;
+    //private final LuceneUserIndexer luceneUserIndexer;
     //private final String hostname;
 
     @Autowired
@@ -59,6 +61,7 @@ public class UserAuthenticationEndpoint {
         this.userAggregateService = userAggregateService;
         this.userAdminHelper = userAdminHelper;
         this.userIdentityService = userIdentityService;
+        //this.luceneUserIndexer=luceneUserIndexer;
         //this.hostname = getLocalhostName();
     }
 
@@ -104,6 +107,8 @@ public class UserAuthenticationEndpoint {
 
         List<UserPropertyAndRole> roles = userAggregateService.getUserPropertyAndRoles(id.getUid());
         UserAggregate userAggregate = new UserAggregate(id, roles);
+        //luceneUserIndexer.updateUserAggregate(userAggregate);
+
         log.info("Authentication ok for user with username={}", username);
 
         String userXml = userAggregate.toXML();

@@ -2,8 +2,6 @@ package net.whydah.identity.application;
 
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.application.search.LuceneApplicationSearch;
-import net.whydah.identity.user.search.LuceneIndexer;
-import net.whydah.identity.user.search.LuceneSearch;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
