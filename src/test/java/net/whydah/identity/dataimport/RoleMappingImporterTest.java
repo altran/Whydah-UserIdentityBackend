@@ -24,7 +24,7 @@ public class RoleMappingImporterTest {
 //		username@emailaddress.com, 11, whydah, 7, whydah, developer, 20
 //		erik.drolshammer, 42, mobilefirst, 23, altran, admin, 70
 
-		assertEquals("All rolemappings must be found.", 1, roleMappings.size());
+		assertEquals("All rolemappings must be found.", 5, roleMappings.size());
 
 		/**
 		UserPropertyAndRole roleMapping1 = roleMappings.get(0);
@@ -36,12 +36,12 @@ public class RoleMappingImporterTest {
 		assertEquals("roleValue must be set.", "30", roleMapping1.getApplicationRoleValue());
 		*/
 		UserPropertyAndRole roleMapping4 = roleMappings.get(0);
-		assertEquals("UserId must be set.", "erik.drolshammer", roleMapping4.getUid());
-		assertEquals("applicationId must be set.", "2", roleMapping4.getApplicationId());
-		assertEquals("applicationName must be set.", "Mobilefirst", roleMapping4.getApplicationName());
-		assertEquals("organizationName must be set.", "Altran", roleMapping4.getOrganizationName());
-		assertEquals("roleName must be set.", "admin", roleMapping4.getApplicationRoleName());
-		assertEquals("roleValue must be set.", "70", roleMapping4.getApplicationRoleValue());
+		assertEquals("UserId must be set.", "uawaadmin", roleMapping4.getUid());
+		assertEquals("applicationId must be set.", "2219", roleMapping4.getApplicationId());
+		assertEquals("applicationName must be set.", "Whydah-UserAdminWebApp", roleMapping4.getApplicationName());
+		assertEquals("organizationName must be set.", "Support", roleMapping4.getOrganizationName());
+		assertEquals("roleName must be set.", "WhydahUserAdmin", roleMapping4.getApplicationRoleName());
+		assertEquals("roleValue must be set.", "1", roleMapping4.getApplicationRoleValue());
 		
 
 	}

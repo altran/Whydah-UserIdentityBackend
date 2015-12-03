@@ -18,14 +18,14 @@ public class WhydahUserIdentityImporterTest {
         InputStream userImportStream = FileUtils.openFileOnClasspath(userImportSource);
 		List<UserIdentity> users = WhydahUserIdentityImporter.parseUsers(userImportStream);
 		
-		assertEquals("All users must be found.", 2, users.size());
+		assertEquals("All users must be found.", 3, users.size());
 		
 		UserIdentity user1 = users.get(0);
 
 		UserIdentity user2 = users.get(1);
-		assertEquals("UserId must be set.", "erik.drolshammer", user2.getUid());
-		assertEquals("UserName must be set.", "erikd", user2.getUsername());
-		assertEquals("cellPhone must be set.", "+47123456", user2.getCellPhone());
-		assertEquals("personRef must be set.", "2", user2.getPersonRef());
+		assertEquals("UserId must be set.", "pelle@emailaddress.com", user2.getUid());
+		assertEquals("UserName must be set.", "pinki", user2.getUsername());
+		assertEquals("cellPhone must be set.", "+44344332841", user2.getCellPhone());
+		assertEquals("personRef must be set.", "1", user2.getPersonRef());
 	}
 }
