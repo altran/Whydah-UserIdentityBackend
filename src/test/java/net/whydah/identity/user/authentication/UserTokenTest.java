@@ -1,10 +1,8 @@
 package net.whydah.identity.user.authentication;
 
-import net.whydah.identity.user.UserRole;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
-import net.whydah.sso.util.UserTokenUtil;
 import org.junit.Test;
 
 import java.util.List;
