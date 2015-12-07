@@ -3,7 +3,7 @@ package net.whydah.identity.security;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
-import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -89,7 +89,7 @@ public class SecurityFilterTest {
     @Test
     public void testSecuredTokenOkMissingGroup() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" +userTokenMissingGroup +"/users");
-        when(tokenHelper.getUserToken("apptoken", userTokenMissingGroup)).thenReturn(new UserToken(tokenOther));
+        when(tokenHelper.getUserToken("apptoken", userTokenMissingGroup)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenOther));
         securityFilter.doFilter(request, response, chain);
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verifyNoMoreInteractions(chain);
@@ -98,7 +98,7 @@ public class SecurityFilterTest {
     @Test
     public void testSecuredTokenOkRoleOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/users");
-        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
@@ -106,21 +106,21 @@ public class SecurityFilterTest {
     @Test
     public void userOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/user");
-        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/application");
-        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }
     @Test
     public void applicationsOk() throws Exception {
         when(request.getPathInfo()).thenReturn("/apptoken/" + userAdminUserTokenId +"/user/admin/applications");
-        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(tokenHelper.getUserToken("apptoken", userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         securityFilter.doFilter(request, response, chain);
         verify(chain).doFilter(request, response);
     }

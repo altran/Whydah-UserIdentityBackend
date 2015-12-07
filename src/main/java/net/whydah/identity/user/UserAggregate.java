@@ -62,7 +62,7 @@ public class UserAggregate {
     }
 
     /**
-     * Copy from UserToken.parseAndUpdatefromUserIdentity from SecurityTokenService
+     * Copy from UserTokenDeprecated.parseAndUpdatefromUserIdentity from SecurityTokenService
      */
     public static UserAggregate fromXML(String userIdentityXML) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

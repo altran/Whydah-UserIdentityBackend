@@ -1,6 +1,5 @@
 package net.whydah.identity.user.authentication;
 
-import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
 import net.whydah.sso.application.mappers.ApplicationTokenMapper;
@@ -9,6 +8,8 @@ import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.application.types.ApplicationToken;
 import net.whydah.sso.commands.appauth.CommandLogonApplication;
 import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
+import net.whydah.sso.user.mappers.UserTokenMapper;
+import net.whydah.sso.user.types.UserToken;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class SecurityTokenServiceHelper {
                 String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
                 if (userToken!=null && userToken.length()>10) {
                     log.debug("usertoken: {}", userToken);
-                    return new UserToken(userToken);
+                    return UserTokenMapper.fromUserTokenXml(userToken);
                 } else {
                     uibApplicationToken=null;  // Reset UAS application session
                 }
@@ -67,7 +68,7 @@ public class SecurityTokenServiceHelper {
             String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
             if (userToken!=null && userToken.length()>10) {
                 log.debug("usertoken: {}", userToken);
-                return new UserToken(userToken);
+                return UserTokenMapper.fromUserTokenXml(userToken);
             } else {
                 uibApplicationToken=null;  // Reset UAS application session
             }

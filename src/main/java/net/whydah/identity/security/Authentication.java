@@ -1,7 +1,7 @@
 package net.whydah.identity.security;
 
 
-import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.sso.user.types.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

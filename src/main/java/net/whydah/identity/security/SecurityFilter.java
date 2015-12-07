@@ -2,11 +2,11 @@ package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
-import net.whydah.identity.user.UserRole;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
-import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
 import net.whydah.sso.application.types.ApplicationCredential;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserToken;
 import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -153,9 +151,14 @@ public class SecurityFilter implements Filter {
     }
 
     UserToken buildMockedUserToken() {
-        List<UserRole> roles = new ArrayList<>();
-        roles.add(new UserRole("9999", "99999", "mockrole"));
-        return new UserToken("MockUserToken", roles);
+        UserApplicationRoleEntry role = new UserApplicationRoleEntry();
+        role.setApplicationName("mockrole");
+        role.setApplicationId("9999");
+        role.setId("99999");
+        UserToken mockToken = new UserToken();
+        mockToken.setUserName("MockUserToken");
+        mockToken.addApplicationRoleEntry(role);
+        return mockToken;
     }
 
     protected String findPathElement(String pathInfo, int elementNumber) {

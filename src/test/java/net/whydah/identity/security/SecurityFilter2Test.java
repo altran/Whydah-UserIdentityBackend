@@ -3,7 +3,7 @@ package net.whydah.identity.security;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
-import net.whydah.identity.user.authentication.UserToken;
+import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class SecurityFilter2Test {
     public void testSkipSecurityFilter() {
         ApplicationMode.setTags(ApplicationMode.NO_SECURITY_FILTER);
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/anyPath"));
-        assertEquals(Authentication.getAuthenticatedUser().getName(), "MockUserToken");
+        assertEquals(Authentication.getAuthenticatedUser().getUserName(), "MockUserToken");
     }
 
     @Test
@@ -62,9 +62,9 @@ public class SecurityFilter2Test {
     @Test
     public void testUsertokenIdAuthenticationOK() {
         String appTokenId = "appTokenIdUser";
-        when(stsHelper.getUserToken(appTokenId, userAdminUserTokenId)).thenReturn(new UserToken(tokenBrukeradmin));
+        when(stsHelper.getUserToken(appTokenId, userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/user"));
-        assertEquals(Authentication.getAuthenticatedUser().getUserRoles().get(0).getRoleName(), "WhydahUserAdmin");
+        assertEquals(Authentication.getAuthenticatedUser().getRoleList().get(0).getRoleName(), "WhydahUserAdmin");
     }
 
 

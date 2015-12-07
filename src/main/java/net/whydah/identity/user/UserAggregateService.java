@@ -4,7 +4,6 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.authentication.UserToken;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
@@ -12,6 +11,7 @@ import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.application.types.Application;
+import net.whydah.sso.user.types.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +107,7 @@ public class UserAggregateService {
 //            log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
             userId = "-no-admin-user-";
         } else {
-            userId = authenticatedUser.getName();
+            userId = authenticatedUser.getUserName();
         }
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
@@ -120,7 +120,7 @@ public class UserAggregateService {
             log.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
             return;
         }
-        String userId = authenticatedUser.getName();
+        String userId = authenticatedUser.getUserName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(uid, now, action, what, value);
         auditLogDao.store(actionPerformed);

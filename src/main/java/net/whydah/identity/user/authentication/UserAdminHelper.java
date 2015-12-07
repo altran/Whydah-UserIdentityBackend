@@ -8,6 +8,7 @@ import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.user.types.UserToken;
 import org.constretto.ConstrettoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,7 +263,7 @@ public class UserAdminHelper {
             logger.error("authenticatedUser is not set. Auditing failed for action=" + action + ", what=" + what + ", value=" + value);
             return;
         }
-        String userId = authenticatedUser.getName();
+        String userId = authenticatedUser.getUserName();
         String now = sdf.format(new Date());
         ActionPerformed actionPerformed = new ActionPerformed(userId, now, action, what, value);
         auditLogDao.store(actionPerformed);
