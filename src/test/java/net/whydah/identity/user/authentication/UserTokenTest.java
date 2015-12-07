@@ -31,15 +31,15 @@ public class UserTokenTest {
         expectedRole2.setApplicationName("WHYDAH");
         expectedRole2.setRoleName("Tester");
         UserApplicationRoleEntry expectedRole3 = new UserApplicationRoleEntry();
-        expectedRole2.setId("005");
-        expectedRole2.setApplicationName("NBBL");
-        expectedRole2.setRoleName("Tester");
+        expectedRole3.setId("005");
+        expectedRole3.setApplicationName("NBBL");
+        expectedRole3.setRoleName("Tester");
         List<UserApplicationRoleEntry> actualRoles = token.getRoleList();
         assertNotNull(actualRoles);
         assertEquals(3, actualRoles.size());
-        assertTrue(actualRoles.contains(expectedRole1));
-        assertTrue(actualRoles.contains(expectedRole2));
-        assertTrue(actualRoles.contains(expectedRole3));
+        assertTrue(hasRole(token,expectedRole1.getRoleName()));
+        assertTrue(hasRole(token,expectedRole2.getRoleName()));
+        assertTrue(hasRole(token,expectedRole3.getRoleName()));
     }
 
     public boolean hasRole(UserToken token,String rolename) {
@@ -87,7 +87,7 @@ public class UserTokenTest {
         List<UserApplicationRoleEntry> actualRoles = token.getRoleList();
         assertNotNull(actualRoles);
         assertEquals(1, actualRoles.size());
-        assertTrue(actualRoles.contains(expectedRole1));
+        assertTrue(hasRole(token,expectedRole1.getRoleName()));
     }
 
     private final static String usertoken2 = "<usertoken xmlns:ns2=\"http://www.w3.org/1999/xhtml\" id=\"12b84a5a-595b-49df-bb20-26a8a974d7b9\">\n" +
