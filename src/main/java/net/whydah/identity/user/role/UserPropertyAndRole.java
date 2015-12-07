@@ -1,6 +1,6 @@
 package net.whydah.identity.user.role;
 
-@Deprecated
+@Deprecated  // Use UserApplicationRoleEntry in TypeLib
 public class UserPropertyAndRole {
     private String roleId;
 

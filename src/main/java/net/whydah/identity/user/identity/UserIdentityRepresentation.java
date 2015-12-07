@@ -1,6 +1,6 @@
 package net.whydah.identity.user.identity;
 
-@Deprecated
+@Deprecated  // Use UserIdentity and UserIdentityMapper in TypeLib
 public class UserIdentityRepresentation {
     protected String username;
     protected String firstName;

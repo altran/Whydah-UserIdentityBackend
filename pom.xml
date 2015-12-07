@@ -263,14 +263,6 @@
             <artifactId>mail</artifactId>
             <version>1.4.7</version>
         </dependency>
-        <!-- javax.mail has moved to
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <version>1.5.3</version>
-        </dependency>
-        -->
-
         <!--
         Upgrading to Lucene 5 requires existing indexes to be migrated or deleted
          http://lucene.apache.org/core/5_1_0/MIGRATE.html

@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated  // Use UserAggregate and userAggregatemapper in TypeLib
 public class UserAggregate {
     private UserIdentity identity = null;
     private List<UserPropertyAndRole> roles = new ArrayList<>();

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 12/04/14
  */
-@Deprecated
+@Deprecated  // Use UserApplicationRoleEntry in TypeLib
 public class UserAggregateRepresentation {
     private String uid;
     private String username;
