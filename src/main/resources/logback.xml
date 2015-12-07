@@ -14,9 +14,11 @@
             <fileNamePattern>${LOG_DIR}/UserIdentityBackend-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>20</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
@@ -30,7 +32,7 @@
     <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
 
     <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
-    <logger name="net.whydah.identity" level="TRACE" />
+    <logger name="net.whydah.identity" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
