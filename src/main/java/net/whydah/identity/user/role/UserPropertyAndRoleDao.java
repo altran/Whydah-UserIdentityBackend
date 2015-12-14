@@ -1,5 +1,6 @@
 package net.whydah.identity.user.role;
 
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,26 @@ public class UserPropertyAndRoleDao {
         return false;
     }
 
+    public boolean hasRole(String uid, UserApplicationRoleEntry role) {
+        List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
+        for (UserPropertyAndRole existingRole : existingRoles) {
+            log.trace("hasRole - checking existing.applicationID {} against applicationID {} " +
+                            "\n & existing.getOrganizationName {} against getOrganizationName {}" +
+                            "\n & existing.getApplicationRoleName {} against getApplicationRoleName {}",
+                    existingRole.getApplicationId(), role.getApplicationId(),
+                    existingRole.getOrganizationName(), role.getOrgName(),
+                    existingRole.getApplicationRoleName(), role.getApplicationName());
+            boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
+                    && existingRole.getOrganizationName().equals(role.getOrgName())
+                    && existingRole.getApplicationRoleName().equals(role.getRoleName());
+            if (roleExist) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
         log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
@@ -118,6 +139,29 @@ public class UserPropertyAndRoleDao {
         log.trace("{} roles added, sql: {}", rows, userPropertyAndRole);
     }
 
+    public void addUserPropertyAndRole(final UserApplicationRoleEntry userPropertyAndRole) {
+        log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
+        if (hasRole(userPropertyAndRole.getUserId(), userPropertyAndRole)) {
+            log.trace("Trying to add an existing role, ignoring");
+            return;
+        }
+
+        if (userPropertyAndRole.getId() == null || userPropertyAndRole.getId().length() < 5 ) {
+            userPropertyAndRole.setId(UUID.randomUUID().toString());
+        }
+
+        String sql = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
+        int rows = jdbcTemplate.update(sql,
+                userPropertyAndRole.getId(),
+                userPropertyAndRole.getUserId(),
+                userPropertyAndRole.getApplicationId(),
+                userPropertyAndRole.getOrgName(),
+                userPropertyAndRole.getRoleName(),
+                userPropertyAndRole.getRoleValue()
+
+        );
+        log.trace("{} roles added, sql: {}", rows, userPropertyAndRole);
+    }
 
     public void deleteAllRolesForUser(String uid) {
         String sql = "DELETE FROM UserRoles WHERE UserID=?";
