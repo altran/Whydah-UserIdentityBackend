@@ -29,6 +29,8 @@ public class DatabaseMigrationHelper {
             flyway.setLocations("db/migration/hsqldb");
         } else if(driverClassName.contains("mysql")) {
             flyway.setLocations("db/migration/mysql");
+        } else if(driverClassName.contains("postgresql")) {
+            flyway.setLocations("db/migration/postgresql");
         } else if (dbUrl.contains("sqlserver")) {
             log.info("Expecting the MS SQL database to be pre-initialized with the latest schema. Automatic database migration is not supported.");
         } else {
