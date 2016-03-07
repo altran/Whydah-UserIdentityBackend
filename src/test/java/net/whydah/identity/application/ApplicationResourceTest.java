@@ -29,7 +29,7 @@ import static org.testng.Assert.assertNotNull;
  *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
-@Test(enabled = false)
+@Test(enabled = false)  //due to strange test error when run by Jenkins. Perhaps shared ldap or db with other tests?
 public class ApplicationResourceTest {
     private final String appToken1 = "appToken1";
     private final String userTokenID1 = "userTokenID1";
