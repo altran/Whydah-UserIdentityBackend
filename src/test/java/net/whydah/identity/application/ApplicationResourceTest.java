@@ -15,7 +15,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.Ignore;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -101,7 +100,7 @@ public class ApplicationResourceTest {
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()
-                .statusCode(200)
+                .statusCode(javax.ws.rs.core.Response.Status.OK.getStatusCode())
                 .log().ifError()
                 .when()
                 .post(path, appToken1, userTokenID1);
@@ -117,13 +116,13 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), app.getDefaultRoleName());
     }
 
-    @Test(enabled=false,dependsOnMethods = "testCreateApplication")
+    @Test(dependsOnMethods = "testCreateApplication")
     public void testGetApplicationOK() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         Response response = given()
                 .log().everything()
                 .expect()
-                .statusCode(200)
+                .statusCode(javax.ws.rs.core.Response.Status.OK.getStatusCode())
                 .log().ifError()
                 .when()
                 .get(path, appToken1, userTokenID1, appId1FromCreatedResponse);
@@ -136,7 +135,7 @@ public class ApplicationResourceTest {
         assertEquals(applicationResponse.getDefaultRoleName(), "originalDefaultRoleName");
     }
 
-    @Test(enabled=false,dependsOnMethods = "testGetApplicationOK")
+    @Test(dependsOnMethods = "testGetApplicationOK")
     public void testUpdateApplicationNotFound() throws Exception {
         String json = ApplicationMapper.toJson(app);
 
@@ -146,13 +145,13 @@ public class ApplicationResourceTest {
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()
-                .statusCode(404)
+                .statusCode(javax.ws.rs.core.Response.Status.NOT_FOUND.getStatusCode())
                 .log().ifError()
                 .when()
                 .put(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
-    @Test(enabled=false,dependsOnMethods = "testUpdateApplicationNotFound")
+    @Test(dependsOnMethods = "testUpdateApplicationNotFound")
     public void testUpdateApplicationNoContent() throws Exception {
         app.setId(appId1FromCreatedResponse);
         app.setDefaultRoleName("anotherRoleName");
@@ -164,43 +163,43 @@ public class ApplicationResourceTest {
                 .contentType(ContentType.JSON)
                 .log().everything()
                 .expect()
-                .statusCode(204)
+                .statusCode(javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode())
                 .log().ifError()
                 .when()
                 .put(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
 
-    @Test(enabled=false,dependsOnMethods = "testUpdateApplicationNoContent")
+    @Test(dependsOnMethods = "testUpdateApplicationNoContent")
     public void testDeleteApplication() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
                 .log().everything()
                 .expect()
-                .statusCode(204)
+                .statusCode(javax.ws.rs.core.Response.Status.NO_CONTENT.getStatusCode())
                 .log().ifError()
                 .when()
                 .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
-    @Test(enabled=false,dependsOnMethods = "testDeleteApplication")
+    @Test(dependsOnMethods = "testDeleteApplication")
     public void testDeleteApplicationNotFound() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
                 .log().everything()
                 .expect()
-                .statusCode(404)
+                .statusCode(javax.ws.rs.core.Response.Status.NOT_FOUND.getStatusCode())
                 .log().ifError()
                 .when()
                 .delete(path, appToken1, userTokenID1, appId1FromCreatedResponse);
     }
 
-    @Test(enabled=false,dependsOnMethods = "testDeleteApplication")
+    @Test(dependsOnMethods = "testDeleteApplication")
     public void testGetApplicationNotFound() throws Exception {
         String path = "/{applicationtokenid}/{userTokenId}/application/{applicationId}";
         given()
                 .log().everything()
                 .expect()
-                .statusCode(404)
+                .statusCode(javax.ws.rs.core.Response.Status.NOT_FOUND.getStatusCode())
                 .log().ifError()
                 .when()
                 .get(path, appToken1, userTokenID1, appId1FromCreatedResponse);
