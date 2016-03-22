@@ -312,6 +312,78 @@
     }]
   },
   {
+    "id": "2310",
+    "name": "Whydah-StatisticsService",
+    "description": "An optional Whydah module for user-oriented audit-log and usage statistics",
+    "company" : "Cantara",
+    "tags" : "JURISDICTION_NORWAY",
+    "applicationUrl": "https://whydahdev.cantara.no/reporter/",
+    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "Whydah-StatisticsService-user"
+    } ],
+    "organizationNames": [{
+      "id" : "2200",
+      "name" : "Cantara"
+    }, {
+      "id" : "2201",
+      "name" : "Whydah"
+    } ],
+    "defaultRoleName": "Whydah-StatisticsService-user",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "8640",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "33879936R6Jr47D4Hj5R6p9qT"
+    },
+    "acl": [{
+      "applicationId" : "2211",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
+    "id": "2311",
+    "name": "Whydah-CRMService",
+    "description": "An optional Whydah service to add person-data to Whydah users",
+    "company" : "Cantara",
+    "tags" : "JURISDICTION_NORWAY",
+    "applicationUrl": "https://whydahdev.cantara.no/crm/",
+    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "roles": [{
+      "id" : "roleId1",
+      "name" : "Whydah-CRMService-user"
+    } ],
+    "organizationNames": [{
+      "id" : "orgId",
+      "name" : "organizationName1"
+    }, {
+      "id" : "orgidxx",
+      "name" : "defaultOrgName"
+    } ],
+    "defaultRoleName": "Whydah-CRMService-user",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "33879936R6Jr47D4Hj5R6p9qT"
+    },
+    "acl": [{
+      "applicationId" : "2211",
+      "applicationACLPath" : "/user"
+    }]
+  },
+  {
     "id": "9099",
     "name": "Whydah-TestWebApplication",
     "description": "The different example webapps to explain how to use/integrate with the Whydah IAM/SSO",
