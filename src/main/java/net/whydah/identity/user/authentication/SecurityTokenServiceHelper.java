@@ -8,6 +8,7 @@ import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.application.types.ApplicationToken;
 import net.whydah.sso.commands.appauth.CommandLogonApplication;
 import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
+import net.whydah.sso.session.WhydahApplicationSession;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import net.whydah.sso.user.types.UserToken;
 import org.constretto.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import java.net.URI;
 
 @Component
 public class SecurityTokenServiceHelper {
@@ -29,24 +31,35 @@ public class SecurityTokenServiceHelper {
     private final WebTarget tokenServiceResource;
     private ApplicationCredential uibAppCredential;
     private static ApplicationToken uibApplicationToken;
+    private static WhydahApplicationSession was = null;
 
     @Autowired
     @Configure
     public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenserviceUri) {
         tokenServiceResource = client.target(usertokenserviceUri);
+        was=new WhydahApplicationSession(usertokenserviceUri,getAppCredentialForApplicationId("2210"));
     }
 
     public String getActiveUibApplicationTokenId(){
-        if (uibApplicationToken!=null){
+        return was.getActiveApplicationTokenId();
+/**        if (uibApplicationToken!=null){
             return uibApplicationToken.getApplicationTokenId();
         }
-        return null;
+        return null;*/
     }
     public UserToken getUserToken(String appTokenId, String usertokenid){
+        String userToken = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),usertokenid).execute();
+        if (userToken!=null && userToken.length()>10) {
+            log.debug("usertoken: {}", userToken);
+            return UserTokenMapper.fromUserTokenXml(userToken);
+        }
+
+        /**
         if (uibApplicationToken==null){
             // TODO - get the real values here
             uibAppCredential =getAppCredentialForApplicationId("2210");
-            log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential));
+
+            log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential),usertokenid);
             uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
             if (uibApplicationToken!=null){
                 log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
@@ -75,6 +88,7 @@ public class SecurityTokenServiceHelper {
 
         }
         uibApplicationToken=null;  // Reset UAS application session
+         */
         log.error("getUserToken failed - resetting uas application session - URI:{}, usertokenid:{}",tokenServiceResource.getUri(), usertokenid);
         return null;
     }
