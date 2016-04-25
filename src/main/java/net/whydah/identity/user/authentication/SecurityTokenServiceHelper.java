@@ -37,10 +37,13 @@ public class SecurityTokenServiceHelper {
     @Configure
     public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenserviceUri) {
         tokenServiceResource = client.target(usertokenserviceUri);
-        was=new WhydahApplicationSession(usertokenserviceUri,getAppCredentialForApplicationId("2210"));
     }
 
     public String getActiveUibApplicationTokenId(){
+        if (was==null){
+            was=new WhydahApplicationSession(tokenServiceResource.toString(),getAppCredentialForApplicationId("2210"));
+
+        }
         return was.getActiveApplicationTokenId();
 /**        if (uibApplicationToken!=null){
             return uibApplicationToken.getApplicationTokenId();
@@ -48,6 +51,10 @@ public class SecurityTokenServiceHelper {
         return null;*/
     }
     public UserToken getUserToken(String appTokenId, String usertokenid){
+        if (was==null){
+            was=new WhydahApplicationSession(tokenServiceResource.toString(),getAppCredentialForApplicationId("2210"));
+
+        }
         String userToken = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),usertokenid).execute();
         if (userToken!=null && userToken.length()>10) {
             log.debug("usertoken: {}", userToken);
