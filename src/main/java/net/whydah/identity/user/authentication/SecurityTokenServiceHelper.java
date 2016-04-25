@@ -28,20 +28,23 @@ public class SecurityTokenServiceHelper {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceHelper.class);
     private Client client = ClientBuilder.newClient();
 
+    private static final String MY_APPLICATION_ID="2010";
     private final WebTarget tokenServiceResource;
     private ApplicationCredential uibAppCredential;
     private static ApplicationToken uibApplicationToken;
     private static WhydahApplicationSession was = null;
+    private String sts;
 
     @Autowired
     @Configure
-    public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenserviceUri) {
-        tokenServiceResource = client.target(usertokenserviceUri);
+    public SecurityTokenServiceHelper(@Configuration("securitytokenservice") String usertokenservice) {
+        this.sts=usertokenservice;
+        tokenServiceResource = client.target(usertokenservice);
     }
 
     public String getActiveUibApplicationTokenId(){
         if (was==null){
-            was=new WhydahApplicationSession(tokenServiceResource.toString(),getAppCredentialForApplicationId("2210"));
+            was=new WhydahApplicationSession(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
 
         }
         return was.getActiveApplicationTokenId();
