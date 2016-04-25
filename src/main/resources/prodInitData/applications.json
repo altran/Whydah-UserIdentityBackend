@@ -457,5 +457,47 @@
       "applicationId" : "2211",
       "applicationACLPath" : "/user"
     }]
+  },
+  {
+    "id": "9999",
+    "name": "Whydah-Jenkins",
+    "description": "System test application)",
+    "company" : "Cantara",
+    "tags" : "HIDDEN, JURISDICTION_NORWAY",
+    "applicationUrl": "https://whydahdev.cantara.no/uas/",
+    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "roles": [{
+      "id" : "why101",
+      "name" : "User"
+    }, {
+      "id" : "why102",
+      "name" : "Application"
+    } ],
+    "organizationNames": [{
+      "id" : "100",
+      "name" : "Whydah"
+    }, {
+      "id" : "101",
+      "name" : "Cantara"
+    }, {
+      "id" : "102",
+      "name" : "Getwhydah"
+    } ],
+    "defaultRoleName": "Application",
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minDEFCON": "DEFCON5",
+      "maxSessionTimoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": "true",
+      "secret": "9ju592A4t8dzz8mz788QQJ7Px"
+    },
+    "acl": [{
+      "applicationId" : "9999",
+      "applicationACLPath" : "/"
+    }]
   }
 ]
