@@ -28,7 +28,7 @@ public class SecurityTokenServiceHelper {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceHelper.class);
     private Client client = ClientBuilder.newClient();
 
-    private static final String MY_APPLICATION_ID="2010";
+    private static final String MY_APPLICATION_ID="2210";
     private final WebTarget tokenServiceResource;
     private ApplicationCredential uibAppCredential;
     private static ApplicationToken uibApplicationToken;
