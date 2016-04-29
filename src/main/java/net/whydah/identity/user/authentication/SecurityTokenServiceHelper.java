@@ -44,7 +44,7 @@ public class SecurityTokenServiceHelper {
 
     public String getActiveUibApplicationTokenId(){
         if (was==null){
-            was=new WhydahApplicationSession(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
+            was=WhydahApplicationSession.getInstance(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
 
         }
         return was.getActiveApplicationTokenId();
@@ -55,7 +55,7 @@ public class SecurityTokenServiceHelper {
     }
     public UserToken getUserToken(String appTokenId, String usertokenid){
         if (was==null){
-            was=new WhydahApplicationSession(tokenServiceResource.toString(),getAppCredentialForApplicationId(MY_APPLICATION_ID));
+            was= WhydahApplicationSession.getInstance(tokenServiceResource.toString(),getAppCredentialForApplicationId(MY_APPLICATION_ID));
 
         }
         String userToken = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),usertokenid).execute();
