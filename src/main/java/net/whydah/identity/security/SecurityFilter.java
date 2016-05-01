@@ -2,7 +2,7 @@ package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
-import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
+import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
@@ -40,7 +40,7 @@ public class SecurityFilter implements Filter {
     public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern, applicationListPatten};
     public static final String HEALT_PATH = "health";
 
-    private final SecurityTokenServiceHelper securityTokenHelper;
+    private final SecurityTokenServiceClient securityTokenHelper;
     private final AuthenticationService authenticationService;
     private final HealthCheckService healthCheckService;
 
@@ -55,7 +55,7 @@ public class SecurityFilter implements Filter {
     //private String requiredRole;
 
     @Autowired
-    public SecurityFilter(SecurityTokenServiceHelper securityTokenHelper, AuthenticationService authenticationService, HealthCheckService healthCheckService) {
+    public SecurityFilter(SecurityTokenServiceClient securityTokenHelper, AuthenticationService authenticationService, HealthCheckService healthCheckService) {
         this.securityTokenHelper = securityTokenHelper;
         this.authenticationService = authenticationService;
         this.healthCheckService = healthCheckService;

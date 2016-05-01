@@ -2,7 +2,7 @@ package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
-import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
+import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-06-30
  */
 public class SecurityFilter2Test {
-    private SecurityTokenServiceHelper stsHelper;
+    private SecurityTokenServiceClient stsHelper;
     private AuthenticationService authenticationService;
     private SecurityFilter securityFilter;
     private HealthCheckService healthCheckService;
@@ -32,7 +32,7 @@ public class SecurityFilter2Test {
     @Before
     public void setup() throws ServletException {
         ApplicationMode.clearTags();
-        stsHelper = mock(SecurityTokenServiceHelper.class);
+        stsHelper = mock(SecurityTokenServiceClient.class);
         authenticationService = mock(AuthenticationService.class);
         healthCheckService = mock(HealthCheckService.class);
         securityFilter = new SecurityFilter(stsHelper, authenticationService, healthCheckService);

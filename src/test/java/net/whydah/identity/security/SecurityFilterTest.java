@@ -2,7 +2,7 @@ package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
-import net.whydah.identity.user.authentication.SecurityTokenServiceHelper;
+import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class SecurityFilterTest {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilterTest.class);
     private SecurityFilter securityFilter;
-    private SecurityTokenServiceHelper tokenHelper;
+    private SecurityTokenServiceClient tokenHelper;
     private AuthenticationService authenticationService;
     private HealthCheckService healthCheckService;
     private HttpServletRequest request;
@@ -64,7 +64,7 @@ public class SecurityFilterTest {
 
     @Before
     public void init() throws ServletException {
-        tokenHelper = mock(SecurityTokenServiceHelper.class);
+        tokenHelper = mock(SecurityTokenServiceClient.class);
         authenticationService = mock(AuthenticationService.class);
         healthCheckService = mock(HealthCheckService.class);
         securityFilter = new SecurityFilter(tokenHelper, authenticationService, healthCheckService);
