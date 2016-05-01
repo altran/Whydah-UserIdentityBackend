@@ -48,10 +48,6 @@ public class SecurityTokenServiceHelper {
 
         }
         return was.getActiveApplicationTokenId();
-/**        if (uibApplicationToken!=null){
-            return uibApplicationToken.getApplicationTokenId();
-        }
-        return null;*/
     }
     public UserToken getUserToken(String appTokenId, String usertokenid){
         if (was==null){
@@ -64,41 +60,6 @@ public class SecurityTokenServiceHelper {
             return UserTokenMapper.fromUserTokenXml(userToken);
         }
 
-        /**
-        if (uibApplicationToken==null){
-            // TODO - get the real values here
-            uibAppCredential =getAppCredentialForApplicationId("2210");
-
-            log.debug("SecurityTokenServiceHelper CommandLogonApplication( {}, {} )",tokenServiceResource.getUri(), ApplicationCredentialMapper.toXML(uibAppCredential),usertokenid);
-            uibApplicationToken = ApplicationTokenMapper.fromXml(new CommandLogonApplication(tokenServiceResource.getUri(), uibAppCredential).execute());
-            if (uibApplicationToken!=null){
-                log.info("STS session started, applicationTokenID="+uibApplicationToken.getApplicationTokenId());
-                log.warn("###  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid);
-                String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
-                if (userToken!=null && userToken.length()>10) {
-                    log.debug("usertoken: {}", userToken);
-                    return UserTokenMapper.fromUserTokenXml(userToken);
-                } else {
-                    uibApplicationToken=null;  // Reset UAS application session
-                }
-            } else {
-                uibApplicationToken=null;  // Reset UAS application session
-                log.warn("STS session start failed");
-            }
-        } else {
-            // Re-use application session
-            log.warn("#  getUserToken CommandGetUsertokenByUsertokenId( {}, {}, {}, {} )",tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid);
-            String userToken = new CommandGetUsertokenByUsertokenId(tokenServiceResource.getUri(),  uibApplicationToken.getApplicationTokenId(),ApplicationTokenMapper.toXML(uibApplicationToken), usertokenid).execute();
-            if (userToken!=null && userToken.length()>10) {
-                log.debug("usertoken: {}", userToken);
-                return UserTokenMapper.fromUserTokenXml(userToken);
-            } else {
-                uibApplicationToken=null;  // Reset UAS application session
-            }
-
-        }
-        uibApplicationToken=null;  // Reset UAS application session
-         */
         log.error("getUserToken failed - resetting uas application session - URI:{}, usertokenid:{}",tokenServiceResource.getUri(), usertokenid);
         return null;
     }
