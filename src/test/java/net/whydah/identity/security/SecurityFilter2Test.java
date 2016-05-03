@@ -62,7 +62,7 @@ public class SecurityFilter2Test {
     @Test
     public void testUsertokenIdAuthenticationOK() {
         String appTokenId = "appTokenIdUser";
-        when(stsHelper.getUserToken(appTokenId, userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
+        when(stsHelper.getUserToken( userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
         assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/user"));
         assertEquals(Authentication.getAuthenticatedUser().getRoleList().get(0).getRoleName(), "WhydahUserAdmin");
     }

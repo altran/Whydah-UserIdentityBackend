@@ -36,18 +36,17 @@ public class SecurityTokenServiceClient {
         }
         return was.getActiveApplicationTokenId();
     }
-    public UserToken getUserToken(String appTokenId, String usertokenid){
+
+    public UserToken getUserToken(String usertokenid){
         if (was==null){
             was= WhydahApplicationSession.getInstance(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
-
         }
         String userToken = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),usertokenid).execute();
         if (userToken!=null && userToken.length()>10) {
             log.debug("usertoken: {}", userToken);
             return UserTokenMapper.fromUserTokenXml(userToken);
         }
-
-        log.error("getUserToken failed - resetting uas application session - URI:{}, usertokenid:{}",sts, usertokenid);
+        log.error("getUserToken failed - URI:{}, usertokenid:{}",sts, usertokenid);
         return null;
     }
 

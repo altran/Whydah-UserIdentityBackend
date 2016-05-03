@@ -94,7 +94,6 @@ public class SecurityFilter implements Filter {
         }
 
 
-        // TODO fetch UAS applicationCredential from http header, call CommandValidateApplicationTokenId
         // /{stsApplicationtokenId}/application/auth        //ApplicationAuthenticationEndpoint
 
 
@@ -130,8 +129,9 @@ public class SecurityFilter implements Filter {
         String applicationTokenId = findPathElement(pathInfo, 1).substring(1);
         String usertokenId = findPathElement(pathInfo, 2).substring(1);
         if (applicationTokenId != null) {
+            // Not calling myself
             if (!applicationTokenId.equalsIgnoreCase(securityTokenHelper.getActiveUibApplicationTokenId())) {
-                UserToken userToken = securityTokenHelper.getUserToken(applicationTokenId, usertokenId);
+                UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
                 if (userToken == null || userToken.toString().length() < 10) {
                     return HttpServletResponse.SC_UNAUTHORIZED;
                 }
