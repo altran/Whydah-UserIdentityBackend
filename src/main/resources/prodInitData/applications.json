@@ -32,7 +32,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -80,7 +80,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -128,7 +128,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -170,7 +170,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -212,7 +212,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -251,7 +251,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -299,7 +299,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -335,7 +335,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "8640",
+      "maxSessionTimeoutSeconds": "8640",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -371,7 +371,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -407,7 +407,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -446,7 +446,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
@@ -488,7 +488,7 @@
     "security": {
       "minSecurityLevel": "0",
       "minDEFCON": "DEFCON5",
-      "maxSessionTimoutSeconds": "86400",
+      "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
