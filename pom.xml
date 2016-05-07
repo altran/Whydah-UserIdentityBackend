@@ -93,6 +93,7 @@
     </repositories>
 
 
+    <dependencies>
     <!-- mvn org.codehaus.mojo:versions-maven-plugin:2.2:display-dependency-updates -->
         <dependency>
             <groupId>net.whydah.sso</groupId>
