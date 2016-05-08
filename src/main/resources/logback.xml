@@ -32,7 +32,7 @@
     <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
 
     <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
-    <logger name="net.whydah.identity" level="INFO" />
+    <logger name="net.whydah.identity" level="DEBUG" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
