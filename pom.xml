@@ -64,7 +64,7 @@
 
     <properties>
         <service.name>Whydah-UserIdentityBackend</service.name>
-        <whydah-javasdk.version>2.1.180</whydah-javasdk.version>
+        <whydah-javasdk.version>2.1.184</whydah-javasdk.version>
         <apache.ds.version>2.0.0-M20</apache.ds.version>
         <api-ldap.version>1.0.0-M30</api-ldap.version><!-- Make sure api-ldap.version is compatible with apache.ds.version -->
         <lucene.version>4.10.4</lucene.version>
