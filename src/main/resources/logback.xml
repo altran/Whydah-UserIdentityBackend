@@ -34,7 +34,7 @@
     <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
     <logger name="net.whydah.identity" level="TRACE" />
 
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
