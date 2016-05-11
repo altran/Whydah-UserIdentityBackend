@@ -138,6 +138,8 @@ public class LdapUserIdentityDao {
         container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, userIdentity.getPassword()));
 
+
+
         if (userIdentity.getPersonRef() != null && userIdentity.getPersonRef().length() > 0) {
             container.put(new BasicAttribute(ATTRIBUTE_NAME_PERSONREF, stringCleaner.cleanString(userIdentity.getPersonRef())));
         }

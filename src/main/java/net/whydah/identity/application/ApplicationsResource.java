@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
-@Path("/{applicationtokenid}/{userTokenId}/")
+@Path("/{applicationtokenid}/")
 public class ApplicationsResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationsResource.class);
     private final ApplicationService applicationService;
@@ -57,7 +57,7 @@ public class ApplicationsResource {
             if (applications != null && applications.size() > 0) {
                 log.debug("application [0] - {}",applications.get(0).toString());
             }
-            String json = ApplicationMapper.toJson(applications);
+            String json = ApplicationMapper.toSafeJson(applications);
             log.trace("Returning {} applications: {}", applications.size(), json);
             return Response.ok(json).build();
         } catch (RuntimeException e) {
@@ -72,12 +72,12 @@ public class ApplicationsResource {
      * @return json response.
      */
     @GET
-    @Path("/applications/find/{q}")
+    @Path("/{userTokenId}/applications/find/{q}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
         List<Application> applications = applicationSearch.search(query);
-        String json = ApplicationMapper.toJson(applications);
+        String json = ApplicationMapper.toSafeJson(applications);
         log.trace("Returning {} applications: {}", applications.size(), json);
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
