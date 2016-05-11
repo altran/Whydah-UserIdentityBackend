@@ -78,14 +78,14 @@ public class ApplicationsResourceTest {
 
     @Test
     public void testGetApplicationsEmptyList() throws Exception {
-        String path = "/{applicationtokenid}/{userTokenId}/applications";
+        String path = "/{applicationtokenid}/applications";
         Response response = given()
                 .log().everything()
                 .expect()
                 .statusCode(200)
                 .log().ifError()
                 .when()
-                .get(path, appToken1, userToken1);
+                .get(path, appToken1);
 
         String jsonResponse = response.body().asString();
         List<Application> applications = ApplicationMapper.fromJsonList(jsonResponse);
