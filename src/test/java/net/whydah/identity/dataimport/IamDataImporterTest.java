@@ -100,7 +100,7 @@ public class IamDataImporterTest {
         
         List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
         assertEquals(1, propsAndRoles2.size());
-        assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Altran", "admin", "70"));
+        assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Capra Consulting", "WhydahUserAdmin", "70"));
     }
 
     private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {
