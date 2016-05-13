@@ -13,17 +13,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Jax-RS resource responsible for user password management.
  * See also https://wiki.cantara.no/display/whydah/Password+management.
+ *
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-11-15.
  */
 @Component
@@ -50,8 +49,9 @@ public class PasswordResource2 {
 
     /**
      * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
-     * @param uid   unique user id
-     * @return  json with uid and change password token
+     *
+     * @param uid unique user id
+     * @return json with uid and change password token
      */
     @POST
     @Path("/user/{uid}/reset_password")
@@ -83,10 +83,11 @@ public class PasswordResource2 {
 
     /**
      * Change password using changePasswordToken.
-     * @param uid  to change password for
-     * @param changePasswordToken   expected as queryParam
-     * @param json  expected to contain newpassword
-     * @return  201 No Content if successful
+     *
+     * @param uid                 to change password for
+     * @param changePasswordToken expected as queryParam
+     * @param json                expected to contain newpassword
+     * @return 201 No Content if successful
      */
     @POST
     @Path("/user/{uid}/change_password")
@@ -102,7 +103,7 @@ public class PasswordResource2 {
             String newpassword;
             try {
                 Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
-                newpassword =  JsonPath.read(document, NEW_PASSWORD_KEY);
+                newpassword = JsonPath.read(document, NEW_PASSWORD_KEY);
             } catch (RuntimeException e) {
                 log.info("authenticateAndChangePasswordUsingToken failed, bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -127,8 +128,6 @@ public class PasswordResource2 {
                 UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, pwRole);
 
 
-
-
             } catch (RuntimeException re) {
                 log.info("changePasswordForUser-RuntimeException username={}, message={}", username, re.getMessage(), re);
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -142,6 +141,70 @@ public class PasswordResource2 {
             return Response.noContent().build();
         } catch (Exception e) {
             log.error("authenticateAndChangePasswordUsingToken failed.", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
+     *
+     * @param uid unique user id
+     * @return true/false
+     */
+    @GET
+    @Path("/user/{uid}/password_login_enabled")
+    public Response hasUIDSetPassword(@PathParam("uid") String uid) {
+        log.info("password_login_enabled for uid={}", uid);
+        try {
+            List<UserPropertyAndRole> roles = userAggregateService.getRoles(uid);
+            for (UserPropertyAndRole role : roles) {
+                if (role.getApplicationId().equalsIgnoreCase("2212")) {
+                    if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
+                        if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
+                            if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
+                                return Response.ok().entity(false).build();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Response.ok().entity(false).build();
+        } catch (Exception e) {
+            log.error("password_login_enabled failed for uid={}", uid, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
+     *
+     * @param username unique user id
+     * @return true/false
+     */
+    @GET
+    @Path("/user/{username}/password_login_enabled")
+    public Response hasUserNameSetPassword(@PathParam("username") String username) {
+        log.info("password_login_enabled for uid={}", username);
+        try {
+            UserIdentity user = userIdentityService.getUserIdentity(username);
+
+            List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
+            for (UserPropertyAndRole role : roles) {
+                if (role.getApplicationId().equalsIgnoreCase("2212")) {
+                    if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
+                        if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
+                            if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
+                                return Response.ok().entity(false).build();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Response.ok().entity(false).build();
+        } catch (Exception e) {
+            log.error("password_login_enabled failed for username={}", username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

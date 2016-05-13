@@ -2,8 +2,10 @@ package net.whydah.identity.user.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.config.PasswordBlacklist;
+import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -11,12 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,6 +34,8 @@ public class PasswordResource {
     static final String CELLPHONE_KEY = "cellPhone";
 
     private final UserIdentityService userIdentityService;
+    private final UserAggregateService userAggregateService;
+
     private final ObjectMapper objectMapper;
 
     @Context
@@ -44,8 +43,10 @@ public class PasswordResource {
 
 
     @Autowired
-    public PasswordResource(UserIdentityService userIdentityService, ObjectMapper objectMapper) {
+    public PasswordResource(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ObjectMapper objectMapper) {
         this.userIdentityService = userIdentityService;
+        this.userAggregateService = userAggregateService;
+
         this.objectMapper = objectMapper;
         log.trace("Started: PasswordResource");
     }
@@ -133,6 +134,15 @@ public class PasswordResource {
 
                 }
                 userIdentityService.changePassword(username, user.getUid(), newpassword);
+                RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
+                pwRole.setApplicationId("2212");  //UAS
+                pwRole.setApplicationName("UserAdminService");
+                pwRole.setOrganizationName("Whydah");
+                pwRole.setApplicationRoleName("PW_SET");
+                pwRole.setApplicationRoleValue("true");
+
+                UserPropertyAndRole updatedRole = userAggregateService.addRole(user.getUid(), pwRole);
+
             } catch (JSONException e) {
                 log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
