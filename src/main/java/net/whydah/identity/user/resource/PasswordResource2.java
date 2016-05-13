@@ -145,36 +145,7 @@ public class PasswordResource2 {
         }
     }
 
-    /**
-     * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
-     *
-     * @param uid unique user id
-     * @return true/false
-     */
-    @GET
-    @Path("/user/{uid}/password_login_enabled")
-    public Response hasUIDSetPassword(@PathParam("uid") String uid) {
-        log.info("password_login_enabled for uid={}", uid);
-        try {
-            List<UserPropertyAndRole> roles = userAggregateService.getRoles(uid);
-            for (UserPropertyAndRole role : roles) {
-                if (role.getApplicationId().equalsIgnoreCase("2212")) {
-                    if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
-                        if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
-                            if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
-                                return Response.ok().entity(false).build();
-                            }
-                        }
-                    }
-                }
-            }
 
-            return Response.ok().entity(false).build();
-        } catch (Exception e) {
-            log.error("password_login_enabled failed for uid={}", uid, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     /**
      * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
