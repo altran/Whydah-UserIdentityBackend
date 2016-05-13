@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import net.whydah.identity.config.PasswordBlacklist;
+import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +36,14 @@ public class PasswordResource2 {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResource2.class);
     private final UserIdentityService userIdentityService;
+    private final UserAggregateService userAggregateService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public PasswordResource2(UserIdentityService userIdentityService, ObjectMapper objectMapper) {
+    public PasswordResource2(UserIdentityService userIdentityService, UserAggregateService userAggregateService, ObjectMapper objectMapper) {
         this.userIdentityService = userIdentityService;
+        this.userAggregateService = userAggregateService;
+
         this.objectMapper = objectMapper;
     }
 
@@ -111,6 +116,19 @@ public class PasswordResource2 {
             String username = user.getUsername();
             try {
                 authenticated = userIdentityService.authenticateWithChangePasswordToken(username, changePasswordToken);
+
+                RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
+                pwRole.setApplicationId("2212");  //UAS
+                pwRole.setApplicationName("UserAdminService");
+                pwRole.setOrganizationName("Whydah");
+                pwRole.setApplicationRoleName("PW_SET");
+                pwRole.setApplicationRoleValue("true");
+
+                UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, pwRole);
+
+
+
+
             } catch (RuntimeException re) {
                 log.info("changePasswordForUser-RuntimeException username={}, message={}", username, re.getMessage(), re);
                 return Response.status(Response.Status.BAD_REQUEST).build();
