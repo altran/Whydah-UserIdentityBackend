@@ -1,6 +1,6 @@
 #userId, applicationId, applicationName, organizationName, roleName, roleValue
 useradmin, 2211, Whydah-SecurityTokenService, Whydah, WhydahUserAdmin, 99
-useradmin, 2212, Whydah-UserAdminService, Altran, WhydahUserAdmin, 30
+useradmin, 2212, Whydah-UserAdminService, Cantara, WhydahUserAdmin, 30
 useradmin, 2215, Whydah-SSOLoginWebApp, Whydah, developer, 20
 erik.drolshammer, 2212, Whydah-UserAdminService, Capra Consulting, WhydahUserAdmin, 70
 useradmin, 2219, Whydah-UserAdminWebApp, Whydah, WhydahUserAdmin, 99
