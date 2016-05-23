@@ -83,7 +83,7 @@ public class Main {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     log.debug("ShutdownHook triggered. Exiting application");
-                    main.stop();
+                    //main.stop();
                 }
             });
 
