@@ -19,6 +19,7 @@ public class SecurityTokenServiceClient {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceClient.class);
 
     private static String MY_APPLICATION_ID = "2210";
+    private static String securitytokenserviceurl;
     private static BaseWhydahServiceClient bas = null;
     private String sts;
 
@@ -26,22 +27,40 @@ public class SecurityTokenServiceClient {
     @Configure
     public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) throws Exception {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
-        if (!ApplicationMode.skipSecurityFilter()) {
-            ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
-            bas = new BaseWhydahServiceClient(securitytokenserviceurl,
-                    "",  // No UAS
-                    myApplicationCredential.getApplicationID(),
-                    myApplicationCredential.getApplicationName(),
-                    myApplicationCredential.getApplicationSecret());
-
-        }
+        this.securitytokenserviceurl = securitytokenserviceurl;
     }
 
     public String getActiveUibApplicationTokenId(){
+        if (bas == null && !ApplicationMode.skipSecurityFilter()) {
+            try {
+                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+                bas = new BaseWhydahServiceClient(securitytokenserviceurl,
+                        "",  // No UAS
+                        myApplicationCredential.getApplicationID(),
+                        myApplicationCredential.getApplicationName(),
+                        myApplicationCredential.getApplicationSecret());
+            } catch (Exception e) {
+                log.warn("Unable to create WhydahSession");
+            }
+
+        }
         return bas.getMyAppTokenID();
     }
 
     public UserToken getUserToken(String usertokenid){
+        if (bas == null && !ApplicationMode.skipSecurityFilter()) {
+            try {
+                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+                bas = new BaseWhydahServiceClient(securitytokenserviceurl,
+                        "",  // No UAS
+                        myApplicationCredential.getApplicationID(),
+                        myApplicationCredential.getApplicationName(),
+                        myApplicationCredential.getApplicationSecret());
+            } catch (Exception e) {
+                log.warn("Unable to create WhydahSession");
+            }
+
+        }
         return UserTokenMapper.fromUserTokenXml(bas.getUserTokenByUserTokenID(usertokenid));
     }
 
