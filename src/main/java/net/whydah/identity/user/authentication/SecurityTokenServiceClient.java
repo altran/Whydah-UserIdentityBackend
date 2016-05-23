@@ -74,7 +74,10 @@ public class SecurityTokenServiceClient {
 
         }
         if (was != null) {
-            return UserTokenMapper.fromUserTokenXml(new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()), was.getActiveApplicationTokenId(), was.getActiveApplicationTokenXML(), usertokenid).execute());
+            String userTokenXML = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()), was.getActiveApplicationTokenId(), was.getActiveApplicationTokenXML(), usertokenid).execute();
+            if (userTokenXML != null && userTokenXML.length() > 10) {
+                return UserTokenMapper.fromUserTokenXml(userTokenXML);
+            }
         }
         return null;
     }
