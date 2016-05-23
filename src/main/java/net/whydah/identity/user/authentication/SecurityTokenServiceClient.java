@@ -43,7 +43,10 @@ public class SecurityTokenServiceClient {
             }
 
         }
-        return bas.getMyAppTokenID();
+        if (bas != null) {
+            return bas.getMyAppTokenID();
+        }
+        return null;
     }
 
     public UserToken getUserToken(String usertokenid){
@@ -60,7 +63,10 @@ public class SecurityTokenServiceClient {
             }
 
         }
-        return UserTokenMapper.fromUserTokenXml(bas.getUserTokenByUserTokenID(usertokenid));
+        if (bas != null) {
+            return UserTokenMapper.fromUserTokenXml(bas.getUserTokenByUserTokenID(usertokenid));
+        }
+        return null;
     }
 
     private ApplicationCredential getAppCredentialForApplicationId(String appNo){
