@@ -3,8 +3,7 @@ package net.whydah.identity.user.authentication;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
-import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
-import net.whydah.sso.session.WhydahApplicationSession;
+import net.whydah.sso.session.baseclasses.BaseWhydahServiceClient;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import net.whydah.sso.user.types.UserToken;
 import org.constretto.annotation.Configuration;
@@ -14,40 +13,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-
 @Component
 public class SecurityTokenServiceClient {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceClient.class);
 
-    private static final String MY_APPLICATION_ID="2210";
-    private static WhydahApplicationSession was = null;
+    private static String MY_APPLICATION_ID = "2210";
+    private static BaseWhydahServiceClient bas = null;
     private String sts;
 
     @Autowired
     @Configure
-    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String usertokenservice) {
-        this.sts=usertokenservice;
+    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) throws Exception {
+        this.MY_APPLICATION_ID = MY_APPLICATION_ID;
+        ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+        bas = new BaseWhydahServiceClient(securitytokenserviceurl,
+                "",  // No UAS
+                myApplicationCredential.getApplicationID(),
+                myApplicationCredential.getApplicationName(),
+                myApplicationCredential.getApplicationSecret());
     }
 
     public String getActiveUibApplicationTokenId(){
-        if (was==null){
-            was=WhydahApplicationSession.getInstance(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
-        }
-        return was.getActiveApplicationTokenId();
+        return bas.getMyAppTokenID();
     }
 
     public UserToken getUserToken(String usertokenid){
-        if (was==null){
-            was= WhydahApplicationSession.getInstance(sts,getAppCredentialForApplicationId(MY_APPLICATION_ID));
-        }
-        String userToken = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()),was.getActiveApplicationTokenId(),was.getActiveApplicationTokenXML(),usertokenid).execute();
-        if (userToken!=null && userToken.length()>10) {
-            log.debug("usertoken: {}", userToken);
-            return UserTokenMapper.fromUserTokenXml(userToken);
-        }
-        log.error("getUserToken failed - URI:{}, usertokenid:{}",sts, usertokenid);
-        return null;
+        return UserTokenMapper.fromUserTokenXml(bas.getUserTokenByUserTokenID(usertokenid));
     }
 
     private ApplicationCredential getAppCredentialForApplicationId(String appNo){
