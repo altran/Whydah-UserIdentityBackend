@@ -232,6 +232,7 @@ public class Main {
         SecurityTokenServiceClient whydahClient = SecurityTokenServiceClient.getSecurityTokenServiceClient();
         String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
         log.info("WhydahClient initialized, applicationtokenid:{}", myApplicationTokenId);
+        Runtime.getRuntime().removeShutdownHook(Thread.currentThread());
         try {
             // wait forever...
             Thread.currentThread().join();
