@@ -1,7 +1,6 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.application.ApplicationService;
-import net.whydah.identity.config.ApplicationMode;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.session.baseclasses.BaseWhydahServiceClient;
@@ -25,13 +24,13 @@ public class SecurityTokenServiceClient {
 
     @Autowired
     @Configure
-    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) throws Exception {
+    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
         this.securitytokenserviceurl = securitytokenserviceurl;
     }
 
     public String getActiveUibApplicationTokenId(){
-        if (bas == null && !ApplicationMode.skipSecurityFilter()) {
+        if (bas == null) {
             try {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 bas = new BaseWhydahServiceClient(securitytokenserviceurl,
@@ -48,7 +47,7 @@ public class SecurityTokenServiceClient {
     }
 
     public UserToken getUserToken(String usertokenid){
-        if (bas == null && !ApplicationMode.skipSecurityFilter()) {
+        if (bas == null) {
             try {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 bas = new BaseWhydahServiceClient(securitytokenserviceurl,
