@@ -22,6 +22,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -121,12 +123,18 @@ public class Main {
                 SSLTool.disableCertificateValidation();
             }
 
-            SecurityTokenServiceClient whydahClient = new SecurityTokenServiceClient(configuration.evaluateToString("securitytokenservice"), configuration.evaluateToString("my_applicationid"));
-            String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(new Runnable() {
+                public void run() {
+                    startWhydahClient(configuration);
+                    log.debug("Asynchronous startWhydahClient task");
+                }
+            });
+
             //main.startHttpServer(requiredRoleName);
             main.start();
             main.join();
-            log.info("UserIdentityBackend version:{} started on port {}. applicationTokenId: {}", version, webappPort + " context-path:" + CONTEXT_PATH, myApplicationTokenId);
+            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
 
             if (!embeddedDSEnabled) {
                 try {
@@ -219,6 +227,11 @@ public class Main {
         }
     }
 
+    public static void startWhydahClient(ConstrettoConfiguration configuration) {
+        SecurityTokenServiceClient whydahClient = new SecurityTokenServiceClient(configuration.evaluateToString("securitytokenservice"), configuration.evaluateToString("my_applicationid"));
+        String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
+
+    }
 
     public void startEmbeddedDS(Map<String, String> properties) {
         ads = new EmbeddedADS(properties);
