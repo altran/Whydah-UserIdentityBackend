@@ -39,7 +39,7 @@ public class SecurityTokenServiceClient {
                         myApplicationCredential.getApplicationName(),
                         myApplicationCredential.getApplicationSecret());
             } catch (Exception e) {
-                log.warn("Unable to create WhydahSession");
+                log.warn("Unable to create WhydahSession", e);
             }
 
         }
@@ -51,12 +51,12 @@ public class SecurityTokenServiceClient {
             try {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 bas = new BaseWhydahServiceClient(securitytokenserviceurl,
-                        "",  // No UAS
+                        null,  // No UAS
                         myApplicationCredential.getApplicationID(),
                         myApplicationCredential.getApplicationName(),
                         myApplicationCredential.getApplicationSecret());
             } catch (Exception e) {
-                log.warn("Unable to create WhydahSession");
+                log.warn("Unable to create WhydahSession", e);
             }
 
         }
