@@ -1,9 +1,9 @@
 package net.whydah.identity;
 
-import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.ldapserver.EmbeddedADS;
+import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.util.SSLTool;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -121,10 +121,12 @@ public class Main {
                 SSLTool.disableCertificateValidation();
             }
 
+            SecurityTokenServiceClient whydahClient = new SecurityTokenServiceClient(configuration.evaluateToString("securitytokenservice"), configuration.evaluateToString("my_applicationid"));
+            String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
             //main.startHttpServer(requiredRoleName);
             main.start();
             main.join();
-            log.info("UserIdentityBackend version:{} started on port {}.", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("UserIdentityBackend version:{} started on port {}. applicationTokenId: {}", version, webappPort + " context-path:" + CONTEXT_PATH, myApplicationTokenId);
 
             if (!embeddedDSEnabled) {
                 try {
@@ -193,10 +195,6 @@ public class Main {
 
 
     public void stop() {
-        if (!ApplicationMode.skipSecurityFilter()) {
-            log.warn("Shutdown called - ignoring");
-            return;
-        }
         try {
             server.stop();
         } catch (Exception e) {
