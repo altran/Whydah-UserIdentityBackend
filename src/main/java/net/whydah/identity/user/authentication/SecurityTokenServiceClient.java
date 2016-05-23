@@ -1,6 +1,7 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.config.ApplicationMode;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.session.baseclasses.BaseWhydahServiceClient;
@@ -25,12 +26,15 @@ public class SecurityTokenServiceClient {
     @Configure
     public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) throws Exception {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
-        ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
-        bas = new BaseWhydahServiceClient(securitytokenserviceurl,
-                "",  // No UAS
-                myApplicationCredential.getApplicationID(),
-                myApplicationCredential.getApplicationName(),
-                myApplicationCredential.getApplicationSecret());
+        if (!ApplicationMode.skipSecurityFilter()) {
+            ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+            bas = new BaseWhydahServiceClient(securitytokenserviceurl,
+                    "",  // No UAS
+                    myApplicationCredential.getApplicationID(),
+                    myApplicationCredential.getApplicationName(),
+                    myApplicationCredential.getApplicationSecret());
+
+        }
     }
 
     public String getActiveUibApplicationTokenId(){
