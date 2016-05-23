@@ -20,6 +20,7 @@ public class SecurityTokenServiceClient {
     private static String MY_APPLICATION_ID = "2210";
     private static String securitytokenserviceurl;
     private static BaseWhydahServiceClient bas = null;
+    private static SecurityTokenServiceClient securityTokenServiceClient;
     private String sts;
 
     @Autowired
@@ -27,6 +28,12 @@ public class SecurityTokenServiceClient {
     public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
         this.securitytokenserviceurl = securitytokenserviceurl;
+        securityTokenServiceClient = this;
+    }
+
+
+    public static SecurityTokenServiceClient getSecurityTokenServiceClient() {
+        return securityTokenServiceClient;
     }
 
     public String getActiveUibApplicationTokenId(){

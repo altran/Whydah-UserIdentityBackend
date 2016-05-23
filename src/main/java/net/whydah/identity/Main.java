@@ -198,7 +198,7 @@ public class Main {
             System.exit(2);
         }
         int localPort = getPort();
-        log.info("Jetty server started on http://localhost:{}{}", localPort, CONTEXT_PATH);
+        log.info("Jetty server started on http://localhost:{}/{}", localPort, CONTEXT_PATH);
     }
 
 
@@ -228,8 +228,9 @@ public class Main {
     }
 
     public static void startWhydahClient(ConstrettoConfiguration configuration) {
-        SecurityTokenServiceClient whydahClient = new SecurityTokenServiceClient(configuration.evaluateToString("securitytokenservice"), configuration.evaluateToString("my_applicationid"));
+        SecurityTokenServiceClient whydahClient = SecurityTokenServiceClient.getSecurityTokenServiceClient();
         String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
+        log.info("WhydahClient initialized, applicationtokenid:{}", myApplicationTokenId);
 
     }
 
