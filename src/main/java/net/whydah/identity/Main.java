@@ -1,5 +1,6 @@
 package net.whydah.identity;
 
+import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.ldapserver.EmbeddedADS;
@@ -192,8 +193,8 @@ public class Main {
 
 
     public void stop() {
-        if (true) {
-            log.warn("Shutdown called");
+        if (!ApplicationMode.skipSecurityFilter()) {
+            log.warn("Shutdown called - ignoring");
             return;
         }
         try {
