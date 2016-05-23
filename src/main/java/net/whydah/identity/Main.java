@@ -123,6 +123,12 @@ public class Main {
                 SSLTool.disableCertificateValidation();
             }
 
+
+            //main.startHttpServer(requiredRoleName);
+            main.start();
+            main.join();
+            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
+
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new Runnable() {
                 public void run() {
@@ -130,11 +136,6 @@ public class Main {
                     log.debug("Asynchronous startWhydahClient task");
                 }
             });
-
-            //main.startHttpServer(requiredRoleName);
-            main.start();
-            main.join();
-            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
 
             if (!embeddedDSEnabled) {
                 try {
@@ -231,7 +232,13 @@ public class Main {
         SecurityTokenServiceClient whydahClient = SecurityTokenServiceClient.getSecurityTokenServiceClient();
         String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
         log.info("WhydahClient initialized, applicationtokenid:{}", myApplicationTokenId);
-
+        try {
+            // wait forever...
+            Thread.currentThread().join();
+        } catch (InterruptedException ie) {
+            log.warn("Thread was interrupted.", ie);
+        }
+        log.debug("Finished waiting for Thread.currentThread().join()");
     }
 
     public void startEmbeddedDS(Map<String, String> properties) {
