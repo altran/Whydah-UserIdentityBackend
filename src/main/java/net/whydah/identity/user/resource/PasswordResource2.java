@@ -159,20 +159,22 @@ public class PasswordResource2 {
         try {
             UserIdentity user = userIdentityService.getUserIdentity(username);
 
-            List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
-            for (UserPropertyAndRole role : roles) {
-                if (role.getApplicationId().equalsIgnoreCase("2212")) {
-                    if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
-                        if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
-                            if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
-                                return Response.ok().entity(Boolean.toString(true)).build();
-                            }
-                        }
-                    }
-                }
+            if(user!=null){
+            	List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
+            	for (UserPropertyAndRole role : roles) {
+            		if (role.getApplicationId().equalsIgnoreCase("2212")) {
+            			if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
+            				if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
+            					if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
+            						return Response.ok().entity(Boolean.toString(true)).build();
+            					}
+            				}
+            			}
+            		}
+            	}
             }
-
             return Response.ok().entity(Boolean.toString(false)).build();
+            
         } catch (Exception e) {
             log.error("password_login_enabled failed for username={}", username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
