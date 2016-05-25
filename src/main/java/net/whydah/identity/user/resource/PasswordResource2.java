@@ -34,6 +34,10 @@ public class PasswordResource2 {
     static final String CELLPHONE_KEY = "cellPhone";
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResource2.class);
+    private static final String PW_APPLICATION_ID = "2212";
+    private static final String PW_APPLICATION_NAME = "UserAdminService";
+    private static final String PW_ROLE_NAME = "PW_SET";
+    private static final String PW_ROLE_VALUE = "true";
     private final UserIdentityService userIdentityService;
     private final UserAggregateService userAggregateService;
     private final ObjectMapper objectMapper;
@@ -119,11 +123,11 @@ public class PasswordResource2 {
                 authenticated = userIdentityService.authenticateWithChangePasswordToken(username, changePasswordToken);
 
                 RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
-                pwRole.setApplicationId("2212");  //UAS
-                pwRole.setApplicationName("UserAdminService");
+                pwRole.setApplicationId(PW_APPLICATION_ID);  //UAS
+                pwRole.setApplicationName(PW_APPLICATION_NAME);
                 pwRole.setOrganizationName("Whydah");
-                pwRole.setApplicationRoleName("PW_SET");
-                pwRole.setApplicationRoleValue("true");
+                pwRole.setApplicationRoleName(PW_ROLE_NAME);
+                pwRole.setApplicationRoleValue(PW_ROLE_VALUE);
 
                 UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(uid, pwRole);
 
@@ -162,10 +166,11 @@ public class PasswordResource2 {
             if(user!=null){
             	List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
             	for (UserPropertyAndRole role : roles) {
-            		if (role.getApplicationId().equalsIgnoreCase("2212")) {
-            			if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
-                            if (role.getApplicationRoleName().equalsIgnoreCase("PW_SET")) {
-                                if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
+                    log.debug("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getApplicationRoleName(), role.getApplicationRoleValue());
+                    if (role.getApplicationId().equalsIgnoreCase(PW_APPLICATION_ID)) {
+                        if (role.getApplicationName().equalsIgnoreCase(PW_APPLICATION_NAME)) {
+                            if (role.getApplicationRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
+                                if (role.getApplicationRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {
                                     log.info("password_login_enabled true for uid={}", username);
                                     return Response.ok().entity(Boolean.toString(true)).build();
             					}
