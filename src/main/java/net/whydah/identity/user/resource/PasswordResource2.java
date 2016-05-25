@@ -125,8 +125,7 @@ public class PasswordResource2 {
                 pwRole.setApplicationRoleName("PW_SET");
                 pwRole.setApplicationRoleValue("true");
 
-                UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, pwRole);
-
+                UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(uid, pwRole);
 
             } catch (RuntimeException re) {
                 log.info("changePasswordForUser-RuntimeException username={}, message={}", username, re.getMessage(), re);

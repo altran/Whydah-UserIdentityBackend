@@ -138,6 +138,18 @@ public class UserAggregateService {
         return addRole(uid, role);
     }
 
+    public UserPropertyAndRole addRoleIfNotExist(String uid, RoleRepresentationRequest request) {
+        UserPropertyAndRole role = new UserPropertyAndRole();
+        role.setUid(uid);
+        role.setApplicationId(request.getApplicationId());
+        role.setApplicationName(request.getApplicationName());
+        role.setOrganizationName(request.getOrganizationName());
+        role.setApplicationRoleName(request.getApplicationRoleName());
+        role.setApplicationRoleValue(request.getApplicationRoleValue());
+
+        return addRoleIfNotExist(uid, role);
+    }
+
     public List<UserPropertyAndRole> addRoles(String uid, List<UserPropertyAndRole> roles) {
         List<UserPropertyAndRole> createdRoles = new ArrayList<>();
         if (roles != null && roles.size() > 0) {
@@ -156,10 +168,21 @@ public class UserAggregateService {
     public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
-            //throw new WebApplicationException(msg, Response.Status.CONFLICT);
-            return role;
+            throw new WebApplicationException(msg, Response.Status.CONFLICT);
+            //return role;
         }
 
+        role.setUid(uid);
+        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
+        audit(ActionPerformed.ADDED, "role", value);
+        return role;
+    }
+
+    public UserPropertyAndRole addRoleIfNotExist(String uid, UserPropertyAndRole role) {
+        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+            return role;
+        }
         role.setUid(uid);
         userPropertyAndRoleDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
