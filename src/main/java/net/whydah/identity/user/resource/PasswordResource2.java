@@ -35,7 +35,7 @@ public class PasswordResource2 {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResource2.class);
     private static final String PW_APPLICATION_ID = "2212";
-    private static final String PW_APPLICATION_NAME = "UserAdminService";
+    private static final String PW_APPLICATION_NAME = "Whydah-UserAdminService";
     private static final String PW_ROLE_NAME = "PW_SET";
     private static final String PW_ROLE_VALUE = "true";
     private final UserIdentityService userIdentityService;
