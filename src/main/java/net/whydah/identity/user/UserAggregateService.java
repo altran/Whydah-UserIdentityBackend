@@ -156,7 +156,8 @@ public class UserAggregateService {
     public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
-            throw new WebApplicationException(msg, Response.Status.CONFLICT);
+            //throw new WebApplicationException(msg, Response.Status.CONFLICT);
+            return role;
         }
 
         role.setUid(uid);
