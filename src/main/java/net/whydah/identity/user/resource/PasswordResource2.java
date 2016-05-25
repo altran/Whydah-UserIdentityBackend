@@ -165,14 +165,14 @@ public class PasswordResource2 {
                     if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
                         if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
                             if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
-                                return Response.ok().entity(true).build();
+                                return Response.ok().entity(Boolean.toString(true)).build();
                             }
                         }
                     }
                 }
             }
 
-            return Response.ok().entity(false).build();
+            return Response.ok().entity(Boolean.toString(false)).build();
         } catch (Exception e) {
             log.error("password_login_enabled failed for username={}", username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
