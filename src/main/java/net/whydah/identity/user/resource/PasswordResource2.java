@@ -166,7 +166,7 @@ public class PasswordResource2 {
                     if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
                         if (role.getApplicationRoleName().equalsIgnoreCase("UserAdminService")) {
                             if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
-                                return Response.ok().entity(false).build();
+                                return Response.ok().entity(true).build();
                             }
                         }
                     }
