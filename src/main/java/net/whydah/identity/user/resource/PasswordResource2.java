@@ -166,13 +166,15 @@ public class PasswordResource2 {
             			if (role.getApplicationName().equalsIgnoreCase("UserAdminService")) {
                             if (role.getApplicationRoleName().equalsIgnoreCase("PW_SET")) {
                                 if (role.getApplicationRoleValue().equalsIgnoreCase("true")) {
-            						return Response.ok().entity(Boolean.toString(true)).build();
+                                    log.info("password_login_enabled true for uid={}", username);
+                                    return Response.ok().entity(Boolean.toString(true)).build();
             					}
             				}
             			}
             		}
             	}
             }
+            log.info("password_login_enabled false for uid={}", username);
             return Response.ok().entity(Boolean.toString(false)).build();
             
         } catch (Exception e) {
