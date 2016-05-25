@@ -33,11 +33,12 @@ public class SecurityFilter implements Filter {
     // /password/6f485dd168bb999c7fb9696c75fad3c3/reset/username/totto@cantara.no
 //    public static final String pwPattern2 = "/password/(.*)/reset/username/(.*)";
     public static final String pwPattern2 = "(.*)/reset/username/(.*)";
+    public static final String pwPattern3 = "(.*)/password_login_enabled)";
     public static final String userAuthPattern = "/authenticate/user(|/.*)";
     public static final String applicationAuthPatten = "/application/auth";
     public static final String applicationListPatten = "/applications";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, userAuthPattern, userSignupPattern, applicationListPatten};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten};
     public static final String HEALT_PATH = "health";
 
     private final SecurityTokenServiceClient securityTokenHelper;
