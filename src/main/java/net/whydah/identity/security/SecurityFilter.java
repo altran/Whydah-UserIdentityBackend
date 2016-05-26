@@ -214,6 +214,7 @@ public class SecurityFilter implements Filter {
             if (isHealthPath(pathInfo)) {
                 chain.doFilter(request, response);
             } else {
+            	log.warn("FORBIDDEN b/c isUas={}, pathInfo={}", String.valueOf(isUas), pathInfo);
                 ((HttpServletResponse) response).setStatus(Response.SC_FORBIDDEN);
             }
         }
