@@ -82,6 +82,24 @@ public class SecurityTokenServiceClient {
         return null;
     }
 
+    public WhydahApplicationSession getWAS() {
+        if (was == null) {
+            try {
+                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+                was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
+                        null,  // No UAS
+                        myApplicationCredential.getApplicationID(),
+                        myApplicationCredential.getApplicationName(),
+                        myApplicationCredential.getApplicationSecret());
+            } catch (Exception e) {
+                log.warn("Unable to create WhydahSession", e);
+            }
+
+        }
+        return was;
+    }
+
+
     private ApplicationCredential getAppCredentialForApplicationId(String appNo){
         ApplicationService applicationService = ApplicationService.getApplicationService();
         Application app = applicationService.getApplication(appNo);

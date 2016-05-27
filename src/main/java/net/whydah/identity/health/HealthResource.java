@@ -1,5 +1,7 @@
 package net.whydah.identity.health;
 
+import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
+import net.whydah.sso.util.WhydahUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,11 @@ import javax.ws.rs.core.Response;
 public class HealthResource {
     private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
     private final HealthCheckService healthCheckService;
+    private static SecurityTokenServiceClient securityTokenServiceClient;
 
     @Autowired
-    public HealthResource(HealthCheckService healthCheckService) {
+    public HealthResource(SecurityTokenServiceClient securityTokenHelper, HealthCheckService healthCheckService) {
+        this.securityTokenServiceClient = securityTokenHelper;
         this.healthCheckService = healthCheckService;
     }
 
@@ -29,10 +33,11 @@ public class HealthResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response isHealthy() {
         boolean ok = healthCheckService.isOK();
-        log.trace("isHealthy={}", ok);
+        String statusText = WhydahUtil.getPrintableStatus(securityTokenServiceClient.getWAS());
+        log.trace("isHealthy={}, {status}", ok, statusText);
         if (ok) {
             //return Response.status(Response.Status.NO_CONTENT).build();
-            return Response.ok("Status OK!").build();
+            return Response.ok("Status OK!\n" + statusText).build();
         } else {
             //Intentionally not returning anything the client can use to determine what's the error for security reasons.
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -51,3 +56,4 @@ public class HealthResource {
 
     }
 }
+
