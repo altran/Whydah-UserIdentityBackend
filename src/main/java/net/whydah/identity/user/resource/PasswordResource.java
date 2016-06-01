@@ -135,13 +135,13 @@ public class PasswordResource {
                 }
                 userIdentityService.changePassword(username, user.getUid(), newpassword);
                 RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
-                pwRole.setApplicationId("2212");  //UAS
-                pwRole.setApplicationName("UserAdminService");
-                pwRole.setOrganizationName("Whydah");
-                pwRole.setApplicationRoleName("PW_SET");
-                pwRole.setApplicationRoleValue("true");
+                pwRole.setApplicationId(PasswordResource2.PW_APPLICATION_ID);  //UAS
+                pwRole.setApplicationName(PasswordResource2.PW_APPLICATION_NAME);
+                pwRole.setOrganizationName(PasswordResource2.PW_ORG_NAME);
+                pwRole.setApplicationRoleName(PasswordResource2.PW_ROLE_NAME);
+                pwRole.setApplicationRoleValue(PasswordResource2.PW_ROLE_VALUE);
 
-                UserPropertyAndRole updatedRole = userAggregateService.addRole(user.getUid(), pwRole);
+                UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(user.getUid(), pwRole);
 
             } catch (JSONException e) {
                 log.error("Bad json", e);
