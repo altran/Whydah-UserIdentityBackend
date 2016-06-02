@@ -1,5 +1,5 @@
-DROP TABLE Roles IF EXISTS;
-DROP TABLE Applications IF EXISTS;
+DROP TABLE IF EXISTS Roles;
+DROP TABLE IF EXISTS Applications;
 
 CREATE TABLE Application (
   id varchar(64),
