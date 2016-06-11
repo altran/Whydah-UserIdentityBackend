@@ -43,7 +43,8 @@ public class DatabaseMigrationHelper {
         try {
             flyway.migrate();
         } catch (FlywayException e) {
-            throw new RuntimeException("Database upgrade failed using " + dbUrl, e);
+            log.error("Database upgrade failed using " + dbUrl, e);
+//            throw new RuntimeException("Database upgrade failed using " + dbUrl, e);
         }
     }
 
