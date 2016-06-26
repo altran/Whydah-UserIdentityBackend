@@ -1,0 +1,1 @@
+ALTER TABLE UserRoles ALTER COLUMN RoleValues varchar(4096);
