@@ -10,7 +10,7 @@ CREATE TABLE UserRoles (
   AppID varchar(255),
   OrganizationName varchar(255),
   RoleName varchar(255),
-  RoleValues varchar(4096)
+  RoleValues varchar(256)
 );
 
 -- Applications --
