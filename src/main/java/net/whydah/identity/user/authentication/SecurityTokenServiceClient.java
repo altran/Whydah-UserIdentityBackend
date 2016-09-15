@@ -22,7 +22,7 @@ public class SecurityTokenServiceClient {
 
     private static String MY_APPLICATION_ID = "2210";
     private static String securitytokenserviceurl;
-    private static WhydahApplicationSession was = null;
+    public static WhydahApplicationSession was = null;
     private static SecurityTokenServiceClient securityTokenServiceClient;
     private String sts;
 

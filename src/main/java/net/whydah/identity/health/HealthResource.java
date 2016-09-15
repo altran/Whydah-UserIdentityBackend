@@ -62,7 +62,9 @@ public class HealthResource {
         return "{\n" +
                 "  \"Status\": \"OK\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
-                "  \"DEFCON\": \"" + "DEFCON5" + "\",\n" +
+                "  \"DEFCON\": \"" + SecurityTokenServiceClient.was.getDefcon() + "\",\n" +
+                "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.getActiveApplicationTokenId() != null) + "\",\n" +
+                "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.checkActiveSession()) + "\",\n" +
                 "  \"intrusionsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
                 "  \"anonymousIntrusions\": " + healthCheckService.countAnonymousIntrusionAttempts() + "\n" +
                 "}\n";
