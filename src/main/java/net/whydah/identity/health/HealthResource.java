@@ -12,6 +12,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * Endpoint for health check.
@@ -30,14 +33,14 @@ public class HealthResource {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response isHealthy() {
         boolean ok = healthCheckService.isOK();
         String statusText = WhydahUtil.getPrintableStatus(securityTokenServiceClient.getWAS());
         log.trace("isHealthy={}, {status}", ok, statusText);
         if (ok) {
             //return Response.status(Response.Status.NO_CONTENT).build();
-            return Response.ok("Status OK!\n" + statusText).build();
+            return Response.ok(getHealthTextJson()).build();
         } else {
             //Intentionally not returning anything the client can use to determine what's the error for security reasons.
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -55,5 +58,31 @@ public class HealthResource {
             return Response.ok("{\"intrusionAttempt\":" + intrusions +",\"anonymousIntrusionAttempt\":" + anonymousIntrusions +"}").build();
 
     }
+
+    public String getHealthTextJson() {
+        return "{\n" +
+                "  \"Status\": \"OK\",\n" +
+                "  \"Version\": \"" + getVersion() + "\",\n" +
+                "  \"DEFCON\": \"" + "DEFCON5" + "\",\n" +
+                "  \"intrusionsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
+                "  \"anonymousIntrusions\": " + healthCheckService.countAnonymousIntrusionAttempts() + "\n" +
+                "}\n";
+    }
+
+    private static String getVersion() {
+        Properties mavenProperties = new Properties();
+        String resourcePath = "/META-INF/maven/net.whydah.token/SecurityTokenService/pom.properties";
+        URL mavenVersionResource = HealthResource.class.getResource(resourcePath);
+        if (mavenVersionResource != null) {
+            try {
+                mavenProperties.load(mavenVersionResource.openStream());
+                return mavenProperties.getProperty("version", "missing version info in " + resourcePath);
+            } catch (IOException e) {
+                log.warn("Problem reading version resource from classpath: ", e);
+            }
+        }
+        return "(DEV VERSION)";
+    }
+
 }
 
