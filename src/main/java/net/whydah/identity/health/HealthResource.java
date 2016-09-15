@@ -54,8 +54,7 @@ public class HealthResource {
         long intrusions = healthCheckService.countIntrusionAttempts();
         long anonymousIntrusions = healthCheckService.countAnonymousIntrusionAttempts();
 
-            //return Response.status(Response.Status.NO_CONTENT).build();
-            return Response.ok("{\"intrusionAttempt\":" + intrusions +",\"anonymousIntrusionAttempt\":" + anonymousIntrusions +"}").build();
+        return Response.ok("{\"intrusionAttempt\":" + intrusions + ",\"anonymousIntrusionAttempt\":" + anonymousIntrusions + "}").build();
 
     }
 
