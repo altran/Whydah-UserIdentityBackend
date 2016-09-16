@@ -12,7 +12,7 @@ import java.util.Set;
 
 public final class PasswordBlacklist {
     private static final Logger log = LoggerFactory.getLogger(PasswordBlacklist.class);
-    private static final String PASSWORD_FILE = "common-pw.txt";
+    private static final String BLACKLIST_PW_FILE = "common-pw.txt";
 
     public static final Set<String> pwList = new HashSet<>();
 
@@ -28,7 +28,7 @@ public final class PasswordBlacklist {
     */
 
     private static void loadCommonPWFromClasspath() {
-        String pwfile = String.format(PASSWORD_FILE);
+        String pwfile = String.format(BLACKLIST_PW_FILE);
         log.info("Loading properties from classpath: {}", pwfile);
         InputStream is = PasswordBlacklist.class.getClassLoader().getResourceAsStream(pwfile);
         if (is == null) {
