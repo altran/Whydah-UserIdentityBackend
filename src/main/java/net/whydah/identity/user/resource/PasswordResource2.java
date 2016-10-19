@@ -166,7 +166,7 @@ public class PasswordResource2 {
             if (user != null) {
                 List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
                 for (UserPropertyAndRole role : roles) {
-                    log.debug("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getApplicationRoleName(), role.getApplicationRoleValue());
+                    log.info("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getApplicationRoleName(), role.getApplicationRoleValue());
                     if (role.getApplicationRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
                         if (role.getApplicationRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {  // Found a true value
                             log.info("password_login_enabled true for uid={}", username);
