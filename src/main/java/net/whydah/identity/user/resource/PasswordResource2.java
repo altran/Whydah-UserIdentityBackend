@@ -150,7 +150,6 @@ public class PasswordResource2 {
     }
 
 
-
     /**
      * Any user can reset password without logging in. UAS will support finduser for uid, username or email.
      *
@@ -164,25 +163,21 @@ public class PasswordResource2 {
         try {
             UserIdentity user = userIdentityService.getUserIdentity(username);
 
-            if(user!=null){
-            	List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
-            	for (UserPropertyAndRole role : roles) {
+            if (user != null) {
+                List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
+                for (UserPropertyAndRole role : roles) {
                     log.debug("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getApplicationRoleName(), role.getApplicationRoleValue());
-                    if (role.getApplicationId().equalsIgnoreCase(PW_APPLICATION_ID)) {
-                        if (role.getApplicationName().equalsIgnoreCase(PW_APPLICATION_NAME)) {
-                            if (role.getApplicationRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
-                                if (role.getApplicationRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {
-                                    log.info("password_login_enabled true for uid={}", username);
-                                    return Response.ok().entity(Boolean.toString(true)).build();
-            					}
-            				}
-            			}
-            		}
-            	}
+                    if (role.getApplicationRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
+                        if (role.getApplicationRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {  // Found a true value
+                            log.info("password_login_enabled true for uid={}", username);
+                            return Response.ok().entity(Boolean.toString(true)).build();
+                        }
+                    }
+                }
             }
             log.info("password_login_enabled false for uid={}", username);
             return Response.ok().entity(Boolean.toString(false)).build();
-            
+
         } catch (Exception e) {
             log.error("password_login_enabled failed for username={}", username, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
