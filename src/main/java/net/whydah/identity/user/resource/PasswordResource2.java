@@ -39,6 +39,7 @@ public class PasswordResource2 {
     public static final String PW_ORG_NAME = "Whydah";
     public static final String PW_ROLE_NAME = "PW_SET";
     public static final String PW_ROLE_VALUE = "true";
+    public static final int MIN_PW_LENGTH = 8;
     private final UserIdentityService userIdentityService;
     private final UserAggregateService userAggregateService;
     private final ObjectMapper objectMapper;
@@ -114,6 +115,10 @@ public class PasswordResource2 {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             if (PasswordBlacklist.pwList.contains(newpassword)) {
+                log.info("authenticateAndChangePasswordUsingToken failed, weak password for username={}", uid);
+                return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+            }
+            if (newpassword == null || newpassword.length() < MIN_PW_LENGTH) {
                 log.info("authenticateAndChangePasswordUsingToken failed, weak password for username={}", uid);
                 return Response.status(Response.Status.NOT_ACCEPTABLE).build();
             }
