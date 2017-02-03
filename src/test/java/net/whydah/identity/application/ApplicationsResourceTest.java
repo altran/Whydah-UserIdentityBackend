@@ -92,7 +92,7 @@ public class ApplicationsResourceTest {
         assertEquals(applications.size(), 0);
     }
 
-    @Test(dependsOnMethods = "testGetApplicationsEmptyList")
+    @Test(dependsOnMethods = "testGetApplicationsEmptyList", enabled = false)
     public void testGetApplicationsOK() throws Exception {
         //Add applications
         int nrOfApplications = 4;
