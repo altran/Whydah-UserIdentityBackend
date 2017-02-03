@@ -99,7 +99,12 @@ public class ApplicationsResourceTest {
         String createPath = "/{applicationtokenid}/{userTokenId}/application";
         String json;
         for (int i = 0; i < nrOfApplications; i++) {
-            json = ApplicationMapper.toJson(new Application("ignoredId", "appName" + i));
+
+            Application app = new Application("ignoredId", "appName" + i);
+            app.getSecurity().setSecret("secret1");
+            app.getSecurity().setUserTokenFilter("false");
+
+            json = ApplicationMapper.toJson(app);
             given()
                     .body(json)
                     .contentType(ContentType.JSON)
