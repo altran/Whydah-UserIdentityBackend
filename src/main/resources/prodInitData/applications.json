@@ -376,7 +376,6 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
-      "fullTokenApplication": "false",
       "secret": "33879936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -452,7 +451,6 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
-      "fullTokenApplication": "false",
       "secret": "YKHH54bNpnvQEF2vCJSWtctB"
     },
     "acl": [{
