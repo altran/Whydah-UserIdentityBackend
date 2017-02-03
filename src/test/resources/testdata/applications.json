@@ -132,7 +132,7 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -174,7 +174,7 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -216,7 +216,7 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
       "secret": "9ju592A4t8dzz8mz7a5QQJ7Px"
     },
     "acl": [{
@@ -255,7 +255,7 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
       "secret": "33779936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -303,7 +303,7 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
       "secret": "9EH5u5wJFKsUvJFmhypwK7j6D"
     },
     "acl": [{
@@ -354,7 +354,7 @@
     "company" : "Norway AS",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": null,
-    "logoUrl": null,
+    "logoUrl": "http://vnexpress.net/",
     "roles": [{
       "id" : "roleId1",
       "name" : "roleName1"
