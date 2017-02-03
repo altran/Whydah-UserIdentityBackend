@@ -86,6 +86,7 @@ public class ApplicationResourceTest {
     public void testCreateApplication() throws Exception {
         app = new Application("ignoredId", "appName1");
         app.getSecurity().setSecret("secret1");
+        app.getSecurity().setUserTokenFilter("false");
         app.setDefaultRoleName("originalDefaultRoleName");
         app.setApplicationUrl("https://myapp.net/");
         app.addRole(new ApplicationAvailableRoleNames("roleId1", "roleName1"));
