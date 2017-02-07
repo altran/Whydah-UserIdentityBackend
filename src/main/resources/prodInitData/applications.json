@@ -85,7 +85,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
-      "whydahUASAccess": true,
+      "whydahUASAccess": false,
       "secret": "55fhRM6nbKZ2wfC6RMmMuzXpk"
     },
     "acl": [{
@@ -345,7 +345,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
-      "whydahUASAccess": true,
+      "whydahUASAccess": false,
       "secret": "33879936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -382,6 +382,8 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
+      "whydahUASAccess": false,
+
       "secret": "33879936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -418,6 +420,8 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
+      "whydahUASAccess": false,
+
       "secret": "33879936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -457,6 +461,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
+      "whydahUASAccess": false,
       "secret": "YKHH54bNpnvQEF2vCJSWtctB"
     },
     "acl": [{
