@@ -84,7 +84,8 @@
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": "false",
+      "whydahUASAccess": true,
       "secret": "55fhRM6nbKZ2wfC6RMmMuzXpk"
     },
     "acl": [{
@@ -133,6 +134,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "false",
+      "whydahUASAccess": true,
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -175,6 +177,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "false",
+      "whydahUASAccess": true,
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -256,6 +259,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "false",
+      "whydahUASAccess": true,
       "secret": "33779936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -304,6 +308,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "false",
+      "whydahUASAccess": true,
       "secret": "9EH5u5wJFKsUvJFmhypwK7j6D"
     },
     "acl": [{
