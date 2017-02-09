@@ -1,11 +1,16 @@
 package net.whydah.identity.user.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.extensions.crmcustomer.types.Customer;
+import net.whydah.sso.extensions.crmcustomer.types.EmailAddress;
+import net.whydah.sso.user.helpers.UserTokenXpathHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,12 +149,18 @@ public class PasswordResource {
 
                 UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(user.getUid(), pwRole);
 
+                
+                ObjectMapper mapper = new ObjectMapper();
+                String userAsJson = mapper.writeValueAsString(user);
+                //TODO Ensure password is not returned. Expect UserAdminService to trigger resetPassword.
+                return Response.status(Response.Status.OK).entity(userAsJson).build();
+
+                
             } catch (JSONException e) {
                 log.error("Bad json", e);
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            return Response.ok().build();
         } catch (Exception e) {
             log.error("newpassword failed", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
