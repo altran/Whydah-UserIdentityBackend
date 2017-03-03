@@ -309,6 +309,7 @@
       ],
       "userTokenFilter": "false",
       "whydahUASAccess": true,
+      "whydahAdmin": true,
       "secret": "9EH5u5wJFKsUvJFmhypwK7j6D"
     },
     "acl": [{
