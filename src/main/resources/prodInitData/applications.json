@@ -37,6 +37,7 @@
         "0.0.0.0/0"
       ],
       "userTokenFilter": "true",
+      "whydahUASAccess": true,
       "secret": "45fhRM6nbKZ2wfC6RMmMuzXpk"
     },
     "acl": [{
