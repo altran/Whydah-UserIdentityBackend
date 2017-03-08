@@ -21,7 +21,7 @@ public class CommandLdapCreateSubcontext extends HystrixCommand<DirContext> {
     private final Attributes attributes;
 
     public CommandLdapCreateSubcontext(DirContext ctx, String userdn, Attributes attributes) {
-        super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"));
+        super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"), 3000);
         this.ctx = ctx;
         this.userdn = userdn;
         this.attributes = attributes;

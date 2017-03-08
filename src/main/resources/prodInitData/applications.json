@@ -135,6 +135,7 @@
       ],
       "userTokenFilter": "false",
       "whydahUASAccess": true,
+      "whydahAdmin": true,
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -178,6 +179,7 @@
       ],
       "userTokenFilter": "false",
       "whydahUASAccess": true,
+      "whydahAdmin": true,
       "secret": "6r46g3q986Ep6By7B9J46m96D"
     },
     "acl": [{
@@ -260,6 +262,7 @@
       ],
       "userTokenFilter": "false",
       "whydahUASAccess": true,
+      "whydahAdmin": true,
       "secret": "33779936R6Jr47D4Hj5R6p9qT"
     },
     "acl": [{
@@ -506,6 +509,7 @@
       ],
       "userTokenFilter": "false",
       "whydahUASAccess": true,
+      "whydahAdmin": true,
       "secret": "9ju592A4t8dzz8mz788QQJ7Px"
     },
     "acl": [{
