@@ -63,7 +63,7 @@ public class ApplicationAuthenticationEndpoint {
         log.info("ApplicationCredential lookup for applicationID={}",appCredentialToVerify.getApplicationID());
         Application verifiedApplication = applicationService.authenticate(appCredentialToVerify);
         if (verifiedApplication == null) {
-            log.warn("Application authentication failed for {}. Returning {}", appCredentialToVerify, Response.Status.FORBIDDEN);
+            log.warn("Application authentication failed for appid = {}. Returning {}", appCredentialToVerify.getApplicationID(), Response.Status.FORBIDDEN);
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 

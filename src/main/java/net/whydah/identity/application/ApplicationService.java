@@ -41,7 +41,15 @@ public class ApplicationService {
     ////// CRUD
 
     public Application create(Application application) {
-        return create(UUID.randomUUID().toString(), application);
+    	if(application.getId()==null||application.getId().isEmpty()){
+    		return create(UUID.randomUUID().toString(), application);
+    	} else {
+    		if(getApplication(application.getId())!=null){
+    			return null; //The id is already existing
+    		} else {
+    			return create(application.getId(), application);		
+    		}
+    	}
     }
     //used by ApplicationImporter, should be remove later
     public Application create(String applicationId, Application application) {

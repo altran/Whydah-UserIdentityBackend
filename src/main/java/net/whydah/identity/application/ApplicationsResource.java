@@ -57,7 +57,7 @@ public class ApplicationsResource {
             if (applications != null && applications.size() > 0) {
                 log.debug("application [0] - {}",applications.get(0).toString());
             }
-            String json = ApplicationMapper.toSafeJson(applications);
+            String json = ApplicationMapper.toJson(applications);
             log.trace("Returning {} applications: {}", applications.size(), json);
             return Response.ok(json).build();
         } catch (RuntimeException e) {
