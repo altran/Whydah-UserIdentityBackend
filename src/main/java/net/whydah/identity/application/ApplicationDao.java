@@ -103,6 +103,11 @@ public class ApplicationDao {
     private static final class ApplicationMapper2 implements RowMapper<Application> {
         public Application mapRow(ResultSet rs, int rowNum) throws SQLException {
             String json = rs.getString("json");
+            if (rs == null) {
+                log.info("No resultset found.");
+            } else if (json == null || json.isEmpty()) {
+                log.warn("No data found for application id {}", rs.getString(0));
+            }
             return ApplicationMapper.fromJson(json);
         }
     }
