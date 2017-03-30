@@ -109,7 +109,9 @@ public class ApplicationDao {
                 log.warn("No data found for application id {}", rs.getString(0));
             }
             log.info("REMOVEME {}", json); //FIXME remove baardl
-            return ApplicationMapper.fromJson(json);
+            Application application = ApplicationMapper.fromJson(json);
+            log.info("REMOVEME2 {}", application);
+            return application;
         }
     }
 }
