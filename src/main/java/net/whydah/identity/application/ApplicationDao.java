@@ -43,7 +43,7 @@ public class ApplicationDao {
     int create(Application application) {
         String json = ApplicationMapper.toJson(application);
         String sql = "INSERT INTO Application (id, json) VALUES (?,?)";
-        int numRowsAffected = jdbcTemplate.update(sql, application.getId(), json);
+        int numRowsAffected = jdbcTemplate.update(sql, application.getId().trim(), json);
         return numRowsAffected;
 
         /*
@@ -67,11 +67,13 @@ public class ApplicationDao {
     }
 
     Application getApplication(String applicationId) {
-        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId}, new ApplicationMapper2());
+        List<Application> applications = jdbcTemplate.query(APPLICATION_SQL, new String[]{applicationId.trim()}, new ApplicationMapper2());
         if (applications.isEmpty()) {
+            log.info("No Applciation found for applicationId [{}]", applicationId);
             return null;
         }
         Application application = applications.get(0);
+        log.info("REMOVEME4 {}", application);
         return application;
     }
 
@@ -82,13 +84,13 @@ public class ApplicationDao {
     int update(Application application) {
         String json = ApplicationMapper.toJson(application);
         String sql = "UPDATE Application set Json=? WHERE ID=?";
-        int numRowsAffected = jdbcTemplate.update(sql, json, application.getId());
+        int numRowsAffected = jdbcTemplate.update(sql, json, application.getId().trim());
         return numRowsAffected;
     }
 
     int delete(String applicationId) {
         String sql = "DELETE FROM Application WHERE ID=?";
-        int numRowsAffected = jdbcTemplate.update(sql, applicationId);
+        int numRowsAffected = jdbcTemplate.update(sql, applicationId.trim());
         return numRowsAffected;
     }
 
@@ -103,7 +105,15 @@ public class ApplicationDao {
     private static final class ApplicationMapper2 implements RowMapper<Application> {
         public Application mapRow(ResultSet rs, int rowNum) throws SQLException {
             String json = rs.getString("json");
-            return ApplicationMapper.fromJson(json);
+            if (rs == null) {
+                log.info("No resultset found.");
+            } else if (json == null || json.isEmpty()) {
+                log.warn("No data found for application id {}", rs.getString(0));
+            }
+            log.info("REMOVEME {}", json); //FIXME remove baardl
+            Application application = ApplicationMapper.fromJson(json);
+            log.info("REMOVEME2 {}", application);
+            return application;
         }
     }
 }
