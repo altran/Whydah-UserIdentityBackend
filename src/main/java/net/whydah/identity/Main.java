@@ -199,7 +199,7 @@ public class Main {
             System.exit(2);
         }
         int localPort = getPort();
-        log.info("Jetty server started on http://localhost:{}/{}", localPort, CONTEXT_PATH);
+        log.info("Jetty server started on http://localhost:{}{}", localPort, CONTEXT_PATH);
     }
 
 
