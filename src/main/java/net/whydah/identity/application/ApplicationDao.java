@@ -108,6 +108,7 @@ public class ApplicationDao {
             } else if (json == null || json.isEmpty()) {
                 log.warn("No data found for application id {}", rs.getString(0));
             }
+            log.info("REMOVEME {}", json); //FIXME remove baardl
             return ApplicationMapper.fromJson(json);
         }
     }
