@@ -1,6 +1,5 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.sso.application.types.Application;
@@ -89,11 +88,13 @@ public class ApplicationService {
      */
     public Application authenticate(ApplicationCredential credential) {
         if (credential == null) {
+            log.warn("authenticate - Missing ApplicationCredential ");
             return null;
         }
         List<Application> applications = applicationDao.getApplications();
         Application application = applicationDao.getApplication(credential.getApplicationID());
         if (application == null) {
+            log.warn("authenticate - ApplicationID {} - Not Found", credential.getApplicationID());
             return null;
         }
         String applicationSecret = application.getSecurity().getSecret();
@@ -104,6 +105,7 @@ public class ApplicationService {
         if (applicationSecret.equals(credential.getApplicationSecret())) {
             return application;
         }
+        log.warn("authenticate - Incorrect applicationSectret ");
         return null;
     }
 }
