@@ -74,7 +74,7 @@ public class ApplicationDao {
             return null;
         }
         Application application = applications.get(0);
-        log.info("REMOVEME4 {}", application);
+        log.trace("REMOVEME4 {}", application);
         return application;
     }
 
