@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static net.whydah.identity.util.LoggerUtil.first50;
+
 //TODO Decide strategy to handle different SQL queries for different databases. Inheritance to support variations from generic?
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a>
@@ -74,7 +76,7 @@ public class ApplicationDao {
             return null;
         }
         Application application = applications.get(0);
-        log.trace("REMOVEME4 {}", application);
+        log.trace("Application found {}", first50(application));
         return application;
     }
 
@@ -111,9 +113,9 @@ public class ApplicationDao {
             } else if (json == null || json.isEmpty()) {
                 log.warn("No data found for application id {}", rs.getString(0));
             }
-            log.info("REMOVEME {}", json); //FIXME remove baardl
+            log.trace("Application Json before mapper {}", first50(json));
             Application application = ApplicationMapper.fromJson(json);
-            log.info("REMOVEME2 {}", application);
+            log.info("Application after mapper {}", first50(application));
             return application;
         }
     }
