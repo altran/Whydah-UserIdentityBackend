@@ -39,7 +39,7 @@ public class SecurityFilter implements Filter {
     public static final String applicationListPatten = "/applications";
     public static final String userSignupPattern = "/signup/user";
     public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten};
-    public static final String HEALT_PATH = "health";
+    public static final String HEALT_PATH = "/health";
 
     private final SecurityTokenServiceClient securityTokenHelper;
     private final AuthenticationService authenticationService;
@@ -85,6 +85,7 @@ public class SecurityFilter implements Filter {
 
         //Open paths without authentication
         if (path.startsWith(HEALT_PATH)) {
+            log.debug("{} was matched to {}. SecurityFilter passed.", path, HEALT_PATH);
             return null;
         }
 
