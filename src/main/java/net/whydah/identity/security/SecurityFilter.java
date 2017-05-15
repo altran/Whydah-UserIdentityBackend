@@ -225,7 +225,7 @@ public class SecurityFilter implements Filter {
         boolean isHealthPath = false;
         if (pathInfo != null) {
             String path = pathInfo.substring(1);
-            if (path != null && path.startsWith(HEALT_PATH)) {
+            if (path != null && path.startsWith(HEALT_PATH.replace("/", ""))) {
                 isHealthPath = true;
             }
         }
