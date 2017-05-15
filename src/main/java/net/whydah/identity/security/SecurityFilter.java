@@ -100,7 +100,9 @@ public class SecurityFilter implements Filter {
 
 
         //strip applicationTokenId from pathInfo
-        path = path.substring(path.indexOf("/"));
+        if (path.indexOf("/") > 0) {
+            path = path.substring(path.indexOf("/"));
+        }
 
 
         //paths without userTokenId verification
