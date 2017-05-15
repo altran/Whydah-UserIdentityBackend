@@ -84,7 +84,7 @@ public class SecurityFilter implements Filter {
         String path = pathInfo.substring(1); //strip leading /
 
         //Open paths without authentication
-        if (path.startsWith(HEALT_PATH)) {
+        if (path.startsWith(HEALT_PATH.substring(1))) {
             log.debug("{} was matched to {}. SecurityFilter passed.", path, HEALT_PATH);
             return null;
         }
