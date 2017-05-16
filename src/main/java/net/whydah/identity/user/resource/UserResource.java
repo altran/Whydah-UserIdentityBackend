@@ -1,6 +1,8 @@
 package net.whydah.identity.user.resource;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
@@ -9,6 +11,7 @@ import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -51,6 +55,7 @@ public class UserResource {
         this.userIdentityService = userIdentityService;
         this.userAggregateService = userAggregateService;
         this.mapper = mapper;
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         log.trace("Started: UserResource");
     }
 
@@ -213,7 +218,6 @@ public class UserResource {
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
         }
-
 
         RoleRepresentationRequest request;
         try {
