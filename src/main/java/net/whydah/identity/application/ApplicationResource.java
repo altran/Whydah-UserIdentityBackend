@@ -106,12 +106,12 @@ public class ApplicationResource {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
                     luceneApplicationIndexer.update(application);
-                    Application updatedapplication = applicationService.getApplication(applicationId);
-                    String json = ApplicationMapper.toJson(updatedapplication);
-                    log.debug("applicationJson {}", json);
-                    return Response.ok(json).build();
+//                    Application updatedapplication = applicationService.getApplication(applicationId);
+//                    String json = ApplicationMapper.toJson(updatedapplication);
+//                    log.debug("applicationJson {}", json);
+//                    return Response.ok(json).build();
 
-//                return Response.status(Response.Status.NO_CONTENT).build();
+                    return Response.status(Response.Status.NO_CONTENT).build();
                 default:
                     log.error("numRowsAffected={}, if more than one row was updated, this means that the database is in an unexpected state. Manual correction is needed!", numRowsAffected);
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
