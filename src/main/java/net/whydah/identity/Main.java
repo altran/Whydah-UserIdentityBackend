@@ -128,6 +128,7 @@ public class Main {
             main.start();
             main.join();
             log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
 
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new Runnable() {

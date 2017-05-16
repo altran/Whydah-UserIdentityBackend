@@ -39,7 +39,7 @@ public class SecurityFilter implements Filter {
     public static final String applicationListPatten = "/applications";
     public static final String userSignupPattern = "/signup/user";
     public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten};
-    public static final String HEALT_PATH = "health";
+    public static final String HEALT_PATH = "/health";
 
     private final SecurityTokenServiceClient securityTokenHelper;
     private final AuthenticationService authenticationService;
@@ -84,7 +84,8 @@ public class SecurityFilter implements Filter {
         String path = pathInfo.substring(1); //strip leading /
 
         //Open paths without authentication
-        if (path.startsWith(HEALT_PATH)) {
+        if (path.startsWith(HEALT_PATH.substring(1))) {
+            log.debug("{} was matched to {}. SecurityFilter passed.", path, HEALT_PATH);
             return null;
         }
 
@@ -99,7 +100,9 @@ public class SecurityFilter implements Filter {
 
 
         //strip applicationTokenId from pathInfo
-        path = path.substring(path.indexOf("/"));
+        if (path.indexOf("/") > 0) {
+            path = path.substring(path.indexOf("/"));
+        }
 
 
         //paths without userTokenId verification
@@ -224,7 +227,7 @@ public class SecurityFilter implements Filter {
         boolean isHealthPath = false;
         if (pathInfo != null) {
             String path = pathInfo.substring(1);
-            if (path != null && path.startsWith(HEALT_PATH)) {
+            if (path != null && path.startsWith(HEALT_PATH.replace("/", ""))) {
                 isHealthPath = true;
             }
         }
