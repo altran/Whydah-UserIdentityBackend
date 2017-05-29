@@ -26,7 +26,7 @@ import java.util.List;
 public class LuceneUserSearch {
     private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearch.class);
     protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
-    private static final int MAX_HITS = 2500;
+    private static final int MAX_HITS = 2600;
     private final Directory index;
 
 
