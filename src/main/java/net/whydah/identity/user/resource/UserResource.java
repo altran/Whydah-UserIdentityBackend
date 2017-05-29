@@ -7,7 +7,7 @@ import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.sso.user.types.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
