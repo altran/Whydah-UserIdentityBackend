@@ -6,6 +6,7 @@ import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.PasswordGenerator;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,10 +144,16 @@ public class UserIdentityService {
         }
 
         String uid = UUID.randomUUID().toString();
-        UserIdentity userIdentity = new UserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
-                email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
+        UserIdentity userIdentity = new UserIdentity(uid);
+        userIdentity.setUsername(dto.getUsername());
+        userIdentity.setFirstName(dto.getFirstName());
+        userIdentity.setLastName(dto.getLastName());
+        userIdentity.setEmail(email);
+        userIdentity.setPersonRef(dto.getPersonRef());
+        userIdentity.setCellPhone(dto.getCellPhone());
+//                email, passwordGenerator.generate(), , );
         try {
-            ldapUserIdentityDao.addUserIdentity(userIdentity);
+            ldapUserIdentityDao.addUserIdentity(userIdentity,passwordGenerator.generate());
             luceneIndexer.addToIndex(userIdentity);
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);

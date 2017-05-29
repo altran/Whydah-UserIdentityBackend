@@ -5,9 +5,9 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ public class PasswordResource2 {
     static final String NEW_PASSWORD_KEY = "newpassword";
     static final String EMAIL_KEY = "email";
     static final String CELLPHONE_KEY = "cellPhone";
+    static final String UID_KEY = "uid";
 
     private static final Logger log = LoggerFactory.getLogger(PasswordResource2.class);
     public static final String PW_APPLICATION_ID = "2212";
@@ -71,7 +72,7 @@ public class PasswordResource2 {
 
             String changePasswordToken = userIdentityService.setTempPassword(uid, user.getUid());
             Map<String, String> map = new HashMap<>();
-            map.put(UserIdentity.UID, user.getUid());
+            map.put(UID_KEY, user.getUid());
             map.put(EMAIL_KEY, user.getEmail());
             map.put(CELLPHONE_KEY, user.getCellPhone());
             map.put(CHANGE_PASSWORD_TOKEN, changePasswordToken);
