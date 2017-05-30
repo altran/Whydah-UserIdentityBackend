@@ -1,8 +1,8 @@
 package net.whydah.identity.user.resource;
 
 import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.sso.user.types.UserIdentity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class UserAggregateRepresentation {
         dto.setPersonRef(id.getPersonRef());
         dto.setEmail(id.getEmail());
         dto.setCellPhone(id.getCellPhone());
-//        dto.setPassword(id.getPassword());
+        dto.setPassword(id.getPassword());
 
         List<UserPropertyAndRole> userPropertyAndRoles = userAggregate.getRoles();
         List<RoleRepresentation> roleRepresentations = new ArrayList<>(userPropertyAndRoles.size());
@@ -56,13 +56,7 @@ public class UserAggregateRepresentation {
     }
 
     private UserIdentity buildUserIdentity() {
-        UserIdentity userIdentity = new UserIdentity(getUid());
-        userIdentity.setUsername(getUsername());
-        userIdentity.setFirstName(getFirstName());
-        userIdentity.setLastName(getLastName());
-        userIdentity.setEmail(getEmail());
-        userIdentity.setCellPhone(getCellPhone());
-        userIdentity.setPersonRef(getPersonRef());
+        UserIdentity userIdentity = new UserIdentity(getUid(),getUsername(),getFirstName(),getLastName(),getEmail(),getPassword(),getCellPhone(),getPersonRef());
         return userIdentity;
     }
 

@@ -1,8 +1,8 @@
 package net.whydah.identity.health;
 
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

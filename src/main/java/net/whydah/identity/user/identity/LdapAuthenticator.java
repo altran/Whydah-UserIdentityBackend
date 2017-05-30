@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import net.whydah.sso.user.types.UserIdentity;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -181,7 +180,8 @@ public class LdapAuthenticator {
             return null;
         }
 
-        UserIdentity userIdentity = new UserIdentity(getAttribValue(attributes, uidAttribute));
+        UserIdentity userIdentity = new UserIdentity();
+        userIdentity.setUid(getAttribValue(attributes, uidAttribute));
         userIdentity.setUsername(getAttribValue(attributes, usernameAttribute));
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));
         userIdentity.setLastName(getAttribValue(attributes, "sn"));

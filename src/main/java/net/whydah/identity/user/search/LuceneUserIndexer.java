@@ -1,7 +1,7 @@
 package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.UserAggregate;
-import net.whydah.sso.user.types.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;

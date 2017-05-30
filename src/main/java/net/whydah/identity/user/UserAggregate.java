@@ -1,7 +1,7 @@
 package net.whydah.identity.user;
 
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.sso.user.types.UserIdentity;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -77,7 +77,8 @@ public class UserAggregate {
             String email = (String) xPath.evaluate("//email", doc, XPathConstants.STRING);
             String personRef = (String) xPath.evaluate("//personRef", doc, XPathConstants.STRING);
 
-            UserIdentity identity = new UserIdentity(uid);
+            UserIdentity identity = new UserIdentity();
+            identity.setUid(uid);
             identity.setUsername(userName);
             identity.setFirstName(firstName);
             identity.setLastName(lastName);
@@ -156,9 +157,9 @@ public class UserAggregate {
         identity.setPersonRef(personRef);
     }
 
-//    public void setUid(String uid) {
-//        identity.setUid(uid);
-//    }
+    public void setUid(String uid) {
+        identity.setUid(uid);
+    }
 
     public void setUsername(String username) {
         identity.setUsername(username);
@@ -180,9 +181,9 @@ public class UserAggregate {
         identity.setCellPhone(cellPhone);
     }
 
-//    public void setPassword(String password) {
-//        identity.setPassword(password);
-//    }
+    public void setPassword(String password) {
+        identity.setPassword(password);
+    }
 
     public void setRoles(List<UserPropertyAndRole> roles) {
         this.roles = roles;

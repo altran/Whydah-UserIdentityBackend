@@ -4,10 +4,10 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
-import net.whydah.sso.user.types.UserIdentity;
 import net.whydah.sso.user.types.UserToken;
 import org.constretto.ConstrettoConfiguration;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public class UserAdminHelper {
             }
 
             newIdentity.setUid(UUID.randomUUID().toString());
-            ldapUserIdentityDao.addUserIdentity(newIdentity,UUID.randomUUID().toString());
+            ldapUserIdentityDao.addUserIdentity(newIdentity);
             logger.info("addUser - Added new user: {}", username);
         } catch (Exception e) {
             logger.error("addUser - Could not create user " + username, e);
@@ -145,7 +145,7 @@ public class UserAdminHelper {
             userIdentity.setEmail(email.trim());
 
             String password = calculateSyntheticPassword(fbUserId);
-            //userIdentity.setPassword(password);
+            userIdentity.setPassword(password);
             return userIdentity;
         } catch (XPathExpressionException e) {
             logger.error("createWhydahUserIdentity - ", e);

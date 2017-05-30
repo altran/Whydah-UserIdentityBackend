@@ -1,6 +1,7 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.sso.user.types.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -26,7 +27,7 @@ import java.util.List;
 public class LuceneUserSearch {
     private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearch.class);
     protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
-    private static final int MAX_HITS = 2600;
+    private static final int MAX_HITS = 500;
     private final Directory index;
 
 
@@ -35,7 +36,7 @@ public class LuceneUserSearch {
         this.index = index;
     }
 
-    public List<UserIdentity> search(String queryString) {
+    public List<UserIdentityRepresentation> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
                 LuceneUserIndexer.FIELD_FIRSTNAME,
@@ -59,7 +60,7 @@ public class LuceneUserSearch {
             return new ArrayList<>();
         }
 
-        List<UserIdentity> result = new ArrayList<>();
+        List<UserIdentityRepresentation> result = new ArrayList<>();
         DirectoryReader directoryReader = null;
         try {
             //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html
@@ -70,9 +71,10 @@ public class LuceneUserSearch {
             for (ScoreDoc hit : topDocs.scoreDocs) {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
-                UserIdentity user = new UserIdentity(d.get(LuceneUserIndexer.FIELD_UID));
+                UserIdentity user = new UserIdentity();
                 user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
                 user.setLastName(d.get(LuceneUserIndexer.FIELD_LASTNAME));
+                user.setUid(d.get(LuceneUserIndexer.FIELD_UID));
                 user.setUsername(d.get(LuceneUserIndexer.FIELD_USERNAME));
                 user.setPersonRef(d.get(LuceneUserIndexer.FIELD_PERSONREF));
                 user.setCellPhone(d.get(LuceneUserIndexer.FIELD_MOBILE));

@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
+import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.extensions.crmcustomer.types.Customer;
+import net.whydah.sso.extensions.crmcustomer.types.EmailAddress;
+import net.whydah.sso.user.helpers.UserTokenXpathHelper;
 
-import net.whydah.sso.user.types.UserIdentity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -35,7 +38,6 @@ public class PasswordResource {
     static final String NEW_PASSWORD_KEY = "newpassword";
     static final String EMAIL_KEY = "email";
     static final String CELLPHONE_KEY = "cellPhone";
-    static final String UID_KEY = "uid";
 
     private final UserIdentityService userIdentityService;
     private final UserAggregateService userAggregateService;
@@ -93,7 +95,7 @@ public class PasswordResource {
 
             String resetPasswordToken = userIdentityService.setTempPassword(username, user.getUid());
             Map<String, String> map = new HashMap<>();
-            map.put(UID_KEY, user.getUid());
+            map.put(UserIdentity.UID, user.getUid());
             map.put(EMAIL_KEY, user.getEmail());
             map.put(CELLPHONE_KEY, user.getCellPhone());
             map.put(CHANGE_PASSWORD_TOKEN, resetPasswordToken);
