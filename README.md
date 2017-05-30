@@ -1,6 +1,7 @@
 UserIdentityBackend
 ===================
 
+
 ![Build Status](http://jenkins.capraconsulting.no/buildStatus/icon?job=Whydah-UserIdentityBackend)
 
 
