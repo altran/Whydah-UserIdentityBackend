@@ -1,8 +1,8 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,6 @@ public class WhydahUserIdentityImporter {
 	        	userIdentity = new UserIdentity();
 	        	userIdentity.setUid(cleanString(lineArray[USERID]));
 	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
-	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
 	            userIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
 	            userIdentity.setLastName(cleanString(lineArray[LASTNAME]));
 	            userIdentity.setEmail(cleanString(lineArray[EMAIL]));

@@ -2,6 +2,7 @@ package net.whydah.identity.user.identity;
 
 
 import com.netflix.hystrix.exception.HystrixBadRequestException;
+import net.whydah.sso.user.types.UserIdentity;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -84,15 +85,15 @@ public class LdapUserIdentityDao {
 
     }
 
-    public boolean addUserIdentity(UserIdentity userIdentity) throws NamingException {
+    public boolean addUserIdentity(UserIdentity userIdentity,String password) throws NamingException {
         if (readOnly) {
             log.warn("addUserIdentity called, but LDAP server is configured read-only. UserIdentity was not added.");
             return false;
         }
 
-        userIdentity.validate();
+        //userIdentity.validate();
 
-        Attributes attributes = getLdapAttributes(userIdentity);
+        Attributes attributes = getLdapAttributes(userIdentity,password);
 
         // Create the entry
         String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
@@ -124,7 +125,7 @@ public class LdapUserIdentityDao {
     /**
      * Schemas: http://www.zytrax.com/books/ldap/ape/
      */
-    private Attributes getLdapAttributes(UserIdentity userIdentity) {
+    private Attributes getLdapAttributes(UserIdentity userIdentity,String password) {
         // Create a container set of attributes
         Attributes container = new BasicAttributes();
         // Create the objectclass to add
@@ -136,7 +137,7 @@ public class LdapUserIdentityDao {
         container.put(new BasicAttribute(uidAttribute, stringCleaner.cleanString(userIdentity.getUid())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, userIdentity.getEmail()));
         container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
-        container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, userIdentity.getPassword()));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
 
 
 
@@ -200,7 +201,7 @@ public class LdapUserIdentityDao {
             return;
         }
 
-        newuser.validate();
+        //newuser.validate();
 
         try {
             UserIdentity olduser = getUserIndentity(username);
