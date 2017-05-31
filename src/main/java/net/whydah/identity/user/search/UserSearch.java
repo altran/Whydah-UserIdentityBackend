@@ -1,8 +1,8 @@
 package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.identity.UserIdentityRepresentation;
+import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +29,8 @@ public class UserSearch {
         this.luceneIndexer = luceneIndexer;
     }
 
-    public List<UserIdentityRepresentation> search(String query) {
-        List<UserIdentityRepresentation> users = luceneSearch.search(query);
+    public List<UIBUserIdentityRepresentation> search(String query) {
+        List<UIBUserIdentityRepresentation> users = luceneSearch.search(query);
         if (users == null) {
             users = new ArrayList<>();
         }
@@ -39,7 +39,7 @@ public class UserSearch {
         //If user is not found in lucene, try to search AD.
         if (users.isEmpty()) {
             try {
-                UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+                UIBUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
                 if (user != null) {
                     users.add(user);
                     //Update user to lucene.

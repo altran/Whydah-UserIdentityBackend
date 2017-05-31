@@ -2,7 +2,7 @@ package net.whydah.identity.user.resource;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class UserAggregateResource {
     public Response getUserAggregate(@PathParam("uid") String uid) {
         log.trace("getUserAggregateByUsernameOrUid with uid={}", uid);
 
-        UserAggregate user;
+        UIBUserAggregate user;
         try {
             user = userAggregateService.getUserAggregateByUsernameOrUid(uid);
             if (user == null) {

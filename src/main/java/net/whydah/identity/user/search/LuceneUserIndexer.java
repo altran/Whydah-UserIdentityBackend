@@ -1,7 +1,7 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.identity.user.UserAggregate;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.UIBUserAggregate;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -86,7 +86,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void addToIndex(UserIdentity user) {
+    public void addToIndex(UIBUserIdentity user) {
         IndexWriter w = null;
         try {
             w = getWriter();
@@ -99,7 +99,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void addToUserAggregateIndex(UserAggregate userAggregate) {
+    public void addToUserAggregateIndex(UIBUserAggregate userAggregate) {
         IndexWriter w = null;
         try {
             w = getWriter();
@@ -113,11 +113,11 @@ public class LuceneUserIndexer {
     }
 
 
-    public void addToIndex(List<UserIdentity> users) throws IOException {
+    public void addToIndex(List<UIBUserIdentity> users) throws IOException {
         IndexWriter w = null;
         try {
             w = getWriter();
-            for (UserIdentity user : users) {
+            for (UIBUserIdentity user : users) {
                 try {
                     Document doc = createLuceneDocument(user);
                     w.addDocument(doc);
@@ -130,11 +130,11 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void addToUserAggregateIndex(List<UserAggregate> userAggregates) throws IOException {
+    public void addToUserAggregateIndex(List<UIBUserAggregate> userAggregates) throws IOException {
         IndexWriter w = null;
         try {
             w = getWriter();
-            for (UserAggregate userAggregate : userAggregates) {
+            for (UIBUserAggregate userAggregate : userAggregates) {
                 try {
                     Document doc = createLuceneDocument(userAggregate);
                     w.addDocument(doc);
@@ -148,7 +148,7 @@ public class LuceneUserIndexer {
     }
 
 
-    public void update(UserIdentity user) {
+    public void update(UIBUserIdentity user) {
         IndexWriter w = null;
         try {
             w = getWriter();
@@ -160,7 +160,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void updateUserAggregate(UserAggregate userAggregate) {
+    public void updateUserAggregate(UIBUserAggregate userAggregate) {
         IndexWriter w = null;
         try {
             w = getWriter();
@@ -199,7 +199,7 @@ public class LuceneUserIndexer {
         return new IndexWriter(index, new IndexWriterConfig(LUCENE_VERSION, ANALYZER));
     }
 
-    private Document createLuceneDocument(UserIdentity user) {
+    private Document createLuceneDocument(UIBUserIdentity user) {
         FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
         ftNotTokenized.setTokenized(false);
 
@@ -233,7 +233,7 @@ public class LuceneUserIndexer {
         return doc;
     }
 
-    private Document createLuceneDocument(UserAggregate userAggregate) {
+    private Document createLuceneDocument(UIBUserAggregate userAggregate) {
         FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
         ftNotTokenized.setTokenized(false);
 

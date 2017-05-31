@@ -4,7 +4,7 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
@@ -87,7 +87,7 @@ public class UserAdminHelper {
         this.fbRoleName = configuration.evaluateToString("adduser.facebook.defaultrole.name");
     }
 
-    public Response addUser(UserIdentity newIdentity) {
+    public Response addUser(UIBUserIdentity newIdentity) {
         String username = newIdentity.getUsername();
 
         if (username == null || username.length() < 2) {
@@ -126,7 +126,7 @@ public class UserAdminHelper {
         return Response.ok().build();
     }
 
-    public static UserIdentity createWhydahUserIdentity(Document fbUserDoc) {
+    public static UIBUserIdentity createWhydahUserIdentity(Document fbUserDoc) {
         XPath xPath = XPathFactory.newInstance().newXPath();
 
         try {
@@ -137,7 +137,7 @@ public class UserAdminHelper {
             String email = (String) xPath.evaluate("//email", fbUserDoc, XPathConstants.STRING);
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
-            UserIdentity userIdentity = new UserIdentity();
+            UIBUserIdentity userIdentity = new UIBUserIdentity();
             userIdentity.setUid(fbUserId.trim());
             userIdentity.setUsername(username.trim());
             userIdentity.setFirstName(firstName.trim());
@@ -158,7 +158,7 @@ public class UserAdminHelper {
     }
 
 
-    public void addDefaultWhydahUserRole(UserIdentity userIdentity) {
+    public void addDefaultWhydahUserRole(UIBUserIdentity userIdentity) {
         UserPropertyAndRole role = new UserPropertyAndRole();
 
         role.setUid(userIdentity.getUid());
@@ -182,7 +182,7 @@ public class UserAdminHelper {
 //        audit(ActionPerformed.ADDED, "role", value);
     }
 
-    public void addDefaultRoles(UserIdentity userIdentity, String roleValue) {
+    public void addDefaultRoles(UIBUserIdentity userIdentity, String roleValue) {
         boolean facebook = true;
         boolean netiq = false;
         if (roleValue.indexOf("netIQAccessToken") > 0) {
@@ -213,7 +213,7 @@ public class UserAdminHelper {
         }
     }
 
-    private void addDefaultNetIQRole(UserIdentity userIdentity) {
+    private void addDefaultNetIQRole(UIBUserIdentity userIdentity) {
         UserPropertyAndRole role;
         role = new UserPropertyAndRole();
         role.setUid(userIdentity.getUid());
@@ -225,7 +225,7 @@ public class UserAdminHelper {
         addDefaultRole(userIdentity, role);
     }
 
-    private void addDefaultFacebookRole(UserIdentity userIdentity, String roleValue) {
+    private void addDefaultFacebookRole(UIBUserIdentity userIdentity, String roleValue) {
         UserPropertyAndRole role;
         role = new UserPropertyAndRole();
         role.setUid(userIdentity.getUid());
@@ -237,7 +237,7 @@ public class UserAdminHelper {
         addDefaultRole(userIdentity, role);
     }
 
-    private void addDefaultRole(UserIdentity userIdentity, UserPropertyAndRole role) {
+    private void addDefaultRole(UIBUserIdentity userIdentity, UserPropertyAndRole role) {
         logger.debug("Adding Role: {}", role);
 
         if (userPropertyAndRoleDao.hasRole(userIdentity.getUid(), role)) {

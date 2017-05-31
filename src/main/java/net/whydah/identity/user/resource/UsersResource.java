@@ -1,7 +1,7 @@
 package net.whydah.identity.user.resource;
 
 
-import net.whydah.identity.user.identity.UserIdentityRepresentation;
+import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
 import net.whydah.identity.user.search.UserSearch;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
-        List<UserIdentityRepresentation> users = userSearch.search(query);
+        List<UIBUserIdentityRepresentation> users = userSearch.search(query);
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("users", users);
         model.put("userbaseurl", uriInfo.getBaseUri());

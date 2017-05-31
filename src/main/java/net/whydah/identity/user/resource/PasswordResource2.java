@@ -5,7 +5,7 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.slf4j.Logger;
@@ -64,14 +64,14 @@ public class PasswordResource2 {
     public Response resetPassword(@PathParam("uid") String uid) {
         log.info("Reset password for uid={}", uid);
         try {
-            UserIdentity user = userIdentityService.getUserIdentityForUid(uid);
+            UIBUserIdentity user = userIdentityService.getUserIdentityForUid(uid);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
             String changePasswordToken = userIdentityService.setTempPassword(uid, user.getUid());
             Map<String, String> map = new HashMap<>();
-            map.put(UserIdentity.UID, user.getUid());
+            map.put(UIBUserIdentity.UID, user.getUid());
             map.put(EMAIL_KEY, user.getEmail());
             map.put(CELLPHONE_KEY, user.getCellPhone());
             map.put(CHANGE_PASSWORD_TOKEN, changePasswordToken);
@@ -101,7 +101,7 @@ public class PasswordResource2 {
                                                             @QueryParam("changePasswordToken") String changePasswordToken, String json) {
         log.info("authenticateAndChangePasswordUsingToken for uid={}", uid);
         try {
-            UserIdentity user = userIdentityService.getUserIdentityForUid(uid);
+            UIBUserIdentity user = userIdentityService.getUserIdentityForUid(uid);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -166,7 +166,7 @@ public class PasswordResource2 {
     public Response hasUserNameSetPassword(@PathParam("username") String username) {
         log.info("password_login_enabled for uid={}", username);
         try {
-            UserIdentity user = userIdentityService.getUserIdentity(username);
+            UIBUserIdentity user = userIdentityService.getUserIdentity(username);
 
             if (user != null) {
                 List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());

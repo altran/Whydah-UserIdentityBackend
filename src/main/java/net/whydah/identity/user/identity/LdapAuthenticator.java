@@ -11,11 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 import java.util.Hashtable;
 
 /**
@@ -53,7 +49,7 @@ public class LdapAuthenticator {
     }
 
 
-    public UserIdentity authenticate(final String username, final String password) {
+    public UIBUserIdentity authenticate(final String username, final String password) {
         InitialDirContext initialDirContext = authenticateUser(username, password, "simple");
         if (initialDirContext == null) {
             return null;
@@ -77,7 +73,7 @@ public class LdapAuthenticator {
      * @param username  username
      * @param password  user password
      * @param securityAuthenticationLevel
-     * @return  a authenticated UserIdentity
+     * @return a authenticated UIBUserIdentity
      */
     private InitialDirContext authenticateUser(final String username, final String password, String securityAuthenticationLevel) {
         if (username == null || password == null) {
@@ -160,7 +156,7 @@ public class LdapAuthenticator {
     }
 
 
-    private UserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
+    private UIBUserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String baseDN = "";
@@ -180,7 +176,7 @@ public class LdapAuthenticator {
             return null;
         }
 
-        UserIdentity userIdentity = new UserIdentity();
+        UIBUserIdentity userIdentity = new UIBUserIdentity();
         userIdentity.setUid(getAttribValue(attributes, uidAttribute));
         userIdentity.setUsername(getAttribValue(attributes, usernameAttribute));
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));

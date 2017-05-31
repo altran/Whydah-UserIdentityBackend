@@ -1,6 +1,6 @@
 package net.whydah.identity.health;
 
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class HealthCheckService {
     //TODO Make this test more robust
     private boolean userExistInLdap(String uid) {
         try {
-            UserIdentity user = identityService.getUserIdentityForUid(uid);
+            UIBUserIdentity user = identityService.getUserIdentityForUid(uid);
             if (user != null && uid.equals(user.getUid())) {
                 return true;
             }

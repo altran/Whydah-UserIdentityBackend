@@ -6,11 +6,11 @@ import net.whydah.identity.user.role.UserPropertyAndRole;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 12/04/14
  */
 @Deprecated  // Use UserApplicationRoleEntry in TypeLib
-public class RoleRepresentation extends RoleRepresentationRequest {
+public class UIBRoleRepresentation extends RoleRepresentationRequest {
     private String id;
 
-    public static RoleRepresentation fromUserPropertyAndRole(UserPropertyAndRole role) {
-        RoleRepresentation representation = new RoleRepresentation();
+    public static UIBRoleRepresentation fromUserPropertyAndRole(UserPropertyAndRole role) {
+        UIBRoleRepresentation representation = new UIBRoleRepresentation();
         representation.setId(role.getRoleId());
         representation.setApplicationId(role.getApplicationId());
         representation.setApplicationName(role.getApplicationName());

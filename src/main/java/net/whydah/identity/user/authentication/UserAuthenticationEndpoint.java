@@ -1,12 +1,11 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.identity.user.search.LuceneUserIndexer;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +29,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.List;
 
 /**
- * Service for authorization of users and finding UserAggregate with corresponding applications, organizations and roles.
+ * Service for authorization of users and finding UIBUserAggregate with corresponding applications, organizations and roles.
  * This not a RESTful endpoint. This is a http RPC endpoint.
  */
 @Component
@@ -98,7 +93,7 @@ public class UserAuthenticationEndpoint {
     }
 
     private Response authenticateUser(String username, String password) {
-        UserIdentity id = userIdentityService.authenticate(username, password);
+        UIBUserIdentity id = userIdentityService.authenticate(username, password);
         if (id == null) {
             log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
@@ -106,7 +101,7 @@ public class UserAuthenticationEndpoint {
         }
 
         List<UserPropertyAndRole> roles = userAggregateService.getUserPropertyAndRoles(id.getUid());
-        UserAggregate userAggregate = new UserAggregate(id, roles);
+        UIBUserAggregate userAggregate = new UIBUserAggregate(id, roles);
         //luceneUserIndexer.updateUserAggregate(userAggregate);
 
         log.info("Authentication ok for user with username={}", username);
@@ -133,7 +128,7 @@ public class UserAuthenticationEndpoint {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
         }
 
-        UserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+        UIBUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
 
         if (userIdentity == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
@@ -196,7 +191,7 @@ public class UserAuthenticationEndpoint {
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             fbUserDoc = builder.parse(input);
         } catch (Exception e) {
-            log.error("Error when creating UserIdentity from incoming xml stream.", e);
+            log.error("Error when creating UIBUserIdentity from incoming xml stream.", e);
             return null;
         }
         return fbUserDoc;
@@ -205,7 +200,7 @@ public class UserAuthenticationEndpoint {
 
     //TODO Move to UserAdminService (the separate application)
     // FIXME fail if called and a) user exist from earlier  b) the user has reset password
-    Response createAndAuthenticateUser(UserIdentity userIdentity, String roleValue, boolean reuse) {
+    Response createAndAuthenticateUser(UIBUserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             log.trace("createAndAuthenticateUser - userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);

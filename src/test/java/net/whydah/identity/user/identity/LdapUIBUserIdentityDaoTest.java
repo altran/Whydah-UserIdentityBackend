@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class LdapUserIdentityDaoTest {
+public class LdapUIBUserIdentityDaoTest {
     private static Main main = null;
 
     private static LdapUserIdentityDao ldapUserIdentityDao;
@@ -55,7 +55,7 @@ public class LdapUserIdentityDaoTest {
         ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
         ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials");
 
-        String workDirPath = "target/" + LdapUserIdentityDaoTest.class.getSimpleName();
+        String workDirPath = "target/" + LdapUIBUserIdentityDaoTest.class.getSimpleName();
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
@@ -86,9 +86,9 @@ public class LdapUserIdentityDaoTest {
         String password = "pass";
         String cellPhone = "+4798765432";
         String personRef = "some@email.dk";
-        UserIdentity user = new UserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
+        UIBUserIdentity user = new UIBUserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
         ldapUserIdentityDao.addUserIdentity(user);
-        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("jan");
+        UIBUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("jan");
         assertNotNull(gotUser);
         assertEquals(gotUser.getUid(), uid);
         assertEquals(gotUser.getUsername(), username);
@@ -104,9 +104,9 @@ public class LdapUserIdentityDaoTest {
     public void testUpdateUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        UserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com", "pass");
+        UIBUserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com", "pass");
         ldapUserIdentityDao.addUserIdentity(user);
-        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
+        UIBUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
@@ -114,7 +114,7 @@ public class LdapUserIdentityDaoTest {
         gotUser.setCellPhone(cellPhone);
         gotUser.setPersonRef(personRef);
         ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUser);
-        UserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
+        UIBUserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
         assertEquals(personRef, gotUpdatedUser.getPersonRef());
 
@@ -134,15 +134,15 @@ public class LdapUserIdentityDaoTest {
     public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "usernameToBeDeleted";
-        UserIdentity user = createValidUser(uid, username, "Trevor", "Treske", "tretre@hotmail.com", "pass");
+        UIBUserIdentity user = createValidUser(uid, username, "Trevor", "Treske", "tretre@hotmail.com", "pass");
         ldapUserIdentityDao.addUserIdentity(user);
-        UserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
+        UIBUserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
         boolean deleteSuccessful = ldapUserIdentityDao.deleteUserIdentity(username);
         assertTrue(deleteSuccessful);
 
-        UserIdentityRepresentation gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
+        UIBUserIdentityRepresentation gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
         assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
     }
 
@@ -151,7 +151,7 @@ public class LdapUserIdentityDaoTest {
         String username = "stoven@hotmail.com";
         String firstPassword = "pass";
         String uid = username;
-        UserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com", firstPassword);
+        UIBUserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com", firstPassword);
         ldapUserIdentityDao.addUserIdentity(user);
 
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword(username, firstPassword));
@@ -163,7 +163,7 @@ public class LdapUserIdentityDaoTest {
         assertNotNull(ldapAuthenticator.authenticate(username, secondPassword));
     }
 
-    private static UserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email, String password) {
-        return new UserIdentity(uid, username, firstName, lastName, email, password, null, null);
+    private static UIBUserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email, String password) {
+        return new UIBUserIdentity(uid, username, firstName, lastName, email, password, null, null);
     }
 }

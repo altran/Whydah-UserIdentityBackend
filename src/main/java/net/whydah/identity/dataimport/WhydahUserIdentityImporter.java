@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,16 +35,16 @@ public class WhydahUserIdentityImporter {
 	}
     
     public void importUsers(InputStream userImportSource) {
-        List<UserIdentity> users = parseUsers(userImportSource);
+        List<UIBUserIdentity> users = parseUsers(userImportSource);
         int userAddedCount = saveUsers(users);
         log.info("{} users imported.", userAddedCount);
     }
 
-	protected static List<UserIdentity> parseUsers(InputStream userImportStream) {
-		BufferedReader reader = null;
+    protected static List<UIBUserIdentity> parseUsers(InputStream userImportStream) {
+        BufferedReader reader = null;
 		try {
-			List<UserIdentity> users = new ArrayList<>();
-	        reader = new BufferedReader(new InputStreamReader(userImportStream, IamDataImporter.CHARSET_NAME));
+            List<UIBUserIdentity> users = new ArrayList<>();
+            reader = new BufferedReader(new InputStreamReader(userImportStream, IamDataImporter.CHARSET_NAME));
 	        String line;
 	        while (null != (line = reader.readLine())) {
 	        	boolean isComment = line.startsWith("#");
@@ -54,10 +54,10 @@ public class WhydahUserIdentityImporter {
 				
 	        	String[] lineArray = line.split(",");
 	        	validateLine(line, lineArray);
-	        	
-	        	UserIdentity userIdentity;
-	        	userIdentity = new UserIdentity();
-	        	userIdentity.setUid(cleanString(lineArray[USERID]));
+
+                UIBUserIdentity userIdentity;
+                userIdentity = new UIBUserIdentity();
+                userIdentity.setUid(cleanString(lineArray[USERID]));
 	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
 	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
 	            userIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
@@ -94,10 +94,10 @@ public class WhydahUserIdentityImporter {
 		}
 	}
 
-    private int saveUsers(List<UserIdentity> users) {
+    private int saveUsers(List<UIBUserIdentity> users) {
         int userAddedCount = 0;
         try {
-            for (UserIdentity userIdentity : users) {
+            for (UIBUserIdentity userIdentity : users) {
                 boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
                 if (added) {
                     log.info("Imported user: uid={}, username={}, name={} {}, email={}",

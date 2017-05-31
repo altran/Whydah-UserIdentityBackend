@@ -9,22 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.naming.Context;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.PartialResultException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.*;
+import javax.naming.directory.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -84,9 +70,9 @@ public class LdapUserIdentityDao {
 
     }
 
-    public boolean addUserIdentity(UserIdentity userIdentity) throws NamingException {
+    public boolean addUserIdentity(UIBUserIdentity userIdentity) throws NamingException {
         if (readOnly) {
-            log.warn("addUserIdentity called, but LDAP server is configured read-only. UserIdentity was not added.");
+            log.warn("addUserIdentity called, but LDAP server is configured read-only. UIBUserIdentity was not added.");
             return false;
         }
 
@@ -124,7 +110,7 @@ public class LdapUserIdentityDao {
     /**
      * Schemas: http://www.zytrax.com/books/ldap/ape/
      */
-    private Attributes getLdapAttributes(UserIdentity userIdentity) {
+    private Attributes getLdapAttributes(UIBUserIdentity userIdentity) {
         // Create a container set of attributes
         Attributes container = new BasicAttributes();
         // Create the objectclass to add
@@ -151,16 +137,16 @@ public class LdapUserIdentityDao {
         return container;
     }
 
-    public void updateUserIdentityForUid(String uid, UserIdentity newuser) {
+    public void updateUserIdentityForUid(String uid, UIBUserIdentity newuser) {
         if (readOnly) {
-            log.warn("updateUserIdentityForUid called, but LDAP server is configured read-only. UserIdentity was not updated.");
+            log.warn("updateUserIdentityForUid called, but LDAP server is configured read-only. UIBUserIdentity was not updated.");
             return;
         }
 
         newuser.validate();
 
         try {
-            UserIdentity olduser = getUserIndentityByUid(uid);
+            UIBUserIdentity olduser = getUserIndentityByUid(uid);
             updateLdapAttributesForUser(uid, newuser, olduser);
             log.debug("updateUserIdentityForUid updated LDAP - newuser={} olduser:{]", newuser, olduser);
         } catch (NamingException ne) {
@@ -171,7 +157,7 @@ public class LdapUserIdentityDao {
         }
     }
 
-    private void updateLdapAttributesForUser(String uid, UserIdentity newuser, UserIdentity olduser) throws NamingException {
+    private void updateLdapAttributesForUser(String uid, UIBUserIdentity newuser, UIBUserIdentity olduser) throws NamingException {
         if (olduser == null) {
             throw new IllegalArgumentException("User " + uid + " not found");
         }
@@ -194,16 +180,16 @@ public class LdapUserIdentityDao {
         }
     }
 
-    public void updateUserIdentityForUsername(String username, UserIdentity newuser) {
+    public void updateUserIdentityForUsername(String username, UIBUserIdentity newuser) {
         if (readOnly) {
-            log.warn("updateUserIdentityForUsername called, but LDAP server is configured read-only. UserIdentity was not updated.");
+            log.warn("updateUserIdentityForUsername called, but LDAP server is configured read-only. UIBUserIdentity was not updated.");
             return;
         }
 
         newuser.validate();
 
         try {
-            UserIdentity olduser = getUserIndentity(username);
+            UIBUserIdentity olduser = getUserIndentity(username);
             updateLdapAttributesForUser(username, newuser, olduser);
         } catch (NamingException ne) {
             String msg = "updateUserIdentityForUsername could not update LDAP. newUser=" + newuser.toString();
@@ -251,29 +237,29 @@ public class LdapUserIdentityDao {
         return uidAttribute + '=' + uid + "," + USERS_OU;
     }
 
-    public UserIdentity getUserIndentity(String usernameOrUid) throws NamingException {
+    public UIBUserIdentity getUserIndentity(String usernameOrUid) throws NamingException {
         Attributes attributes = getUserAttributesForUsernameOrUid(usernameOrUid);
-        UserIdentity id = fromLdapAttributes(attributes);
+        UIBUserIdentity id = fromLdapAttributes(attributes);
         return id;
     }
 
-    public UserIdentity getUserIndentityByUid(String uid) throws NamingException {
+    public UIBUserIdentity getUserIndentityByUid(String uid) throws NamingException {
         Attributes attributes = getAttributesFor(uidAttribute, uid);
-        UserIdentity id = fromLdapAttributes(attributes);
+        UIBUserIdentity id = fromLdapAttributes(attributes);
         return id;
     }
 
 
-    private UserIdentity fromLdapAttributes(Attributes attributes) throws NamingException {
+    private UIBUserIdentity fromLdapAttributes(Attributes attributes) throws NamingException {
         if (attributes == null) {
             return null;
         }
 
-        UserIdentity id = null;
+        UIBUserIdentity id = null;
         Attribute uidAttributeValue = attributes.get(uidAttribute);
         Attribute usernameAttributeValue = attributes.get(usernameAttribute);
         if (uidAttributeValue != null && usernameAttributeValue != null) {
-            id = new UserIdentity();
+            id = new UIBUserIdentity();
             id.setUid((String) attributes.get(uidAttribute).get());
             id.setUsername((String) attributes.get(usernameAttribute).get());
             id.setFirstName(getAttribValue(attributes, ATTRIBUTE_NAME_GIVENNAME));

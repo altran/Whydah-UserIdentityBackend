@@ -2,12 +2,10 @@ package net.whydah.identity.application;
 
 import net.whydah.identity.application.search.ApplicationSearch;
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.user.identity.UserIdentityRepresentation;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.constretto.ConstrettoConfiguration;
-import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 @Component

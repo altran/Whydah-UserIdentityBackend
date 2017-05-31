@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
-public class UserIdentityServiceTest {
+public class UIBUserIdentityServiceTest {
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
     private static LuceneUserIndexer luceneIndexer;
@@ -98,12 +98,12 @@ public class UserIdentityServiceTest {
         dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
-        dataSource.setUrl("jdbc:hsqldb:file:" + "target/" + UserIdentityServiceTest.class.getSimpleName()  + "/hsqldb");
+        dataSource.setUrl("jdbc:hsqldb:file:" + "target/" + UIBUserIdentityServiceTest.class.getSimpleName()  + "/hsqldb");
 
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
 
-        String workDirPath = "target/" + UserIdentityServiceTest.class.getSimpleName();
+        String workDirPath = "target/" + UIBUserIdentityServiceTest.class.getSimpleName();
         File workDir = new File(workDirPath);
         FileUtils.deleteDirectory(workDir);
         if (!workDir.mkdirs()) {
@@ -150,11 +150,11 @@ public class UserIdentityServiceTest {
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         String username = "username123";
-        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
         );
         userAdminHelper.addUser(userIdentity);
 
-        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
+        UIBUserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
@@ -169,7 +169,7 @@ public class UserIdentityServiceTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        UserIdentity userIdentity = new UserIdentity("uid",
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",
@@ -180,7 +180,7 @@ public class UserIdentityServiceTest {
 
         userAdminHelper.addUser(userIdentity);
 
-        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
+        UIBUserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
 
         assertEquals(userIdentity, fromLdap);
 
@@ -192,11 +192,11 @@ public class UserIdentityServiceTest {
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         String username = "username1234";
-        UserIdentity userIdentity = new UserIdentity("uid2", username, "firstName2", "lastName2", "test2@test.no", "password2", "+47 123 45 678", "personRef2"
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid2", username, "firstName2", "lastName2", "test2@test.no", "password2", "+47 123 45 678", "personRef2"
         );
         userAdminHelper.addUser(userIdentity);
 
-        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
+        UIBUserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(username);
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
@@ -210,7 +210,7 @@ public class UserIdentityServiceTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        UserIdentity userIdentity = new UserIdentity("uid",
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",
@@ -221,14 +221,14 @@ public class UserIdentityServiceTest {
 
         userAdminHelper.addUser(userIdentity);
 
-        UserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
+        UIBUserIdentityRepresentation fromLdap = userIdentityService.getUserIdentity(userIdentity.getUsername());
 
         assertEquals(userIdentity, fromLdap);
         stop();
         setUp();
         UserIdentityService userIdentityService2 =
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
-        UserIdentityRepresentation fromLdap2 = userIdentityService2.getUserIdentity(userIdentity.getUsername());
+        UIBUserIdentityRepresentation fromLdap2 = userIdentityService2.getUserIdentity(userIdentity.getUsername());
 
         // TODO: Still not working
         // assertEquals(userIdentity, fromLdap2);

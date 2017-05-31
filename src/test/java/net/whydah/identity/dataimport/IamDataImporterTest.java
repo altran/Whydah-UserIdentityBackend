@@ -5,10 +5,10 @@ import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
-import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -86,7 +86,7 @@ public class IamDataImporterTest {
         dataImporter.importIamData();
         LdapUserIdentityDao ldapUserIdentityDao = dataImporter.getLdapUserIdentityDao();
 
-        UserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
+        UIBUserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
         assertEquals("Erik", erikdUserIdentity.getFirstName());
         assertEquals("Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("erik.drolshammer", erikdUserIdentity.getUid());
@@ -96,7 +96,7 @@ public class IamDataImporterTest {
                 applicationService, null, null);
 
 
-        UserAggregate userAggregate2 = new UserAggregate(erikdUserIdentity, userAggregateService.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
+        UIBUserAggregate userAggregate2 = new UIBUserAggregate(erikdUserIdentity, userAggregateService.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
         
         List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
         assertEquals(1, propsAndRoles2.size());

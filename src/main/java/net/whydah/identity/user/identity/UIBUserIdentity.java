@@ -16,20 +16,20 @@ import java.io.Serializable;
  * See getLdapAttributes in LDAPHelper for mapping to LDAP attributes.
  *
  */
-@Deprecated  // Use UserIdentity and UserIdentityMapper in TypeLib
+@Deprecated  // Use UIBUserIdentity and UserIdentityMapper in TypeLib
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class UserIdentity extends UserIdentityRepresentation implements Serializable {
+public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Serializable {
     public static final String UID = "uid";
-    private static final Logger logger = LoggerFactory.getLogger(UserIdentity.class);
+    private static final Logger logger = LoggerFactory.getLogger(UIBUserIdentity.class);
     private static final long serialVersionUID = 1;
     private static final TelephoneNumberSyntaxChecker telephoneNumberSyntaxChecker = new TelephoneNumberSyntaxChecker();
     private String uid;
 
-    public UserIdentity() {
+    public UIBUserIdentity() {
     }
 
-    public UserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
-                        String cellPhone, String personRef) {
+    public UIBUserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
+                           String cellPhone, String personRef) {
         this.uid = uid;
         this.username = (username != null ? username : email);
         this.firstName = firstName;
@@ -79,7 +79,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
 
     @Override
     public String toString() {
-        return "UserIdentity{" +
+        return "UIBUserIdentity{" +
                 "uid='" + uid + '\'' +
                 ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
@@ -99,7 +99,7 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
             return false;
         }
 
-        UserIdentity that = (UserIdentity) o;
+        UIBUserIdentity that = (UIBUserIdentity) o;
 
         if (uid != null ? !uid.equals(that.uid) : that.uid != null) {
             return false;
@@ -142,9 +142,9 @@ public class UserIdentity extends UserIdentityRepresentation implements Serializ
         this.uid = uid;
     }
 
-    public static UserIdentity fromJson(String userJson) {
+    public static UIBUserIdentity fromJson(String userJson) {
         try {
-            UserIdentity userIdentity = new UserIdentity();
+            UIBUserIdentity userIdentity = new UIBUserIdentity();
 
             JSONObject jsonobj = new JSONObject(userJson);
 

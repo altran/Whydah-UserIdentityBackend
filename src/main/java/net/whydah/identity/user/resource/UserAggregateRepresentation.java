@@ -1,8 +1,9 @@
 package net.whydah.identity.user.resource;
 
-import net.whydah.identity.user.UserAggregate;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.UIBUserAggregate;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserAggregate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,25 +12,18 @@ import java.util.List;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 12/04/14
  */
 @Deprecated  // Use UserApplicationRoleEntry in TypeLib
-public class UserAggregateRepresentation {
-    private String uid;
-    private String username;
-    private String firstName;
-    private String lastName;
-    private String personRef;
-    private String email;
-    private String cellPhone;
+public class UserAggregateRepresentation extends UserAggregate {
     private String password;    //TODO include this in response?
 
-    private List<RoleRepresentation> roles;
+    private List<UIBRoleRepresentation> roles;
 
     private UserAggregateRepresentation() {
     }
 
-    public static UserAggregateRepresentation fromUserAggregate(UserAggregate userAggregate) {
+    public static UserAggregateRepresentation fromUserAggregate(UIBUserAggregate userAggregate) {
         UserAggregateRepresentation dto = new UserAggregateRepresentation();
 
-        UserIdentity id = userAggregate.getIdentity();
+        UIBUserIdentity id = userAggregate.getIdentity();
         dto.setUid(id.getUid());
         dto.setUsername(id.getUsername());
         dto.setFirstName(id.getFirstName());
@@ -40,30 +34,31 @@ public class UserAggregateRepresentation {
         dto.setPassword(id.getPassword());
 
         List<UserPropertyAndRole> userPropertyAndRoles = userAggregate.getRoles();
-        List<RoleRepresentation> roleRepresentations = new ArrayList<>(userPropertyAndRoles.size());
+        List<UIBRoleRepresentation> roleRepresentations = new ArrayList<>(userPropertyAndRoles.size());
         for (UserPropertyAndRole role : userPropertyAndRoles) {
-            roleRepresentations.add(RoleRepresentation.fromUserPropertyAndRole(role));
+            roleRepresentations.add(UIBRoleRepresentation.fromUserPropertyAndRole(role));
         }
         dto.setRoles(roleRepresentations);
         return dto;
     }
-    public UserAggregate buildUserAggregate() {
+
+    public UIBUserAggregate buildUserAggregate() {
         List<UserPropertyAndRole> userPropertyAndRoles = buildUserPropertyAndRoles();
 
-        UserIdentity userIdentity = buildUserIdentity();
-        UserAggregate userAggregate = new UserAggregate(userIdentity, userPropertyAndRoles);
+        UIBUserIdentity userIdentity = buildUserIdentity();
+        UIBUserAggregate userAggregate = new UIBUserAggregate(userIdentity, userPropertyAndRoles);
         return userAggregate;
     }
 
-    private UserIdentity buildUserIdentity() {
-        UserIdentity userIdentity = new UserIdentity(getUid(),getUsername(),getFirstName(),getLastName(),getEmail(),getPassword(),getCellPhone(),getPersonRef());
+    private UIBUserIdentity buildUserIdentity() {
+        UIBUserIdentity userIdentity = new UIBUserIdentity(getUid(), getUsername(), getFirstName(), getLastName(), getEmail(), getPassword(), getCellPhone(), getPersonRef());
         return userIdentity;
     }
 
     public List<UserPropertyAndRole> buildUserPropertyAndRoles() {
         List<UserPropertyAndRole>  userRoles = new ArrayList<>();
         if (roles != null && roles.size() > 0) {
-            for (RoleRepresentation role : roles) {
+            for (UIBRoleRepresentation role : roles) {
                 UserPropertyAndRole userRole = new UserPropertyAndRole();
                 userRole.setUid(getUid());
                 userRole.setRoleId(role.getId());
@@ -79,60 +74,19 @@ public class UserAggregateRepresentation {
     }
 
 
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    public void setPersonRef(String personRef) {
-        this.personRef = personRef;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    public void setCellPhone(String cellPhone) {
-        this.cellPhone = cellPhone;
-    }
     public void setPassword(String password) {
         this.password = password;
     }
-    public void setRoles(List<RoleRepresentation> roles) {
+
+    public void setRoles(List<UIBRoleRepresentation> roles) {
         this.roles = roles;
     }
 
-    public String getUid() {
-        return uid;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public String getPersonRef() {
-        return personRef;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getCellPhone() {
-        return cellPhone;
-    }
     public String getPassword() {
         return password;
     }
-    public List<RoleRepresentation> getRoles() {
+
+    public List<UIBRoleRepresentation> getRoles() {
         return roles;
     }
 }

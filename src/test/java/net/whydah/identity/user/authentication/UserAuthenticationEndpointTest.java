@@ -10,11 +10,11 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
-import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
@@ -146,7 +146,7 @@ public class UserAuthenticationEndpointTest {
                 .post(path, "notValidApplicationtokenid");
 
         String responseAsString = response.body().asString();
-        UserAggregate user = UserAggregate.fromXML(responseAsString);
+        UIBUserAggregate user = UIBUserAggregate.fromXML(responseAsString);
         assertEquals(user.getUsername(), userName);
         assertEquals(user.getFirstName(), "test");
         assertEquals(user.getLastName(), "me");
@@ -200,7 +200,7 @@ public class UserAuthenticationEndpointTest {
 
     @Test
     public void testAuthenticateUsingFacebookCredentials() throws NamingException {
-        UserIdentity newIdentity = new UserIdentity();
+        UIBUserIdentity newIdentity = new UIBUserIdentity();
         String username = "facebookUsername";
         newIdentity.setUsername(username);
         String facebookId = "1234";
@@ -221,14 +221,14 @@ public class UserAuthenticationEndpointTest {
 
 
         String userXml = (String) response.getEntity();
-        UserAggregate userAggregate = UserAggregate.fromXML(userXml);
+        UIBUserAggregate userAggregate = UIBUserAggregate.fromXML(userXml);
 
         /*
         Viewable entity = (Viewable) response.getEntity();
-        UserAggregate model = (UserAggregate) entity.getModel();
-        UserIdentity identity = model.getIdentity();
+        UIBUserAggregate model = (UIBUserAggregate) entity.getModel();
+        UIBUserIdentity identity = model.getIdentity();
         */
-        //UserIdentity identity = userAggregate.getIdentity();
+        //UIBUserIdentity identity = userAggregate.getIdentity();
         assertEquals(username, userAggregate.getUsername());
         assertEquals(userAggregate.getPersonRef(), "");
         assertEquals(email, userAggregate.getEmail());

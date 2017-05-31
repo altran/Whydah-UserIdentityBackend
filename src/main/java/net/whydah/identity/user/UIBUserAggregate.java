@@ -1,7 +1,8 @@
 package net.whydah.identity.user;
 
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserAggregate;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -14,17 +15,17 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated  // Use UserAggregate and userAggregatemapper in TypeLib
-public class UserAggregate {
-    private UserIdentity identity = null;
+@Deprecated  // Use UIBUserAggregate and userAggregatemapper in TypeLib
+public class UIBUserAggregate extends UserAggregate {
+    private UIBUserIdentity identity = null;
     private List<UserPropertyAndRole> roles = new ArrayList<>();
 
-    public UserAggregate(UserIdentity identity, List<UserPropertyAndRole> roles) {
+    public UIBUserAggregate(UIBUserIdentity identity, List<UserPropertyAndRole> roles) {
         this.identity = identity;
         this.roles = roles;
     }
 
-    public UserAggregate() {
+    public UIBUserAggregate() {
     }
 
     public String toXML() {
@@ -64,7 +65,7 @@ public class UserAggregate {
     /**
      * Copy from UserTokenDeprecated.parseAndUpdatefromUserIdentity from SecurityTokenService
      */
-    public static UserAggregate fromXML(String userIdentityXML) {
+    public static UIBUserAggregate fromXML(String userIdentityXML) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
@@ -77,7 +78,7 @@ public class UserAggregate {
             String email = (String) xPath.evaluate("//email", doc, XPathConstants.STRING);
             String personRef = (String) xPath.evaluate("//personRef", doc, XPathConstants.STRING);
 
-            UserIdentity identity = new UserIdentity();
+            UIBUserIdentity identity = new UIBUserIdentity();
             identity.setUid(uid);
             identity.setUsername(userName);
             identity.setFirstName(firstName);
@@ -94,7 +95,7 @@ public class UserAggregate {
                 //putApplicationCompanyRoleValue(values.get("appId"), values.get("applicationName"), values.get("orgID"), values.get("organizationName"), values.get("roleName"), values.get("roleValue"));
             }
             */
-            return new UserAggregate(identity, null);
+            return new UIBUserAggregate(identity, null);
         } catch (Exception e) {
             //log.error("Error parsing userIdentityXML " + userIdentityXML, e);
         }
@@ -102,11 +103,11 @@ public class UserAggregate {
     }
 
 
-    public UserIdentity getIdentity() {
+    public UIBUserIdentity getIdentity() {
         return identity;
     }
 
-    public void setIdentity(UserIdentity identity) {
+    public void setIdentity(UIBUserIdentity identity) {
         this.identity = identity;
     }
 

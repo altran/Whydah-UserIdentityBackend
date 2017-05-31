@@ -3,7 +3,7 @@ package net.whydah.identity.user.signup;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.UserAggregate;
+import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.resource.UserAggregateRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Service for authorization of users and finding UserAggregate with corresponding applications, organizations and roles.
+ * Service for authorization of users and finding UIBUserAggregate with corresponding applications, organizations and roles.
  * This not a RESTful endpoint. This is a http RPC endpoint.
  */
 @Component
@@ -63,7 +63,7 @@ public class UserSignupEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse " + userJson + ".").build();
         }
 
-        UserAggregate userAggregate = userSignupService.createUserWithRoles(createFromRepresentation);
+        UIBUserAggregate userAggregate = userSignupService.createUserWithRoles(createFromRepresentation);
         String createdUserAsJson = null;
         if (userAggregate != null) {
             try {

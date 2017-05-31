@@ -4,7 +4,7 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -50,8 +50,8 @@ public class UserAggregateService {
     }
 
 
-    public UserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
-        UserIdentity userIdentity;
+    public UIBUserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
+        UIBUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
         } catch (NamingException e) {
@@ -62,17 +62,17 @@ public class UserAggregateService {
             return null;
         }
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleDao.getUserPropertyAndRoles(userIdentity.getUid());
-        return new UserAggregate(userIdentity, userPropertyAndRoles);
+        return new UIBUserAggregate(userIdentity, userPropertyAndRoles);
     }
 
-    public UserIdentity updateUserIdentity(String uid, UserIdentity newUserIdentity) {
+    public UIBUserIdentity updateUserIdentity(String uid, UIBUserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
         return newUserIdentity;
     }
 
 
     public void deleteUserAggregateByUid(String uid) {
-        UserIdentity userIdentity;
+        UIBUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentityForUid(uid);
             luceneIndexer.removeFromIndex(uid);
@@ -80,7 +80,7 @@ public class UserAggregateService {
             throw new RuntimeException("userIdentityService.getUserIdentity with uid=" + uid, e);
         }
         if (userIdentity == null) {
-            throw new IllegalArgumentException("UserIdentity not found. uid=" + uid);
+            throw new IllegalArgumentException("UIBUserIdentity not found. uid=" + uid);
         }
         try {
             userIdentityService.deleteUserIdentity(uid);
@@ -93,7 +93,7 @@ public class UserAggregateService {
 
 
     // FIXME This does not seem to make any sense...  DELETE user or DELETE role?
-    private void deleteRolesForUser(UserIdentity userIdentity) {
+    private void deleteRolesForUser(UIBUserIdentity userIdentity) {
         String uid = userIdentity.getUid();
         userPropertyAndRoleDao.deleteAllRolesForUser(uid);
         //indexer.removeFromIndex(uid);

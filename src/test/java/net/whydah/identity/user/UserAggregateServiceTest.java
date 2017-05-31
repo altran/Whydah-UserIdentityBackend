@@ -1,7 +1,7 @@
 package net.whydah.identity.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.whydah.identity.user.identity.UserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.resource.UserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.junit.Test;
@@ -84,7 +84,7 @@ public class UserAggregateServiceTest {
     @Test   //ED: In-progress
     public void testJsonFromUserAggregate() throws IOException {
         String username = "usernameABC";
-        UserIdentity userIdentity = new UserIdentity("uid", username, "firstName", "lastName", "email", "password", "12345678", "personRef"
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid", username, "firstName", "lastName", "email", "password", "12345678", "personRef"
         );
 
         UserPropertyAndRole role = new UserPropertyAndRole();
@@ -108,7 +108,7 @@ public class UserAggregateServiceTest {
         List<UserPropertyAndRole> roles = new ArrayList<>(2);
         roles.add(role);
         roles.add(role2);
-        UserAggregate userAggregate = new UserAggregate(userIdentity, roles);
+        UIBUserAggregate userAggregate = new UIBUserAggregate(userIdentity, roles);
 
         UserAggregateRepresentation userRepresentation = UserAggregateRepresentation.fromUserAggregate(userAggregate);
 

@@ -10,10 +10,10 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2014-11-05
  */
 
-public class UserIdentityTest {
+public class UIBUserIdentityTest {
     @Test
     public void testValidateCellPhoneOK() {
-        UserIdentity userIdentity = new UserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
         String[] telephoneNumbers = new String[]{"12345678", "+47 12345678", "+4799999999", "90 90 90 90", "", null};
 
         for (String telephoneNumber : telephoneNumbers) {
@@ -23,7 +23,7 @@ public class UserIdentityTest {
     }
     @Test(expected = InvalidUserIdentityFieldException.class)
     public void testValidateCellPhoneInvalid() {
-        UserIdentity userIdentity = new UserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
         userIdentity.setCellPhone("900-FLYING-CIRCUS");
         userIdentity.validate();
     }
@@ -31,7 +31,7 @@ public class UserIdentityTest {
 
     @Test
     public void testValidatePersonRefOK() {
-        UserIdentity userIdentity = new UserIdentity("uid", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
         String[] personRefs = new String[]{"0", "123", "abc", "123abc", "valid@email.dk", "123-456", "123/456", "", null};
         for (String personRef : personRefs) {
             userIdentity.setPersonRef(personRef);
@@ -42,19 +42,19 @@ public class UserIdentityTest {
     @Test
     public void testParseUserIdentityJson() throws Exception {
         String userIdentityJson = "{\"username\":\"totto\", \"firstName\":\"Thor Henning\", \"lastName\":\"Hetland\", \"personRef\":\"\", \"email\":\"totto@totto.org\", \"cellPhone\":\"+4793009556\"}";
-        UserIdentityRepresentation representation;
+        UIBUserIdentityRepresentation representation;
         ObjectMapper mapper = new ObjectMapper();
 
-        representation = mapper.readValue(userIdentityJson, UserIdentityRepresentation.class);
+        representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
     }
 
     @Test
     public void testNorthboundParseUserIdentityJson() throws Exception {
         String userIdentityJson = "{\"username\":\"totto\", \"firstName\":\"Thor Henning\", \"lastName\":\"Hetland\",  \"email\":\"totto@totto.org\", \"cellPhone\":\"+4793009556\"}";
-        UserIdentityRepresentation representation;
+        UIBUserIdentityRepresentation representation;
         ObjectMapper mapper = new ObjectMapper();
 
-        representation = mapper.readValue(userIdentityJson, UserIdentityRepresentation.class);
+        representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class UserIdentityTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        UserIdentity userIdentity = new UserIdentity("uid",
+        UIBUserIdentity userIdentity = new UIBUserIdentity("uid",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",

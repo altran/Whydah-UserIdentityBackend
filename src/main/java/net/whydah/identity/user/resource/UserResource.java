@@ -2,36 +2,25 @@ package net.whydah.identity.user.resource;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
-import net.whydah.identity.user.identity.UserIdentity;
-import net.whydah.identity.user.identity.UserIdentityRepresentation;
+import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.naming.NamingException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -74,16 +63,16 @@ public class UserResource {
     public Response addUserIdentity(String userIdentityJson) {
         log.trace("addUserIdentity, userIdentityJson={}", userIdentityJson);
 
-        UserIdentityRepresentation representation;
+        UIBUserIdentityRepresentation representation;
         try {
-            representation = mapper.readValue(userIdentityJson, UserIdentityRepresentation.class);
+            representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
         } catch (IOException e) {
             String msg = "addUserIdentity, invalid json";
             log.info(msg + ". userIdentityJson={}", userIdentityJson, e);
             return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
         }
 
-        UserIdentity userIdentity;
+        UIBUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
         } catch (IllegalStateException conflictException) {
@@ -118,7 +107,7 @@ public class UserResource {
     public Response getUserIdentity(@PathParam("uid") String uid) {
         log.trace("getUserIdentity for uid={}", uid);
 
-        UserIdentity userIdentity;
+        UIBUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentityForUid(uid);
             log.trace("getUserIdentity for uid={} found user={}", uid, (userIdentity != null ? userIdentity.toString() : "null"));
@@ -148,9 +137,9 @@ public class UserResource {
     public Response updateUserIdentity(@PathParam("uid") String uid, String userIdentityJson) {
         log.trace("updateUserIdentity: uid={}, userIdentityJson={}", uid, userIdentityJson);
 
-        UserIdentity userIdentity;
+        UIBUserIdentity userIdentity;
         try {
-            userIdentity = mapper.readValue(userIdentityJson, UserIdentity.class);
+            userIdentity = mapper.readValue(userIdentityJson, UIBUserIdentity.class);
         } catch (IOException e) {
             log.error("updateUserIdentity failed for uid={}, invalid json. userIdentityJson={}", uid, userIdentityJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -207,7 +196,7 @@ public class UserResource {
     public Response addRole(@PathParam("uid") String uid, String roleJson) {
         log.trace("addRole for uid={}, roleJson={}", uid, roleJson);
 
-        UserIdentity user;
+        UIBUserIdentity user;
         String msg = "addRole failed. No user with uid=" + uid;
         try {
             user = userIdentityService.getUserIdentityForUid(uid);
