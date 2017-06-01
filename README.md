@@ -156,6 +156,11 @@ Typical apache setup
 ```
 
 
+Notes
+======
+
+* Please ensure that you have a large set of available filehandles for UIB in large or high-traffic installations
+
 
 Developer info
 ==============
