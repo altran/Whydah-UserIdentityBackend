@@ -159,7 +159,7 @@ Typical apache setup
 Notes
 ======
 
-* Please ensure that you have a large set of available filehandles for UIB in large or high-traffic installations
+* Please ensure that you have a large set (10.000-30.000) of available filehandles for UIB in large or high-traffic installations
 
 
 Developer info
