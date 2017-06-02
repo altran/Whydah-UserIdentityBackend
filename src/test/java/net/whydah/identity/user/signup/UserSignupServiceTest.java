@@ -2,7 +2,7 @@ package net.whydah.identity.user.signup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.user.UIBUserAggregate;
-import net.whydah.identity.user.resource.UserAggregateRepresentation;
+import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,11 +31,11 @@ public class UserSignupServiceTest  {
 
     @Test
     public void testCreateUserWithRoles() throws Exception {
-        UserAggregateRepresentation userAggregateRepresentation = objectMapper.readValue(userWithoutRolesJson, UserAggregateRepresentation.class);
+        UIBUserAggregateRepresentation userAggregateRepresentation = objectMapper.readValue(userWithoutRolesJson, UIBUserAggregateRepresentation.class);
         UIBUserAggregate userAggregate = userAggregateRepresentation.buildUserAggregate();
         userAggregate.setUid(userId);
         userAggregate.addRole(defaultRole);
-        UserAggregateRepresentation userRepWithRole = UserAggregateRepresentation.fromUserAggregate(userAggregate);
+        UIBUserAggregateRepresentation userRepWithRole = UIBUserAggregateRepresentation.fromUserAggregate(userAggregate);
         String userWithRole = objectMapper.writeValueAsString(userRepWithRole);
         assertNotNull(userWithRole);
         assertTrue(userWithRole.contains("whydah-user"));

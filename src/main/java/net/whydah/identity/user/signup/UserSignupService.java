@@ -4,7 +4,7 @@ import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.resource.UserAggregateRepresentation;
+import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class UserSignupService {
     }
 
 
-    public UIBUserAggregate createUserWithRoles(UserAggregateRepresentation createFromRepresentation) {
+    public UIBUserAggregate createUserWithRoles(UIBUserAggregateRepresentation createFromRepresentation) {
         UIBUserAggregate userAggregate = null;
         if (createFromRepresentation != null) {
             UIBUserAggregate createFromAggregate = createFromRepresentation.buildUserAggregate();

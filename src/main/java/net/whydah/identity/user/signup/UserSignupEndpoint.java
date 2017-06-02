@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.UIBUserAggregate;
-import net.whydah.identity.user.resource.UserAggregateRepresentation;
+import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,11 +52,11 @@ public class UserSignupEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response signupUser(String userJson) {
         log.trace("signupUser: {}", userJson);
-        UserAggregateRepresentation createFromRepresentation = null;
+        UIBUserAggregateRepresentation createFromRepresentation = null;
         try {
-            createFromRepresentation = objectMapper.readValue(userJson, UserAggregateRepresentation.class);
+            createFromRepresentation = objectMapper.readValue(userJson, UIBUserAggregateRepresentation.class);
         } catch (IOException ioe) {
-            log.trace("Failed to parse UserAggregateRepresentation from json {}", userJson);
+            log.trace("Failed to parse UIBUserAggregateRepresentation from json {}", userJson);
         }
 
         if (createFromRepresentation == null) {

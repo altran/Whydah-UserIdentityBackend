@@ -12,16 +12,16 @@ import java.util.List;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 12/04/14
  */
 @Deprecated  // Use UserApplicationRoleEntry in TypeLib
-public class UserAggregateRepresentation extends UserAggregate {
+public class UIBUserAggregateRepresentation extends UserAggregate {
     private String password;    //TODO include this in response?
 
     private List<UIBRoleRepresentation> roles;
 
-    private UserAggregateRepresentation() {
+    private UIBUserAggregateRepresentation() {
     }
 
-    public static UserAggregateRepresentation fromUserAggregate(UIBUserAggregate userAggregate) {
-        UserAggregateRepresentation dto = new UserAggregateRepresentation();
+    public static UIBUserAggregateRepresentation fromUserAggregate(UIBUserAggregate userAggregate) {
+        UIBUserAggregateRepresentation dto = new UIBUserAggregateRepresentation();
 
         UIBUserIdentity id = userAggregate.getIdentity();
         dto.setUid(id.getUid());

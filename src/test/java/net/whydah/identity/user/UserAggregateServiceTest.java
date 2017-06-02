@@ -2,7 +2,7 @@ package net.whydah.identity.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.resource.UserAggregateRepresentation;
+import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -110,7 +110,7 @@ public class UserAggregateServiceTest {
         roles.add(role2);
         UIBUserAggregate userAggregate = new UIBUserAggregate(userIdentity, roles);
 
-        UserAggregateRepresentation userRepresentation = UserAggregateRepresentation.fromUserAggregate(userAggregate);
+        UIBUserAggregateRepresentation userRepresentation = UIBUserAggregateRepresentation.fromUserAggregate(userAggregate);
 
         ObjectMapper objectMapper = new ObjectMapper();
         Writer strWriter = new StringWriter();
