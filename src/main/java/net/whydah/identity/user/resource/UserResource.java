@@ -61,7 +61,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addUserIdentity(String userIdentityJson) {
-        log.trace("addUserIdentity, userIdentityJson={}", userIdentityJson);
+        log.debug("addUserIdentity, userIdentityJson={}", userIdentityJson);
 
         UIBUserIdentityRepresentation representation;
         try {
@@ -169,7 +169,7 @@ public class UserResource {
     @DELETE
     @Path("/{uid}")
     public Response deleteUserIdentityAndRoles(@PathParam("uid") String uid) {
-        log.trace("deleteUserIdentityAndRoles: uid={}", uid);
+        log.debug("deleteUserIdentityAndRoles: uid={}", uid);
 
         try {
             userAggregateService.deleteUserAggregateByUid(uid);
