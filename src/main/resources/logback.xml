@@ -32,7 +32,7 @@
     <logger name="hsqldb.db" level="WARN" />
     <logger name="org.apache.directory" level="WARN" />
     <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
-
+    <logger name="net.whydah.sso.user.helpers.UserTokenXpathHelper" level="INFO"/>
     <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
     <logger name="net.whydah.identity" level="TRACE" />
 
