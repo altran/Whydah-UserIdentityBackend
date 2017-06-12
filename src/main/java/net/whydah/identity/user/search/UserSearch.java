@@ -53,4 +53,33 @@ public class UserSearch {
         }
         return users;
     }
+    
+    public PaginatedUIBUserIdentityDataList query(int page, String query) {
+    	PaginatedUIBUserIdentityDataList paginatedDL = luceneSearch.query(page, query);
+        List<UIBUserIdentity> users = paginatedDL.data;
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        log.debug("lucene search with query={} returned {} users.", query, users.size());
+
+        //If user is not found in lucene, try to search AD.
+        if (users.isEmpty()) {
+            try {
+                UIBUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+                if (user != null) {
+                    users.add(user);
+                    //Update user to lucene.
+                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
+                    //luceneIndexer.update(user);
+                    luceneIndexer.addToIndex(user);
+                }
+            } catch (NamingException e) {
+                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
+            }
+            
+            paginatedDL.data =  users;
+        }
+       
+        return paginatedDL;
+    }
 }
