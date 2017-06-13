@@ -26,8 +26,8 @@ import org.apache.lucene.store.NIOFSDirectory;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -60,8 +60,8 @@ public class UserAuthenticationEndpointTest {
     private static ApplicationService applicationService;
 
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         /*
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -194,12 +194,13 @@ public class UserAuthenticationEndpointTest {
         return dataSource;
     }
 
-    @AfterClass
-    public static void stop() {
+    @After
+    public void stop() {
         if (main != null) {
             main.stop();
         }
         FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
     }
 
     @Test
