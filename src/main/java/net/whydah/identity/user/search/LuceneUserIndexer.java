@@ -206,7 +206,12 @@ public class LuceneUserIndexer {
      *  IO error
      */
     private IndexWriter getWriter() throws IOException {
-        return new IndexWriter(index, new IndexWriterConfig(LUCENE_VERSION, ANALYZER));
+        IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
+        indexWriterConfig.setMaxBufferedDocs(500);
+        indexWriterConfig.setRAMBufferSizeMB(300);
+        IndexWriter indexWriter = new IndexWriter(index, indexWriterConfig);
+
+        return indexWriter;
     }
 
     private Document createLuceneDocument(UIBUserIdentity user) {
