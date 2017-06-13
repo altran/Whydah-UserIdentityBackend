@@ -87,6 +87,7 @@ public class LuceneUserIndexer {
         IndexWriter w = null;
         try {
             w = getWriter();
+
             log.trace("LuceneUserIndexer initialized. lockId={}", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
@@ -224,8 +225,6 @@ public class LuceneUserIndexer {
         }
         if (user.getPersonRef() != null) {
             doc.add(new Field(FIELD_PERSONREF, user.getPersonRef(), ftNotIndexed));  //Field.Index.NO
-            //For Lucene 5
-            //doc.add(new StoredField(FIELD_PERSONREF, user.getPersonRef()));
         }
 
         if (user.getCellPhone() != null) {
@@ -249,8 +248,6 @@ public class LuceneUserIndexer {
         }
         if (userAggregate.getPersonRef() != null) {
             doc.add(new Field(FIELD_PERSONREF, userAggregate.getPersonRef(), ftNotIndexed));  //Field.Index.NO
-            //For Lucene 5
-            //doc.add(new StoredField(FIELD_PERSONREF, user.getPersonRef()));
         }
 
         if (userAggregate.getCellPhone() != null) {
