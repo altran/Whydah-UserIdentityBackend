@@ -2,6 +2,7 @@ package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -264,7 +265,7 @@ public class LuceneUserIndexer {
         if (userAggregate.getCellPhone() != null) {
             doc.add(new Field(FIELD_MOBILE, userAggregate.getCellPhone(), ftTokenized));
         }
-        doc.add(new Field(FIELD_FULLJSON,userAggregate.toXML(),ftTokenized));
+        doc.add(new Field(FIELD_FULLJSON, UserAggregateMapper.toJson(userAggregate), ftTokenized));
         return doc;
     }
 
