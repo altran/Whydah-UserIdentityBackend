@@ -2,7 +2,7 @@ package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +29,8 @@ public class UserSearch {
         this.luceneIndexer = luceneIndexer;
     }
 
-    public List<UIBUserIdentityRepresentation> search(String query) {
-        List<UIBUserIdentityRepresentation> users = luceneSearch.search(query);
+    public List<UserIdentity> search(String query) {
+        List<UserIdentity> users = luceneSearch.search(query);
         if (users == null) {
             users = new ArrayList<>();
         }

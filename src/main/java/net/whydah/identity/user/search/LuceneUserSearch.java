@@ -1,19 +1,14 @@
 package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
-
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHitCountCollector;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +33,7 @@ public class LuceneUserSearch {
         this.index = index;
     }
 
-    public List<UIBUserIdentityRepresentation> search(String queryString) {
+    public List<UserIdentity> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
                 LuceneUserIndexer.FIELD_FIRSTNAME,
@@ -62,7 +57,7 @@ public class LuceneUserSearch {
             return new ArrayList<>();
         }
 
-        List<UIBUserIdentityRepresentation> result = new ArrayList<>();
+        List<UserIdentity> result = new ArrayList<>();
         DirectoryReader directoryReader = null;
         try {
             //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html

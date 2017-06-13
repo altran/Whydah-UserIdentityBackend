@@ -1,6 +1,7 @@
 package net.whydah.identity.user.resource;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UIBUserIdentity;
@@ -11,7 +12,7 @@ import net.whydah.identity.user.search.UserSearch;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
-
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
@@ -19,19 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +59,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
-        List<UIBUserIdentityRepresentation> users = userSearch.search(query);
+        List<UserIdentity> users = userSearch.search(query);
         HashMap<String, Object> model = new HashMap<>(2);
         model.put("users", users);
         model.put("userbaseurl", uriInfo.getBaseUri());

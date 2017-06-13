@@ -5,7 +5,6 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
-import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -106,9 +105,9 @@ public class IamDataImporter {
             uis = openInputStream("Users", userImportSource);
             NIOFSDirectory index = createDirectory(luceneDir);
             //Directory index = new RAMDirectory();
-            LuceneUserIndexer luceneUserIndexer = new LuceneUserIndexer(index);
-            new WhydahUserIdentityImporter(ldapUserIdentityDao, luceneUserIndexer).importUsers(uis);
-            luceneUserIndexer.closeIndexer();
+            //LuceneUserIndexer luceneUserIndexer = new LuceneUserIndexer(index);
+            new WhydahUserIdentityImporter(ldapUserIdentityDao, index).importUsers(uis);
+            //luceneUserIndexer.closeIndexer();
 
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
             new RoleMappingImporter(userPropertyAndRoleDao).importRoleMapping(rmis);

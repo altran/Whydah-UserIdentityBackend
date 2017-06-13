@@ -1,7 +1,7 @@
 package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class LuceneSearchTest {
         addUsers(index);
 
         LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
-        List<UIBUserIdentityRepresentation> result = luceneSearch.search("Ola");
+        List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Norman");
         assertEquals(2, result.size());
@@ -40,7 +40,7 @@ public class LuceneSearchTest {
         LuceneUserIndexer luceneIndexer = addUsers(index);
 
         LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
-        List<UIBUserIdentityRepresentation> result = luceneSearch.search("Ola");
+        List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         luceneIndexer.removeFromIndex("ola@example.com");
         result = luceneSearch.search("Ola");
@@ -54,7 +54,7 @@ public class LuceneSearchTest {
         LuceneUserIndexer luceneIndexer = addUsers(index);
 
         LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
-        List<UIBUserIdentityRepresentation> result = luceneSearch.search("Ola");
+        List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
@@ -72,7 +72,7 @@ public class LuceneSearchTest {
         addUsers(index);
 
         LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
-        List<UIBUserIdentityRepresentation> result = luceneSearch.search("Ola");
+        List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
@@ -89,7 +89,7 @@ public class LuceneSearchTest {
         addUsers(index);
 
         LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
-        List<UIBUserIdentityRepresentation> result = luceneSearch.search("Norman");
+        List<UserIdentity> result = luceneSearch.search("Norman");
         assertEquals(2, result.size());
         assertEquals("ola@example.com", result.get(1).getUsername());
     }
@@ -97,7 +97,7 @@ public class LuceneSearchTest {
 
     private LuceneUserIndexer addUsers(Directory index) throws IOException {
         LuceneUserIndexer luceneIndexer = new LuceneUserIndexer(index);
-        List<UIBUserIdentity> users = new ArrayList<UIBUserIdentity>() {{
+        List<UserIdentity> users = new ArrayList<UserIdentity>() {{
             add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
             add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
             add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));

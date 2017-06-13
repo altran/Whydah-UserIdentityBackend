@@ -1,8 +1,9 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -43,7 +44,7 @@ public class LuceneUserIndexer {
     protected static final Analyzer ANALYZER = new StandardAnalyzer();
 
     private static final Logger log = LoggerFactory.getLogger(LuceneUserIndexer.class);
-    private static Directory index = null;
+    private final Directory index;
 
     private static FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
     private static FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
@@ -51,31 +52,6 @@ public class LuceneUserIndexer {
 
     private static IndexWriter indexWriter;
 
-    /*
-    @Autowired
-    @Configure
-    public LuceneIndexer(@Configuration("lucene.directory") String luceneDir) {
-        this.index = createDirectory(luceneDir);
-        verifyWriter(index);
-    }
-    */
-
-    /*
-    private NIOFSDirectory createDirectory(String luceneDir) {
-        try {
-            File luceneDirectory = new File(luceneDir);
-            if (!luceneDirectory.exists()) {
-                boolean dirsCreated = luceneDirectory.mkdirs();
-                if (!dirsCreated) {
-                    log.debug("{} was not successfully created.", luceneDirectory.getAbsolutePath());
-                }
-            }
-            return new NIOFSDirectory(luceneDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    */
 
     @Autowired
     public LuceneUserIndexer(Directory myindex) {
@@ -85,22 +61,13 @@ public class LuceneUserIndexer {
         ftNotIndexed.setIndexed(false);
 
         index = myindex;
-        for (int n = 0; n < 3; n++) {
-            verifyWriter();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
+        verifyWriter();
 
-            }
-
-
-        }
     }
 
     private void verifyWriter() {
         try {
             indexWriter = getWriter();
-
             log.trace("LuceneUserIndexer initialized. lockId={}", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
@@ -122,7 +89,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void addToUserAggregateIndex(UIBUserAggregate userAggregate) {
+    public void addToUserAggregateIndex(UserAggregate userAggregate) {
         try {
             getWriter();
             Document doc = createLuceneDocument(userAggregate);
@@ -135,10 +102,10 @@ public class LuceneUserIndexer {
     }
 
 
-    public void addToIndex(List<UIBUserIdentity> users) throws IOException {
+    public void addToIndex(List<UserIdentity> users) throws IOException {
         try {
             getWriter();
-            for (UIBUserIdentity user : users) {
+            for (UserIdentity user : users) {
                 try {
                     Document doc = createLuceneDocument(user);
                     indexWriter.addDocument(doc);
@@ -153,10 +120,10 @@ public class LuceneUserIndexer {
     }
 
 
-    public void addToUserAggregateIndex(List<UIBUserAggregate> userAggregates) throws IOException {
+    public void addToUserAggregateIndex(List<UserAggregate> userAggregates) throws IOException {
         try {
             getWriter();
-            for (UIBUserAggregate userAggregate : userAggregates) {
+            for (UserAggregate userAggregate : userAggregates) {
                 try {
                     Document doc = createLuceneDocument(userAggregate);
                     indexWriter.addDocument(doc);
@@ -170,7 +137,7 @@ public class LuceneUserIndexer {
     }
 
 
-    public void update(UIBUserIdentity user) {
+    public void update(UserIdentity user) {
         try {
             getWriter();
             indexWriter.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
@@ -181,7 +148,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void updateUserAggregate(UIBUserAggregate userAggregate) {
+    public void updateUserAggregate(UserAggregate userAggregate) {
         try {
             getWriter();
             indexWriter.updateDocument(new Term(FIELD_UID, userAggregate.getUid()), createLuceneDocument(userAggregate));
@@ -255,7 +222,7 @@ public class LuceneUserIndexer {
         throw new IOException("Unable to access lock to lucene index worker ");
     }
 
-    private Document createLuceneDocument(UIBUserIdentity user) {
+    private Document createLuceneDocument(UserIdentity user) {
 
 
         Document doc = new Document();
@@ -279,7 +246,7 @@ public class LuceneUserIndexer {
         return doc;
     }
 
-    private Document createLuceneDocument(UIBUserAggregate userAggregate) {
+    private Document createLuceneDocument(UserAggregate userAggregate) {
 
         Document doc = new Document();
         doc.add(new Field(FIELD_UID, userAggregate.getUid(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
@@ -336,10 +303,10 @@ public class LuceneUserIndexer {
 //            Path fileToDeletePath = Paths.get(index.toString()+File.separator+"write.lock");
 //            Files.delete(fileToDeletePath);
         } catch (Exception e) {
-            log.warn("Exception in closeIndexer", e);
+            //log.warn("Exception in closeIndexer", e);
             //intentionally ignore
         } finally {
-            //indexWriter = null;
+            indexWriter = null;
 
 
         }

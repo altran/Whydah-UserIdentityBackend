@@ -3,14 +3,18 @@ package net.whydah.identity.dataimport;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.user.types.UserIdentity;
+import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class WhydahUserIdentityImporter {
@@ -27,12 +31,13 @@ public class WhydahUserIdentityImporter {
 	private static final int PERSONREF = 7;
 	
     private LdapUserIdentityDao ldapUserIdentityDao;
-    private LuceneUserIndexer luceneIndexer;
 
-    public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserIndexer myluceneIndexer) {
+    public LuceneUserIndexer luceneIndexer;
+
+    @Autowired
+    public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, Directory index) {
         this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.luceneIndexer = myluceneIndexer;
-        luceneIndexer.closeIndexer();
+        this.luceneIndexer = new LuceneUserIndexer(index);
     }
     
     public void importUsers(InputStream userImportSource) {
@@ -98,6 +103,7 @@ public class WhydahUserIdentityImporter {
     private int saveUsers(List<UIBUserIdentity> users) {
         int userAddedCount = 0;
         try {
+            List<UserIdentity> userIdentities = new LinkedList<>();
             for (UIBUserIdentity userIdentity : users) {
                 boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
                 if (added) {
@@ -105,10 +111,10 @@ public class WhydahUserIdentityImporter {
                             userIdentity.getUid(), userIdentity.getUsername(), userIdentity.getFirstName(), userIdentity.getLastName(), userIdentity.getEmail());
                     userAddedCount++;
                 }
+                userIdentities.add(userIdentity);
             }
-            luceneIndexer.closeIndexer();
 
-            luceneIndexer.addToIndex(users);
+            luceneIndexer.addToIndex(userIdentities);
             luceneIndexer.closeIndexer();
         } catch (Exception e) {
             log.error("Error importing users!", e);
