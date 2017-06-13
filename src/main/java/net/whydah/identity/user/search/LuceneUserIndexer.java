@@ -207,7 +207,7 @@ public class LuceneUserIndexer {
      *  read/written to or if there is any other low-level
      *  IO error
      */
-    private IndexWriter getWriter() {
+    private IndexWriter getWriter() throws IOException {
         if (indexWriter != null) {
             return indexWriter;
         }
@@ -221,6 +221,8 @@ public class LuceneUserIndexer {
         } catch (Exception e) {
             log.warn("Unable to access lock to lucene index worker", e);
         }
+
+        throw new IOException("Unable to access lock to lucene index worker");
     }
 
     private Document createLuceneDocument(UIBUserIdentity user) {
