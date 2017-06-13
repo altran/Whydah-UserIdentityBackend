@@ -28,11 +28,12 @@ public class WhydahUserIdentityImporter {
 	
     private LdapUserIdentityDao ldapUserIdentityDao;
     private LuceneUserIndexer luceneIndexer;
-    
-	public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserIndexer luceneIndexer) {
-		this.ldapUserIdentityDao = ldapUserIdentityDao;
-		this.luceneIndexer = luceneIndexer;
-	}
+
+    public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserIndexer myluceneIndexer) {
+        this.ldapUserIdentityDao = ldapUserIdentityDao;
+        this.luceneIndexer = myluceneIndexer;
+        luceneIndexer.closeIndexer();
+    }
     
     public void importUsers(InputStream userImportSource) {
         List<UIBUserIdentity> users = parseUsers(userImportSource);
@@ -105,6 +106,7 @@ public class WhydahUserIdentityImporter {
                     userAddedCount++;
                 }
             }
+            luceneIndexer.closeIndexer();
 
             luceneIndexer.addToIndex(users);
             luceneIndexer.closeIndexer();

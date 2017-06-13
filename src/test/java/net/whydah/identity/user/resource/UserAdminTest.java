@@ -8,6 +8,7 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
@@ -37,7 +38,7 @@ import static org.junit.Assert.*;
 
 
 public class UserAdminTest {
-    private Client client = ClientBuilder.newClient();
+    private static Client client = ClientBuilder.newClient();
     private static WebTarget baseResource;
     private static WebTarget logonResource;
     private static Main main;
@@ -123,6 +124,8 @@ public class UserAdminTest {
 
     @Test
     public void getNonExistingUser() {
+        FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
         WebTarget webResource = baseResource.path("user/");
         webResource.path("useradmin").request().get(String.class); // verify that path works with existing user
         try {
@@ -135,6 +138,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyUser() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
 
         String s = baseResource.path("user/" + uid).request().get(String.class);
@@ -167,6 +171,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserOK() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
 
         Response response = baseResource.path("user/" + uid).request().delete(Response.class);
@@ -183,6 +188,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserNotFound() {
+        LuceneUserIndexer.closeIndexer();
         WebTarget webResource = baseResource.path("users/dededede@hotmail.com/delete");
         try {
             String s = webResource.request().get(String.class);
@@ -196,6 +202,8 @@ public class UserAdminTest {
 
     @Test
     public void getuserroles() {
+
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId1", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappIdX", "0005", "NN", "another");
@@ -221,10 +229,14 @@ public class UserAdminTest {
         assertEquals("0005", testRole3.get("organizationName"));
         assertEquals("MM", testRole3.get("applicationRoleName"));
         assertEquals("yetanother", testRole3.get("applicationRoleValue"));
+        FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
+
     }
 
     @Test
     public void adduserrole() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         List<Map<String, Object>> rolesBefore = doGetUserRoles(uid);
         assertTrue(rolesBefore.isEmpty());
@@ -239,6 +251,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleNoJson() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "");
@@ -251,6 +264,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleBadJson() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "{ dilldall }");
@@ -264,6 +278,7 @@ public class UserAdminTest {
 
     @Test
     public void addExistingUserrole() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         doAddUserRole(uid, "testappId", "0005", "KK", "test");
         try {
@@ -276,6 +291,7 @@ public class UserAdminTest {
 
     @Test(expected = NotFoundException.class)
     public void addRoleNonExistingUser() {
+        LuceneUserIndexer.closeIndexer();
         String uid = "nonExistingUserId";
         WebTarget webResource = baseResource.path("user/" + uid + "/role");
         String payload = "{\"organizationName\": \"" + "0005" + "\",\n" +
@@ -288,6 +304,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteuserrole() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "tjohei");
@@ -305,6 +322,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyuserrole() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
 
@@ -334,6 +352,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetExistingUser() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("Hoytahl"));
@@ -342,6 +361,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetNonExistingUser() {
+        LuceneUserIndexer.closeIndexer();
         doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String uid = "non-existent-uid";
         try {
@@ -355,6 +375,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWillRespondWithConflictWhenUsernameAlreadyExists() {
+        LuceneUserIndexer.closeIndexer();
         doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             doAddUser("tifftaff", "snyper", "Another", "Wanderer", "wanderer@midget.orj", "34343434");
@@ -384,6 +405,7 @@ public class UserAdminTest {
 
     @Test
     public void addUser() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Gøæøåffse", "snyper@midget.orj", "12121212");
         assertNotNull(uid);
 
@@ -399,22 +421,26 @@ public class UserAdminTest {
 
     @Test
     public void addUserAllowMissingPersonRef() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
         baseResource.path("user/" + uid).request().get(String.class);
     }
 
     @Test
     public void addUserAllowMissingFirstName() {
+        LuceneUserIndexer.closeIndexer();
         doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void addUserAllowMissingLastName() {
+        LuceneUserIndexer.closeIndexer();
         doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void thatAddUserDoesNotAllowMissingEmail() {
+        LuceneUserIndexer.closeIndexer();
         try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", null, "12121212");
             fail("Expected 400 BAD_REQUEST");
@@ -425,6 +451,7 @@ public class UserAdminTest {
 
     @Test
     public void addUserWithMissingPhoneNumber() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", null);
         baseResource.path("user/" + uid).request().get(String.class);
     }
@@ -440,6 +467,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWithLettersInPhoneNumberIsNotAllowed() {
+        LuceneUserIndexer.closeIndexer();
         // Apache DS does not allow phone number with non-number letters
         try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
@@ -453,6 +481,7 @@ public class UserAdminTest {
     @Test
     @Ignore
     public void resetAndChangePassword() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("123123123", "sneile", "Effert", "Huffse", "sneile@midget.orj", "21212121");
 
         //baseResource.path("user/sneile/resetpassword").type("application/json").post(ClientResponse.class);
@@ -478,6 +507,7 @@ public class UserAdminTest {
 
     @Test
     public void thatEmailCanBeUsedAsUsername() {
+        LuceneUserIndexer.closeIndexer();
         String uid = doAddUser("riffraff", "snyper@midget.orj", "Edmund", "Goffse", "somotheremail@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));

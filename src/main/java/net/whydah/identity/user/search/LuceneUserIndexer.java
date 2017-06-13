@@ -13,6 +13,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,13 +43,13 @@ public class LuceneUserIndexer {
     protected static final Analyzer ANALYZER = new StandardAnalyzer();
 
     private static final Logger log = LoggerFactory.getLogger(LuceneUserIndexer.class);
-    private final Directory index;
+    private static Directory index = null;
 
     private static FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
     private static FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
     private static FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
 
-    private IndexWriter indexWriter;
+    private static IndexWriter indexWriter;
 
     /*
     @Autowired
@@ -76,127 +78,128 @@ public class LuceneUserIndexer {
     */
 
     @Autowired
-    public LuceneUserIndexer(Directory index) {
+    public LuceneUserIndexer(Directory myindex) {
         indexWriter = null;
         ftNotTokenized.setTokenized(false);
         ftTokenized.setTokenized(true);
         ftNotIndexed.setIndexed(false);
 
-        this.index = index;
-        verifyWriter(index);
+        index = myindex;
+        for (int n = 0; n < 3; n++) {
+            verifyWriter();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+
+            }
+
+
+        }
     }
 
-    private void verifyWriter(Directory index) {
-        //Open a writer to ensure segments* file is created.
-        IndexWriter w = null;
+    private void verifyWriter() {
         try {
-            w = getWriter();
+            indexWriter = getWriter();
 
             log.trace("LuceneUserIndexer initialized. lockId={}", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
+
         } finally {
-            closeWriter(w);
+            closeIndexer();
         }
     }
 
     public void addToIndex(UIBUserIdentity user) {
-        IndexWriter w = null;
         try {
-            w = getWriter();
+            getWriter();
             Document doc = createLuceneDocument(user);
-            w.addDocument(doc);
+            indexWriter.addDocument(doc);
         } catch (IOException e) {
             log.error("addToIndex failed for {}.", user.toString(), e);
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
     public void addToUserAggregateIndex(UIBUserAggregate userAggregate) {
-        IndexWriter w = null;
         try {
-            w = getWriter();
+            getWriter();
             Document doc = createLuceneDocument(userAggregate);
-            w.addDocument(doc);
+            indexWriter.addDocument(doc);
         } catch (IOException e) {
             log.error("addToUserAggregateIndex failed for {}.", userAggregate.toString(), e);
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
 
     public void addToIndex(List<UIBUserIdentity> users) throws IOException {
-        IndexWriter w = null;
         try {
-            w = getWriter();
+            getWriter();
             for (UIBUserIdentity user : users) {
                 try {
                     Document doc = createLuceneDocument(user);
-                    w.addDocument(doc);
+                    indexWriter.addDocument(doc);
                 } catch (IOException e) {
                     log.error("addToIndex failed for {}. User was not added to lucene index.", user.toString(), e);
                 }
             }
         } finally {
-            closeWriter(w);
+            closeWriter();
             //indexWriter=null;
         }
     }
 
 
     public void addToUserAggregateIndex(List<UIBUserAggregate> userAggregates) throws IOException {
-        IndexWriter w = null;
         try {
-            w = getWriter();
+            getWriter();
             for (UIBUserAggregate userAggregate : userAggregates) {
                 try {
                     Document doc = createLuceneDocument(userAggregate);
-                    w.addDocument(doc);
+                    indexWriter.addDocument(doc);
                 } catch (IOException e) {
                     log.error("addToUserAggregateIndex failed for {}. User was not added to lucene index.", userAggregate.toString(), e);
                 }
             }
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
 
     public void update(UIBUserIdentity user) {
-        IndexWriter w = null;
         try {
-            w = getWriter();
-            w.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
+            getWriter();
+            indexWriter.updateDocument(new Term(FIELD_UID, user.getUid()), createLuceneDocument(user));
         } catch (IOException e) {
             log.error("updating {} failed.", user.toString(), e);
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
     public void updateUserAggregate(UIBUserAggregate userAggregate) {
-        IndexWriter w = null;
         try {
-            w = getWriter();
-            w.updateDocument(new Term(FIELD_UID, userAggregate.getUid()), createLuceneDocument(userAggregate));
+            getWriter();
+            indexWriter.updateDocument(new Term(FIELD_UID, userAggregate.getUid()), createLuceneDocument(userAggregate));
         } catch (IOException e) {
             log.error("updating {} failed.", userAggregate.toString(), e);
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
     public void removeFromIndex(String uid) {
-        IndexWriter w = null;
         try {
-            w = getWriter();
-            w.deleteDocuments(new Term(FIELD_UID, uid));
+            getWriter();
+            indexWriter.deleteDocuments(new Term(FIELD_UID, uid));
         } catch (IOException e) {
             log.error("removeFromIndex failed. uid={}", uid, e);
         } finally {
-            closeWriter(w);
+            closeWriter();
         }
     }
 
@@ -221,18 +224,35 @@ public class LuceneUserIndexer {
             return indexWriter;
         }
         try {
+            File directory = new File(index.toString());
+            if (!directory.exists()) {
+                directory.mkdir();
+                // If you require it to make the entire directory path including parents,
+                // use directory.mkdirs(); here instead.
+            }
+            closeIndexer();
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
             indexWriterConfig.setMaxBufferedDocs(500);
             indexWriterConfig.setRAMBufferSizeMB(300);
             indexWriter = new IndexWriter(index, indexWriterConfig);
 
             return indexWriter;
-        } catch (Exception e) {
+        } catch (LockObtainFailedException e) {
             log.warn("Unable to access lock to lucene index worker", e);
+            closeIndexer();
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
+            indexWriterConfig.setMaxBufferedDocs(500);
+            indexWriterConfig.setRAMBufferSizeMB(300);
+            indexWriterConfig.setWriteLockTimeout(10000);
+            indexWriter = new IndexWriter(index, indexWriterConfig);
+            if (indexWriter != null) {
+                return indexWriter;
+
+            }
         }
 
 //        getWriter();  // lets try once more...
-        throw new IOException("Unable to access lock to lucene index worker");
+        throw new IOException("Unable to access lock to lucene index worker ");
     }
 
     private Document createLuceneDocument(UIBUserIdentity user) {
@@ -284,13 +304,15 @@ public class LuceneUserIndexer {
     }
 
 
-    private void closeWriter(IndexWriter w) {
-        if (w != null) {
+    private void closeWriter() {
+        if (indexWriter != null) {
             try {
                 //w.optimize();
                 if (index instanceof RAMDirectory) {
-                    w.close();
-                    w = null;
+                    indexWriter.close();
+                    indexWriter = null;
+                } else {
+                    indexWriter.close();
                     indexWriter = null;
                 }
             } catch (IOException e) {
@@ -301,13 +323,24 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void closeIndexer() {
+    public static void closeIndexer() {
+
+        if (indexWriter == null) {
+            return;
+        }
         try {
-            index.close();
-        } catch (IOException e) {
+            indexWriter.commit();
+            indexWriter.close();
+//            Thread.sleep(2000);
+            indexWriter = null;
+//            Path fileToDeletePath = Paths.get(index.toString()+File.separator+"write.lock");
+//            Files.delete(fileToDeletePath);
+        } catch (Exception e) {
+            log.warn("Exception in closeIndexer", e);
             //intentionally ignore
         } finally {
-            indexWriter = null;
+            //indexWriter = null;
+
 
         }
 
