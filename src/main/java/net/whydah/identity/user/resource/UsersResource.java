@@ -9,6 +9,7 @@ import net.whydah.identity.user.search.PaginatedUIBUserAggregateDataList;
 import net.whydah.identity.user.search.PaginatedUIBUserIdentityDataList;
 import net.whydah.identity.user.search.UserSearch;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
 
 import org.apache.commons.lang.StringUtils;
@@ -139,9 +140,10 @@ public class UsersResource {
         List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
         List<String> duplicates = new ArrayList<String>();
         for(UserAggregate ua : importList){
-        	UIBUserAggregate uibua = userAggregateService.getUserAggregateByUsernameOrUid(ua.getUsername());
+        	
+        	UIBUserIdentity uibua = userAggregateService.getUIBUserIdentityByUsernameOrUid(ua.getUsername());
         	if(uibua!=null){
-        		duplicates.add(UserAggregateMapper.toJson(ua));
+        		duplicates.add(UserIdentityMapper.toJson(ua));
         	}
         }
         return Response.ok("[" + (duplicates.size()>0 ? StringUtils.join(duplicates, ','):"") + "]").build();

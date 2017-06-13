@@ -64,6 +64,20 @@ public class UserAggregateService {
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleDao.getUserPropertyAndRoles(userIdentity.getUid());
         return new UIBUserAggregate(userIdentity, userPropertyAndRoles);
     }
+    
+    public UIBUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
+        UIBUserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
+        } catch (NamingException e) {
+            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
+        }
+        if (userIdentity == null) {
+            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
+            return null;
+        }
+        return userIdentity;
+    }
 
     public UIBUserIdentity updateUserIdentity(String uid, UIBUserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
