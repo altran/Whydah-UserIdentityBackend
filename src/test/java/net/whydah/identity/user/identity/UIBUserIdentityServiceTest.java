@@ -38,6 +38,7 @@ public class UIBUserIdentityServiceTest {
     private static PasswordGenerator passwordGenerator;
     private static LuceneUserIndexer luceneIndexer;
     private static UserAdminHelper userAdminHelper;
+    private static Directory index;
 
     private static Main main = null;
 
@@ -46,6 +47,8 @@ public class UIBUserIdentityServiceTest {
     public static void setUp() throws Exception {
         //System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         //System.setProperty(ConfigTags.CONSTRETTO_TAGS, ConfigTags.DEV_MODE);
+        FileUtils.deleteDirectory(new File("target/data/"));
+
         ApplicationMode.setCIMode();
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
@@ -81,7 +84,7 @@ public class UIBUserIdentityServiceTest {
         ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         UserPropertyAndRoleDao userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
 
-        Directory index = new NIOFSDirectory(new File(luceneDir));
+        index = new NIOFSDirectory(new File(luceneDir));
         luceneIndexer = new LuceneUserIndexer(index);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userPropertyAndRoleDao, configuration);
@@ -141,7 +144,10 @@ public class UIBUserIdentityServiceTest {
         if (main != null) {
             main.stop();
         }
+        luceneIndexer.closeIndexer();
         main=null;
+        luceneIndexer = null;
+        FileUtils.deleteDirectory(new File("target/data/"));
     }
 
     @Test

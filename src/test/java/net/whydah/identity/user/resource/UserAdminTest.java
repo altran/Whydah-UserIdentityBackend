@@ -27,16 +27,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 public class UserAdminTest {
@@ -47,6 +44,9 @@ public class UserAdminTest {
 
     @Before
     public void init() throws Exception {
+        FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
+
         ApplicationMode.setTags(ApplicationMode.DEV_MODE, ApplicationMode.NO_SECURITY_FILTER);
         SecurityFilter.setCIFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
@@ -60,6 +60,7 @@ public class UserAdminTest {
         String luceneDir = configuration.evaluateToString("lucene.directory");
         FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneDir);
 
+        FileUtils.deleteDirectory(new File(luceneDir));
 
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());
@@ -99,6 +100,9 @@ public class UserAdminTest {
     @After
     public void teardown() throws InterruptedException {
         main.stop();
+        FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
+
     }
 
     @Test

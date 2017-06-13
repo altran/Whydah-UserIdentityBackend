@@ -19,6 +19,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -79,6 +80,7 @@ public class IamDataImporterTest {
         if (main != null) {
             main.stop();
         }
+        FileUtils.deleteDirectory(new File("target/data/"));
     }
     
     @Test

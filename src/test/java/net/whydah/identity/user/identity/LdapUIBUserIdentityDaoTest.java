@@ -10,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -24,6 +25,8 @@ public class LdapUIBUserIdentityDaoTest {
     public static void setUp() throws Exception {
         //System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         //System.setProperty(ConfigTags.CONSTRETTO_TAGS, ConfigTags.DEV_MODE);
+        FileUtils.deleteDirectory(new File("target/data/"));
+
         ApplicationMode.setCIMode();
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
@@ -73,6 +76,8 @@ public class LdapUIBUserIdentityDaoTest {
         if (main != null) {
             main.stop();
         }
+        FileUtils.deleteDirectory(new File("target/data/"));
+
     }
 
 

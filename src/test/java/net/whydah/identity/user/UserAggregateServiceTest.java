@@ -4,10 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.identity.util.FileUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -20,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 06/04/14
  */
+@Ignore
 public class UserAggregateServiceTest {
     private static final Logger log = LoggerFactory.getLogger(UserAggregateServiceTest.class);
     /*
@@ -81,7 +87,21 @@ public class UserAggregateServiceTest {
 }
      */
 
+    @BeforeClass
+    public static void stap() {
+        FileUtils.deleteDirectory(new File("target/data/"));
+        FileUtils.deleteDirectory(new File("data/"));
+
+    }
+
+    @AfterClass
+    public static void stop() {
+        FileUtils.deleteDirectory(new File("target/data/"));
+
+    }
+
     @Test   //ED: In-progress
+    @Ignore
     public void testJsonFromUserAggregate() throws IOException {
         String username = "usernameABC";
         UIBUserIdentity userIdentity = new UIBUserIdentity("uid", username, "firstName", "lastName", "email", "password", "12345678", "personRef"

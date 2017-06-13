@@ -107,10 +107,14 @@ public class WhydahUserIdentityImporter {
             }
 
             luceneIndexer.addToIndex(users);
+            luceneIndexer.closeIndexer();
         } catch (Exception e) {
             log.error("Error importing users!", e);
+            luceneIndexer.closeIndexer();
             throw new RuntimeException("Error importing users!", e);
         }
+
+        luceneIndexer.closeIndexer();
         return userAddedCount;
     }
 }

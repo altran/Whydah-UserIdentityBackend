@@ -2,8 +2,11 @@ package net.whydah.identity.dataimport;
 
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.application.types.Application;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testng.annotations.AfterClass;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -38,4 +41,15 @@ public class ApplicationImporterTest {
 		assertEquals("defaultOrgName must be set.", "Whydah", application3.getDefaultOrganizationName());
 
 	}
+
+	@BeforeClass
+	public static void stap() {
+		FileUtils.deleteDirectory(new File("target/data/"));
+	}
+
+	@AfterClass
+	public static void stop() {
+		FileUtils.deleteDirectory(new File("target/data/"));
+	}
+
 }

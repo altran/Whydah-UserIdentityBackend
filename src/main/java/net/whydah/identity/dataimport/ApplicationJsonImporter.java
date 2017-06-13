@@ -26,7 +26,7 @@ public class ApplicationJsonImporter {
 
     public ApplicationJsonImporter(ApplicationService applicationService, ConstrettoConfiguration configuration) {
         this.applicationService = applicationService;
-        this.luceneApplicationDir = configuration.evaluateToString("lucene.directory");
+        this.luceneApplicationDir = configuration.evaluateToString("lucene.directory") + ".applications";
         NIOFSDirectory index = createDirectory(luceneApplicationDir);
         luceneApplicationIndexer = new LuceneApplicationIndexer(index);
 

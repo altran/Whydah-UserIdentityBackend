@@ -68,6 +68,7 @@ public class UserAuthenticationEndpointTest {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
         */
+        FileUtils.deleteDirectory(new File("target/data/"));
 
         ApplicationMode.setCIMode();
         SecurityFilter.setCIFlag(true);
@@ -97,7 +98,7 @@ public class UserAuthenticationEndpointTest {
 
         new IamDataImporter(dataSource, configuration).importIamData();
 
-        main.start();
+        //main.start();
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -115,12 +116,14 @@ public class UserAuthenticationEndpointTest {
         userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, null, null);
 
 
+        FileUtils.deleteDirectory(new File(luceneDir));
         Directory index = new NIOFSDirectory(new File(luceneDir));
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneUserIndexer(index), auditLogDao, userPropertyAndRoleDao, configuration);
 
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }
+
 
     @Test
     public void testAuthenticateUserOK() throws Exception {
@@ -196,6 +199,7 @@ public class UserAuthenticationEndpointTest {
         if (main != null) {
             main.stop();
         }
+        FileUtils.deleteDirectory(new File("target/data/"));
     }
 
     @Test

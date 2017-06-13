@@ -43,6 +43,8 @@ public class IamDataImporter {
         this.ldapUserIdentityDao = initLdapUserIdentityDao(configuration);
         //String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
         this.luceneDir = configuration.evaluateToString("lucene.directory");
+        FileUtils.deleteDirectory(new File(luceneDir));
+
 
         this.userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
 
@@ -103,7 +105,10 @@ public class IamDataImporter {
 
             uis = openInputStream("Users", userImportSource);
             NIOFSDirectory index = createDirectory(luceneDir);
-            new WhydahUserIdentityImporter(ldapUserIdentityDao, new LuceneUserIndexer(index)).importUsers(uis);
+            //Directory index = new RAMDirectory();
+            LuceneUserIndexer luceneUserIndexer = new LuceneUserIndexer(index);
+            new WhydahUserIdentityImporter(ldapUserIdentityDao, luceneUserIndexer).importUsers(uis);
+            luceneUserIndexer.closeIndexer();
 
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
             new RoleMappingImporter(userPropertyAndRoleDao).importRoleMapping(rmis);

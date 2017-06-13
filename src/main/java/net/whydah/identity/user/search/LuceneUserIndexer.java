@@ -141,8 +141,10 @@ public class LuceneUserIndexer {
             }
         } finally {
             closeWriter(w);
+            //indexWriter=null;
         }
     }
+
 
     public void addToUserAggregateIndex(List<UIBUserAggregate> userAggregates) throws IOException {
         IndexWriter w = null;
@@ -200,14 +202,15 @@ public class LuceneUserIndexer {
 
     /**
      * Use with caution. Close writer after use.
+     *
      * @return IndexWriter
-     * @throws org.apache.lucene.index.CorruptIndexException if the index is corrupt
+     * @throws org.apache.lucene.index.CorruptIndexException     if the index is corrupt
      * @throws org.apache.lucene.store.LockObtainFailedException if another writer
-     *  has this index open (<code>write.lock</code> could not
-     *  be obtained)
-     * @throws IOException if the directory cannot be
-     *  read/written to or if there is any other low-level
-     *  IO error
+     *                                                           has this index open (<code>write.lock</code> could not
+     *                                                           be obtained)
+     * @throws IOException                                       if the directory cannot be
+     *                                                           read/written to or if there is any other low-level
+     *                                                           IO error
      */
     private IndexWriter getWriter() throws IOException {
         if (index instanceof RAMDirectory) {
@@ -228,7 +231,7 @@ public class LuceneUserIndexer {
             log.warn("Unable to access lock to lucene index worker", e);
         }
 
-        getWriter();  // lets try once more...
+//        getWriter();  // lets try once more...
         throw new IOException("Unable to access lock to lucene index worker");
     }
 
@@ -296,5 +299,17 @@ public class LuceneUserIndexer {
 
             }
         }
+    }
+
+    public void closeIndexer() {
+        try {
+            index.close();
+        } catch (IOException e) {
+            //intentionally ignore
+        } finally {
+            indexWriter = null;
+
+        }
+
     }
 }
