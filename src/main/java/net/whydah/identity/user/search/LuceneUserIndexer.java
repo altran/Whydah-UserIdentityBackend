@@ -42,6 +42,10 @@ public class LuceneUserIndexer {
     private static final Logger log = LoggerFactory.getLogger(LuceneUserIndexer.class);
     private final Directory index;
 
+    private static FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
+    private static FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
+    private static FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
+
     /*
     @Autowired
     @Configure
@@ -70,6 +74,10 @@ public class LuceneUserIndexer {
 
     @Autowired
     public LuceneUserIndexer(Directory index) {
+        ftNotTokenized.setTokenized(false);
+        ftTokenized.setTokenized(true);
+        ftNotIndexed.setIndexed(false);
+
         this.index = index;
         verifyWriter(index);
     }
@@ -201,14 +209,6 @@ public class LuceneUserIndexer {
     }
 
     private Document createLuceneDocument(UIBUserIdentity user) {
-        FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
-        ftNotTokenized.setTokenized(false);
-
-        FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
-        ftTokenized.setTokenized(true);
-
-        FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
-        ftNotIndexed.setIndexed(false);
 
 
         Document doc = new Document();
@@ -235,15 +235,6 @@ public class LuceneUserIndexer {
     }
 
     private Document createLuceneDocument(UIBUserAggregate userAggregate) {
-        FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
-        ftNotTokenized.setTokenized(false);
-
-        FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
-        ftTokenized.setTokenized(true);
-
-        FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
-        ftNotIndexed.setIndexed(false);
-
 
         Document doc = new Document();
         doc.add(new Field(FIELD_UID, userAggregate.getUid(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
