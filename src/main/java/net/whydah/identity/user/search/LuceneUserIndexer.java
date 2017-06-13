@@ -287,11 +287,13 @@ public class LuceneUserIndexer {
                 //w.optimize();
                 if (index instanceof RAMDirectory) {
                     w.close();
+                    w = null;
+                    indexWriter = null;
                 }
             } catch (IOException e) {
                 //intentionally ignore
             } finally {
-                w = null;
+
             }
         }
     }
