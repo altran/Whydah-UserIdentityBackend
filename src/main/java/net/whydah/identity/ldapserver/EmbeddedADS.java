@@ -162,6 +162,7 @@ public class EmbeddedADS {
         } else if (this.directoryServiceFactory.equals(DSF_FILE)) {
             System.setProperty("workingDirectory", workingDirectory);
             dsf = new FileDirectoryServiceFactory();
+
         } else {
             throw new IllegalStateException("Unknown value of directoryServiceFactory: " + this.directoryServiceFactory);
         }
@@ -181,7 +182,7 @@ public class EmbeddedADS {
                 service.getDnFactory(),
                 dcName,
                 this.baseDN,
-                1000,
+                1000000,  // Cache size in entries
                 new File(service.getInstanceLayout().getPartitionsDirectory(), dcName));
         partition.setCacheService( service.getCacheService() );
         partition.initialize();
