@@ -228,6 +228,7 @@ public class LuceneUserIndexer {
             log.warn("Unable to access lock to lucene index worker", e);
         }
 
+        getWriter();  // lets try once more...
         throw new IOException("Unable to access lock to lucene index worker");
     }
 
