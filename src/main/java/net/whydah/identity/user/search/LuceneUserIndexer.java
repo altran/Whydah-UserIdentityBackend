@@ -207,16 +207,20 @@ public class LuceneUserIndexer {
      *  read/written to or if there is any other low-level
      *  IO error
      */
-    private IndexWriter getWriter() throws IOException {
+    private IndexWriter getWriter() {
         if (indexWriter != null) {
             return indexWriter;
         }
-        IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
-        indexWriterConfig.setMaxBufferedDocs(500);
-        indexWriterConfig.setRAMBufferSizeMB(300);
-        indexWriter = new IndexWriter(index, indexWriterConfig);
+        try {
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
+            indexWriterConfig.setMaxBufferedDocs(500);
+            indexWriterConfig.setRAMBufferSizeMB(300);
+            indexWriter = new IndexWriter(index, indexWriterConfig);
 
-        return indexWriter;
+            return indexWriter;
+        } catch (Exception e) {
+            log.warn("Unable to access lock to lucene index worker", e);
+        }
     }
 
     private Document createLuceneDocument(UIBUserIdentity user) {
