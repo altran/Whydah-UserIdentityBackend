@@ -46,6 +46,8 @@ public class LuceneUserIndexer {
     private static FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
     private static FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
 
+    private static IndexWriter indexWriter;
+
     /*
     @Autowired
     @Configure
@@ -92,7 +94,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("getWriter failed.", e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -105,7 +107,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("addToIndex failed for {}.", user.toString(), e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -118,7 +120,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("addToUserAggregateIndex failed for {}.", userAggregate.toString(), e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -136,7 +138,7 @@ public class LuceneUserIndexer {
                 }
             }
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -153,7 +155,7 @@ public class LuceneUserIndexer {
                 }
             }
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -166,7 +168,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("updating {} failed.", user.toString(), e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -178,7 +180,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("updating {} failed.", userAggregate.toString(), e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -190,7 +192,7 @@ public class LuceneUserIndexer {
         } catch (IOException e) {
             log.error("removeFromIndex failed. uid={}", uid, e);
         } finally {
-            closeWriter(w);
+            //closeWriter(w);
         }
     }
 
@@ -206,10 +208,13 @@ public class LuceneUserIndexer {
      *  IO error
      */
     private IndexWriter getWriter() throws IOException {
+        if (indexWriter != null) {
+            return indexWriter;
+        }
         IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
         indexWriterConfig.setMaxBufferedDocs(500);
         indexWriterConfig.setRAMBufferSizeMB(300);
-        IndexWriter indexWriter = new IndexWriter(index, indexWriterConfig);
+        indexWriter = new IndexWriter(index, indexWriterConfig);
 
         return indexWriter;
     }
@@ -270,6 +275,8 @@ public class LuceneUserIndexer {
                 w.close();
             } catch (IOException e) {
                 //intentionally ignore
+            } finally {
+                w = null;
             }
         }
     }
