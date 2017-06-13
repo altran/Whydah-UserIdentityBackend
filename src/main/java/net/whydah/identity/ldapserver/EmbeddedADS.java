@@ -161,7 +161,8 @@ public class EmbeddedADS {
             dsf = new InMemoryDirectoryServiceFactory();
         } else if (this.directoryServiceFactory.equals(DSF_FILE)) {
             System.setProperty("workingDirectory", workingDirectory);
-            dsf = new FileDirectoryServiceFactory();
+            //dsf = new FileDirectoryServiceFactory();
+            dsf = new InMemoryDirectoryServiceFactory();
 
         } else {
             throw new IllegalStateException("Unknown value of directoryServiceFactory: " + this.directoryServiceFactory);
