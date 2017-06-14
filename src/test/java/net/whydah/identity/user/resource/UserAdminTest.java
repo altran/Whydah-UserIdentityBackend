@@ -118,8 +118,8 @@ public class UserAdminTest {
     public void getUser() {
         WebTarget webResource = baseResource.path("user/useradmin");
         String s = webResource.request().get(String.class);
-        //System.out.println(s);
-        assertTrue(s.contains("\"firstName\":\"UserAdmin\""));
+        System.out.println(s);
+        assertTrue(s.contains("\"firstName\":\"User\""));
     }
 
     @Test
