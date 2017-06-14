@@ -11,6 +11,11 @@ import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.application.types.Application;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserIdentity;
 import net.whydah.sso.user.types.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +55,7 @@ public class UserAggregateService {
     }
 
 
-    public UIBUserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
+    public UIBUserAggregate getUIBUserAggregateByUsernameOrUid(String usernameOrUid) {
         UIBUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
@@ -64,9 +69,40 @@ public class UserAggregateService {
         List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleDao.getUserPropertyAndRoles(userIdentity.getUid());
         return new UIBUserAggregate(userIdentity, userPropertyAndRoles);
     }
-    
+
+    public UserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
+        UserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
+        } catch (NamingException e) {
+            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
+        }
+        if (userIdentity == null) {
+            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
+            return null;
+        }
+        UserAggregate userAggregate = UserAggregateMapper.fromUserIdentityJson(UserIdentityMapper.toJson(userIdentity));
+        List<UserApplicationRoleEntry> userApplicationRoleEntries = userPropertyAndRoleDao.getUserApplicationRoleEntries(userIdentity.getUid());
+        userAggregate.setRoleList(userApplicationRoleEntries);
+        return userAggregate;
+    }
+
     public UIBUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
         UIBUserIdentity userIdentity;
+        try {
+            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
+        } catch (NamingException e) {
+            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
+        }
+        if (userIdentity == null) {
+            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
+            return null;
+        }
+        return userIdentity;
+    }
+
+    public UserIdentity getUserIdentityByUsernameOrUid(String usernameOrUid) {
+        UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
         } catch (NamingException e) {
@@ -86,7 +122,7 @@ public class UserAggregateService {
 
 
     public void deleteUserAggregateByUid(String uid) {
-        UIBUserIdentity userIdentity;
+        UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentityForUid(uid);
             luceneIndexer.removeFromIndex(uid);
@@ -102,17 +138,12 @@ public class UserAggregateService {
             log.warn("Trouble trying to delete user with uid:" + uid);
         }
 
-        deleteRolesForUser(userIdentity);
-    }
-
-
-    // FIXME This does not seem to make any sense...  DELETE user or DELETE role?
-    private void deleteRolesForUser(UIBUserIdentity userIdentity) {
-        String uid = userIdentity.getUid();
         userPropertyAndRoleDao.deleteAllRolesForUser(uid);
         //indexer.removeFromIndex(uid);
         audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + userIdentity.getUsername());
+
     }
+
 
     private void audit(String action, String what, String value) {
         UserToken authenticatedUser = Authentication.getAuthenticatedUser();
@@ -148,6 +179,18 @@ public class UserAggregateService {
         role.setOrganizationName(request.getOrganizationName());
         role.setApplicationRoleName(request.getApplicationRoleName());
         role.setApplicationRoleValue(request.getApplicationRoleValue());
+
+        return addRole(uid, role);
+    }
+
+    public UserApplicationRoleEntry addUserApplicationRoleEntry(String uid, RoleRepresentationRequest request) {
+        UserApplicationRoleEntry role = new UserApplicationRoleEntry();
+        role.setId(uid);
+        role.setApplicationId(request.getApplicationId());
+        role.setApplicationName(request.getApplicationName());
+        role.setOrgName(request.getOrganizationName());
+        role.setRoleName(request.getApplicationRoleName());
+        role.setRoleValue(request.getApplicationRoleValue());
 
         return addRole(uid, role);
     }
@@ -193,6 +236,20 @@ public class UserAggregateService {
         return role;
     }
 
+    public UserApplicationRoleEntry addRole(String uid, UserApplicationRoleEntry role) {
+        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+            String msg = "User with uid=" + uid + " already has this role. " + role.toString();
+            throw new WebApplicationException(msg, Response.Status.CONFLICT);
+            //return role;
+        }
+
+        role.setUserId(uid);
+        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
+        audit(ActionPerformed.ADDED, "role", value);
+        return role;
+    }
+
     public UserPropertyAndRole addRoleIfNotExist(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             return role;
@@ -204,8 +261,23 @@ public class UserAggregateService {
         return role;
     }
 
+    public UserApplicationRoleEntry addRoleIfNotExist(String uid, UserApplicationRoleEntry role) {
+        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+            return role;
+        }
+        role.setUserId(uid);
+        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
+        audit(ActionPerformed.ADDED, "role", value);
+        return role;
+    }
+
     public UserPropertyAndRole getRole(String uid, String roleId) {
         return getUserPropertyAndRole(roleId);
+    }
+
+    public UserApplicationRoleEntry getUserApplicationRoleEntry(String uid, String roleId) {
+        return getUserApplicationRoleEntry(roleId);
     }
 
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
@@ -217,10 +289,20 @@ public class UserAggregateService {
         return role;
     }
 
+    public UserApplicationRoleEntry getUserApplicationRoleEntry(String roleId) {
+        UserApplicationRoleEntry role = userPropertyAndRoleDao.getUserApplicationRoleEntry(roleId);
+        Application application = applicationDao.getApplication(role.getApplicationId());
+        if (application != null) {
+            role.setApplicationName(application.getName());
+        }
+        return role;
+    }
 
     public List<UserPropertyAndRole> getRoles(String uid) {
         return getUserPropertyAndRoles(uid);
     }
+
+
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
         List<UserPropertyAndRole> roles = userPropertyAndRoleDao.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole role : roles) {
@@ -232,6 +314,16 @@ public class UserAggregateService {
         return roles;
     }
 
+    public List<UserApplicationRoleEntry> getUserApplicationRoleEntries(String uid) {
+        List<UserApplicationRoleEntry> roles = userPropertyAndRoleDao.getUserApplicationRoleEntries(uid);
+        for (UserApplicationRoleEntry role : roles) {
+            Application application = applicationDao.getApplication(role.getApplicationId());
+            if (application != null) {
+                role.setApplicationName(application.getName());
+            }
+        }
+        return roles;
+    }
 
     public UserPropertyAndRole updateRole(String uid, String roleId, UserPropertyAndRole role) {
         UserPropertyAndRole existingUserPropertyAndRole = getUserPropertyAndRole(roleId);
@@ -250,6 +342,29 @@ public class UserAggregateService {
 
         role.setUid(uid);
         role.setRoleId(roleId);
+        userPropertyAndRoleDao.updateUserRoleValue(role);
+
+        //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);
+        return role;
+    }
+
+    public UserApplicationRoleEntry updateRole(String uid, String roleId, UserApplicationRoleEntry role) {
+        UserApplicationRoleEntry existingUserApplicationRoleEntry = getUserApplicationRoleEntry(roleId);
+        if (existingUserApplicationRoleEntry == null) {
+            throw new NonExistentRoleException("RoleID does not exist: " + roleId);
+        }
+        if (!existingUserApplicationRoleEntry.getId().equals(role.getId())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change uid from " + existingUserApplicationRoleEntry.getId() + " to " + role.getId() + " for roleId " + roleId);
+        }
+        if (!existingUserApplicationRoleEntry.getApplicationId().equals(role.getApplicationId())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change applicationId from " + existingUserApplicationRoleEntry.getApplicationId() + " to " + role.getApplicationId() + " for roleId " + roleId);
+        }
+        if (!existingUserApplicationRoleEntry.getOrgName().equals(role.getOrgName())) {
+            throw new InvalidRoleModificationException("Illegal attempt to change organizationName from " + existingUserApplicationRoleEntry.getOrgName() + " to " + role.getOrgName() + " for roleId " + roleId);
+        }
+
+        role.setUserId(uid);
+        role.setId(roleId);
         userPropertyAndRoleDao.updateUserRoleValue(role);
 
         //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);

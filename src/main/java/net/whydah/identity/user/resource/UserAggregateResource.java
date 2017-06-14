@@ -4,6 +4,8 @@ package net.whydah.identity.user.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.types.UserAggregate;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +44,14 @@ public class UserAggregateResource {
     }
 
     @GET
-    @Path("/{uid}")
+    @Path("/old/{uid}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getUserAggregate(@PathParam("uid") String uid) {
+    public Response getUIBUserAggregate(@PathParam("uid") String uid) {
         log.trace("getUserAggregateByUsernameOrUid with uid={}", uid);
 
         UIBUserAggregate user;
         try {
-            user = userAggregateService.getUserAggregateByUsernameOrUid(uid);
+            user = userAggregateService.getUIBUserAggregateByUsernameOrUid(uid);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("no user with uid=" + uid).build();
             }
@@ -63,4 +65,28 @@ public class UserAggregateResource {
         model.put("userbaseurl", uriInfo.getBaseUri());
         return Response.ok(new Viewable("/useradmin/user.json.ftl", model)).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
     }
+
+    @GET
+    @Path("/{uid}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getUserAggregate(@PathParam("uid") String uid) {
+        log.trace("getUserAggregateByUsernameOrUid with uid={}", uid);
+
+        UserAggregate user;
+        try {
+            user = userAggregateService.getUserAggregateByUsernameOrUid(uid);
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("no user with uid=" + uid).build();
+            }
+        } catch (RuntimeException e) {
+            log.error("", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        HashMap<String, Object> model = new HashMap<>(2);
+        model.put("user", user);
+        model.put("userbaseurl", uriInfo.getBaseUri());
+        return Response.ok(UserAggregateMapper.toJson(user)).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
+    }
+
 }
