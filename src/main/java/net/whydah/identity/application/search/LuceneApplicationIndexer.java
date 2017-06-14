@@ -37,7 +37,7 @@ public class LuceneApplicationIndexer {
     @Autowired
     public LuceneApplicationIndexer(Directory luceneApplicationDirectory) {
         //this.index = luceneApplicationDirectory;
-        this.index = new RAMDirectory();
+        this.index = luceneApplicationDirectory;
 
         verifyWriter(index);
     }

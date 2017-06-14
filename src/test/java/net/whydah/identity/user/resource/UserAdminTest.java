@@ -108,10 +108,10 @@ public class UserAdminTest {
 
     @Test
     public void testFind() {
-        WebTarget webResource = baseResource.path("users/find/Admin");
+        WebTarget webResource = baseResource.path("users/find/useradmin");
         Response response = webResource.request().get(Response.class);
         String entity = response.readEntity(String.class);
-        assertTrue(entity.contains("\"lastName\":\"Admin\""));
+        assertTrue(entity.contains("\"firstName\":\"UserAdmin\""));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class UserAdminTest {
         WebTarget webResource = baseResource.path("user/useradmin");
         String s = webResource.request().get(String.class);
         //System.out.println(s);
-        assertTrue(s.contains("\"lastName\":\"Admin\""));
+        assertTrue(s.contains("\"firstName\":\"UserAdmin\""));
     }
 
     @Test
