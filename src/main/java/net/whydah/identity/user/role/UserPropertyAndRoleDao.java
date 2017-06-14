@@ -40,9 +40,26 @@ public class UserPropertyAndRoleDao {
         return roles.get(0);
     }
 
+    public UserApplicationRoleEntry getUserApplicationRoleEntry(String roleId) {
+        log.debug("getUserPropertyAndRole for roleId {}", roleId);
+        String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
+        List<UserApplicationRoleEntry> roles = jdbcTemplate.query(sql, new String[]{roleId}, new UserApplicationRoleEntryMapper());
+        if (roles.isEmpty()) {
+            return null;
+        }
+        return roles.get(0);
+    }
+
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
         List<UserPropertyAndRole> roles = this.jdbcTemplate.query(sql, new String[]{uid}, new UserPropertyAndRoleMapper());
+        log.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
+        return roles;
+    }
+
+    public List<UserApplicationRoleEntry> getUserApplicationRoleEntries(String uid) {
+        String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
+        List<UserApplicationRoleEntry> roles = this.jdbcTemplate.query(sql, new String[]{uid}, new UserApplicationRoleEntryMapper());
         log.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
         return roles;
     }
@@ -114,23 +131,24 @@ public class UserPropertyAndRoleDao {
     }
 
     public boolean hasRole(String uid, UserApplicationRoleEntry role) {
-        List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
-        for (UserPropertyAndRole existingRole : existingRoles) {
+        List<UserApplicationRoleEntry> existingRoles = getUserApplicationRoleEntries(uid);
+        for (UserApplicationRoleEntry existingRole : existingRoles) {
             log.trace("hasRole - checking existing.applicationID {} against applicationID {} " +
                             "\n & existing.getOrganizationName {} against getOrganizationName {}" +
                             "\n & existing.getApplicationRoleName {} against getApplicationRoleName {}",
                     existingRole.getApplicationId(), role.getApplicationId(),
-                    existingRole.getOrganizationName(), role.getOrgName(),
-                    existingRole.getApplicationRoleName(), role.getApplicationName());
+                    existingRole.getOrgName(), role.getOrgName(),
+                    existingRole.getApplicationName(), role.getApplicationName());
             boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
-                    && existingRole.getOrganizationName().equals(role.getOrgName())
-                    && existingRole.getApplicationRoleName().equals(role.getRoleName());
+                    && existingRole.getOrgName().equals(role.getOrgName())
+                    && existingRole.getRoleName().equals(role.getRoleName());
             if (roleExist) {
                 return true;
             }
         }
         return false;
     }
+
 
 
 
@@ -156,6 +174,30 @@ public class UserPropertyAndRoleDao {
 
         );
         log.trace("{} roles added, sql: {}", rows, userPropertyAndRole);
+    }
+
+    public void addUserApplicationRoleEntry(final UserApplicationRoleEntry userApplicationRoleEntry) {
+        log.trace("addUserApplicationRoleEntry:" + userApplicationRoleEntry);
+        if (hasRole(userApplicationRoleEntry.getId(), userApplicationRoleEntry)) {
+            log.trace("Trying to add an existing role, ignoring");
+            return;
+        }
+
+        if (userApplicationRoleEntry.getId() == null || userApplicationRoleEntry.getId().length() < 5) {
+            userApplicationRoleEntry.setId(UUID.randomUUID().toString());
+        }
+
+        String sql = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
+        int rows = jdbcTemplate.update(sql,
+                userApplicationRoleEntry.getId(),
+                userApplicationRoleEntry.getUserId(),
+                userApplicationRoleEntry.getApplicationId(),
+                userApplicationRoleEntry.getOrgName(),
+                userApplicationRoleEntry.getRoleName(),
+                userApplicationRoleEntry.getRoleValue()
+
+        );
+        log.trace("{} roles added, sql: {}", rows, userApplicationRoleEntry);
     }
 
     public void addUserPropertyAndRole(final UserApplicationRoleEntry userPropertyAndRole) {
@@ -205,6 +247,11 @@ public class UserPropertyAndRoleDao {
     public void updateUserRoleValue(UserPropertyAndRole role) {
         String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";
         jdbcTemplate.update(sql, role.getApplicationRoleValue(), role.getRoleId(), role.getUid());
+    }
+
+    public void updateUserRoleValue(UserApplicationRoleEntry role) {
+        String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";
+        jdbcTemplate.update(sql, role.getRoleValue(), role.getId(), role.getUserId());
     }
 }
 
