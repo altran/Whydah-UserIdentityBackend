@@ -67,6 +67,25 @@ public class UserPropertyAndRoleDao {
         */
     }
 
+    private static final class UserApplicationRoleEntryMapper implements RowMapper<UserApplicationRoleEntry> {
+        public UserApplicationRoleEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
+            UserApplicationRoleEntry userApplicationRoleEntry = new UserApplicationRoleEntry();
+            userApplicationRoleEntry.setId(rs.getString("RoleID").trim());
+            userApplicationRoleEntry.setUserId(rs.getString("UserID").trim());
+            userApplicationRoleEntry.setApplicationId(rs.getString("AppID"));
+            userApplicationRoleEntry.setOrgName(rs.getString("OrganizationName"));
+            userApplicationRoleEntry.setRoleName(rs.getString("RoleName"));
+            //userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString("RoleValues")));
+            userApplicationRoleEntry.setRoleValue(rs.getString("RoleValues"));
+
+            return userApplicationRoleEntry;
+        }
+        /*
+        private String null2empty(String in) {
+            return in != null ? in : "";
+        }
+        */
+    }
 
     public int countUserRolesInDB() {
         String sql = "SELECT count(*) FROM UserRoles";
