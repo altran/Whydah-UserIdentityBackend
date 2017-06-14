@@ -30,6 +30,7 @@ public class UserPropertyAndRoleDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    @Deprecated
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
         log.debug("getUserPropertyAndRole for roleId {}", roleId);
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
@@ -50,6 +51,7 @@ public class UserPropertyAndRoleDao {
         return roles.get(0);
     }
 
+    @Deprecated
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
         List<UserPropertyAndRole> roles = this.jdbcTemplate.query(sql, new String[]{uid}, new UserPropertyAndRoleMapper());
@@ -111,12 +113,13 @@ public class UserPropertyAndRoleDao {
         return count;
     }
 
+    @Deprecated
     public boolean hasRole(String uid, UserPropertyAndRole role) {
         List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole existingRole : existingRoles) {
             log.trace("hasRole - checking existing.applicationID {} against applicationID {} " +
-                    "\n & existing.getOrganizationName {} against getOrganizationName {}" +
-                    "\n & existing.getApplicationRoleName {} against getApplicationRoleName {}",
+                            "\n & existing.getOrganizationName {} against getOrganizationName {}" +
+                            "\n & existing.getApplicationRoleName {} against getApplicationRoleName {}",
                     existingRole.getApplicationId(), role.getApplicationId(),
                     existingRole.getOrganizationName(), role.getOrganizationName(),
                     existingRole.getApplicationRoleName(), role.getApplicationRoleName());
@@ -150,8 +153,7 @@ public class UserPropertyAndRoleDao {
     }
 
 
-
-
+    @Deprecated
     public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
         log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
         if (hasRole(userPropertyAndRole.getUid(), userPropertyAndRole)) {
@@ -200,6 +202,7 @@ public class UserPropertyAndRoleDao {
         log.trace("{} roles added, sql: {}", rows, userApplicationRoleEntry);
     }
 
+    @Deprecated
     public void addUserPropertyAndRole(final UserApplicationRoleEntry userPropertyAndRole) {
         log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
         if (hasRole(userPropertyAndRole.getUserId(), userPropertyAndRole)) {
@@ -234,7 +237,7 @@ public class UserPropertyAndRoleDao {
         deleteRole(roleId);
     }
     public void deleteRole(String roleId) {
-        String sql = "DELETE FROM UserRoles WHERE RoleID=?";
+        String sql = "DELETE FROM UserRoles WHERE RoleID=? ";
         jdbcTemplate.update(sql, roleId);
     }
 
@@ -243,7 +246,7 @@ public class UserPropertyAndRoleDao {
         jdbcTemplate.update(sql, uid, appid);
     }
 
-
+    @Deprecated
     public void updateUserRoleValue(UserPropertyAndRole role) {
         String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";
         jdbcTemplate.update(sql, role.getApplicationRoleValue(), role.getRoleId(), role.getUid());

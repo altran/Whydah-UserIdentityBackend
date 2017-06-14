@@ -55,6 +55,7 @@ public class UserAggregateService {
     }
 
 
+    @Deprecated
     public UIBUserAggregate getUIBUserAggregateByUsernameOrUid(String usernameOrUid) {
         UIBUserIdentity userIdentity;
         try {
@@ -87,6 +88,7 @@ public class UserAggregateService {
         return userAggregate;
     }
 
+    @Deprecated
     public UIBUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
         UIBUserIdentity userIdentity;
         try {
@@ -115,6 +117,7 @@ public class UserAggregateService {
         return userIdentity;
     }
 
+    @Deprecated
     public UIBUserIdentity updateUserIdentity(String uid, UIBUserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
         return newUserIdentity;
@@ -171,6 +174,7 @@ public class UserAggregateService {
         auditLogDao.store(actionPerformed);
     }
 
+    @Deprecated
     public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(uid);
@@ -195,6 +199,7 @@ public class UserAggregateService {
         return addRole(uid, role);
     }
 
+    @Deprecated
     public UserPropertyAndRole addRoleIfNotExist(String uid, RoleRepresentationRequest request) {
         UserPropertyAndRole role = new UserPropertyAndRole();
         role.setUid(uid);
@@ -207,6 +212,7 @@ public class UserAggregateService {
         return addRoleIfNotExist(uid, role);
     }
 
+    @Deprecated
     public List<UserPropertyAndRole> addRoles(String uid, List<UserPropertyAndRole> roles) {
         List<UserPropertyAndRole> createdRoles = new ArrayList<>();
         if (roles != null && roles.size() > 0) {
@@ -222,6 +228,7 @@ public class UserAggregateService {
         return roles;
     }
 
+    @Deprecated
     public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
@@ -250,6 +257,7 @@ public class UserAggregateService {
         return role;
     }
 
+    @Deprecated
     public UserPropertyAndRole addRoleIfNotExist(String uid, UserPropertyAndRole role) {
         if (userPropertyAndRoleDao.hasRole(uid, role)) {
             return role;
@@ -280,6 +288,7 @@ public class UserAggregateService {
         return getUserApplicationRoleEntry(roleId);
     }
 
+    @Deprecated
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
         UserPropertyAndRole role = userPropertyAndRoleDao.getUserPropertyAndRole(roleId);
         Application application = applicationDao.getApplication(role.getApplicationId());
@@ -298,6 +307,7 @@ public class UserAggregateService {
         return role;
     }
 
+    @Deprecated
     public List<UserPropertyAndRole> getRoles(String uid) {
         return getUserPropertyAndRoles(uid);
     }
@@ -325,6 +335,7 @@ public class UserAggregateService {
         return roles;
     }
 
+    @Deprecated
     public UserPropertyAndRole updateRole(String uid, String roleId, UserPropertyAndRole role) {
         UserPropertyAndRole existingUserPropertyAndRole = getUserPropertyAndRole(roleId);
         if (existingUserPropertyAndRole == null) {
