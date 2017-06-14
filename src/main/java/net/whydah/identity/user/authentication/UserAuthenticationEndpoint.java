@@ -1,11 +1,14 @@
 package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserIdentity;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,20 +96,21 @@ public class UserAuthenticationEndpoint {
     }
 
     private Response authenticateUser(String username, String password) {
-        UIBUserIdentity id = userIdentityService.authenticate(username, password);
-        if (id == null) {
+        UserIdentity userIdentity = userIdentityService.authenticate(username, password);
+        if (userIdentity == null) {
             log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
             return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
         }
+        UserAggregate userAggregate = UserAggregateMapper.fromUserIdentityJson(UserIdentityMapper.toJson(userIdentity));
 
-        List<UserPropertyAndRole> roles = userAggregateService.getUserPropertyAndRoles(id.getUid());
-        UIBUserAggregate userAggregate = new UIBUserAggregate(id, roles);
+        List<UserApplicationRoleEntry> userApplicationRoleEntries = userAggregateService.getUserApplicationRoleEntries(userIdentity.getUid());
+        userAggregate.setRoleList(userApplicationRoleEntries);
         //luceneUserIndexer.updateUserAggregate(userAggregate);
 
         log.info("Authentication ok for user with username={}", username);
 
-        String userXml = userAggregate.toXML();
+        String userXml = UserAggregateMapper.toXML(userAggregate);
         log.debug("User authentication ok. XML: {}", userXml);
 
         //Viewable entity = new Viewable("/user.xml.ftl", userAggregate);
