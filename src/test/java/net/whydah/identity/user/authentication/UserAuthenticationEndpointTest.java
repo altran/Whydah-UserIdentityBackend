@@ -68,7 +68,6 @@ public class UserAuthenticationEndpointTest {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
         */
-        FileUtils.deleteDirectory(new File("target/data/"));
 
         ApplicationMode.setCIMode();
         SecurityFilter.setCIFlag(true);
@@ -98,7 +97,7 @@ public class UserAuthenticationEndpointTest {
 
         new IamDataImporter(dataSource, configuration).importIamData();
 
-        //main.start();
+        main.start();
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -199,8 +198,6 @@ public class UserAuthenticationEndpointTest {
         if (main != null) {
             main.stop();
         }
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
     }
 
     @Test

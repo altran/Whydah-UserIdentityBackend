@@ -89,8 +89,8 @@ public class UserAggregateServiceTest {
 
     @BeforeClass
     public static void stap() {
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
+        FileUtils.deleteDirectory(new File("target/data/lucene"));
+        FileUtils.deleteDirectory(new File("data/lucene"));
 
     }
 

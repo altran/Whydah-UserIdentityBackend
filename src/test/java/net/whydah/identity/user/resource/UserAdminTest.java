@@ -45,8 +45,8 @@ public class UserAdminTest {
 
     @Before
     public void init() throws Exception {
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
+        FileUtils.deleteDirectory(new File("target/data/lucene"));
+        FileUtils.deleteDirectory(new File("data/lucene"));
 
         ApplicationMode.setTags(ApplicationMode.DEV_MODE, ApplicationMode.NO_SECURITY_FILTER);
         SecurityFilter.setCIFlag(true);
@@ -101,8 +101,8 @@ public class UserAdminTest {
     @After
     public void teardown() throws InterruptedException {
         main.stop();
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
+        FileUtils.deleteDirectory(new File("target/data/lucene"));
+        FileUtils.deleteDirectory(new File("data/lucene"));
 
     }
 
@@ -124,8 +124,8 @@ public class UserAdminTest {
 
     @Test
     public void getNonExistingUser() {
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
+        FileUtils.deleteDirectory(new File("target/data/lucene"));
+        FileUtils.deleteDirectory(new File("data/lucene"));
         WebTarget webResource = baseResource.path("user/");
         webResource.path("useradmin").request().get(String.class); // verify that path works with existing user
         try {
@@ -229,8 +229,8 @@ public class UserAdminTest {
         assertEquals("0005", testRole3.get("organizationName"));
         assertEquals("MM", testRole3.get("applicationRoleName"));
         assertEquals("yetanother", testRole3.get("applicationRoleValue"));
-        FileUtils.deleteDirectory(new File("target/data/"));
-        FileUtils.deleteDirectory(new File("data/"));
+        FileUtils.deleteDirectory(new File("target/data/lucene"));
+        FileUtils.deleteDirectory(new File("data/lucene"));
 
     }
 
