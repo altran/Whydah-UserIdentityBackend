@@ -1,6 +1,7 @@
 package net.whydah.identity.user.identity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.TelephoneNumberSyntaxChecker;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +38,17 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
         this.personRef = personRef;
         this.email = email;
         setCellPhone(cellPhone);
+        this.password = password;
+    }
+
+    public UIBUserIdentity(UserIdentity userIdentity, String password) {
+        this.uid = userIdentity.getUid();
+        this.username = (userIdentity.getUsername() != null ? userIdentity.getUsername() : userIdentity.getEmail());
+        this.firstName = userIdentity.getFirstName();
+        this.lastName = userIdentity.getLastName();
+        this.personRef = userIdentity.getPersonRef();
+        this.email = userIdentity.getEmail();
+        setCellPhone(userIdentity.getCellPhone());
         this.password = password;
     }
 

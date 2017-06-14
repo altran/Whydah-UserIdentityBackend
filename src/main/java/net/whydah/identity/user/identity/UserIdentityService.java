@@ -6,6 +6,7 @@ import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.PasswordGenerator;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +105,59 @@ public class UserIdentityService {
     public UIBUserIdentity addUserIdentityWithGeneratedPassword(UIBUserIdentityRepresentation dto) {
         String username = dto.getUsername();
         if (username == null){
+            String msg = "Can not create a user without username!";
+            throw new IllegalStateException(msg);
+        }
+        try {
+            if (ldapUserIdentityDao.usernameExist(username)) {
+                //in LDAP
+                String msg = "User already exists, could not create user with username=" + dto.getUsername();
+                throw new IllegalStateException(msg);
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("usernameExist failed for username=" + dto.getUsername(), e);
+        }
+
+        String email;
+        if (dto.getEmail() != null && dto.getEmail().contains("+")) {
+            email = replacePlusWithEmpty(dto.getEmail());
+        } else {
+            email = dto.getEmail();
+        }
+        if (email != null) {
+            InternetAddress internetAddress = new InternetAddress();
+            internetAddress.setAddress(email);
+            try {
+                internetAddress.validate();
+            } catch (AddressException e) {
+                throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
+            }
+
+            /*
+            List<UIBUserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
+            if (!usersWithSameEmail.isEmpty()) {
+                //(in lucene index)
+                String msg = "E-mail " + email + " is already in use, could not create user with username=" + username;
+                throw new IllegalStateException(msg);
+            }
+            */
+        }
+        String uid = UUID.randomUUID().toString();
+        UIBUserIdentity userIdentity = new UIBUserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
+                email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
+        try {
+            ldapUserIdentityDao.addUserIdentity(userIdentity);
+            luceneIndexer.addToIndex(userIdentity);
+        } catch (NamingException e) {
+            throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
+        }
+        log.info("Added new user to LDAP: username={}, uid={}", username, uid);
+        return userIdentity;
+    }
+
+    public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentity dto) {
+        String username = dto.getUsername();
+        if (username == null) {
             String msg = "Can not create a user without username!";
             throw new IllegalStateException(msg);
         }

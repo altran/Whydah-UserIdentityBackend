@@ -2,6 +2,7 @@ package net.whydah.identity.user.identity;
 
 
 import com.netflix.hystrix.exception.HystrixBadRequestException;
+import net.whydah.sso.user.types.UserIdentity;
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -107,6 +108,43 @@ public class LdapUserIdentityDao {
         }
     }
 
+    public boolean addUserIdentity(UserIdentity userIdentity, String password) throws NamingException {
+        if (readOnly) {
+            log.warn("addUserIdentity called, but LDAP server is configured read-only. UIBUserIdentity was not added.");
+            return false;
+        }
+
+        new UIBUserIdentity(userIdentity, password).validate();
+
+        Attributes attributes = getLdapAttributes(userIdentity, password);
+
+        // Create the entry
+        String userdn = uidAttribute + '=' + userIdentity.getUid() + "," + USERS_OU;
+        try {
+            new CommandLdapCreateSubcontext(new InitialDirContext(admenv), userdn, attributes).execute();
+            log.trace("Added {} with dn={}", userIdentity, userdn);
+            return true;
+        } catch (HystrixBadRequestException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof NoPermissionException) {
+                log.error("addUserIdentity failed. Not allowed to add userdn={}. {} - ExceptionMessage: {}", userdn, userIdentity.toString(), cause.getMessage());
+            } else if (cause instanceof NameAlreadyBoundException) {
+                log.info("addUserIdentity failed, user already exists in LDAP: {}", userIdentity.toString());
+            } else if (cause instanceof InvalidAttributeValueException) {
+                InvalidAttributeValueException iave = (InvalidAttributeValueException) cause;
+                StringBuilder strb = new StringBuilder("LDAP user with illegal state. ");
+                strb.append(userIdentity.toString());
+                if (log.isDebugEnabled()) {
+                    strb.append("\n").append(iave);
+                } else {
+                    strb.append("ExceptionMessage: ").append(iave.getMessage());
+                }
+                log.warn(strb.toString());
+            }
+            return false;
+        }
+    }
+
     /**
      * Schemas: http://www.zytrax.com/books/ldap/ape/
      */
@@ -124,6 +162,35 @@ public class LdapUserIdentityDao {
         container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
         container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, userIdentity.getPassword()));
 
+
+
+        if (userIdentity.getPersonRef() != null && userIdentity.getPersonRef().length() > 0) {
+            container.put(new BasicAttribute(ATTRIBUTE_NAME_PERSONREF, stringCleaner.cleanString(userIdentity.getPersonRef())));
+        }
+
+        if (userIdentity.getCellPhone() != null && userIdentity.getCellPhone().length() > 2) {
+            container.put(new BasicAttribute(ATTRIBUTE_NAME_MOBILE, stringCleaner.cleanString(userIdentity.getCellPhone())));
+        }
+        //container.put(new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, "TEMPPW"));
+        return container;
+    }
+
+    /**
+     * Schemas: http://www.zytrax.com/books/ldap/ape/
+     */
+    private Attributes getLdapAttributes(UserIdentity userIdentity, String password) {
+        // Create a container set of attributes
+        Attributes container = new BasicAttributes();
+        // Create the objectclass to add
+        Attribute objClasses = createObjClasses();
+        container.put(objClasses);
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_CN, userIdentity.getPersonName()));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_GIVENNAME, userIdentity.getFirstName()));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_SN, userIdentity.getLastName()));
+        container.put(new BasicAttribute(uidAttribute, stringCleaner.cleanString(userIdentity.getUid())));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, userIdentity.getEmail()));
+        container.put(new BasicAttribute(usernameAttribute, stringCleaner.cleanString(userIdentity.getUsername())));
+        container.put(new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
 
 
         if (userIdentity.getPersonRef() != null && userIdentity.getPersonRef().length() > 0) {

@@ -7,9 +7,9 @@ import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,16 +63,16 @@ public class UserResource {
     public Response addUserIdentity(String userIdentityJson) {
         log.debug("addUserIdentity, userIdentityJson={}", userIdentityJson);
 
-        UIBUserIdentityRepresentation representation;
+        UserIdentity representation;
         try {
-            representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
+            representation = mapper.readValue(userIdentityJson, UserIdentity.class);
         } catch (IOException e) {
             String msg = "addUserIdentity, invalid json";
             log.info(msg + ". userIdentityJson={}", userIdentityJson, e);
             return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
         }
 
-        UIBUserIdentity userIdentity;
+        UserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(representation);
         } catch (IllegalStateException conflictException) {
