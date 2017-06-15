@@ -100,7 +100,7 @@ public class UserPropertyAndRoleDaoTest {
         roleRepository.deleteUserAppRoles(uid4, appIdToDelete);
         int expectedRolesForUid4 = added4.size() - 1;
         assertEquals(roleRepository.countUserRolesInDB(), (added3.size() + expectedRolesForUid4));
-        assertEquals(roleRepository.getUserPropertyAndRoles(uid4).size(), expectedRolesForUid4);
+        assertEquals(roleRepository.getUserApplicationRoleEntries(uid4).size(), expectedRolesForUid4);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class UserPropertyAndRoleDaoTest {
 
         roleRepository.deleteRole("roleId1");   //Expect role to be remove for both users
         assertEquals(roleRepository.countUserRolesInDB(), (added3.size() - 1 + added4.size() - 1));
-        assertEquals(roleRepository.getUserPropertyAndRoles(uid3).size(), 1);
-        assertEquals(roleRepository.getUserPropertyAndRoles(uid4).size(), 2);
+        assertEquals(roleRepository.getUserApplicationRoleEntries(uid3).size(), 1);
+        assertEquals(roleRepository.getUserApplicationRoleEntries(uid4).size(), 2);
     }
 
 
@@ -131,7 +131,7 @@ public class UserPropertyAndRoleDaoTest {
             //private transient String applicationName;
             //private transient String organizationName;
             added.put(role.getId(), role);
-            roleRepository.addUserPropertyAndRole(role);
+            roleRepository.addUserApplicationRoleEntry(role);
         }
         return added;
     }

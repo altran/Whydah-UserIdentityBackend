@@ -1,11 +1,13 @@
 package net.whydah.identity.user.signup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.whydah.identity.user.UIBUserAggregate;
-import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
-import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -15,28 +17,27 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class UserSignupServiceTest  {
     ObjectMapper objectMapper = new ObjectMapper();
-    UserPropertyAndRole defaultRole = null;
+    List<UserApplicationRoleEntry> defaultRoleList = new LinkedList<>();
     String userId = "testId1";
 
     @BeforeMethod
     public void setUp() throws Exception {
-        defaultRole = new UserPropertyAndRole();
-        defaultRole.setUid(userId);
-        defaultRole.setOrganizationName("whydah");
+        UserApplicationRoleEntry defaultRole = new UserApplicationRoleEntry();
+        defaultRole.setUserId(userId);
+        defaultRole.setOrgName("whydah");
         defaultRole.setApplicationName("default");
-        defaultRole.setApplicationRoleName("whydah-user");
-        defaultRole.setApplicationRoleValue("enabled");
+        defaultRole.setRoleName("whydah-user");
+        defaultRole.setRoleValue("enabled");
 
+        defaultRoleList.add(defaultRole);
     }
 
     @Test
     public void testCreateUserWithRoles() throws Exception {
-        UIBUserAggregateRepresentation userAggregateRepresentation = objectMapper.readValue(userWithoutRolesJson, UIBUserAggregateRepresentation.class);
-        UIBUserAggregate userAggregate = userAggregateRepresentation.buildUserAggregate();
+        UserAggregate userAggregate = objectMapper.readValue(userWithoutRolesJson, UserAggregate.class);
         userAggregate.setUid(userId);
-        userAggregate.addRole(defaultRole);
-        UIBUserAggregateRepresentation userRepWithRole = UIBUserAggregateRepresentation.fromUserAggregate(userAggregate);
-        String userWithRole = objectMapper.writeValueAsString(userRepWithRole);
+        userAggregate.setRoleList(defaultRoleList);
+        String userWithRole = objectMapper.writeValueAsString(userAggregate);
         assertNotNull(userWithRole);
         assertTrue(userWithRole.contains("whydah-user"));
     }

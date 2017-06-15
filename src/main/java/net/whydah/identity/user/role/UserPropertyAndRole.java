@@ -70,7 +70,7 @@ public class UserPropertyAndRole {
                 '}';
     }
 
-    public void setRoleId(String roleId) {
+    public void set_RoleId(String roleId) {
         this.roleId = roleId;
     }
 

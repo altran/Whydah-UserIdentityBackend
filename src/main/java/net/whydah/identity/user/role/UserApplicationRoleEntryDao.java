@@ -41,13 +41,6 @@ public class UserApplicationRoleEntryDao {
         return roles.get(0);
     }
 
-    @Deprecated
-    public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
-        List<UserPropertyAndRole> roles = this.jdbcTemplate.query(sql, new String[]{uid}, new UserPropertyAndRoleMapper());
-        log.debug("Found {} roles for uid={}", (roles != null ? roles.size() : "null"), uid);
-        return roles;
-    }
 
     public List<UserApplicationRoleEntry> getUserApplicationRoleEntries(String uid) {
         String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE UserID=?";
@@ -56,25 +49,6 @@ public class UserApplicationRoleEntryDao {
         return roles;
     }
 
-    private static final class UserPropertyAndRoleMapper implements RowMapper<UserPropertyAndRole> {
-        public UserPropertyAndRole mapRow(ResultSet rs, int rowNum) throws SQLException {
-            UserPropertyAndRole userPropertyAndRole = new UserPropertyAndRole();
-            userPropertyAndRole.setRoleId(rs.getString("RoleID").trim());
-            userPropertyAndRole.setUid(rs.getString("UserID").trim());
-            userPropertyAndRole.setApplicationId(rs.getString("AppID"));
-            userPropertyAndRole.setOrganizationName(rs.getString("OrganizationName"));
-            userPropertyAndRole.setApplicationRoleName(rs.getString("RoleName"));
-            //userPropertyAndRole.setApplicationRoleValue(null2empty(rs.getString("RoleValues")));
-            userPropertyAndRole.setApplicationRoleValue(rs.getString("RoleValues"));
-
-            return userPropertyAndRole;
-        }
-        /*
-        private String null2empty(String in) {
-            return in != null ? in : "";
-        }
-        */
-    }
 
     private static final class UserApplicationRoleEntryMapper implements RowMapper<UserApplicationRoleEntry> {
         public UserApplicationRoleEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -149,30 +123,6 @@ public class UserApplicationRoleEntryDao {
         log.trace("{} roles added, sql: {}", rows, userApplicationRoleEntry);
     }
 
-    @Deprecated
-    public void addUserPropertyAndRole(final UserApplicationRoleEntry userPropertyAndRole) {
-        log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
-        if (hasRole(userPropertyAndRole.getUserId(), userPropertyAndRole)) {
-            log.trace("Trying to add an existing role, ignoring");
-            return;
-        }
-
-        if (userPropertyAndRole.getId() == null || userPropertyAndRole.getId().length() < 5 ) {
-            userPropertyAndRole.setId(UUID.randomUUID().toString());
-        }
-
-        String sql = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
-        int rows = jdbcTemplate.update(sql,
-                userPropertyAndRole.getId(),
-                userPropertyAndRole.getUserId(),
-                userPropertyAndRole.getApplicationId(),
-                userPropertyAndRole.getOrgName(),
-                userPropertyAndRole.getRoleName(),
-                userPropertyAndRole.getRoleValue()
-
-        );
-        log.trace("{} roles added, sql: {}", rows, userPropertyAndRole);
-    }
 
     public void deleteAllRolesForUser(String uid) {
         String sql = "DELETE FROM UserRoles WHERE UserID=?";
@@ -193,11 +143,6 @@ public class UserApplicationRoleEntryDao {
         jdbcTemplate.update(sql, uid, appid);
     }
 
-    @Deprecated
-    public void updateUserRoleValue(UserPropertyAndRole role) {
-        String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";
-        jdbcTemplate.update(sql, role.getApplicationRoleValue(), role.getRoleId(), role.getUid());
-    }
 
     public void updateUserRoleValue(UserApplicationRoleEntry role) {
         String sql = "UPDATE UserRoles set RoleValues=? WHERE RoleID=? and UserID=?";

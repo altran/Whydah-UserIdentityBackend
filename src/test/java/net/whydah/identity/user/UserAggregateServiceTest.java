@@ -2,9 +2,11 @@ package net.whydah.identity.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
-import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -107,34 +109,34 @@ public class UserAggregateServiceTest {
         LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid", username, "firstName", "lastName", "email", "password", "12345678", "personRef"
         );
 
-        UserPropertyAndRole role = new UserPropertyAndRole();
-        role.setUid(userIdentity.getUid());
+        UserApplicationRoleEntry role = new UserApplicationRoleEntry();
+        role.setId(userIdentity.getUid());
         role.setApplicationId("applicationId");
         role.setApplicationName("applicationName");
-        role.setOrganizationName("organizationName");
-        role.setApplicationRoleName("roleName");
+        role.setOrgName("organizationName");
+        role.setRoleName("roleName");
         //role.setRoleValue(roleValue);
-        role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
 
-        UserPropertyAndRole role2 = new UserPropertyAndRole();
-        role2.setUid(userIdentity.getUid());
+        UserApplicationRoleEntry role2 = new UserApplicationRoleEntry();
+        role2.setId(userIdentity.getUid());
         role2.setApplicationId("applicationId123");
         role2.setApplicationName("applicationName123");
-        role2.setOrganizationName("organizationName123");
-        role2.setApplicationRoleName("roleName123");
+        role2.setOrgName("organizationName123");
+        role2.setRoleName("roleName123");
         //role.setRoleValue(roleValue);
-        role2.setApplicationRoleValue("roleValue123");
+        role2.setRoleValue("roleValue123");
 
-        List<UserPropertyAndRole> roles = new ArrayList<>(2);
+        List<UserApplicationRoleEntry> roles = new ArrayList<>(2);
         roles.add(role);
         roles.add(role2);
-        UIBUserAggregate userAggregate = new UIBUserAggregate(userIdentity, roles);
+        UserAggregate userAggregate = UserAggregateMapper.fromUserIdentityJson(UserIdentityMapper.toJson(userIdentity));
+        userAggregate.setRoleList(roles);
 
-        UIBUserAggregateRepresentation userRepresentation = UIBUserAggregateRepresentation.fromUserAggregate(userAggregate);
 
         ObjectMapper objectMapper = new ObjectMapper();
         Writer strWriter = new StringWriter();
-        objectMapper.writeValue(strWriter, userRepresentation);
+        objectMapper.writeValue(strWriter, userAggregate);
         String json = strWriter.toString();
         assertNotNull(json);
         log.debug("json: {}", json);

@@ -2,7 +2,6 @@ package net.whydah.identity.user.signup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import org.slf4j.Logger;
@@ -52,9 +51,9 @@ public class UserSignupEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response signupUser(String userJson) {
         log.trace("signupUser: {}", userJson);
-        UIBUserAggregateRepresentation createFromRepresentation = null;
+        UserAggregate createFromRepresentation = null;
         try {
-            createFromRepresentation = objectMapper.readValue(userJson, UIBUserAggregateRepresentation.class);
+            createFromRepresentation = objectMapper.readValue(userJson, UserAggregate.class);
         } catch (IOException ioe) {
             log.trace("Failed to parse UIBUserAggregateRepresentation from json {}", userJson);
         }
