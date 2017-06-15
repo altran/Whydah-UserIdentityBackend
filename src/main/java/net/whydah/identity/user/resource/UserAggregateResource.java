@@ -2,7 +2,6 @@ package net.whydah.identity.user.resource;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
@@ -49,9 +48,9 @@ public class UserAggregateResource {
     public Response getUIBUserAggregate(@PathParam("uid") String uid) {
         log.trace("getUserAggregateByUsernameOrUid with uid={}", uid);
 
-        UIBUserAggregate user;
+        UserAggregate user;
         try {
-            user = userAggregateService.getUIBUserAggregateByUsernameOrUid(uid);
+            user = userAggregateService.getUserAggregateByUsernameOrUid(uid);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("no user with uid=" + uid).build();
             }

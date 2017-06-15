@@ -4,10 +4,8 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
@@ -54,22 +52,6 @@ public class UserAggregateService {
     }
 
 
-    @Deprecated
-    public UIBUserAggregate getUIBUserAggregateByUsernameOrUid(String usernameOrUid) {
-        LDAPUserIdentity userIdentity;
-        try {
-            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
-        } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
-        }
-        if (userIdentity == null) {
-            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
-            return null;
-        }
-        List<UserPropertyAndRole> userPropertyAndRoles = userApplicationRoleEntryDao.getUserPropertyAndRoles(userIdentity.getUid());
-        return new UIBUserAggregate(userIdentity, userPropertyAndRoles);
-    }
-
     public UserAggregate getUserAggregateByUsernameOrUid(String usernameOrUid) {
         UserIdentity userIdentity;
         try {
@@ -87,20 +69,6 @@ public class UserAggregateService {
         return userAggregate;
     }
 
-    @Deprecated
-    public LDAPUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
-        LDAPUserIdentity userIdentity;
-        try {
-            userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
-        } catch (NamingException e) {
-            throw new RuntimeException("userIdentityService.getUserIdentity with usernameOrUid=" + usernameOrUid, e);
-        }
-        if (userIdentity == null) {
-            log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
-            return null;
-        }
-        return userIdentity;
-    }
 
     public UserIdentity getUserIdentityByUsernameOrUid(String usernameOrUid) {
         UserIdentity userIdentity;
@@ -114,12 +82,6 @@ public class UserAggregateService {
             return null;
         }
         return userIdentity;
-    }
-
-    @Deprecated
-    public LDAPUserIdentity updateUserIdentity(String uid, LDAPUserIdentity newUserIdentity) {
-        userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
-        return newUserIdentity;
     }
 
 
@@ -200,21 +162,6 @@ public class UserAggregateService {
         return addRoleIfNotExist(uid, role);
     }
 
-    @Deprecated
-    public List<UserPropertyAndRole> addRoles(String uid, List<UserPropertyAndRole> roles) {
-        List<UserPropertyAndRole> createdRoles = new ArrayList<>();
-        if (roles != null && roles.size() > 0) {
-            for (UserPropertyAndRole role : roles) {
-                try {
-                    UserPropertyAndRole createdRole = addRole(uid, role);
-                    createdRoles.add(createdRole);
-                } catch (WebApplicationException e) {
-                    log.trace("User {}, has this role  {} already. The role is not re-applied.", uid,role );
-                }
-            }
-        }
-        return roles;
-    }
 
     public List<UserApplicationRoleEntry> addUserApplicationRoleEntries(String uid, List<UserApplicationRoleEntry> roles) {
         List<UserApplicationRoleEntry> createdRoles = new ArrayList<>();
@@ -231,20 +178,6 @@ public class UserAggregateService {
         return roles;
     }
 
-    @Deprecated
-    public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
-        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
-            String msg = "User with uid=" + uid + " already has this role. " + role.toString();
-            throw new WebApplicationException(msg, Response.Status.CONFLICT);
-            //return role;
-        }
-
-        role.setUid(uid);
-        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
-        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
-        audit(ActionPerformed.ADDED, "role", value);
-        return role;
-    }
 
     public UserApplicationRoleEntry addRole(String uid, UserApplicationRoleEntry role) {
         if (userApplicationRoleEntryDao.hasRole(uid, role)) {
@@ -254,7 +187,7 @@ public class UserAggregateService {
         }
 
         role.setUserId(uid);
-        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserApplicationRoleEntry(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
@@ -266,7 +199,7 @@ public class UserAggregateService {
             return role;
         }
         role.setUserId(uid);
-        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserApplicationRoleEntry(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
