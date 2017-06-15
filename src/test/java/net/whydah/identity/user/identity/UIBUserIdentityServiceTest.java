@@ -6,7 +6,7 @@ import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.user.authentication.UserAdminHelper;
-import net.whydah.identity.user.role.UserPropertyAndRoleDao;
+import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.FileUtils;
@@ -83,12 +83,12 @@ public class UIBUserIdentityServiceTest {
 
 
         ApplicationDao configDataRepository = new ApplicationDao(dataSource);
-        UserPropertyAndRoleDao userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
+        UserApplicationRoleEntryDao userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
 
         index = new NIOFSDirectory(new File(luceneDir));
         luceneIndexer = new LuceneUserIndexer(index);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userPropertyAndRoleDao, configuration);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userApplicationRoleEntryDao, configuration);
         passwordGenerator = new PasswordGenerator();
 
         /*

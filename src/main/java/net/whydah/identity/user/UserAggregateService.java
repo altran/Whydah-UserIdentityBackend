@@ -7,8 +7,8 @@ import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
+import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
@@ -39,17 +39,17 @@ public class UserAggregateService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final UserIdentityService userIdentityService;
-    private final UserPropertyAndRoleDao userPropertyAndRoleDao;
+    private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private final ApplicationService applicationDao;
     private final LuceneUserIndexer luceneIndexer;
     private final AuditLogDao auditLogDao;
 
     @Autowired
-    public UserAggregateService(UserIdentityService userIdentityService, UserPropertyAndRoleDao userPropertyAndRoleDao,
+    public UserAggregateService(UserIdentityService userIdentityService, UserApplicationRoleEntryDao userApplicationRoleEntryDao,
                                 ApplicationService applicationDao, LuceneUserIndexer luceneIndexer, AuditLogDao auditLogDao) {
         this.luceneIndexer = luceneIndexer;
         this.auditLogDao = auditLogDao;
-        this.userPropertyAndRoleDao = userPropertyAndRoleDao;
+        this.userApplicationRoleEntryDao = userApplicationRoleEntryDao;
         this.applicationDao = applicationDao;
         this.userIdentityService = userIdentityService;
     }
@@ -67,7 +67,7 @@ public class UserAggregateService {
             log.trace("getUserAggregateByUsernameOrUid could not find user with usernameOrUid={}", usernameOrUid);
             return null;
         }
-        List<UserPropertyAndRole> userPropertyAndRoles = userPropertyAndRoleDao.getUserPropertyAndRoles(userIdentity.getUid());
+        List<UserPropertyAndRole> userPropertyAndRoles = userApplicationRoleEntryDao.getUserPropertyAndRoles(userIdentity.getUid());
         return new UIBUserAggregate(userIdentity, userPropertyAndRoles);
     }
 
@@ -83,7 +83,7 @@ public class UserAggregateService {
             return null;
         }
         UserAggregate userAggregate = UserAggregateMapper.fromUserIdentityJson(UserIdentityMapper.toJson(userIdentity));
-        List<UserApplicationRoleEntry> userApplicationRoleEntries = userPropertyAndRoleDao.getUserApplicationRoleEntries(userIdentity.getUid());
+        List<UserApplicationRoleEntry> userApplicationRoleEntries = userApplicationRoleEntryDao.getUserApplicationRoleEntries(userIdentity.getUid());
         userAggregate.setRoleList(userApplicationRoleEntries);
         return userAggregate;
     }
@@ -141,7 +141,7 @@ public class UserAggregateService {
             log.warn("Trouble trying to delete user with uid:" + uid);
         }
 
-        userPropertyAndRoleDao.deleteAllRolesForUser(uid);
+        userApplicationRoleEntryDao.deleteAllRolesForUser(uid);
         //indexer.removeFromIndex(uid);
         audit(ActionPerformed.DELETED, "user", "uid=" + uid + ", username=" + userIdentity.getUsername());
 
@@ -245,28 +245,28 @@ public class UserAggregateService {
 
     @Deprecated
     public UserPropertyAndRole addRole(String uid, UserPropertyAndRole role) {
-        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
             throw new WebApplicationException(msg, Response.Status.CONFLICT);
             //return role;
         }
 
         role.setUid(uid);
-        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
     }
 
     public UserApplicationRoleEntry addRole(String uid, UserApplicationRoleEntry role) {
-        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
             String msg = "User with uid=" + uid + " already has this role. " + role.toString();
             throw new WebApplicationException(msg, Response.Status.CONFLICT);
             //return role;
         }
 
         role.setUserId(uid);
-        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
@@ -274,22 +274,22 @@ public class UserAggregateService {
 
     @Deprecated
     public UserPropertyAndRole addRoleIfNotExist(String uid, UserPropertyAndRole role) {
-        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
             return role;
         }
         role.setUid(uid);
-        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
     }
 
     public UserApplicationRoleEntry addRoleIfNotExist(String uid, UserApplicationRoleEntry role) {
-        if (userPropertyAndRoleDao.hasRole(uid, role)) {
+        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
             return role;
         }
         role.setUserId(uid);
-        userPropertyAndRoleDao.addUserPropertyAndRole(role);
+        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
         String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         audit(ActionPerformed.ADDED, "role", value);
         return role;
@@ -305,7 +305,7 @@ public class UserAggregateService {
 
     @Deprecated
     public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
-        UserPropertyAndRole role = userPropertyAndRoleDao.getUserPropertyAndRole(roleId);
+        UserPropertyAndRole role = userApplicationRoleEntryDao.getUserPropertyAndRole(roleId);
         Application application = applicationDao.getApplication(role.getApplicationId());
         if (application != null) {
             role.setApplicationName(application.getName());
@@ -314,7 +314,7 @@ public class UserAggregateService {
     }
 
     public UserApplicationRoleEntry getUserApplicationRoleEntry(String roleId) {
-        UserApplicationRoleEntry role = userPropertyAndRoleDao.getUserApplicationRoleEntry(roleId);
+        UserApplicationRoleEntry role = userApplicationRoleEntryDao.getUserApplicationRoleEntry(roleId);
         Application application = applicationDao.getApplication(role.getApplicationId());
         if (application != null) {
             role.setApplicationName(application.getName());
@@ -329,7 +329,7 @@ public class UserAggregateService {
 
 
     public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        List<UserPropertyAndRole> roles = userPropertyAndRoleDao.getUserPropertyAndRoles(uid);
+        List<UserPropertyAndRole> roles = userApplicationRoleEntryDao.getUserPropertyAndRoles(uid);
         for (UserPropertyAndRole role : roles) {
             Application application = applicationDao.getApplication(role.getApplicationId());
             if (application != null) {
@@ -340,7 +340,7 @@ public class UserAggregateService {
     }
 
     public List<UserApplicationRoleEntry> getUserApplicationRoleEntries(String uid) {
-        List<UserApplicationRoleEntry> roles = userPropertyAndRoleDao.getUserApplicationRoleEntries(uid);
+        List<UserApplicationRoleEntry> roles = userApplicationRoleEntryDao.getUserApplicationRoleEntries(uid);
         for (UserApplicationRoleEntry role : roles) {
             Application application = applicationDao.getApplication(role.getApplicationId());
             if (application != null) {
@@ -368,7 +368,7 @@ public class UserAggregateService {
 
         role.setUid(uid);
         role.setRoleId(roleId);
-        userPropertyAndRoleDao.updateUserRoleValue(role);
+        userApplicationRoleEntryDao.updateUserRoleValue(role);
 
         //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);
         return role;
@@ -391,13 +391,13 @@ public class UserAggregateService {
 
         role.setUserId(uid);
         role.setId(roleId);
-        userPropertyAndRoleDao.updateUserRoleValue(role);
+        userApplicationRoleEntryDao.updateUserRoleValue(role);
 
         //audit(ActionPerformed.MODIFIED, "role", "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + jsonrole);
         return role;
     }
 
     public void deleteRole(String uid, String roleid) {
-        userPropertyAndRoleDao.deleteRole(roleid);
+        userApplicationRoleEntryDao.deleteRole(roleid);
     }
 }

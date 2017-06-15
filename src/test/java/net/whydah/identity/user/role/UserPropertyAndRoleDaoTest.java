@@ -20,7 +20,7 @@ public class UserPropertyAndRoleDaoTest {
     private final static String dbpath = basepath + "hsqldb/roles";
     private static BasicDataSource dataSource;
     private static DatabaseMigrationHelper dbHelper;
-    private static UserPropertyAndRoleDao roleRepository;
+    private static UserApplicationRoleEntryDao roleRepository;
 
     @BeforeClass
     public static void init() throws Exception {
@@ -31,7 +31,7 @@ public class UserPropertyAndRoleDaoTest {
         dataSource.setUrl("jdbc:hsqldb:file:" + dbpath);
 
         dbHelper = new DatabaseMigrationHelper(dataSource);
-        roleRepository = new UserPropertyAndRoleDao(dataSource);
+        roleRepository = new UserApplicationRoleEntryDao(dataSource);
     }
 
     @Before
@@ -144,7 +144,7 @@ public class UserPropertyAndRoleDaoTest {
         assertEquals(fromDb.getApplicationRoleName(), role.getApplicationRoleName());
         assertEquals(fromDb.getApplicationRoleValue(), role.getApplicationRoleValue());
 
-        //Should not be populated by UserPropertyAndRoleDao
+        //Should not be populated by UserApplicationRoleEntryDao
         //assertNull(fromDb.getApplicationName());
         //assertNull(fromDb.getOrganizationName());
         assertEquals(fromDb.getApplicationName(), role.getApplicationName());
