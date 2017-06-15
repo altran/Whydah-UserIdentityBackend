@@ -6,8 +6,8 @@ import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
 import org.constretto.ConstrettoConfiguration;
 import org.slf4j.Logger;
@@ -159,15 +159,15 @@ public class UserAdminHelper {
 
 
     public void addDefaultWhydahUserRole(LDAPUserIdentity userIdentity) {
-        UserPropertyAndRole role = new UserPropertyAndRole();
+        UserApplicationRoleEntry role = new UserApplicationRoleEntry();
 
-        role.setUid(userIdentity.getUid());
+        role.setId(userIdentity.getUid());
         role.setApplicationId(defaultApplicationId);
         role.setApplicationName(defaultApplicationName);
-        role.setOrganizationName(defaultOrganizationName);
-        role.setApplicationRoleName(defaultRoleName);
-        role.setApplicationRoleValue(defaultRoleValue);
-        role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        role.setOrgName(defaultOrganizationName);
+        role.setRoleName(defaultRoleName);
+        role.setRoleValue(defaultRoleValue);
+        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
 //        logger.debug("AaddDefaultWhydahUserRole - dding Role: {}", role);
 
 
@@ -214,30 +214,30 @@ public class UserAdminHelper {
     }
 
     private void addDefaultNetIQRole(LDAPUserIdentity userIdentity) {
-        UserPropertyAndRole role;
-        role = new UserPropertyAndRole();
-        role.setUid(userIdentity.getUid());
+        UserApplicationRoleEntry role;
+        role = new UserApplicationRoleEntry();
+        role.setId(userIdentity.getUid());
         role.setApplicationId(netIQapplicationId);
         role.setApplicationName(netIQapplicationName);
-        role.setOrganizationName(netIQorganizationName);
-        role.setApplicationRoleName(netIQRoleName);
-        role.setApplicationRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
+        role.setOrgName(netIQorganizationName);
+        role.setRoleName(netIQRoleName);
+        role.setRoleValue(userIdentity.getEmail());  // Provide NetIQ identity as rolevalue
         addDefaultRole(userIdentity, role);
     }
 
     private void addDefaultFacebookRole(LDAPUserIdentity userIdentity, String roleValue) {
-        UserPropertyAndRole role;
-        role = new UserPropertyAndRole();
-        role.setUid(userIdentity.getUid());
+        UserApplicationRoleEntry role;
+        role = new UserApplicationRoleEntry();
+        role.setId(userIdentity.getUid());
         role.setApplicationId(fbapplicationId);
         role.setApplicationName(fbapplicationName);
-        role.setOrganizationName(fborganizationName);
-        role.setApplicationRoleName(fbRoleName);
-        role.setApplicationRoleValue(roleValue);
+        role.setOrgName(fborganizationName);
+        role.setRoleName(fbRoleName);
+        role.setRoleValue(roleValue);
         addDefaultRole(userIdentity, role);
     }
 
-    private void addDefaultRole(LDAPUserIdentity userIdentity, UserPropertyAndRole role) {
+    private void addDefaultRole(LDAPUserIdentity userIdentity, UserApplicationRoleEntry role) {
         logger.debug("Adding Role: {}", role);
 
         if (userApplicationRoleEntryDao.hasRole(userIdentity.getUid(), role)) {
@@ -245,10 +245,10 @@ public class UserAdminHelper {
             // userApplicationRoleEntryDao.deleteUserRole(userIdentity.getUid(), role.getApplicationId(), role.getOrganizationId(), role.getRoleName());
         }
 
-        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
+        String value = "uid=" + userIdentity + ", username=" + userIdentity.getUsername() + ", appid=" + role.getApplicationId() + ", role=" + role.getRoleName();
         try {
             if (userIdentity != null) {
-                userApplicationRoleEntryDao.addUserPropertyAndRole(role);
+                userApplicationRoleEntryDao.addUserApplicationRoleEntry(role);
                 audit(ActionPerformed.ADDED, "role", value);
             }
         } catch (Exception e) {

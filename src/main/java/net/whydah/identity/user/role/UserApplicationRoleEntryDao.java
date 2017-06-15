@@ -103,25 +103,6 @@ public class UserApplicationRoleEntryDao {
         return count;
     }
 
-    @Deprecated
-    public boolean hasRole(String uid, UserPropertyAndRole role) {
-        List<UserPropertyAndRole> existingRoles = getUserPropertyAndRoles(uid);
-        for (UserPropertyAndRole existingRole : existingRoles) {
-            log.trace("hasRole - checking existing.applicationID {} against applicationID {} " +
-                            "\n & existing.getOrganizationName {} against getOrganizationName {}" +
-                            "\n & existing.getApplicationRoleName {} against getApplicationRoleName {}",
-                    existingRole.getApplicationId(), role.getApplicationId(),
-                    existingRole.getOrganizationName(), role.getOrganizationName(),
-                    existingRole.getApplicationRoleName(), role.getApplicationRoleName());
-            boolean roleExist = existingRole.getApplicationId().equals(role.getApplicationId())
-                    && existingRole.getOrganizationName().equals(role.getOrganizationName())
-                    && existingRole.getApplicationRoleName().equals(role.getApplicationRoleName());
-            if (roleExist) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public boolean hasRole(String uid, UserApplicationRoleEntry role) {
         List<UserApplicationRoleEntry> existingRoles = getUserApplicationRoleEntries(uid);
@@ -143,30 +124,6 @@ public class UserApplicationRoleEntryDao {
     }
 
 
-    @Deprecated
-    public void addUserPropertyAndRole(final UserPropertyAndRole userPropertyAndRole) {
-        log.trace("addUserPropertyAndRole:" + userPropertyAndRole);
-        if (hasRole(userPropertyAndRole.getUid(), userPropertyAndRole)) {
-            log.trace("Trying to add an existing role, ignoring");
-            return;
-        }
-
-        if (userPropertyAndRole.getRoleId() == null || userPropertyAndRole.getRoleId().length() < 5 ) {
-            userPropertyAndRole.setRoleId(UUID.randomUUID().toString());
-        }
-
-        String sql = "INSERT INTO UserRoles (RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues) values (?, ?, ?, ?, ?, ?)";
-        int rows = jdbcTemplate.update(sql,
-                userPropertyAndRole.getRoleId(),
-                userPropertyAndRole.getUid(),
-                userPropertyAndRole.getApplicationId(),
-                userPropertyAndRole.getOrganizationName(),
-                userPropertyAndRole.getApplicationRoleName(),
-                userPropertyAndRole.getApplicationRoleValue()
-
-        );
-        log.trace("{} roles added, sql: {}", rows, userPropertyAndRole);
-    }
 
     public void addUserApplicationRoleEntry(final UserApplicationRoleEntry userApplicationRoleEntry) {
         log.trace("addUserApplicationRoleEntry:" + userApplicationRoleEntry);

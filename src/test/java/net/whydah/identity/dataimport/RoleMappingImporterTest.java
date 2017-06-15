@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -16,7 +16,7 @@ public class RoleMappingImporterTest {
 		String roleMappingSource = "testrolemappings.csv";
 
         InputStream roleMappingStream = FileUtils.openFileOnClasspath(roleMappingSource);
-		List<UserPropertyAndRole> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingStream);
+		List<UserApplicationRoleEntry> roleMappings = RoleMappingImporter.parseRoleMapping(roleMappingStream);
 		
 //		#userId, applicationId, applicationName, organizationId, organizationName, roleName, roleValue
 //		username@emailaddress.com, 42, mobilefirst, 23, altran, developer, 30
@@ -35,13 +35,13 @@ public class RoleMappingImporterTest {
 		assertEquals("roleName must be set.", "developer", roleMapping1.getApplicationRoleName());
 		assertEquals("roleValue must be set.", "30", roleMapping1.getApplicationRoleValue());
 		*/
-		UserPropertyAndRole roleMapping4 = roleMappings.get(0);
-		assertEquals("UserId must be set.", "uawaadmin", roleMapping4.getUid());
+		UserApplicationRoleEntry roleMapping4 = roleMappings.get(0);
+		assertEquals("UserId must be set.", "uawaadmin", roleMapping4.getUserId());
 		assertEquals("applicationId must be set.", "2219", roleMapping4.getApplicationId());
 		assertEquals("applicationName must be set.", "Whydah-UserAdminWebApp", roleMapping4.getApplicationName());
-		assertEquals("organizationName must be set.", "Support", roleMapping4.getOrganizationName());
-		assertEquals("roleName must be set.", "WhydahUserAdmin", roleMapping4.getApplicationRoleName());
-		assertEquals("roleValue must be set.", "1", roleMapping4.getApplicationRoleValue());
+		assertEquals("organizationName must be set.", "Support", roleMapping4.getOrgName());
+		assertEquals("roleName must be set.", "WhydahUserAdmin", roleMapping4.getRoleName());
+		assertEquals("roleValue must be set.", "1", roleMapping4.getRoleValue());
 		
 
 	}
