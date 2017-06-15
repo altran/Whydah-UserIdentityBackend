@@ -257,6 +257,6 @@ public class UserAggregateService {
     }
 
     public void deleteRole(String uid, String roleid) {
-        userApplicationRoleEntryDao.deleteRole(roleid);
+        userApplicationRoleEntryDao.deleteUserRole(uid, roleid);
     }
 }

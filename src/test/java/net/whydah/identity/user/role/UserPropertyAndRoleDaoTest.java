@@ -111,7 +111,7 @@ public class UserPropertyAndRoleDaoTest {
         Map<String, UserApplicationRoleEntry> added4 = addTestRoles(uid4, 3);
         assertEquals(roleRepository.countUserRolesInDB(), added3.size() + added4.size());
 
-        roleRepository.deleteRole("roleId1");   //Expect role to be remove for both users
+        roleRepository.deleteRoleByRoleID("roleId1");   //Expect role to be remove for both users
         assertEquals(roleRepository.countUserRolesInDB(), (added3.size() - 1 + added4.size() - 1));
         assertEquals(roleRepository.getUserApplicationRoleEntries(uid3).size(), 1);
         assertEquals(roleRepository.getUserApplicationRoleEntries(uid4).size(), 2);

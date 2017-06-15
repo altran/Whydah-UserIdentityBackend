@@ -8,6 +8,7 @@ import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.sso.user.mappers.UserRoleMapper;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
@@ -218,14 +219,7 @@ public class UserResource {
 
         try {
             UserApplicationRoleEntry updatedRole = userAggregateService.addUserApplicationRoleEntry(uid, request);
-
-            String json;
-            try {
-                json = mapper.writeValueAsString(updatedRole);
-            } catch (IOException e) {
-                log.error("Error converting to json. {}", updatedRole.toString(), e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
+            String json = UserRoleMapper.toJson(updatedRole);
             return Response.status(Response.Status.CREATED).entity(json).build();
         } catch (WebApplicationException ce) {
             log.error("addRole-Conflict. {}", roleJson, ce);
@@ -315,13 +309,13 @@ public class UserResource {
     @DELETE
     @Path("/{uid}/role/{roleid}")
     public Response deleteRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid) {
-        log.trace("deleteRole, uid={}, roleid={}", uid, roleid);
+        log.trace("deleteRoleByRoleID, uid={}, roleid={}", uid, roleid);
 
         try {
             userAggregateService.deleteRole(uid, roleid);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (RuntimeException e) {
-            log.error("deleteRole-RuntimeException. roleId {}", roleid, e);
+            log.error("deleteRoleByRoleID-RuntimeException. roleId {}", roleid, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -129,11 +129,12 @@ public class UserApplicationRoleEntryDao {
         jdbcTemplate.update(sql, uid);
     }
 
-    //TODO Is roleId globally unique?
     public void deleteUserRole(String uid, String roleId) {
-        deleteRole(roleId);
+        String sql = "DELETE FROM UserRoles WHERE UserID=? AND RoleID=?";
+        jdbcTemplate.update(sql, uid, roleId);
     }
-    public void deleteRole(String roleId) {
+
+    public void deleteRoleByRoleID(String roleId) {
         String sql = "DELETE FROM UserRoles WHERE RoleID=? ";
         jdbcTemplate.update(sql, roleId);
     }
