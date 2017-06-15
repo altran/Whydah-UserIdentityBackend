@@ -246,7 +246,7 @@ public class UserAdminTest {
         List<Map<String, Object>> rolesAfter = doGetUserRoles(uid);
         assertEquals(1, rolesAfter.size());
 
-        assertEquals(roleId, rolesAfter.get(0).get("roleId"));
+        assertEquals(roleId, rolesAfter.get(0).get("id"));
     }
 
     @Test
@@ -582,10 +582,10 @@ public class UserAdminTest {
 
     private String doAddUserRole(String uid, String applicationId, String organizationName, String applicationRoleName, String applicationRoleValue) {
         WebTarget webResource = baseResource.path("user/" + uid + "/role");
-        String payload = "{\"organizationName\": \"" + organizationName + "\",\n" +
+        String payload = "{\"orgName\": \"" + organizationName + "\",\n" +
                 "        \"applicationId\": \"" + applicationId + "\",\n" +
-                "        \"applicationRoleName\": \"" + applicationRoleName + "\",\n" +
-                "        \"applicationRoleValue\": \"" + applicationRoleValue + "\"}";
+                "        \"roleName\": \"" + applicationRoleName + "\",\n" +
+                "        \"roleValue\": \"" + applicationRoleValue + "\"}";
 
         //String postResponseJson = webResource.type("application/json").post(String.class, payload);
         String postResponseJson = webResource.request().post(Entity.json(payload), String.class);
@@ -597,7 +597,7 @@ public class UserAdminTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return (String) createdUser.get("roleId");
+        return (String) createdUser.get("id");
     }
 
 }

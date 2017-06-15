@@ -8,7 +8,6 @@ import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
@@ -209,16 +208,16 @@ public class UserResource {
             return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
         }
 
-        RoleRepresentationRequest request;
+        UserApplicationRoleEntry request;
         try {
-            request = mapper.readValue(roleJson, RoleRepresentationRequest.class);
+            request = mapper.readValue(roleJson, UserApplicationRoleEntry.class);
         } catch (IOException e) {
             log.error("addRole, invalid json. roleJson={}", roleJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         try {
-            UserPropertyAndRole updatedRole = userAggregateService.addRole(uid, request);
+            UserApplicationRoleEntry updatedRole = userAggregateService.addUserApplicationRoleEntry(uid, request);
 
             String json;
             try {
@@ -244,7 +243,7 @@ public class UserResource {
     public Response getRoles(@PathParam("uid") String uid) {
         log.trace("getRoles, uid={}", uid);
 
-        List<UserPropertyAndRole> roles = userAggregateService.getRoles(uid);
+        List<UserApplicationRoleEntry> roles = userAggregateService.getUserApplicationRoleEntries(uid);
 
         String json;
         try {

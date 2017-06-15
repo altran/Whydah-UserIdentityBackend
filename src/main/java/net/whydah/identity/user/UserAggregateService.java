@@ -174,27 +174,16 @@ public class UserAggregateService {
         auditLogDao.store(actionPerformed);
     }
 
-    @Deprecated
-    public UserPropertyAndRole addRole(String uid, RoleRepresentationRequest request) {
-        UserPropertyAndRole role = new UserPropertyAndRole();
-        role.setUid(uid);
-        role.setApplicationId(request.getApplicationId());
-        role.setApplicationName(request.getApplicationName());
-        role.setOrganizationName(request.getOrganizationName());
-        role.setApplicationRoleName(request.getApplicationRoleName());
-        role.setApplicationRoleValue(request.getApplicationRoleValue());
 
-        return addRole(uid, role);
-    }
-
-    public UserApplicationRoleEntry addUserApplicationRoleEntry(String uid, RoleRepresentationRequest request) {
+    public UserApplicationRoleEntry addUserApplicationRoleEntry(String uid, UserApplicationRoleEntry request) {
         UserApplicationRoleEntry role = new UserApplicationRoleEntry();
-        role.setId(uid);
+        role.setId(request.getId());
+        role.setUserId(uid);
         role.setApplicationId(request.getApplicationId());
         role.setApplicationName(request.getApplicationName());
-        role.setOrgName(request.getOrganizationName());
-        role.setRoleName(request.getApplicationRoleName());
-        role.setRoleValue(request.getApplicationRoleValue());
+        role.setOrgName(request.getOrgName());
+        role.setRoleName(request.getRoleName());
+        role.setRoleValue(request.getRoleValue());
 
         return addRole(uid, role);
     }
