@@ -3,7 +3,7 @@ package net.whydah.identity.user.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import org.json.JSONException;
@@ -57,7 +57,7 @@ public class PasswordResource {
     public Response resetPassword(@PathParam("username") String username) {
         log.info("Reset password (GET) for username={}", username);
         try {
-            UIBUserIdentity user = userIdentityService.getUserIdentity(username);
+            LDAPUserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -82,14 +82,14 @@ public class PasswordResource {
     public Response resetPasswordPOST(@PathParam("username") String username) {
         log.info("Reset password (POST) for username={}", username);
         try {
-            UIBUserIdentity user = userIdentityService.getUserIdentity(username);
+            LDAPUserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
 
             String resetPasswordToken = userIdentityService.setTempPassword(username, user.getUid());
             Map<String, String> map = new HashMap<>();
-            map.put(UIBUserIdentity.UID, user.getUid());
+            map.put(LDAPUserIdentity.UID, user.getUid());
             map.put(EMAIL_KEY, user.getEmail());
             map.put(CELLPHONE_KEY, user.getCellPhone());
             map.put(CHANGE_PASSWORD_TOKEN, resetPasswordToken);
@@ -108,7 +108,7 @@ public class PasswordResource {
     public Response setPassword(@PathParam("username") String username, @PathParam("token") String changePasswordTokenAsString, String passwordJson) {
         log.info("Set new password for username={}, changePasswordTokenAsString={}", username, changePasswordTokenAsString);
         try {
-            UIBUserIdentity user = userIdentityService.getUserIdentity(username);
+            LDAPUserIdentity user = userIdentityService.getUserIdentity(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
             }
@@ -176,7 +176,7 @@ public class PasswordResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         try {
-            UIBUserIdentity user = userIdentityService.getUserIdentity(username);
+            LDAPUserIdentity user = userIdentityService.getUserIdentity(username);
 
             if (user == null) {
                 log.trace("No user found for username {}, can not update password.", username);

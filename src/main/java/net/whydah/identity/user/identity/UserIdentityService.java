@@ -54,7 +54,7 @@ public class UserIdentityService {
         this.searcher = searcher;
     }
 
-    public UIBUserIdentity authenticate(final String username, final String password) {
+    public LDAPUserIdentity authenticate(final String username, final String password) {
         return primaryLdapAuthenticator.authenticate(username, password);
     }
 
@@ -102,58 +102,6 @@ public class UserIdentityService {
         audit(userUid,ActionPerformed.MODIFIED, "password", userUid);
     }
 
-    public UIBUserIdentity addUserIdentityWithGeneratedPassword(UIBUserIdentityRepresentation dto) {
-        String username = dto.getUsername();
-        if (username == null){
-            String msg = "Can not create a user without username!";
-            throw new IllegalStateException(msg);
-        }
-        try {
-            if (ldapUserIdentityDao.usernameExist(username)) {
-                //in LDAP
-                String msg = "User already exists, could not create user with username=" + dto.getUsername();
-                throw new IllegalStateException(msg);
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException("usernameExist failed for username=" + dto.getUsername(), e);
-        }
-
-        String email;
-        if (dto.getEmail() != null && dto.getEmail().contains("+")) {
-            email = replacePlusWithEmpty(dto.getEmail());
-        } else {
-            email = dto.getEmail();
-        }
-        if (email != null) {
-            InternetAddress internetAddress = new InternetAddress();
-            internetAddress.setAddress(email);
-            try {
-                internetAddress.validate();
-            } catch (AddressException e) {
-                throw new IllegalArgumentException(String.format("E-mail: %s is of wrong format.", email));
-            }
-
-            /*
-            List<UIBUserIdentityRepresentation> usersWithSameEmail = searcher.search(email);
-            if (!usersWithSameEmail.isEmpty()) {
-                //(in lucene index)
-                String msg = "E-mail " + email + " is already in use, could not create user with username=" + username;
-                throw new IllegalStateException(msg);
-            }
-            */
-        }
-        String uid = UUID.randomUUID().toString();
-        UIBUserIdentity userIdentity = new UIBUserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
-                email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
-        try {
-            ldapUserIdentityDao.addUserIdentity(userIdentity);
-            luceneIndexer.addToIndex(userIdentity);
-        } catch (NamingException e) {
-            throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
-        }
-        log.info("Added new user to LDAP: username={}, uid={}", username, uid);
-        return userIdentity;
-    }
 
     public UserIdentity addUserIdentityWithGeneratedPassword(UserIdentity dto) {
         String username = dto.getUsername();
@@ -197,7 +145,7 @@ public class UserIdentityService {
         }
 
         String uid = UUID.randomUUID().toString();
-        UIBUserIdentity userIdentity = new UIBUserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity(uid, dto.getUsername(), dto.getFirstName(), dto.getLastName(),
                 email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
@@ -222,8 +170,8 @@ public class UserIdentityService {
     }
 
 
-    public UIBUserIdentity getUserIdentityForUid(String uid) throws NamingException {
-        UIBUserIdentity userIdentity = ldapUserIdentityDao.getUserIndentityByUid(uid);
+    public LDAPUserIdentity getUserIdentityForUid(String uid) throws NamingException {
+        LDAPUserIdentity userIdentity = ldapUserIdentityDao.getUserIndentityByUid(uid);
         if (userIdentity == null) {
             log.warn("Trying to access non-existing UID, removing form index: " + uid);
             luceneIndexer.removeFromIndex(uid);
@@ -231,18 +179,18 @@ public class UserIdentityService {
         return userIdentity;
     }
 
-    public void updateUserIdentityForUid(String uid, UIBUserIdentity newUserIdentity) {
+    public void updateUserIdentityForUid(String uid, LDAPUserIdentity newUserIdentity) {
         ldapUserIdentityDao.updateUserIdentityForUid(uid, newUserIdentity);
         luceneIndexer.update(newUserIdentity);
         audit(uid,ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
     }
 
 
-    public UIBUserIdentity getUserIdentity(String usernameOrUid) throws NamingException {
+    public LDAPUserIdentity getUserIdentity(String usernameOrUid) throws NamingException {
         return ldapUserIdentityDao.getUserIndentity(usernameOrUid);
     }
 
-    public void updateUserIdentity(String username, UIBUserIdentity newuser) {
+    public void updateUserIdentity(String username, LDAPUserIdentity newuser) {
         ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
         luceneIndexer.update(newuser);
     }

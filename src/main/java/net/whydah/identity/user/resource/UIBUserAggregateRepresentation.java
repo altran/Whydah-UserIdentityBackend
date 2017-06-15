@@ -1,7 +1,7 @@
 package net.whydah.identity.user.resource;
 
 import net.whydah.identity.user.UIBUserAggregate;
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.sso.user.types.UserAggregate;
 
@@ -23,7 +23,7 @@ public class UIBUserAggregateRepresentation extends UserAggregate {
     public static UIBUserAggregateRepresentation fromUserAggregate(UIBUserAggregate userAggregate) {
         UIBUserAggregateRepresentation dto = new UIBUserAggregateRepresentation();
 
-        UIBUserIdentity id = userAggregate.getIdentity();
+        LDAPUserIdentity id = userAggregate.getIdentity();
         dto.setUid(id.getUid());
         dto.setUsername(id.getUsername());
         dto.setFirstName(id.getFirstName());
@@ -45,13 +45,13 @@ public class UIBUserAggregateRepresentation extends UserAggregate {
     public UIBUserAggregate buildUserAggregate() {
         List<UserPropertyAndRole> userPropertyAndRoles = buildUserPropertyAndRoles();
 
-        UIBUserIdentity userIdentity = buildUserIdentity();
+        LDAPUserIdentity userIdentity = buildUserIdentity();
         UIBUserAggregate userAggregate = new UIBUserAggregate(userIdentity, userPropertyAndRoles);
         return userAggregate;
     }
 
-    private UIBUserIdentity buildUserIdentity() {
-        UIBUserIdentity userIdentity = new UIBUserIdentity(getUid(), getUsername(), getFirstName(), getLastName(), getEmail(), getPassword(), getCellPhone(), getPersonRef());
+    private LDAPUserIdentity buildUserIdentity() {
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity(getUid(), getUsername(), getFirstName(), getLastName(), getEmail(), getPassword(), getCellPhone(), getPersonRef());
         return userIdentity;
     }
 

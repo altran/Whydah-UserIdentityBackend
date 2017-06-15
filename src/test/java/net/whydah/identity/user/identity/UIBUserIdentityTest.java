@@ -1,6 +1,7 @@
 package net.whydah.identity.user.identity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.whydah.sso.user.types.UserIdentity;
 import org.junit.Test;
 
 import java.util.Random;
@@ -13,7 +14,7 @@ import java.util.UUID;
 public class UIBUserIdentityTest {
     @Test
     public void testValidateCellPhoneOK() {
-        UIBUserIdentity userIdentity = new UIBUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
         String[] telephoneNumbers = new String[]{"12345678", "+47 12345678", "+4799999999", "90 90 90 90", "", null};
 
         for (String telephoneNumber : telephoneNumbers) {
@@ -23,7 +24,7 @@ public class UIBUserIdentityTest {
     }
     @Test(expected = InvalidUserIdentityFieldException.class)
     public void testValidateCellPhoneInvalid() {
-        UIBUserIdentity userIdentity = new UIBUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
         userIdentity.setCellPhone("900-FLYING-CIRCUS");
         userIdentity.validate();
     }
@@ -31,7 +32,7 @@ public class UIBUserIdentityTest {
 
     @Test
     public void testValidatePersonRefOK() {
-        UIBUserIdentity userIdentity = new UIBUserIdentity("uid", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
         String[] personRefs = new String[]{"0", "123", "abc", "123abc", "valid@email.dk", "123-456", "123/456", "", null};
         for (String personRef : personRefs) {
             userIdentity.setPersonRef(personRef);
@@ -42,19 +43,19 @@ public class UIBUserIdentityTest {
     @Test
     public void testParseUserIdentityJson() throws Exception {
         String userIdentityJson = "{\"username\":\"totto\", \"firstName\":\"Thor Henning\", \"lastName\":\"Hetland\", \"personRef\":\"\", \"email\":\"totto@totto.org\", \"cellPhone\":\"+4793009556\"}";
-        UIBUserIdentityRepresentation representation;
+        UserIdentity representation;
         ObjectMapper mapper = new ObjectMapper();
 
-        representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
+        representation = mapper.readValue(userIdentityJson, UserIdentity.class);
     }
 
     @Test
     public void testNorthboundParseUserIdentityJson() throws Exception {
         String userIdentityJson = "{\"username\":\"totto\", \"firstName\":\"Thor Henning\", \"lastName\":\"Hetland\",  \"email\":\"totto@totto.org\", \"cellPhone\":\"+4793009556\"}";
-        UIBUserIdentityRepresentation representation;
+        UserIdentity representation;
         ObjectMapper mapper = new ObjectMapper();
 
-        representation = mapper.readValue(userIdentityJson, UIBUserIdentityRepresentation.class);
+        representation = mapper.readValue(userIdentityJson, UserIdentity.class);
     }
 
     @Test
@@ -62,7 +63,7 @@ public class UIBUserIdentityTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        UIBUserIdentity userIdentity = new UIBUserIdentity("uid",
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",

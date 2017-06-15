@@ -1,11 +1,12 @@
 package net.whydah.identity.user.signup;
 
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
-import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
+import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,18 +33,18 @@ public class UserSignupService {
     }
 
 
-    public UIBUserAggregate createUserWithRoles(UIBUserAggregateRepresentation createFromRepresentation) {
-        UIBUserAggregate userAggregate = null;
-        if (createFromRepresentation != null) {
-            UIBUserAggregate createFromAggregate = createFromRepresentation.buildUserAggregate();
-            UIBUserIdentity createFromItentity = createFromAggregate.getIdentity();
-            UIBUserIdentity userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(createFromItentity);
+    public UserAggregate createUserWithRoles(UserAggregate userAggregate) {
+        UserAggregate returnUserAggregate = null;
+        if (userAggregate != null) {
+            UserIdentity createFromItentity = UserIdentityMapper.fromUserAggregateJson(UserAggregateMapper.toJson(userAggregate));
+            UserIdentity userIdentity = userIdentityService.addUserIdentityWithGeneratedPassword(createFromItentity);
             //Add roles
             if (userIdentity != null && userIdentity.getUid() != null) {
-                List<UserPropertyAndRole> roles = createFromAggregate.getRoles();
+                List<UserApplicationRoleEntry> roles = userAggregate.getRoleList();
                 String uid = userIdentity.getUid();
-                List<UserPropertyAndRole> createdRoles = userAggregateService.addRoles(uid, roles);
-                userAggregate = new UIBUserAggregate(userIdentity, createdRoles);
+                List<UserApplicationRoleEntry> createdRoles = userAggregateService.addUserApplicationRoleEntries(uid, roles);
+                returnUserAggregate = UserAggregateMapper.fromJson(UserIdentityMapper.toJson(userIdentity));
+                returnUserAggregate.setRoleList(createdRoles);
             }
         }
         return userAggregate;

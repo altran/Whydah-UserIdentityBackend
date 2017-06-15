@@ -2,16 +2,14 @@ package net.whydah.identity.user.resource;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UIBUserIdentity;
-import net.whydah.identity.user.identity.UIBUserIdentityRepresentation;
-import net.whydah.identity.user.search.PaginatedUIBUserAggregateDataList;
-import net.whydah.identity.user.search.PaginatedUIBUserIdentityDataList;
+import net.whydah.identity.user.search.PaginatedUserAggregateDataList;
+import net.whydah.identity.user.search.PaginatedUserIdentityDataList;
 import net.whydah.identity.user.search.UserSearch;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.server.mvc.Viewable;
@@ -86,7 +84,7 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response queryUsers(@PathParam("p") String pageNumber, @PathParam("q") String query) {
         log.trace("findUsers with query=" + query);
-        PaginatedUIBUserIdentityDataList dl = userSearch.query(Integer.valueOf(pageNumber) , query);
+        PaginatedUserIdentityDataList dl = userSearch.query(Integer.valueOf(pageNumber), query);
         HashMap<String, Object> model = new HashMap<>();
         model.put("currentPage", String.valueOf(dl.pageNumber));
         model.put("pageSize", String.valueOf(dl.pageSize));
@@ -104,10 +102,12 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response exportUsers(@PathParam("p") String pageNumber) {
         log.trace("exportUsers with for the page =" + pageNumber);
-        PaginatedUIBUserIdentityDataList dl = userSearch.query(Integer.valueOf(pageNumber) , "*");
-        PaginatedUIBUserAggregateDataList adl = new PaginatedUIBUserAggregateDataList(dl.pageNumber, dl.totalCount, new ArrayList<UIBUserAggregateRepresentation>());
-        for(UIBUserIdentityRepresentation ui : dl.data){
-        	adl.data.add(UIBUserAggregateRepresentation.fromUserAggregate(new UIBUserAggregate((UIBUserIdentity) ui, userAggregateService.getRoles(ui.getUid()))));
+        PaginatedUserIdentityDataList dl = userSearch.query(Integer.valueOf(pageNumber), "*");
+        PaginatedUserAggregateDataList adl = new PaginatedUserAggregateDataList(dl.pageNumber, dl.totalCount, new ArrayList<UserAggregate>());
+        for (UserIdentity ui : dl.data) {
+            UserAggregate userAggregate = UserAggregateMapper.fromJson(UserIdentityMapper.toJson(ui));
+            List<UserApplicationRoleEntry> userApplicationRoleEntries = userAggregateService.getUserApplicationRoleEntries(userAggregate.getUid());
+            userAggregate.setRoleList(userApplicationRoleEntries);
         }
         
         HashMap<String, Object> model = new HashMap<>();
@@ -133,9 +133,9 @@ public class UsersResource {
         List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
         List<String> duplicates = new ArrayList<String>();
         for(UserAggregate ua : importList){
-        	
-        	UIBUserIdentity uibua = userAggregateService.getUIBUserIdentityByUsernameOrUid(ua.getUsername());
-        	if(uibua!=null){
+
+            UserIdentity uibua = userAggregateService.getUserIdentityByUsernameOrUid(ua.getUsername());
+            if(uibua!=null){
         		duplicates.add(UserIdentityMapper.toJson(ua));
         	}
         }

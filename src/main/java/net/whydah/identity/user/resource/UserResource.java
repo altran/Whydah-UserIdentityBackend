@@ -6,7 +6,7 @@ import net.whydah.identity.user.InvalidRoleModificationException;
 import net.whydah.identity.user.NonExistentRoleException;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.sso.user.types.UserIdentity;
@@ -107,7 +107,7 @@ public class UserResource {
     public Response getUserIdentity(@PathParam("uid") String uid) {
         log.trace("getUserIdentity for uid={}", uid);
 
-        UIBUserIdentity userIdentity;
+        LDAPUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentityForUid(uid);
             log.trace("getUserIdentity for uid={} found user={}", uid, (userIdentity != null ? userIdentity.toString() : "null"));
@@ -137,9 +137,9 @@ public class UserResource {
     public Response updateUserIdentity(@PathParam("uid") String uid, String userIdentityJson) {
         log.trace("updateUserIdentity: uid={}, userIdentityJson={}", uid, userIdentityJson);
 
-        UIBUserIdentity userIdentity;
+        LDAPUserIdentity userIdentity;
         try {
-            userIdentity = mapper.readValue(userIdentityJson, UIBUserIdentity.class);
+            userIdentity = mapper.readValue(userIdentityJson, LDAPUserIdentity.class);
         } catch (IOException e) {
             log.error("updateUserIdentity failed for uid={}, invalid json. userIdentityJson={}", uid, userIdentityJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -196,7 +196,7 @@ public class UserResource {
     public Response addRole(@PathParam("uid") String uid, String roleJson) {
         log.trace("addRole for uid={}, roleJson={}", uid, roleJson);
 
-        UIBUserIdentity user;
+        LDAPUserIdentity user;
         String msg = "addRole failed. No user with uid=" + uid;
         try {
             user = userIdentityService.getUserIdentityForUid(uid);

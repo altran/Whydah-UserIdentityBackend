@@ -1,10 +1,10 @@
 package net.whydah.identity.user.signup;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.resource.UIBUserAggregateRepresentation;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.types.UserAggregate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +63,10 @@ public class UserSignupEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity("Could not parse " + userJson + ".").build();
         }
 
-        UIBUserAggregate userAggregate = userSignupService.createUserWithRoles(createFromRepresentation);
+        UserAggregate userAggregate = userSignupService.createUserWithRoles(createFromRepresentation);
         String createdUserAsJson = null;
         if (userAggregate != null) {
-            try {
-                createdUserAsJson = objectMapper.writeValueAsString(userAggregate);
-            } catch (JsonProcessingException e) {
-                log.trace("Failed to create json form userAggregate {}", userAggregate);
-            }
+            createdUserAsJson = UserAggregateMapper.toJson(userAggregate);
         }
 
 //        if (userIdentity == null) {

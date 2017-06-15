@@ -49,7 +49,7 @@ public class LdapAuthenticator {
     }
 
 
-    public UIBUserIdentity authenticate(final String username, final String password) {
+    public LDAPUserIdentity authenticate(final String username, final String password) {
         InitialDirContext initialDirContext = authenticateUser(username, password, "simple");
         if (initialDirContext == null) {
             return null;
@@ -73,7 +73,7 @@ public class LdapAuthenticator {
      * @param username  username
      * @param password  user password
      * @param securityAuthenticationLevel
-     * @return a authenticated UIBUserIdentity
+     * @return a authenticated LDAPUserIdentity
      */
     private InitialDirContext authenticateUser(final String username, final String password, String securityAuthenticationLevel) {
         if (username == null || password == null) {
@@ -156,7 +156,7 @@ public class LdapAuthenticator {
     }
 
 
-    private UIBUserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
+    private LDAPUserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String baseDN = "";
@@ -176,7 +176,7 @@ public class LdapAuthenticator {
             return null;
         }
 
-        UIBUserIdentity userIdentity = new UIBUserIdentity();
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity();
         userIdentity.setUid(getAttribValue(attributes, uidAttribute));
         userIdentity.setUsername(getAttribValue(attributes, usernameAttribute));
         userIdentity.setFirstName(getAttribValue(attributes, "givenName"));

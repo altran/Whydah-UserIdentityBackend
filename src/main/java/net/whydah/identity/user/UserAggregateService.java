@@ -4,7 +4,7 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserPropertyAndRole;
@@ -57,7 +57,7 @@ public class UserAggregateService {
 
     @Deprecated
     public UIBUserAggregate getUIBUserAggregateByUsernameOrUid(String usernameOrUid) {
-        UIBUserIdentity userIdentity;
+        LDAPUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
         } catch (NamingException e) {
@@ -89,8 +89,8 @@ public class UserAggregateService {
     }
 
     @Deprecated
-    public UIBUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
-        UIBUserIdentity userIdentity;
+    public LDAPUserIdentity getUIBUserIdentityByUsernameOrUid(String usernameOrUid) {
+        LDAPUserIdentity userIdentity;
         try {
             userIdentity = userIdentityService.getUserIdentity(usernameOrUid);
         } catch (NamingException e) {
@@ -118,7 +118,7 @@ public class UserAggregateService {
     }
 
     @Deprecated
-    public UIBUserIdentity updateUserIdentity(String uid, UIBUserIdentity newUserIdentity) {
+    public LDAPUserIdentity updateUserIdentity(String uid, LDAPUserIdentity newUserIdentity) {
         userIdentityService.updateUserIdentityForUid(uid, newUserIdentity);
         return newUserIdentity;
     }
@@ -133,7 +133,7 @@ public class UserAggregateService {
             throw new RuntimeException("userIdentityService.getUserIdentity with uid=" + uid, e);
         }
         if (userIdentity == null) {
-            throw new IllegalArgumentException("UIBUserIdentity not found. uid=" + uid);
+            throw new IllegalArgumentException("LDAPUserIdentity not found. uid=" + uid);
         }
         try {
             userIdentityService.deleteUserIdentity(uid);
@@ -222,6 +222,21 @@ public class UserAggregateService {
                     createdRoles.add(createdRole);
                 } catch (WebApplicationException e) {
                     log.trace("User {}, has this role  {} already. The role is not re-applied.", uid,role );
+                }
+            }
+        }
+        return roles;
+    }
+
+    public List<UserApplicationRoleEntry> addUserApplicationRoleEntries(String uid, List<UserApplicationRoleEntry> roles) {
+        List<UserApplicationRoleEntry> createdRoles = new ArrayList<>();
+        if (roles != null && roles.size() > 0) {
+            for (UserApplicationRoleEntry role : roles) {
+                try {
+                    UserApplicationRoleEntry createdRole = addRole(uid, role);
+                    createdRoles.add(createdRole);
+                } catch (WebApplicationException e) {
+                    log.trace("User {}, has this role  {} already. The role is not re-applied.", uid, role);
                 }
             }
         }

@@ -1,7 +1,7 @@
 package net.whydah.identity.user.search;
 
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class UserSearch {
         //If user is not found in lucene, try to search AD.
         if (users.isEmpty()) {
             try {
-                UIBUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
                 if (user != null) {
                     users.add(user);
                     //Update user to lucene.
@@ -53,10 +53,10 @@ public class UserSearch {
         }
         return users;
     }
-    
-    public PaginatedUIBUserIdentityDataList query(int page, String query) {
-    	PaginatedUIBUserIdentityDataList paginatedDL = luceneSearch.query(page, query);
-        List<UIBUserIdentity> users = paginatedDL.data;
+
+    public PaginatedUserIdentityDataList query(int page, String query) {
+        PaginatedUserIdentityDataList paginatedDL = luceneSearch.query(page, query);
+        List<UserIdentity> users = paginatedDL.data;
         if (users == null) {
             users = new ArrayList<>();
         }
@@ -65,7 +65,7 @@ public class UserSearch {
         //If user is not found in lucene, try to search AD.
         if (users.isEmpty()) {
             try {
-                UIBUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+                UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
                 if (user != null) {
                     users.add(user);
                     //Update user to lucene.

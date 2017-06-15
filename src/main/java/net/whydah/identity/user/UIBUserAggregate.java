@@ -1,6 +1,6 @@
 package net.whydah.identity.user;
 
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.sso.user.types.UserAggregate;
 import org.w3c.dom.Document;
@@ -17,10 +17,10 @@ import java.util.List;
 
 @Deprecated  // Use UIBUserAggregate and userAggregatemapper in TypeLib
 public class UIBUserAggregate extends UserAggregate {
-    private UIBUserIdentity identity = null;
+    private LDAPUserIdentity identity = null;
     private List<UserPropertyAndRole> roles = new ArrayList<>();
 
-    public UIBUserAggregate(UIBUserIdentity identity, List<UserPropertyAndRole> roles) {
+    public UIBUserAggregate(LDAPUserIdentity identity, List<UserPropertyAndRole> roles) {
         this.identity = identity;
         this.roles = roles;
     }
@@ -78,7 +78,7 @@ public class UIBUserAggregate extends UserAggregate {
             String email = (String) xPath.evaluate("//email", doc, XPathConstants.STRING);
             String personRef = (String) xPath.evaluate("//personRef", doc, XPathConstants.STRING);
 
-            UIBUserIdentity identity = new UIBUserIdentity();
+            LDAPUserIdentity identity = new LDAPUserIdentity();
             identity.setUid(uid);
             identity.setUsername(userName);
             identity.setFirstName(firstName);
@@ -103,11 +103,11 @@ public class UIBUserAggregate extends UserAggregate {
     }
 
 
-    public UIBUserIdentity getIdentity() {
+    public LDAPUserIdentity getIdentity() {
         return identity;
     }
 
-    public void setIdentity(UIBUserIdentity identity) {
+    public void setIdentity(LDAPUserIdentity identity) {
         this.identity = identity;
     }
 

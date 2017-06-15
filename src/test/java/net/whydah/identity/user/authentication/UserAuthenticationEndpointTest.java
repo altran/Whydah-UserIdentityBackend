@@ -12,9 +12,9 @@ import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
 import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapAuthenticator;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
@@ -43,7 +43,8 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -202,7 +203,7 @@ public class UserAuthenticationEndpointTest {
 
     @Test
     public void testAuthenticateUsingFacebookCredentials() throws NamingException {
-        UIBUserIdentity newIdentity = new UIBUserIdentity();
+        LDAPUserIdentity newIdentity = new LDAPUserIdentity();
         String username = "facebookUsername";
         newIdentity.setUsername(username);
         String facebookId = "1234";
@@ -228,9 +229,9 @@ public class UserAuthenticationEndpointTest {
         /*
         Viewable entity = (Viewable) response.getEntity();
         UIBUserAggregate model = (UIBUserAggregate) entity.getModel();
-        UIBUserIdentity identity = model.getIdentity();
+        LDAPUserIdentity identity = model.getIdentity();
         */
-        //UIBUserIdentity identity = userAggregate.getIdentity();
+        //LDAPUserIdentity identity = userAggregate.getIdentity();
         assertEquals(username, userAggregate.getUsername());
         assertEquals(userAggregate.getPersonRef(), "");
         assertEquals(email, userAggregate.getEmail());

@@ -17,20 +17,19 @@ import java.io.Serializable;
  * See getLdapAttributes in LDAPHelper for mapping to LDAP attributes.
  *
  */
-@Deprecated  // Use UIBUserIdentity and UserIdentityMapper in TypeLib
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Serializable {
+public class LDAPUserIdentity extends UserIdentity implements Serializable {
     public static final String UID = "uid";
-    private static final Logger logger = LoggerFactory.getLogger(UIBUserIdentity.class);
+    private static final Logger logger = LoggerFactory.getLogger(LDAPUserIdentity.class);
     private static final long serialVersionUID = 1;
     private static final TelephoneNumberSyntaxChecker telephoneNumberSyntaxChecker = new TelephoneNumberSyntaxChecker();
     private String uid;
 
-    public UIBUserIdentity() {
+    public LDAPUserIdentity() {
     }
 
-    public UIBUserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
-                           String cellPhone, String personRef) {
+    public LDAPUserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
+                            String cellPhone, String personRef) {
         this.uid = uid;
         this.username = (username != null ? username : email);
         this.firstName = firstName;
@@ -41,7 +40,7 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
         this.password = password;
     }
 
-    public UIBUserIdentity(UserIdentity userIdentity, String password) {
+    public LDAPUserIdentity(UserIdentity userIdentity, String password) {
         this.uid = userIdentity.getUid();
         this.username = (userIdentity.getUsername() != null ? userIdentity.getUsername() : userIdentity.getEmail());
         this.firstName = userIdentity.getFirstName();
@@ -49,6 +48,20 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
         this.personRef = userIdentity.getPersonRef();
         this.email = userIdentity.getEmail();
         setCellPhone(userIdentity.getCellPhone());
+        this.password = password;
+    }
+
+    protected transient String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getCellPhone() {
+        return this.cellPhone;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -91,7 +104,7 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
 
     @Override
     public String toString() {
-        return "UIBUserIdentity{" +
+        return "LDAPUserIdentity{" +
                 "uid='" + uid + '\'' +
                 ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
@@ -111,7 +124,7 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
             return false;
         }
 
-        UIBUserIdentity that = (UIBUserIdentity) o;
+        LDAPUserIdentity that = (LDAPUserIdentity) o;
 
         if (uid != null ? !uid.equals(that.uid) : that.uid != null) {
             return false;
@@ -154,9 +167,9 @@ public class UIBUserIdentity extends UIBUserIdentityRepresentation implements Se
         this.uid = uid;
     }
 
-    public static UIBUserIdentity fromJson(String userJson) {
+    public static LDAPUserIdentity fromJson(String userJson) {
         try {
-            UIBUserIdentity userIdentity = new UIBUserIdentity();
+            LDAPUserIdentity userIdentity = new LDAPUserIdentity();
 
             JSONObject jsonobj = new JSONObject(userJson);
 

@@ -7,8 +7,8 @@ import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -88,7 +88,7 @@ public class IamDataImporterTest {
         dataImporter.importIamData();
         LdapUserIdentityDao ldapUserIdentityDao = dataImporter.getLdapUserIdentityDao();
 
-        UIBUserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
+        LDAPUserIdentity erikdUserIdentity = ldapUserIdentityDao.getUserIndentity("erikd");
         assertEquals("Erik", erikdUserIdentity.getFirstName());
         assertEquals("Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("erik.drolshammer", erikdUserIdentity.getUid());

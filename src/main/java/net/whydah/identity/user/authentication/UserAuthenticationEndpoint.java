@@ -2,7 +2,7 @@ package net.whydah.identity.user.authentication;
 
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.UserAggregateService;
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserIdentityMapper;
@@ -132,7 +132,7 @@ public class UserAuthenticationEndpoint {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
         }
 
-        UIBUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+        LDAPUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
 
         if (userIdentity == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
@@ -195,7 +195,7 @@ public class UserAuthenticationEndpoint {
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             fbUserDoc = builder.parse(input);
         } catch (Exception e) {
-            log.error("Error when creating UIBUserIdentity from incoming xml stream.", e);
+            log.error("Error when creating LDAPUserIdentity from incoming xml stream.", e);
             return null;
         }
         return fbUserDoc;
@@ -204,7 +204,7 @@ public class UserAuthenticationEndpoint {
 
     //TODO Move to UserAdminService (the separate application)
     // FIXME fail if called and a) user exist from earlier  b) the user has reset password
-    Response createAndAuthenticateUser(UIBUserIdentity userIdentity, String roleValue, boolean reuse) {
+    Response createAndAuthenticateUser(LDAPUserIdentity userIdentity, String roleValue, boolean reuse) {
         try {
             log.trace("createAndAuthenticateUser - userIdentity:{} roleValue:{} reuse:{}", userIdentity, roleValue, reuse);
             Response response = userAdminHelper.addUser(userIdentity);

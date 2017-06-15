@@ -1,6 +1,6 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.identity.user.identity.UIBUserIdentity;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -68,7 +68,7 @@ public class LuceneUserSearch {
             for (ScoreDoc hit : topDocs.scoreDocs) {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
-                UIBUserIdentity user = new UIBUserIdentity();
+                LDAPUserIdentity user = new LDAPUserIdentity();
                 user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
                 user.setLastName(d.get(LuceneUserIndexer.FIELD_LASTNAME));
                 user.setUid(d.get(LuceneUserIndexer.FIELD_UID));
@@ -106,8 +106,8 @@ public class LuceneUserSearch {
         logger.debug("Original query={}, wildcard query= {}", queryString, wildCardQuery);
         return wildCardQuery;
     }
-    
-    public PaginatedUIBUserIdentityDataList query(int pageNumber, String queryString) {
+
+    public PaginatedUserIdentityDataList query(int pageNumber, String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
                 LuceneUserIndexer.FIELD_FIRSTNAME,
@@ -128,10 +128,10 @@ public class LuceneUserSearch {
             q = multiFieldQueryParser.parse(wildCardQuery);
         } catch (ParseException e) {
             logger.error("Could not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
-            return new PaginatedUIBUserIdentityDataList();
+            return new PaginatedUserIdentityDataList();
         }
 
-        List<UIBUserIdentity> result = new ArrayList<>();
+        List<UserIdentity> result = new ArrayList<>();
         int hits = 0;
         DirectoryReader directoryReader = null;
         try {
@@ -148,8 +148,8 @@ public class LuceneUserSearch {
             		int docId = topDocs.scoreDocs[i].doc;
 
             		Document d = searcher.doc(docId);
-            		UIBUserIdentity user = new UIBUserIdentity();
-            		user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
+                    LDAPUserIdentity user = new LDAPUserIdentity();
+                    user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
             		user.setLastName(d.get(LuceneUserIndexer.FIELD_LASTNAME));
             		user.setUid(d.get(LuceneUserIndexer.FIELD_UID));
             		user.setUsername(d.get(LuceneUserIndexer.FIELD_USERNAME));
@@ -174,8 +174,8 @@ public class LuceneUserSearch {
                 }
             }
         }
-        
-        return new PaginatedUIBUserIdentityDataList(pageNumber, hits, result);
+
+        return new PaginatedUserIdentityDataList(pageNumber, hits, result);
 
         
     }

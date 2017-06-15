@@ -3,6 +3,7 @@ package net.whydah.identity.user.identity;
 import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.user.types.UserIdentity;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
@@ -91,9 +92,9 @@ public class LdapUIBUserIdentityDaoTest {
         String password = "pass";
         String cellPhone = "+4798765432";
         String personRef = "some@email.dk";
-        UIBUserIdentity user = new UIBUserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
+        LDAPUserIdentity user = new LDAPUserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
         ldapUserIdentityDao.addUserIdentity(user);
-        UIBUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("jan");
+        LDAPUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("jan");
         assertNotNull(gotUser);
         assertEquals(gotUser.getUid(), uid);
         assertEquals(gotUser.getUsername(), username);
@@ -109,17 +110,17 @@ public class LdapUIBUserIdentityDaoTest {
     public void testUpdateUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        UIBUserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com", "pass");
-        ldapUserIdentityDao.addUserIdentity(user);
-        UIBUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
+        UserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com");
+        ldapUserIdentityDao.addUserIdentity(new LDAPUserIdentity(user, "pass"));
+        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
 
         String cellPhone = "32323232";
         String personRef = "abc/123";
         gotUser.setCellPhone(cellPhone);
         gotUser.setPersonRef(personRef);
-        ldapUserIdentityDao.updateUserIdentityForUsername(username, gotUser);
-        UIBUserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
+        ldapUserIdentityDao.updateUserIdentityForUsername(username, new LDAPUserIdentity(gotUser, "pass"));
+        LDAPUserIdentity gotUpdatedUser = ldapUserIdentityDao.getUserIndentity(username);
         assertEquals(cellPhone, gotUpdatedUser.getCellPhone());
         assertEquals(personRef, gotUpdatedUser.getPersonRef());
 
@@ -139,15 +140,15 @@ public class LdapUIBUserIdentityDaoTest {
     public void testDeleteUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "usernameToBeDeleted";
-        UIBUserIdentity user = createValidUser(uid, username, "Trevor", "Treske", "tretre@hotmail.com", "pass");
-        ldapUserIdentityDao.addUserIdentity(user);
-        UIBUserIdentityRepresentation gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
+        UserIdentity user = createValidUser(uid, username, "Trevor", "Treske", "tretre@hotmail.com");
+        ldapUserIdentityDao.addUserIdentity(new LDAPUserIdentity(user, "pass"));
+        UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(user.getUsername());
         assertNotNull(gotUser);
 
         boolean deleteSuccessful = ldapUserIdentityDao.deleteUserIdentity(username);
         assertTrue(deleteSuccessful);
 
-        UIBUserIdentityRepresentation gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
+        UserIdentity gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
         assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
     }
 
@@ -156,8 +157,8 @@ public class LdapUIBUserIdentityDaoTest {
         String username = "stoven@hotmail.com";
         String firstPassword = "pass";
         String uid = username;
-        UIBUserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com", firstPassword);
-        ldapUserIdentityDao.addUserIdentity(user);
+        UserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com");
+        ldapUserIdentityDao.addUserIdentity(new LDAPUserIdentity(user, firstPassword));
 
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword(username, firstPassword));
         String secondPassword = "snafs";
@@ -168,7 +169,7 @@ public class LdapUIBUserIdentityDaoTest {
         assertNotNull(ldapAuthenticator.authenticate(username, secondPassword));
     }
 
-    private static UIBUserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email, String password) {
-        return new UIBUserIdentity(uid, username, firstName, lastName, email, password, null, null);
+    private static UserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email) {
+        return new UserIdentity(uid, username, firstName, lastName, null, email, null);
     }
 }

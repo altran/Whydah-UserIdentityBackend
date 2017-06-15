@@ -1,6 +1,5 @@
 package net.whydah.identity.user.search;
 
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserIdentity;
@@ -77,7 +76,7 @@ public class LuceneUserIndexer {
         }
     }
 
-    public void addToIndex(UIBUserIdentity user) {
+    public void addToIndex(UserIdentity user) {
         try {
             getWriter();
             Document doc = createLuceneDocument(user);

@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
+import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.identity.UIBUserIdentity;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.store.Directory;
@@ -41,15 +41,15 @@ public class WhydahUserIdentityImporter {
     }
     
     public void importUsers(InputStream userImportSource) {
-        List<UIBUserIdentity> users = parseUsers(userImportSource);
+        List<LDAPUserIdentity> users = parseUsers(userImportSource);
         int userAddedCount = saveUsers(users);
         log.info("{} users imported.", userAddedCount);
     }
 
-    protected static List<UIBUserIdentity> parseUsers(InputStream userImportStream) {
+    protected static List<LDAPUserIdentity> parseUsers(InputStream userImportStream) {
         BufferedReader reader = null;
 		try {
-            List<UIBUserIdentity> users = new ArrayList<>();
+            List<LDAPUserIdentity> users = new ArrayList<>();
             reader = new BufferedReader(new InputStreamReader(userImportStream, IamDataImporter.CHARSET_NAME));
 	        String line;
 	        while (null != (line = reader.readLine())) {
@@ -61,8 +61,8 @@ public class WhydahUserIdentityImporter {
 	        	String[] lineArray = line.split(",");
 	        	validateLine(line, lineArray);
 
-                UIBUserIdentity userIdentity;
-                userIdentity = new UIBUserIdentity();
+                LDAPUserIdentity userIdentity;
+                userIdentity = new LDAPUserIdentity();
                 userIdentity.setUid(cleanString(lineArray[USERID]));
 	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
 	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
@@ -100,11 +100,11 @@ public class WhydahUserIdentityImporter {
 		}
 	}
 
-    private int saveUsers(List<UIBUserIdentity> users) {
+    private int saveUsers(List<LDAPUserIdentity> users) {
         int userAddedCount = 0;
         try {
             List<UserIdentity> userIdentities = new LinkedList<>();
-            for (UIBUserIdentity userIdentity : users) {
+            for (LDAPUserIdentity userIdentity : users) {
                 boolean added = ldapUserIdentityDao.addUserIdentity(userIdentity);
                 if (added) {
                     log.info("Imported user: uid={}, username={}, name={} {}, email={}",
