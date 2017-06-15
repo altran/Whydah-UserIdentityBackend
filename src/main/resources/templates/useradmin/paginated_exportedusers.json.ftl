@@ -15,7 +15,7 @@
  "cellPhone":"${identity.cellPhone!?js_string}",
  "uri":"${userbaseurl+"useradmin/users/"+identity.uid+"/"?js_string}",
  "roles":[
- <#list identity.roles as rolle>
+ <#list identity.roleList as rolle>
    <#include "role.json.ftl"/><#if rolle_has_next>,</#if>
  </#list>
  ]

@@ -108,6 +108,7 @@ public class UsersResource {
             UserAggregate userAggregate = UserAggregateMapper.fromJson(UserIdentityMapper.toJson(ui));
             List<UserApplicationRoleEntry> userApplicationRoleEntries = userAggregateService.getUserApplicationRoleEntries(userAggregate.getUid());
             userAggregate.setRoleList(userApplicationRoleEntries);
+            adl.data.add(userAggregate);
         }
         
         HashMap<String, Object> model = new HashMap<>();
