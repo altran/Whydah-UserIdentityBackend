@@ -10,7 +10,6 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapAuthenticator;
@@ -20,6 +19,8 @@ import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.types.UserAggregate;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -149,7 +150,7 @@ public class UserAuthenticationEndpointTest {
                 .post(path, "someValidApplicationtokenid");
 
         String responseAsString = response.body().asString();
-        UIBUserAggregate user = UIBUserAggregate.fromXML(responseAsString);
+        UserAggregate user = UserAggregateMapper.fromXML(responseAsString);
         assertEquals(user.getUsername(), userName);
 //        assertEquals(user.getFirstName(), "test");
 //        assertEquals(user.getLastName(), "me");
@@ -224,7 +225,7 @@ public class UserAuthenticationEndpointTest {
 
 
         String userXml = (String) response.getEntity();
-        UIBUserAggregate userAggregate = UIBUserAggregate.fromXML(userXml);
+        UserAggregate userAggregate = UserAggregateMapper.fromXML(userXml);
 
         /*
         Viewable entity = (Viewable) response.getEntity();
