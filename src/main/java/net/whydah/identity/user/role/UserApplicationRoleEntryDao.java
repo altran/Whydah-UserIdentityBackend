@@ -30,16 +30,6 @@ public class UserApplicationRoleEntryDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    @Deprecated
-    public UserPropertyAndRole getUserPropertyAndRole(String roleId) {
-        log.debug("getUserPropertyAndRole for roleId {}", roleId);
-        String sql = "SELECT RoleID, UserID, AppID, OrganizationName, RoleName, RoleValues FROM UserRoles WHERE RoleID=?";
-        List<UserPropertyAndRole> roles = jdbcTemplate.query(sql, new String[]{roleId}, new UserPropertyAndRoleMapper());
-        if (roles.isEmpty()) {
-            return null;
-        }
-        return roles.get(0);
-    }
 
     public UserApplicationRoleEntry getUserApplicationRoleEntry(String roleId) {
         log.debug("getUserPropertyAndRole for roleId {}", roleId);

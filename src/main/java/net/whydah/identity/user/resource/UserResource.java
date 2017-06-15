@@ -9,6 +9,7 @@ import net.whydah.identity.user.identity.InvalidUserIdentityFieldException;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,7 +262,7 @@ public class UserResource {
     public Response getRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid) {
         log.trace("getRole, uid={}, roleid={}", uid, roleid);
 
-        UserPropertyAndRole role = userAggregateService.getRole(uid, roleid);
+        UserApplicationRoleEntry role = userAggregateService.getUserApplicationRoleEntry(uid, roleid);
         if (role == null) {
             log.trace("getRole could not find role with roleid={}", roleid);
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -284,9 +285,9 @@ public class UserResource {
     public Response updateRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid, String roleJson) {
         log.trace("updateRole, uid={}, roleid={}", uid, roleid);
 
-        UserPropertyAndRole role;
+        UserApplicationRoleEntry role;
         try {
-            role = mapper.readValue(roleJson, UserPropertyAndRole.class);
+            role = mapper.readValue(roleJson, UserApplicationRoleEntry.class);
         } catch (IOException e) {
             log.error("updateRole, invalid json. roleJson={}", roleJson, e);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -294,7 +295,7 @@ public class UserResource {
 
         try {
             String json;
-            UserPropertyAndRole updatedRole = userAggregateService.updateRole(uid, roleid, role);
+            UserApplicationRoleEntry updatedRole = userAggregateService.updateRole(uid, roleid, role);
             try {
                 json = mapper.writeValueAsString(updatedRole);
             } catch (IOException e) {

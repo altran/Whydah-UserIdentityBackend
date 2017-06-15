@@ -1,6 +1,7 @@
 package net.whydah.identity.user.role;
 
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,9 +45,9 @@ public class UserPropertyAndRoleDaoTest {
 
     @Test
     public void testAddAndGet() {
-        Map<String, UserPropertyAndRole> added = addTestRoles("uid1", 1);
-        for (UserPropertyAndRole expected : added.values()) {
-            UserPropertyAndRole fromDb = roleRepository.getUserPropertyAndRole(expected.getRoleId());
+        Map<String, UserApplicationRoleEntry> added = addTestRoles("uid1", 1);
+        for (UserApplicationRoleEntry expected : added.values()) {
+            UserApplicationRoleEntry fromDb = roleRepository.getUserApplicationRoleEntry(expected.getId());
             roleEquals(expected, fromDb);
         }
     }
@@ -54,11 +55,11 @@ public class UserPropertyAndRoleDaoTest {
     @Test
     public void testGetUserPropertyAndRoles() {
         String uid = "uid2";
-        Map<String, UserPropertyAndRole> added = addTestRoles(uid, 3);
-        List<UserPropertyAndRole> roles = roleRepository.getUserPropertyAndRoles(uid);
+        Map<String, UserApplicationRoleEntry> added = addTestRoles(uid, 3);
+        List<UserApplicationRoleEntry> roles = roleRepository.getUserApplicationRoleEntries(uid);
         assertEquals(added.size(), roles.size());
-        for (UserPropertyAndRole fromDb : roles) {
-            UserPropertyAndRole expected = added.get(fromDb.getRoleId());
+        for (UserApplicationRoleEntry fromDb : roles) {
+            UserApplicationRoleEntry expected = added.get(fromDb.getId());
             roleEquals(expected, fromDb);
         }
     }
@@ -66,9 +67,9 @@ public class UserPropertyAndRoleDaoTest {
     @Test
     public void testCountUserRolesInDB() {
         String uid3 = "uid3";
-        Map<String, UserPropertyAndRole> added3 = addTestRoles(uid3, 2);
+        Map<String, UserApplicationRoleEntry> added3 = addTestRoles(uid3, 2);
         String uid4 = "uid4";
-        Map<String, UserPropertyAndRole> added4 = addTestRoles(uid4, 3);
+        Map<String, UserApplicationRoleEntry> added4 = addTestRoles(uid4, 3);
         assertEquals(roleRepository.countUserRolesInDB(), added3.size() + added4.size());
     }
 
@@ -90,9 +91,9 @@ public class UserPropertyAndRoleDaoTest {
     @Test
     public void testDeleteUserAppRoles() {
         String uid3 = "uid3";
-        Map<String, UserPropertyAndRole> added3 = addTestRoles(uid3, 2);
+        Map<String, UserApplicationRoleEntry> added3 = addTestRoles(uid3, 2);
         String uid4 = "uid4";
-        Map<String, UserPropertyAndRole> added4 = addTestRoles(uid4, 3);
+        Map<String, UserApplicationRoleEntry> added4 = addTestRoles(uid4, 3);
         assertEquals(roleRepository.countUserRolesInDB(), added3.size() + added4.size());
 
         String appIdToDelete = "appId2";
@@ -105,9 +106,9 @@ public class UserPropertyAndRoleDaoTest {
     @Test
     public void testDeleteRoleByRoleId() {
         String uid3 = "uid3";
-        Map<String, UserPropertyAndRole> added3 = addTestRoles(uid3, 2);
+        Map<String, UserApplicationRoleEntry> added3 = addTestRoles(uid3, 2);
         String uid4 = "uid4";
-        Map<String, UserPropertyAndRole> added4 = addTestRoles(uid4, 3);
+        Map<String, UserApplicationRoleEntry> added4 = addTestRoles(uid4, 3);
         assertEquals(roleRepository.countUserRolesInDB(), added3.size() + added4.size());
 
         roleRepository.deleteRole("roleId1");   //Expect role to be remove for both users
@@ -117,37 +118,33 @@ public class UserPropertyAndRoleDaoTest {
     }
 
 
-    private Map<String, UserPropertyAndRole> addTestRoles(String uid, int count) {
-        Map<String, UserPropertyAndRole> added = new HashMap<>();
-        UserPropertyAndRole role;
+    private Map<String, UserApplicationRoleEntry> addTestRoles(String uid, int count) {
+        Map<String, UserApplicationRoleEntry> added = new HashMap<>();
+        UserApplicationRoleEntry role;
         for (int i = 1; i <= count; i++) {
-            role = new UserPropertyAndRole();
-            role.setRoleId("roleId" + i);
-            role.setUid(uid);
+            role = new UserApplicationRoleEntry();
+            role.setId("roleId" + i);
+            role.setUserId(uid);
             role.setApplicationId("appId" + i);
-            role.setApplicationRoleName("appRoleName" + i);
-            role.setApplicationRoleValue("appRoleValue" + i);
+            role.setRoleName("appRoleName" + i);
+            role.setRoleValue("appRoleValue" + i);
             //private transient String applicationName;
             //private transient String organizationName;
-            added.put(role.getRoleId(), role);
+            added.put(role.getId(), role);
             roleRepository.addUserPropertyAndRole(role);
         }
         return added;
     }
 
-    private void roleEquals(UserPropertyAndRole role, UserPropertyAndRole fromDb) {
+    private void roleEquals(UserApplicationRoleEntry role, UserApplicationRoleEntry fromDb) {
         //assertTrue(fromDb.equals(role));  //Not possible because of null to "" in getters.
 
-        assertEquals(fromDb.getRoleId(), role.getRoleId());
-        assertEquals(fromDb.getUid(), role.getUid());
+        assertEquals(fromDb.getId(), role.getId());
+        assertEquals(fromDb.getUserId(), role.getUserId());
         assertEquals(fromDb.getApplicationId(), role.getApplicationId());
-        assertEquals(fromDb.getApplicationRoleName(), role.getApplicationRoleName());
-        assertEquals(fromDb.getApplicationRoleValue(), role.getApplicationRoleValue());
-
-        //Should not be populated by UserApplicationRoleEntryDao
-        //assertNull(fromDb.getApplicationName());
-        //assertNull(fromDb.getOrganizationName());
+        assertEquals(fromDb.getRoleName(), role.getRoleName());
+        assertEquals(fromDb.getRoleValue(), role.getRoleValue());
         assertEquals(fromDb.getApplicationName(), role.getApplicationName());
-        assertEquals(fromDb.getOrganizationName(), role.getOrganizationName());
+        assertEquals(fromDb.getOrgName(), role.getOrgName());
     }
 }
