@@ -2,7 +2,7 @@ package net.whydah.identity.health;
 
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.role.UserPropertyAndRoleDao;
+import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +18,14 @@ public class HealthCheckService {
     static final String USERADMIN_UID = "useradmin";    //uid of user which should always exist
     private static final Logger log = LoggerFactory.getLogger(HealthCheckService.class);
     private final UserIdentityService identityService;
-    private final UserPropertyAndRoleDao userPropertyAndRoleDao;
+    private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private long intrusionsDetected = 0;
     private long anonymousIntrsionsDetected = 0;
 
     @Autowired
-    public HealthCheckService(UserIdentityService identityService, UserPropertyAndRoleDao userPropertyAndRoleDao) {
+    public HealthCheckService(UserIdentityService identityService, UserApplicationRoleEntryDao userApplicationRoleEntryDao) {
         this.identityService = identityService;
-        this.userPropertyAndRoleDao = userPropertyAndRoleDao;
+        this.userApplicationRoleEntryDao = userApplicationRoleEntryDao;
     }
 
 
@@ -67,7 +67,7 @@ public class HealthCheckService {
 
 
     private boolean atLeastOneRoleInDatabase() {
-        return userPropertyAndRoleDao.countUserRolesInDB() > 0;
+        return userApplicationRoleEntryDao.countUserRolesInDB() > 0;
     }
 
     public void addIntrusionAnonymous() {

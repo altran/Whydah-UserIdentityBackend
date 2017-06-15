@@ -21,12 +21,12 @@ import java.util.UUID;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-01-18
  */
 @Repository
-public class UserPropertyAndRoleDao {
-    private static final Logger log = LoggerFactory.getLogger(UserPropertyAndRoleDao.class);
+public class UserApplicationRoleEntryDao {
+    private static final Logger log = LoggerFactory.getLogger(UserApplicationRoleEntryDao.class);
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserPropertyAndRoleDao(DataSource dataSource) {
+    public UserApplicationRoleEntryDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

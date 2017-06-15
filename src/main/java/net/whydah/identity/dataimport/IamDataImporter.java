@@ -4,7 +4,7 @@ import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.role.UserPropertyAndRoleDao;
+import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
@@ -25,7 +25,7 @@ public class IamDataImporter {
     private final QueryRunner queryRunner;
     private final LdapUserIdentityDao ldapUserIdentityDao;
     private final String luceneDir;
-    private final UserPropertyAndRoleDao userPropertyAndRoleDao;
+    private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private final ConstrettoConfiguration configuration;
 
 
@@ -45,7 +45,7 @@ public class IamDataImporter {
         FileUtils.deleteDirectory(new File(luceneDir));
 
 
-        this.userPropertyAndRoleDao = new UserPropertyAndRoleDao(dataSource);
+        this.userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
 
         /*
         this.applicationsImportSource = AppConfig.appConfig.getProperty("import.applicationssource");
@@ -110,7 +110,7 @@ public class IamDataImporter {
             //luceneUserIndexer.closeIndexer();
 
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
-            new RoleMappingImporter(userPropertyAndRoleDao).importRoleMapping(rmis);
+            new RoleMappingImporter(userApplicationRoleEntryDao).importRoleMapping(rmis);
         } finally {
             FileUtils.close(ais);
             FileUtils.close(ois);
@@ -173,7 +173,8 @@ public class IamDataImporter {
     LdapUserIdentityDao getLdapUserIdentityDao() {
         return ldapUserIdentityDao;
     }
-    UserPropertyAndRoleDao getUserPropertyAndRoleDao() {
-        return userPropertyAndRoleDao;
+
+    UserApplicationRoleEntryDao getUserApplicationRoleEntryDao() {
+        return userApplicationRoleEntryDao;
     }
 }

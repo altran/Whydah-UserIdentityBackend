@@ -1,7 +1,7 @@
 package net.whydah.identity.dataimport;
 
+import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.role.UserPropertyAndRole;
-import net.whydah.identity.user.role.UserPropertyAndRoleDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +24,10 @@ public class RoleMappingImporter {
 	private static final int ROLEVALUE = 5;
 
 
-    private UserPropertyAndRoleDao userPropertyAndRoleDao;
-    
-	public RoleMappingImporter(UserPropertyAndRoleDao userPropertyAndRoleDao) {
-		this.userPropertyAndRoleDao = userPropertyAndRoleDao;
+	private UserApplicationRoleEntryDao userApplicationRoleEntryDao;
+
+	public RoleMappingImporter(UserApplicationRoleEntryDao userApplicationRoleEntryDao) {
+		this.userApplicationRoleEntryDao = userApplicationRoleEntryDao;
 	}
 
     public void importRoleMapping(InputStream roleMappingSource) {
@@ -92,8 +92,8 @@ public class RoleMappingImporter {
 
     private void saveRoleMapping(List<UserPropertyAndRole> roles) {
         for (UserPropertyAndRole userPropertyAndRole : roles) {
-            //userPropertyAndRoleDao.addUserPropertyAndRole(userPropertyAndRole);
-            userPropertyAndRoleDao.addUserPropertyAndRole(userPropertyAndRole);
-        }
+			//userApplicationRoleEntryDao.addUserPropertyAndRole(userPropertyAndRole);
+			userApplicationRoleEntryDao.addUserPropertyAndRole(userPropertyAndRole);
+		}
     }
 }
