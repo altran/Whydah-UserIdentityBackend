@@ -7,7 +7,7 @@ import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,14 +128,14 @@ public class PasswordResource2 {
             try {
                 authenticated = userIdentityService.authenticateWithChangePasswordToken(username, changePasswordToken);
 
-                RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
+                UserApplicationRoleEntry pwRole = new UserApplicationRoleEntry();
                 pwRole.setApplicationId(PW_APPLICATION_ID);  //UAS
                 pwRole.setApplicationName(PW_APPLICATION_NAME);
-                pwRole.setOrganizationName(PW_ORG_NAME);
-                pwRole.setApplicationRoleName(PW_ROLE_NAME);
-                pwRole.setApplicationRoleValue(PW_ROLE_VALUE);
+                pwRole.setOrgName(PW_ORG_NAME);
+                pwRole.setRoleName(PW_ROLE_NAME);
+                pwRole.setRoleValue(PW_ROLE_VALUE);
 
-                UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(uid, pwRole);
+                UserApplicationRoleEntry updatedRole = userAggregateService.addUserApplicationRoleEntryIfNotExist(uid, pwRole);
 
             } catch (RuntimeException re) {
                 log.info("changePasswordForUser-RuntimeException username={}, message={}", username, re.getMessage(), re);
@@ -169,11 +169,11 @@ public class PasswordResource2 {
             LDAPUserIdentity user = userIdentityService.getUserIdentity(username);
 
             if (user != null) {
-                List<UserPropertyAndRole> roles = userAggregateService.getRoles(user.getUid());
-                for (UserPropertyAndRole role : roles) {
-                    log.info("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getApplicationRoleName(), role.getApplicationRoleValue());
-                    if (role.getApplicationRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
-                        if (role.getApplicationRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {  // Found a true value
+                List<UserApplicationRoleEntry> roles = userAggregateService.getUserApplicationRoleEntries(user.getUid());
+                for (UserApplicationRoleEntry role : roles) {
+                    log.info("Checking role: getApplicationId():{}, getApplicationName(){}, getApplicationRoleName(){}, getApplicationRoleValue(){} against 2212, UserAdminService, PW_SET, true ", role.getApplicationId(), role.getApplicationName(), role.getRoleName(), role.getRoleValue());
+                    if (role.getRoleName().equalsIgnoreCase(PW_ROLE_NAME)) {
+                        if (role.getRoleValue().equalsIgnoreCase(PW_ROLE_VALUE)) {  // Found a true value
                             log.info("password_login_enabled true for uid={}", username);
                             return Response.ok().entity(Boolean.toString(true)).build();
                         }

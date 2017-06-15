@@ -6,7 +6,6 @@ import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.security.Authentication;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.resource.RoleRepresentationRequest;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.user.search.LuceneUserIndexer;
@@ -188,15 +187,15 @@ public class UserAggregateService {
         return addRole(uid, role);
     }
 
-    @Deprecated
-    public UserPropertyAndRole addRoleIfNotExist(String uid, RoleRepresentationRequest request) {
-        UserPropertyAndRole role = new UserPropertyAndRole();
-        role.setUid(uid);
+
+    public UserApplicationRoleEntry addUserApplicationRoleEntryIfNotExist(String uid, UserApplicationRoleEntry request) {
+        UserApplicationRoleEntry role = new UserApplicationRoleEntry();
+        role.setId(uid);
         role.setApplicationId(request.getApplicationId());
         role.setApplicationName(request.getApplicationName());
-        role.setOrganizationName(request.getOrganizationName());
-        role.setApplicationRoleName(request.getApplicationRoleName());
-        role.setApplicationRoleValue(request.getApplicationRoleValue());
+        role.setOrgName(request.getOrgName());
+        role.setRoleName(request.getRoleName());
+        role.setRoleValue(request.getRoleValue());
 
         return addRoleIfNotExist(uid, role);
     }
@@ -261,17 +260,6 @@ public class UserAggregateService {
         return role;
     }
 
-    @Deprecated
-    public UserPropertyAndRole addRoleIfNotExist(String uid, UserPropertyAndRole role) {
-        if (userApplicationRoleEntryDao.hasRole(uid, role)) {
-            return role;
-        }
-        role.setUid(uid);
-        userApplicationRoleEntryDao.addUserPropertyAndRole(role);
-        String value = "uid=" + uid + ", appid=" + role.getApplicationId() + ", role=" + role.getApplicationRoleName();
-        audit(ActionPerformed.ADDED, "role", value);
-        return role;
-    }
 
     public UserApplicationRoleEntry addRoleIfNotExist(String uid, UserApplicationRoleEntry role) {
         if (userApplicationRoleEntryDao.hasRole(uid, role)) {
@@ -299,22 +287,6 @@ public class UserAggregateService {
         return role;
     }
 
-    @Deprecated
-    public List<UserPropertyAndRole> getRoles(String uid) {
-        return getUserPropertyAndRoles(uid);
-    }
-
-
-    public List<UserPropertyAndRole> getUserPropertyAndRoles(String uid) {
-        List<UserPropertyAndRole> roles = userApplicationRoleEntryDao.getUserPropertyAndRoles(uid);
-        for (UserPropertyAndRole role : roles) {
-            Application application = applicationDao.getApplication(role.getApplicationId());
-            if (application != null) {
-                role.setApplicationName(application.getName());
-            }
-        }
-        return roles;
-    }
 
     public List<UserApplicationRoleEntry> getUserApplicationRoleEntries(String uid) {
         List<UserApplicationRoleEntry> roles = userApplicationRoleEntryDao.getUserApplicationRoleEntries(uid);

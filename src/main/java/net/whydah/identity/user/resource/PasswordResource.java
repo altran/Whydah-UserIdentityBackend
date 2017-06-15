@@ -5,7 +5,7 @@ import net.whydah.identity.config.PasswordBlacklist;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
-import net.whydah.identity.user.role.UserPropertyAndRole;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -134,14 +134,14 @@ public class PasswordResource {
 
                 }
                 userIdentityService.changePassword(username, user.getUid(), newpassword);
-                RoleRepresentationRequest pwRole = new RoleRepresentationRequest();
+                UserApplicationRoleEntry pwRole = new UserApplicationRoleEntry();
                 pwRole.setApplicationId(PasswordResource2.PW_APPLICATION_ID);  //UAS
                 pwRole.setApplicationName(PasswordResource2.PW_APPLICATION_NAME);
-                pwRole.setOrganizationName(PasswordResource2.PW_ORG_NAME);
-                pwRole.setApplicationRoleName(PasswordResource2.PW_ROLE_NAME);
-                pwRole.setApplicationRoleValue(PasswordResource2.PW_ROLE_VALUE);
+                pwRole.setOrgName(PasswordResource2.PW_ORG_NAME);
+                pwRole.setRoleName(PasswordResource2.PW_ROLE_NAME);
+                pwRole.setRoleValue(PasswordResource2.PW_ROLE_VALUE);
 
-                UserPropertyAndRole updatedRole = userAggregateService.addRoleIfNotExist(user.getUid(), pwRole);
+                UserApplicationRoleEntry updatedRole = userAggregateService.addRoleIfNotExist(user.getUid(), pwRole);
 
                 
                 ObjectMapper mapper = new ObjectMapper();

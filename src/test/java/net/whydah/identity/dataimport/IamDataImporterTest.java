@@ -5,12 +5,14 @@ import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
-import net.whydah.identity.user.UIBUserAggregate;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
-import net.whydah.identity.user.role.UserPropertyAndRole;
 import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.user.mappers.UserAggregateMapper;
+import net.whydah.sso.user.mappers.UserIdentityMapper;
+import net.whydah.sso.user.types.UserAggregate;
+import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -98,21 +100,23 @@ public class IamDataImporterTest {
                 applicationService, null, null);
 
 
-        UIBUserAggregate userAggregate2 = new UIBUserAggregate(erikdUserIdentity, userAggregateService.getUserPropertyAndRoles(erikdUserIdentity.getUid()));
-        
-        List<UserPropertyAndRole> propsAndRoles2 = userAggregate2.getRoles();
+        UserAggregate userAggregate2 = UserAggregateMapper.fromUserIdentityJson(UserIdentityMapper.toJson(erikdUserIdentity));
+        List<UserApplicationRoleEntry> userApplicationRoleEntries = userAggregateService.getUserApplicationRoleEntries(erikdUserIdentity.getUid());
+        userAggregate2.setRoleList(userApplicationRoleEntries);
+
+        List<UserApplicationRoleEntry> propsAndRoles2 = userAggregate2.getRoleList();
         assertEquals(1, propsAndRoles2.size());
         assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Capra Consulting", "WhydahUserAdmin", "70"));
     }
 
-    private boolean containsRoleMapping(List<UserPropertyAndRole> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {
-        for (UserPropertyAndRole role : propsAndRoles) {
+    private boolean containsRoleMapping(List<UserApplicationRoleEntry> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {
+        for (UserApplicationRoleEntry role : propsAndRoles) {
             if (role.getApplicationId().equals(appId) &&
-			   role.getApplicationName().equals(appName) && 
-			   role.getOrganizationName().equals(orgName) && 
-			   role.getApplicationRoleName().equals(roleName) &&
-                    role.getApplicationRoleValue().equals(roleValue) &&
-                    role.getUid().equals(uid)) {
+			   role.getApplicationName().equals(appName) &&
+                    role.getOrgName().equals(orgName) &&
+                    role.getRoleName().equals(roleName) &&
+                    role.getRoleValue().equals(roleValue) &&
+                    role.getUserId().equals(uid)) {
                 return true;
 			}
 		}
