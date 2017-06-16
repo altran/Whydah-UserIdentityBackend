@@ -239,13 +239,7 @@ public class UserResource {
 
         List<UserApplicationRoleEntry> roles = userAggregateService.getUserApplicationRoleEntries(uid);
 
-        String json;
-        try {
-            json = mapper.writeValueAsString(roles);
-        } catch (IOException e) {
-            log.error("Error converting List<UserPropertyAndRole> to json. ", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+        String json = UserRoleMapper.toJson(roles);
         return Response.ok(json).build();
     }
 
@@ -261,13 +255,7 @@ public class UserResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        String json;
-        try {
-            json = mapper.writeValueAsString(role);
-        } catch (IOException e) {
-            log.error("Error converting to json. {}", role.toString(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+        String json = UserRoleMapper.toJson(role);
         return Response.ok(json).build();
     }
 
@@ -278,23 +266,12 @@ public class UserResource {
     public Response updateRole(@PathParam("uid") String uid, @PathParam("roleid") String roleid, String roleJson) {
         log.trace("updateRole, uid={}, roleid={}", uid, roleid);
 
-        UserApplicationRoleEntry role;
-        try {
-            role = mapper.readValue(roleJson, UserApplicationRoleEntry.class);
-        } catch (IOException e) {
-            log.error("updateRole, invalid json. roleJson={}", roleJson, e);
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        UserApplicationRoleEntry role = UserRoleMapper.fromJson(roleJson);
 
         try {
-            String json;
+
             UserApplicationRoleEntry updatedRole = userAggregateService.updateRole(uid, roleid, role);
-            try {
-                json = mapper.writeValueAsString(updatedRole);
-            } catch (IOException e) {
-                log.error("Error converting to json. {}", updatedRole.toString(), e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
+            String json= UserRoleMapper.toJson(updatedRole);
             return Response.ok(json).build();
         } catch (NonExistentRoleException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
