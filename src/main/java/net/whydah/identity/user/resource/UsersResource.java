@@ -2,6 +2,9 @@ package net.whydah.identity.user.resource;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.search.PaginatedUserAggregateDataList;
 import net.whydah.identity.user.search.PaginatedUserIdentityDataList;
@@ -11,6 +14,7 @@ import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
@@ -18,11 +22,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.naming.NamingException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -127,20 +133,19 @@ public class UsersResource {
     @Path("/checkduplicates")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDuplicateUsers(String json) throws JsonProcessingException, IOException {
+    public Response getDuplicateUsers(String json) throws JsonProcessingException, IOException, NamingException {
         log.trace("getDuplicateUsers");
-        String resData = "";
-        //parse json
-        List<UserAggregate> importList = UserAggregateMapper.getFromJson(json);
-        List<String> duplicates = new ArrayList<String>();
-        for(UserAggregate ua : importList){
-
-            UserIdentity uibua = userAggregateService.getUserIdentityByUsernameOrUid(ua.getUsername());
-            if(uibua!=null){
-        		duplicates.add(UserIdentityMapper.toJson(ua));
-        	}
-        }
-        return Response.ok("[" + (duplicates.size()>0 ? StringUtils.join(duplicates, ','):"") + "]").build();
+      
+        ObjectMapper mapper = new ObjectMapper();
+		List<String> list = mapper.readValue(json, new TypeReference<ArrayList<String>>() {});
+		List<String> returnedList = new ArrayList<String>(); 
+		for(String username : list){
+			if(userSearch.isUserIdentityIfExists(username)){
+				returnedList.add("\"" + username + "\"");	
+	        }
+		}
+		
+        return Response.ok("[" + (returnedList.size()>0 ? StringUtils.join(returnedList, ','):"") + "]").build();
     }
     
 }

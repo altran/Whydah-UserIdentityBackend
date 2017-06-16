@@ -2,12 +2,14 @@ package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.flexible.standard.builders.FieldQueryNodeBuilder;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
@@ -33,6 +35,97 @@ public class LuceneUserSearch {
         this.index = index;
     }
 
+    public boolean usernameExists(String username) {
+        String wildCardQuery = username;
+        String[] fields = {
+                LuceneUserIndexer.FIELD_USERNAME,
+        };
+        HashMap<String, Float> boosts = new HashMap<>();
+        boosts.put(LuceneUserIndexer.FIELD_USERNAME, 1.5f);
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(fields, ANALYZER, boosts);
+        multiFieldQueryParser.setAllowLeadingWildcard(true);
+        Query q;
+        try {
+            q = multiFieldQueryParser.parse(wildCardQuery);
+        } catch (ParseException e) {
+            logger.error("Could not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
+            return false;
+        }
+        DirectoryReader directoryReader = null;
+        try {
+            directoryReader = DirectoryReader.open(index);
+            IndexSearcher searcher = new IndexSearcher(directoryReader);
+            TopDocs topDocs = searcher.search(q, 1);
+            if (topDocs.totalHits>0){
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("Error when searching.", e);
+        } finally {
+            if (directoryReader != null) {
+                try {
+                    directoryReader.close();
+                } catch (IOException e) {
+                    logger.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
+        }
+        return false;
+    }
+    
+    public UserIdentity getUserIdentityIfExists(String username) {
+        String wildCardQuery = username;
+        String[] fields = {
+                LuceneUserIndexer.FIELD_USERNAME,
+        };
+        HashMap<String, Float> boosts = new HashMap<>();
+        boosts.put(LuceneUserIndexer.FIELD_USERNAME, 1.5f);
+        MultiFieldQueryParser multiFieldQueryParser = new MultiFieldQueryParser(fields, ANALYZER, boosts);
+        multiFieldQueryParser.setAllowLeadingWildcard(true);
+        Query q;
+        try {
+            q = multiFieldQueryParser.parse(wildCardQuery);
+        } catch (ParseException e) {
+            logger.error("Could not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
+            return null;
+        }
+        DirectoryReader directoryReader = null;
+        try {
+            directoryReader = DirectoryReader.open(index);
+            IndexSearcher searcher = new IndexSearcher(directoryReader);
+            TopDocs topDocs = searcher.search(q, 1);
+            if (topDocs.totalHits>0){
+            	
+            	 for (ScoreDoc hit : topDocs.scoreDocs) {
+                     int docId = hit.doc;
+                     Document d = searcher.doc(docId);
+                     LDAPUserIdentity user = new LDAPUserIdentity();
+                     user.setFirstName(d.get(LuceneUserIndexer.FIELD_FIRSTNAME));
+                     user.setLastName(d.get(LuceneUserIndexer.FIELD_LASTNAME));
+                     user.setUid(d.get(LuceneUserIndexer.FIELD_UID));
+                     user.setUsername(d.get(LuceneUserIndexer.FIELD_USERNAME));
+                     user.setPersonRef(d.get(LuceneUserIndexer.FIELD_PERSONREF));
+                     user.setCellPhone(d.get(LuceneUserIndexer.FIELD_MOBILE));
+                     user.setEmail(d.get(LuceneUserIndexer.FIELD_EMAIL));
+                     return user;
+                 }
+            	 
+            }
+        } catch (IOException e) {
+            logger.error("Error when searching.", e);
+        } finally {
+            if (directoryReader != null) {
+                try {
+                    directoryReader.close();
+                } catch (IOException e) {
+                    logger.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    
     public List<UserIdentity> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         String[] fields = {
