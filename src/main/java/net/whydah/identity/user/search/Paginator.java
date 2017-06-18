@@ -2,9 +2,9 @@ package net.whydah.identity.user.search;
 
 
 public class Paginator {
- 
-	static int pageSize = 1000;
-	
+
+    static int pageSize = LuceneUserSearch.MAX_HITS;
+
     public static ArrayLocation calculateArrayLocation(int totalHits, int pageNumber) {
         ArrayLocation al = new ArrayLocation();
  
