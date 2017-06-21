@@ -22,7 +22,7 @@ public class CommandLdapSearch extends HystrixCommand<SearchResult> {
     private final SearchControls constraints;
 
     public CommandLdapSearch(DirContext context, String baseDN, String filter, SearchControls constraints) {
-        super(HystrixCommandGroupKey.Factory.asKey("LDAP-calls"));
+        super(HystrixCommandGroupKey.Factory.asKey("LDAP-search"), null, 3000);
         this.context = context;
         this.baseDN = baseDN;
         this.filter = filter;
