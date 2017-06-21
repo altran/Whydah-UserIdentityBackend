@@ -23,7 +23,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Indexer for adding users to the index.
@@ -38,6 +43,8 @@ public class LuceneUserIndexer {
     public static final String FIELD_PERSONREF = "personref";
     public static final String FIELD_MOBILE = "mobile";
     public static final String FIELD_FULLJSON = "fulljson";
+    private static boolean isRunning = false;
+
 
     public static final Version LUCENE_VERSION = Version.LUCENE_4_10_4;
     protected static final Analyzer ANALYZER = new StandardAnalyzer();
@@ -51,6 +58,9 @@ public class LuceneUserIndexer {
 
     private static IndexWriter indexWriter;
 
+    private static List<UserIdentity> toUserIdentityIndexStack = new LinkedList<>();
+    private static List<UserAggregate> toUserAggreggateIndexStack = new LinkedList<>();
+
 
     @Autowired
     public LuceneUserIndexer(Directory myindex) {
@@ -61,6 +71,7 @@ public class LuceneUserIndexer {
 
         index = myindex;
         verifyWriter();
+        startProcessWorker();
 
     }
 
@@ -77,6 +88,11 @@ public class LuceneUserIndexer {
     }
 
     public void addToIndex(UserIdentity user) {
+
+        if (isRunning == true) {
+            toUserIdentityIndexStack.add(user);
+            return;
+        }
         try {
             getWriter();
             Document doc = createLuceneDocument(user);
@@ -90,6 +106,7 @@ public class LuceneUserIndexer {
 
     public void addToUserAggregateIndex(UserAggregate userAggregate) {
         try {
+            //toUserAggreggateIndexStack(userAggregate);
             getWriter();
             Document doc = createLuceneDocument(userAggregate);
             indexWriter.addDocument(doc);
@@ -101,7 +118,7 @@ public class LuceneUserIndexer {
     }
 
 
-    public void addToIndex(List<UserIdentity> users) throws IOException {
+    public void addToIndex(List<UserIdentity> users) {
         try {
             getWriter();
             for (UserIdentity user : users) {
@@ -112,10 +129,14 @@ public class LuceneUserIndexer {
                     log.error("addToIndex failed for {}. User was not added to lucene index.", user.toString(), e);
                 }
             }
+        } catch (IOException e) {
+            log.error("addToIndex exception", e);
+
         } finally {
             closeWriter();
             //indexWriter=null;
         }
+
     }
 
 
@@ -311,4 +332,33 @@ public class LuceneUserIndexer {
         }
 
     }
+
+    public void indexFromQueue() {
+        List<UserIdentity> userIdentityList = toUserIdentityIndexStack.subList(0, toUserIdentityIndexStack.size());
+        toUserAggreggateIndexStack = new LinkedList<>();
+        addToIndex(userIdentityList);
+    }
+
+
+    public void startProcessWorker() {
+        if (!isRunning) {
+
+            ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
+            //schedule to run after sometime
+            log.debug("startProcessWorker - Current Time = " + new Date());
+            try {
+                Thread.sleep(1000);  // Do not start too early...
+                scheduledThreadPool.scheduleWithFixedDelay(new Runnable() {
+                    public void run() {
+                        indexFromQueue();
+                    }
+                }, 0, 5, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.error("Error or interrupted trying to process dataflow from Proactor", e);
+                isRunning = false;
+            }
+
+        }
+    }
+
 }
