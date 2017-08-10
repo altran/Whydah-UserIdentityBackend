@@ -139,8 +139,8 @@ public class LuceneApplicationIndexer {
 
         Document doc = new Document();
         doc.add(new Field(FIELD_APPLICATIONID, application.getId(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
-        doc.add(new Field(FIELD_FULLJSON, ApplicationMapper.toJson(application), ftNotTokenized));
-        doc.add(new Field(FIELD_FULLSEARCH, ApplicationMapper.toPrettyJson(application), ftNotTokenized));
+        doc.add(new Field(FIELD_FULLJSON, ApplicationMapper.toJson(application), ftTokenized));
+        doc.add(new Field(FIELD_FULLSEARCH, ApplicationMapper.toPrettyJson(application), ftTokenized));
         return doc;
     }
 
