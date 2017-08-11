@@ -128,9 +128,10 @@ public class LuceneApplicationIndexer {
     private Document createLuceneDocument(Application application) {
         FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
         ftNotTokenized.setTokenized(false);
+        ftNotTokenized.setIndexed(false);
 
         FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
-        ftTokenized.setTokenized(false);
+        ftTokenized.setTokenized(true);
 
         FieldType ftNotIndexed = new FieldType(StringField.TYPE_STORED);
         ftNotIndexed.setIndexed(false);
@@ -138,8 +139,8 @@ public class LuceneApplicationIndexer {
 
         Document doc = new Document();
         doc.add(new Field(FIELD_APPLICATIONID, application.getId(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
-        doc.add(new Field(FIELD_FULLJSON, ApplicationMapper.toJson(application), ftNotIndexed));
-        doc.add(new Field(FIELD_FULLSEARCH, ApplicationMapper.toPrettyJson(application), ftNotIndexed));
+        doc.add(new Field(FIELD_FULLJSON, ApplicationMapper.toJson(application), ftNotTokenized));
+        doc.add(new Field(FIELD_FULLSEARCH, ApplicationMapper.toPrettyJson(application), ftTokenized));
         return doc;
     }
 
