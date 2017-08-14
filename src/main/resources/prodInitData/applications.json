@@ -154,7 +154,7 @@
     "company" : "Cantara",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/uib/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "WhydahAdministrator"
@@ -204,7 +204,7 @@
     "company" : "Cantara",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/sts/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "User"
@@ -248,7 +248,7 @@
     "company" : "Cantara",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/uas/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "User"
@@ -290,7 +290,7 @@
     "company" : "Cantara",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/sso/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "SSOApplication"
@@ -331,7 +331,7 @@
     "company" : "Cantara",
     "tags" : "JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/useradmin/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "WhydahAdministrator"
@@ -381,7 +381,7 @@
     "company" : "Cantara",
     "tags" : "JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/reporter/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "roleId1",
       "name" : "Whydah-StatisticsService-user"
@@ -418,7 +418,7 @@
     "company" : "Cantara",
     "tags" : "JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/crm/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "roleId1",
       "name" : "Whydah-CRMService-user"
@@ -456,7 +456,7 @@
     "company" : "Teknologihuset",
     "tags" : "JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/test/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "roleId1",
       "name" : "Whydah-TestWebApplication-user"
@@ -534,7 +534,7 @@
     "company" : "Cantara",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/uas/",
-    "logoUrl": "https://whydahdev.cantara.no/useradmin/img/whydah.png",
+    "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [{
       "id" : "why101",
       "name" : "User"
