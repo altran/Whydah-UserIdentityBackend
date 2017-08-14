@@ -6,7 +6,7 @@
     "company" : "Norway AS",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
     "applicationUrl": null,
-    "logoUrl": null,
+    "logoUrl": "https://www.theregister.co.uk/Design/graphics/icons/vulture_black_60_trans.png",
     "roles": [{
       "id" : "acs101",
       "name" : "Employee"
@@ -52,7 +52,7 @@
     "company" : "Norway AS",
     "tags" : "JURISDICTION_NORWAY",
     "applicationUrl": null,
-    "logoUrl": null,
+    "logoUrl": "https://www.theregister.co.uk/Design/graphics/icons/vulture_black_60_trans.png",
     "roles": [{
       "id" : "acs101",
       "name" : "Employee"
@@ -494,7 +494,7 @@
     "company" : "Auke AS",
     "tags" : "SECURE CHAT",
     "applicationUrl": null,
-    "logoUrl": null,
+    "logoUrl": "https://www.theregister.co.uk/Design/graphics/icons/vulture_black_60_trans.png",
     "roles": [{
       "id" : "roleId1",
       "name" : "roleName1"
