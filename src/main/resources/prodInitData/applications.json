@@ -95,6 +95,59 @@
     }]
   },
   {
+    "id": "402222",
+    "name": "Whydah-OAuth2Service",
+    "description": "Proxy for OAuth2 requests.",
+    "company": "Cantara",
+    "tags": "HIDDEN, JURISDICTION_NORWAY",
+    "applicationUrl": "https://whydahdev.cantara.no/oauth2",
+    "logoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7vDCWeE45Z9Oor3SKgp5c8FaOK_uNr8cQ9RIgqV9V3PdymGjX",
+    "roles": [
+      {
+        "id": "whydah-admin",
+        "name": "whydah-admin"
+      },
+      {
+        "id": "read",
+        "name": "read"
+      }
+    ],
+    "defaultRoleName": "read",
+    "organizationNames": [
+      {
+        "id": "Whydah",
+        "name": "Whydah"
+      }
+    ],
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minimumDEFCONLevel": "DEFCON5",
+      "maxSessionTimeoutSeconds": "86400",
+      "allowedIpAddresses": [
+        "0.0.0.0/0"
+      ],
+      "userTokenFilter": true,
+      "whydahUASAccess": true,
+      "secret": "pIgWd57tLsVn8709psMpx",
+      "whydahAdmin": false
+    },
+    "acl": [
+    ],
+    "minimumApplicationDEFCON": "DEFCON5",
+    "orgs": [
+      {
+        "id": "Whydah",
+        "name": "Whydah"
+      }
+    ],
+    "secret": "pIgWd57tLsVn8709psMpx",
+    "whydahAdmin": false,
+    "whydahUASAccess": true,
+    "userTokenFilter": true,
+    "minimumDEFCONLevel": "DEFCON5"
+  },
+  {
     "id": "2210",
     "name": "Whydah-UserIdentityBackend",
     "description": "The UserIdentityBackend module of the Whydah IAM/SSO",
