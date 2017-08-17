@@ -239,9 +239,13 @@ public class SecurityFilter implements Filter {
 
     protected void notifyFailedAnonymousAttempt(HttpServletRequest servletRequest) {
         log.trace("Failed intrusion detected. Header is missing.{}", servletRequest.toString());
-        String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
-        String myApplicationTokenID = SecurityTokenServiceClient.was.getActiveApplicationTokenId();
-        new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected. Header is missing - Instant: " + WhydahUtil.getRunningSince()).queue();
+        try {
+            String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
+            String myApplicationTokenID = SecurityTokenServiceClient.was.getActiveApplicationTokenId();
+            new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected. Header is missing - Instant: " + WhydahUtil.getRunningSince()).queue();
+        } catch (Exception e) {
+            // Ignore exceptions as this is non-essential functionality
+        }
         healthCheckService.addIntrusionAnonymous();
     }
 
