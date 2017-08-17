@@ -64,6 +64,7 @@ public class HealthResource {
                 "  \"Status\": \"OK\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
                 "  \"DEFCON\": \"" + SecurityTokenServiceClient.was.getDefcon() + "\",\n" +
+                "  \"STS\": \"" + SecurityTokenServiceClient.was.getSTS() + "\",\n" +
                 "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.getActiveApplicationTokenId() != null) + "\",\n" +
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.checkActiveSession()) + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
