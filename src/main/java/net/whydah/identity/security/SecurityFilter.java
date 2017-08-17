@@ -8,7 +8,7 @@ import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.commands.threat.CommandSendThreatSignal;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
-import net.whydah.sso.util.WhydahUtil;
+import net.whydah.sso.whydah.ThreatSignal;
 import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.time.Instant;
 import java.util.regex.Pattern;
 
 /**
@@ -237,12 +238,24 @@ public class SecurityFilter implements Filter {
         return isHealthPath;
     }
 
+    private ThreatSignal createThreat(String text, HttpServletRequest request) {
+        ThreatSignal threatSignal = new ThreatSignal();
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+        }
+        threatSignal.setSource(ipAddress);
+        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName());
+        threatSignal.setInstant(Instant.now().toString());
+        return threatSignal;
+    }
+
     protected void notifyFailedAnonymousAttempt(HttpServletRequest servletRequest) {
         log.trace("Failed intrusion detected. Header is missing.{}", servletRequest.toString());
         try {
             String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
             String myApplicationTokenID = SecurityTokenServiceClient.getSecurityTokenServiceClient().getActiveUibApplicationTokenId();
-            new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected. Header is missing - Instant: " + WhydahUtil.getRunningSince()).queue();
+            new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, createThreat("notifyFailedAttempt - Failed intrusion detected. Header is missing", servletRequest)).queue();
         } catch (Exception e) {
             // Ignore exceptions as this is non-essential functionality
         }
@@ -253,7 +266,7 @@ public class SecurityFilter implements Filter {
         log.trace("Failed intrusion detected {}", request.toString());
         String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
         String myApplicationTokenID = SecurityTokenServiceClient.getSecurityTokenServiceClient().getActiveUibApplicationTokenId();
-        new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected - Instant: " + WhydahUtil.getRunningSince()).queue();
+        new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, createThreat("notifyFailedAttempt - Failed intrusion detected", request)).queue();
         healthCheckService.addIntrusion();
     }
 
