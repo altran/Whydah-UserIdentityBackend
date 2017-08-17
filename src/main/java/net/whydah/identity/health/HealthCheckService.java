@@ -54,6 +54,7 @@ public class HealthCheckService {
             log.warn("IntrusionsDetected is at max value of Long. Resetting. Count {}", intrusionsDetected);
             intrusionsDetected = 0;
         }
+
         intrusionsDetected += 1;
     }
 

@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.Properties;
 
 /**
@@ -65,10 +66,13 @@ public class HealthResource {
                 "  \"DEFCON\": \"" + SecurityTokenServiceClient.was.getDefcon() + "\",\n" +
                 "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.getActiveApplicationTokenId() != null) + "\",\n" +
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.checkActiveSession()) + "\",\n" +
+                "  \"now\": \"" + Instant.now() + "\",\n" +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"\n\n" +
                 "  \"intrusionsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
                 "  \"anonymousIntrusions\": " + healthCheckService.countAnonymousIntrusionAttempts() + "\n" +
                 "}\n";
     }
+
 
     private static String getVersion() {
         Properties mavenProperties = new Properties();

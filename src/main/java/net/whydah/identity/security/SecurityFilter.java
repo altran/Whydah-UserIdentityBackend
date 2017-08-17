@@ -5,8 +5,10 @@ import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
 import net.whydah.sso.application.types.ApplicationCredential;
+import net.whydah.sso.commands.threat.CommandSendThreatSignal;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
+import net.whydah.sso.util.WhydahUtil;
 import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
@@ -236,11 +239,17 @@ public class SecurityFilter implements Filter {
 
     protected void notifyFailedAnonymousAttempt(HttpServletRequest servletRequest) {
         log.trace("Failed intrusion detected. Header is missing.{}", servletRequest.toString());
+        String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
+        String myApplicationTokenID = SecurityTokenServiceClient.was.getActiveApplicationTokenId();
+        new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected. Header is missing - Instant: " + WhydahUtil.getRunningSince()).queue();
         healthCheckService.addIntrusionAnonymous();
     }
 
     protected void notifyFailedAttempt(HttpServletRequest request) {
         log.trace("Failed intrusion detected {}", request.toString());
+        String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
+        String myApplicationTokenID = SecurityTokenServiceClient.was.getActiveApplicationTokenId();
+        new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, "notifyFailedAttempt - Failed intrusion detected - Instant: " + WhydahUtil.getRunningSince()).queue();
         healthCheckService.addIntrusion();
     }
 
