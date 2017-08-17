@@ -241,7 +241,7 @@ public class SecurityFilter implements Filter {
     private ThreatSignal createThreat(String text, HttpServletRequest request) {
         ThreatSignal threatSignal = new ThreatSignal();
         String ipAddress = request.getHeader("X-FORWARDED-FOR");
-        if (ipAddress == null) {
+        if (ipAddress == null || ipAddress.length() < 5) {
             ipAddress = request.getRemoteAddr();
         }
         threatSignal.setSource(ipAddress);
