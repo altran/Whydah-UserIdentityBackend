@@ -246,7 +246,7 @@ public class SecurityFilter implements Filter {
         }
 
         threatSignal.setSource(ipAddress);
-        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName());
+        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [SecurityFilter]");
         threatSignal.setInstant(Instant.now().toString());
         threatSignal.setText(text + ":" + SecurityTokenServiceClient.was.getDefcon());
         return threatSignal;
