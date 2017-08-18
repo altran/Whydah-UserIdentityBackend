@@ -206,7 +206,10 @@ public class SecurityFilter implements Filter {
                 notifyFailedAttempt(servletRequest);
             }
         } else {
-            notifyFailedAnonymousAttempt(servletRequest);
+            String pathInfo = servletRequest.getPathInfo();
+            if (!isHealthPath(pathInfo)) {
+                notifyFailedAnonymousAttempt(servletRequest);
+            }
         }
 
 
@@ -217,13 +220,15 @@ public class SecurityFilter implements Filter {
             if (statusCode == null) {
                 chain.doFilter(request, response);
             } else {
+                notifyFailedAttempt(servletRequest);
                 ((HttpServletResponse) response).setStatus(statusCode);
             }
         } else {
             if (isHealthPath(pathInfo)) {
                 chain.doFilter(request, response);
             } else {
-            	log.warn("FORBIDDEN b/c isUas={}, pathInfo={}", String.valueOf(isUas), pathInfo);
+                notifyFailedAnonymousAttempt(servletRequest);
+                log.warn("FORBIDDEN b/c isUas={}, pathInfo={}", String.valueOf(isUas), pathInfo);
                 ((HttpServletResponse) response).setStatus(Response.SC_FORBIDDEN);
             }
         }
