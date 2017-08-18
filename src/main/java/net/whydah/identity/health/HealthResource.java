@@ -75,7 +75,7 @@ public class HealthResource {
     }
 
 
-    private static String getVersion() {
+    public static String getVersion() {
         Properties mavenProperties = new Properties();
         String resourcePath = "/META-INF/maven/net.whydah.identity/UserIdentityBackend/pom.properties";
         URL mavenVersionResource = HealthResource.class.getResource(resourcePath);

@@ -2,6 +2,7 @@ package net.whydah.identity.security;
 
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
+import net.whydah.identity.health.HealthResource;
 import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.application.mappers.ApplicationCredentialMapper;
 import net.whydah.sso.application.types.ApplicationCredential;
@@ -248,8 +249,10 @@ public class SecurityFilter implements Filter {
 
         threatSignal.setSource(ipAddress);
         threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [SecurityFilter:" + WhydahUtil.getMyIPAddresssesString() + "]");
+        threatSignal.setAdditionalProperty("DEFCON", SecurityTokenServiceClient.was.getDefcon());
+        threatSignal.setAdditionalProperty("Version", HealthResource.getVersion());
         threatSignal.setInstant(Instant.now().toString());
-        threatSignal.setText(text + ":" + SecurityTokenServiceClient.was.getDefcon());
+        threatSignal.setText(text);
         return threatSignal;
     }
 
