@@ -8,6 +8,7 @@ import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.commands.threat.CommandSendThreatSignal;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
+import net.whydah.sso.util.WhydahUtil;
 import net.whydah.sso.whydah.ThreatSignal;
 import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
@@ -246,7 +247,7 @@ public class SecurityFilter implements Filter {
         }
 
         threatSignal.setSource(ipAddress);
-        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [SecurityFilter]");
+        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [SecurityFilter:" + WhydahUtil.getMyIPAddresssesString() + "]");
         threatSignal.setInstant(Instant.now().toString());
         threatSignal.setText(text + ":" + SecurityTokenServiceClient.was.getDefcon());
         return threatSignal;
