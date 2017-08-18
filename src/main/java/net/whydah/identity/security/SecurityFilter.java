@@ -186,6 +186,7 @@ public class SecurityFilter implements Filter {
 
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         boolean isUas = false;
+        createThreat("test", servletRequest);
         //Enable tests to pass through.
         if (ApplicationMode.skipSecurityFilter()) {
             log.warn("Running in noSecurityFilter mode, non-authorized applications may access UIB!");
@@ -239,11 +240,12 @@ public class SecurityFilter implements Filter {
     }
 
     private ThreatSignal createThreat(String text, HttpServletRequest request) {
-        ThreatSignal threatSignal = new ThreatSignal();
+        ThreatSignal threatSignal = new ThreatSignal(text);
         String ipAddress = request.getHeader("X-FORWARDED-FOR");
         if (ipAddress == null || ipAddress.length() < 5) {
             ipAddress = request.getRemoteAddr();
         }
+        
         threatSignal.setSource(ipAddress);
         threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName());
         threatSignal.setInstant(Instant.now().toString());
