@@ -115,7 +115,7 @@ public class ApplicationDao {
             }
             log.trace("Application Json before mapper {}", first50(json));
             Application application = ApplicationMapper.fromJson(json);
-            log.info("Application after mapper {}", first50(application));
+            log.debug("Application after mapper {}", first50(application));
             return application;
         }
     }
