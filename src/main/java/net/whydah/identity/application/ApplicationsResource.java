@@ -21,6 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static net.whydah.identity.util.LoggerUtil.first50;
+
+
 @Component
 @Path("/{applicationtokenid}/")
 public class ApplicationsResource {
@@ -52,10 +55,10 @@ public class ApplicationsResource {
         try {
             List<Application> applications = applicationService.getApplications();
             if (applications != null && applications.size() > 0) {
-                log.debug("application [0] - {}",applications.get(0).toString());
+                log.trace("application [0] - {}", first50(applications.get(0).toString()));
             }
             String json = ApplicationMapper.toJson(applications);
-            log.trace("Returning {} applications: {}", applications.size(), json);
+            log.trace("Returning {} applications: {}", applications.size(), first50(json));
             return Response.ok(json).build();
         } catch (RuntimeException e) {
             log.error("getApplications failed.", e);
@@ -81,7 +84,7 @@ public class ApplicationsResource {
 //        List<Application> applications = applicationSearch.search(query);
         Application applications = applicationService.getApplication(query);
         String json = ApplicationMapper.toSafeJson(applications);
-        log.info("Returning {} applications: {}", 1, json);
+        log.info("Returning {} applications: {}", 1, first50(json));
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
     }

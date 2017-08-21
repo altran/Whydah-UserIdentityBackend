@@ -12,6 +12,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static net.whydah.identity.util.LoggerUtil.first50;
+
+
 /**
  * CRUD, http endpoint for Application
  *
@@ -65,7 +68,7 @@ public class ApplicationResource {
         try {
             Application application = applicationService.getApplication(applicationId);
             if (application != null) {
-                log.debug("application {}", application.toString());
+                log.debug("application {}", first50(application.toString()));
             }
             if (application == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
