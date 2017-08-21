@@ -28,7 +28,7 @@ public class ApplicationSearch {
             if (applications == null) {
                 applications = new ArrayList<>();
             }
-            log.debug("lucene search with query={} returned {} applications.", query, applications.size());
+            log.warn("lucene search with query={} returned {} applications.", query, applications.size());
 
             return applications;
         }

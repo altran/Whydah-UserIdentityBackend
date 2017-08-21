@@ -99,7 +99,7 @@ public class ApplicationService {
             log.warn("authenticate - Missing ApplicationCredential ");
             return null;
         }
-        List<Application> applications = applicationDao.getApplications();
+        //List<Application> applications = applicationDao.getApplications();
         Application application = applicationDao.getApplication(credential.getApplicationID().trim());
         if (application == null) {
             log.warn("authenticate - ApplicationID:{} - Not Found", credential.getApplicationID().trim());
