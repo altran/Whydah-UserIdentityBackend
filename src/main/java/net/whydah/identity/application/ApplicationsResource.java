@@ -73,6 +73,11 @@ public class ApplicationsResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.info("findApplications with query=" + query);
+
+        // todo:  f*ggly workaround to make things work before we have the applications in lucene
+        if (query.contains("*")) {
+            return getApplications();
+        }
 //        List<Application> applications = applicationSearch.search(query);
         Application applications = applicationService.getApplication(query);
         String json = ApplicationMapper.toSafeJson(applications);
