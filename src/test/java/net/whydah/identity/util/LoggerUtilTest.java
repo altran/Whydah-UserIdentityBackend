@@ -2,7 +2,7 @@ package net.whydah.identity.util;
 
 import org.junit.Test;
 
-import static net.whydah.identity.util.LoggerUtil.first50;
+import static net.whydah.sso.util.LoggerUtil.first50;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

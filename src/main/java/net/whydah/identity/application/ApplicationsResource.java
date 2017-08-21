@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static net.whydah.identity.util.LoggerUtil.first50;
+import static net.whydah.sso.util.LoggerUtil.first50;
 
 
 @Component

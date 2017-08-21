@@ -14,7 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static net.whydah.identity.util.LoggerUtil.first50;
+import static net.whydah.sso.util.LoggerUtil.first50;
+
 
 //TODO Decide strategy to handle different SQL queries for different databases. Inheritance to support variations from generic?
 /**

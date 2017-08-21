@@ -12,7 +12,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static net.whydah.identity.util.LoggerUtil.first50;
+import static net.whydah.sso.util.LoggerUtil.first50;
 
 
 /**
