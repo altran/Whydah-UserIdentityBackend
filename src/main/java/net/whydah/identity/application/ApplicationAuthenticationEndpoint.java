@@ -56,18 +56,23 @@ public class ApplicationAuthenticationEndpoint {
                                             @FormParam(UAS_APP_CREDENTIAL_XML) String uasAppCredentialXml,
                                             @FormParam(APP_CREDENTIAL_XML) String appCredentialXml) {
 
-        //verify uasAppCredentialXml
-        ApplicationCredential uasAppCredential = ApplicationCredentialMapper.fromXml(uasAppCredentialXml);
-        log.info("UAS ApplicationCredential lookup for applicationID={}",uasAppCredential.getApplicationID());
-        Application uasApplication = authenticationService.authenticate(uasAppCredential);
-        if (uasApplication == null) {
-            log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
-            return Response.status(Response.Status.FORBIDDEN).build();
+        try {
+            //verify uasAppCredentialXml
+            ApplicationCredential uasAppCredential = ApplicationCredentialMapper.fromXml(uasAppCredentialXml);
+            log.info("UAS ApplicationCredential lookup for applicationID={}", uasAppCredential.getApplicationID());
+            Application uasApplication = authenticationService.authenticate(uasAppCredential);
+            if (uasApplication == null) {
+                log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+            log.info("UAS Application Authentication ok for {}", uasApplication);
+            return Response.status(Response.Status.NO_CONTENT).build();
+
+        } catch (Exception e) {
+            //return Response.status(Response.Status.FORBIDDEN).build();
         }
+        return Response.status(Response.Status.FORBIDDEN).build();
 
-
-        log.info("UAS Application Authentication ok for {}", uasApplication);
-        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     protected void notifyFailedAttempt(String text) {

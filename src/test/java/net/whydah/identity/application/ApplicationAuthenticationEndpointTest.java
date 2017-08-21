@@ -131,13 +131,10 @@ public class ApplicationAuthenticationEndpointTest {
 
     @Test
     public void testWrongUnknownAppReturnsForbidden() throws Exception {
-        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "",UAS_APPLICATION_SECRET);
-        String uasAppCredentialXml = ApplicationCredentialMapper.toXML(uasAppCredential);
         ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "","wrongSecret");
         String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
 
         given()
-            .formParam(ApplicationAuthenticationEndpoint.UAS_APP_CREDENTIAL_XML, uasAppCredentialXml)
             .formParam(ApplicationAuthenticationEndpoint.APP_CREDENTIAL_XML, testAppAppCredentialXml)
             .contentType(ContentType.URLENC)
             .log().everything()
@@ -156,7 +153,6 @@ public class ApplicationAuthenticationEndpointTest {
         String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
         given()
             .formParam(ApplicationAuthenticationEndpoint.UAS_APP_CREDENTIAL_XML, uasAppCredentialXml)
-            .formParam(ApplicationAuthenticationEndpoint.APP_CREDENTIAL_XML, testAppAppCredentialXml)
             .contentType(ContentType.URLENC)
             .log().everything()
             .expect()
