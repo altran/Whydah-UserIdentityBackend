@@ -72,10 +72,11 @@ public class ApplicationsResource {
     @Path("/{userTokenId}/applications/find/{q}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
-        log.info("findUsers with query=" + query);
-        List<Application> applications = applicationSearch.search(query);
+        log.info("findApplications with query=" + query);
+//        List<Application> applications = applicationSearch.search(query);
+        Application applications = applicationService.getApplication(query);
         String json = ApplicationMapper.toSafeJson(applications);
-        log.info("Returning {} applications: {}", applications.size(), json);
+        log.info("Returning {} applications: {}", 1, json);
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
     }
