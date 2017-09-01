@@ -1,7 +1,7 @@
 [
   {
     "id": "100",
-    "name": "ACS",
+    "name": "Cantara ACS",
     "description": "Finn den kompetansen du trenger, når du trenger det. Lag eksklusive CV'er tillpasset leseren.",
     "company" : "Norway AS",
     "tags" : "HIDDEN, JURISDICTION_NORWAY",
@@ -46,7 +46,7 @@
   },
   {
     "id": "101",
-    "name": "ACSResource",
+    "name": "Cantara ACSResource",
     "description": "Finn den kompetansen du trenger, når du trenger det. Lag eksklusive CV'er tillpasset leseren.",
     "company" : "Norway AS",
     "tags" : "JURISDICTION_NORWAY",
