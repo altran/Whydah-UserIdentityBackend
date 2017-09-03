@@ -455,7 +455,7 @@
     "description": "The different example webapps to explain how to use/integrate with the Whydah IAM/SSO",
     "company": "Teknologihuset",
     "tags": "JURISDICTION_NORWAY",
-    "applicationUrl": "https://whydahdev.cantara.no/test/",
+    "applicationUrl": "https://whydahdev.cantara.no/test",
     "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
     "roles": [
       {
