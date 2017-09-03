@@ -453,39 +453,65 @@
     "id": "9099",
     "name": "Whydah-TestWebApplication",
     "description": "The different example webapps to explain how to use/integrate with the Whydah IAM/SSO",
-    "company" : "Teknologihuset",
-    "tags" : "JURISDICTION_NORWAY",
+    "company": "Teknologihuset",
+    "tags": "JURISDICTION_NORWAY",
     "applicationUrl": "https://whydahdev.cantara.no/test/",
     "logoUrl": "https://wiki.cantara.no/download/attachments/38962704/whydah",
-    "roles": [{
-      "id" : "roleId1",
-      "name" : "Whydah-TestWebApplication-user"
-    } ],
-    "organizationNames": [{
-      "id" : "orgId",
-      "name" : "organizationName1"
-    }, {
-      "id" : "orgidxx",
-      "name" : "defaultOrgName"
-    } ],
+    "roles": [
+      {
+        "id": "roleId1",
+        "name": "Whydah-TestWebApplication-user"
+      }
+    ],
     "defaultRoleName": "Whydah-TestWebApplication-user",
+    "organizationNames": [
+      {
+        "id": "orgId",
+        "name": "organizationName1"
+      },
+      {
+        "id": "orgidxx",
+        "name": "defaultOrgName"
+      }
+    ],
     "defaultOrganizationName": "Whydah",
     "security": {
       "minSecurityLevel": "0",
-      "minDEFCON": "DEFCON5",
+      "minimumDEFCONLevel": "DEFCON5",
       "maxSessionTimeoutSeconds": "86400",
       "allowedIpAddresses": [
         "0.0.0.0/0"
       ],
-      "userTokenFilter": "true",
+      "userTokenFilter": true,
       "whydahUASAccess": false,
-
-      "secret": "33879936R6Jr47D4Hj5R6p9qT"
+      "secret": "33879936R6Jr47D4Hj5R6p9qT",
+      "whydahAdmin": false
     },
-    "acl": [{
-      "applicationId" : "2211",
-      "applicationACLPath" : "/user"
-    }]
+    "supportedUserSessionLevels": [
+    ],
+    "acl": [
+      {
+        "applicationId": "2211",
+        "applicationACLPath": "/user",
+        "accessRights": null
+      }
+    ],
+    "minimumApplicationDEFCON": "DEFCON5",
+    "orgs": [
+      {
+        "id": "orgId",
+        "name": "organizationName1"
+      },
+      {
+        "id": "orgidxx",
+        "name": "defaultOrgName"
+      }
+    ],
+    "secret": "33879936R6Jr47D4Hj5R6p9qT",
+    "whydahAdmin": false,
+    "whydahUASAccess": false,
+    "userTokenFilter": true,
+    "minimumDEFCONLevel": "DEFCON5"
   },
   {
     "id": "9001",
