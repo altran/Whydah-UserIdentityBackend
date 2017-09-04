@@ -1,7 +1,7 @@
 UserIdentityBackend
 ===================
 
-![Build Status](http://jenkins.capraconsulting.no/buildStatus/icon?job=Whydah-UserIdentityBackend)
+![Build Status](https://jenkins.capraconsulting.no/buildStatus/icon?job=Whydah-UserIdentityBackend) 
 
 
 Stores UserIdentities and their relation to Roles, Applications and Organizations.
