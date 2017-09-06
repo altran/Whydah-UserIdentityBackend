@@ -2,6 +2,7 @@ package net.whydah.identity.user.identity;
 
 import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
+import net.whydah.identity.health.HealthResource;
 import net.whydah.identity.user.ChangePasswordToken;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
@@ -150,6 +151,8 @@ public class UserIdentityService {
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
             luceneIndexer.addToIndex(userIdentity);
+            HealthResource.setNumberOfUsers(searcher.getUserIndexSize());
+
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
         }

@@ -91,6 +91,7 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
+
         try {
             String newUserAsJson;
             newUserAsJson = mapper.writeValueAsString(userIdentity);

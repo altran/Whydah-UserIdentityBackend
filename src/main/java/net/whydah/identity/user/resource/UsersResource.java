@@ -4,7 +4,7 @@ package net.whydah.identity.user.resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import net.whydah.identity.health.HealthResource;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.search.PaginatedUserAggregateDataList;
 import net.whydah.identity.user.search.PaginatedUserIdentityDataList;
@@ -14,7 +14,6 @@ import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.server.mvc.Viewable;
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +49,7 @@ public class UsersResource {
     public UsersResource(UserSearch userSearch, UserAggregateService userAggregateService) {
         this.userSearch = userSearch;
         this.userAggregateService = userAggregateService;
+        HealthResource.setNumberOfUsers(userSearch.getUserIndexSize());
     }
 
     /**

@@ -2,14 +2,13 @@ package net.whydah.identity.user.search;
 
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.flexible.standard.builders.FieldQueryNodeBuilder;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
@@ -72,7 +71,27 @@ public class LuceneUserSearch {
         }
         return false;
     }
-    
+
+    public int getUserIndexSize() {
+        DirectoryReader directoryReader = null;
+        try {
+            IndexReader reader = IndexReader.open(index);
+            return reader.maxDoc();
+        } catch (IOException e) {
+            logger.error("Error when accessing index.", e);
+        } finally {
+            if (directoryReader != null) {
+                try {
+                    directoryReader.close();
+                } catch (IOException e) {
+                    logger.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
+        }
+        return 0;
+
+    }
+
     public UserIdentity getUserIdentityIfExists(String username) {
         String wildCardQuery = username;
         String[] fields = {

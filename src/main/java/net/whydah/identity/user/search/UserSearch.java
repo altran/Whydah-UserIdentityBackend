@@ -3,7 +3,6 @@ package net.whydah.identity.user.search;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NamingException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class UserSearch {
         this.luceneSearch = luceneSearch;
         this.luceneIndexer = luceneIndexer;
         this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
-        
+
     }
 
     public List<UserIdentity> search(String query) {
@@ -61,10 +59,10 @@ public class UserSearch {
         }
         return users;
     }
-    
+
     public UserIdentity getUserIdentityIfExists(String username) {
-        UserIdentity user = luceneSearch.getUserIdentityIfExists(username);     
-        if(user== null && alwayslookupinexternaldirectory){
+        UserIdentity user = luceneSearch.getUserIdentityIfExists(username);
+        if (user == null && alwayslookupinexternaldirectory) {
 
             try {
                 user = ldapUserIdentityDao.getUserIndentity(username); //???
@@ -74,14 +72,14 @@ public class UserSearch {
         }
         return user;
     }
-    
+
     public boolean isUserIdentityIfExists(String username) throws NamingException {
-    	boolean existing = luceneSearch.usernameExists(username);
-    	if(!existing && alwayslookupinexternaldirectory){
-    		return ldapUserIdentityDao.usernameExist(username) ;
-    	}
-    	return existing;
-    	
+        boolean existing = luceneSearch.usernameExists(username);
+        if (!existing && alwayslookupinexternaldirectory) {
+            return ldapUserIdentityDao.usernameExist(username);
+        }
+        return existing;
+
     }
 
     public PaginatedUserIdentityDataList query(int page, String query) {
@@ -106,10 +104,14 @@ public class UserSearch {
             } catch (NamingException e) {
                 log.warn("Could not find users from ldap/AD. Query: {}", query, e);
             }
-            
-            paginatedDL.data =  users;
+
+            paginatedDL.data = users;
         }
-       
+
         return paginatedDL;
+    }
+
+    public int getUserIndexSize() {
+        return luceneSearch.getUserIndexSize();
     }
 }

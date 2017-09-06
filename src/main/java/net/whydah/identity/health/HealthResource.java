@@ -27,6 +27,9 @@ public class HealthResource {
     private final HealthCheckService healthCheckService;
     private static SecurityTokenServiceClient securityTokenServiceClient;
 
+
+    private static long numberOfUsers = 0;
+
     @Autowired
     public HealthResource(SecurityTokenServiceClient securityTokenHelper, HealthCheckService healthCheckService) {
         this.securityTokenServiceClient = securityTokenHelper;
@@ -67,6 +70,7 @@ public class HealthResource {
                 "  \"STS\": \"" + SecurityTokenServiceClient.was.getSTS() + "\",\n" +
                 "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.getActiveApplicationTokenId() != null) + "\",\n" +
                 "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.checkActiveSession()) + "\",\n" +
+                "  \"users\": \"" + numberOfUsers + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
                 "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"\n\n" +
                 "  \"intrusionsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
@@ -88,6 +92,14 @@ public class HealthResource {
             }
         }
         return "(DEV VERSION)";
+    }
+
+    public static long getNumberOfUsers() {
+        return numberOfUsers;
+    }
+
+    public static void setNumberOfUsers(long numberOfUsers) {
+        HealthResource.numberOfUsers = numberOfUsers;
     }
 
 }
