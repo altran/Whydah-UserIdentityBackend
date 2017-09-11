@@ -367,7 +367,7 @@ public class LuceneUserIndexer {
                     }
                 }, 0, 5, TimeUnit.SECONDS);
             } catch (Exception e) {
-                log.error("Error or interrupted trying to process dataflow from Proactor", e);
+                log.error("Error or interrupted trying to process dataflow ", e);
                 isRunning = false;
             }
 
