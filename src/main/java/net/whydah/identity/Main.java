@@ -92,13 +92,13 @@ public class Main {
 
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
-            String luceneDirectory = configuration.evaluateToString("lucene.directory");
+            String luceneUsersDirectory = configuration.evaluateToString("lucene.usersdirectory");
             String luceneApplicationDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
 
             if (importEnabled) {
-                FileUtils.deleteDirectories(roleDBDirectory, luceneDirectory,luceneApplicationDirectory);
+                FileUtils.deleteDirectories(roleDBDirectory, luceneUsersDirectory, luceneApplicationDirectory);
             }
-            FileUtils.createDirectory(luceneDirectory);
+            FileUtils.createDirectory(luceneUsersDirectory);
             FileUtils.createDirectory(luceneApplicationDirectory);
 
             if (embeddedDSEnabled) {
@@ -179,6 +179,7 @@ public class Main {
     }
 
     public void start()  {
+
         WebAppContext webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
         webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");

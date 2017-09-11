@@ -1,7 +1,5 @@
-package net.whydah.identity.user.search;
+package net.whydah.identity.application.search;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.application.search.LuceneApplicationSearch;
 import net.whydah.sso.application.helpers.ApplicationHelper;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
@@ -39,7 +37,20 @@ public class LuceneApplicationSearchTest {
     }
 
 
+    @Test
+    public void testWildcardSearch() throws Exception {
+        Directory index = new RAMDirectory();
+        addApplications(index);
 
+        LuceneApplicationSearch luceneSearch = new LuceneApplicationSearch(index);
+        List<Application> result = luceneSearch.search("Whydah");
+        assertEquals(9, result.size());
+        result = luceneSearch.search("ACS");
+        assertEquals(2, result.size());
+        result = luceneSearch.search("SecurityTokenService");
+        assertEquals(1, result.size());
+
+    }
 
     private LuceneApplicationIndexer addApplications(Directory index) throws IOException {
         LuceneApplicationIndexer luceneIndexer = new LuceneApplicationIndexer(index);

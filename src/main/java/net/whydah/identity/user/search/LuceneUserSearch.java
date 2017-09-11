@@ -14,6 +14,7 @@ import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,8 +31,8 @@ public class LuceneUserSearch {
 
 
     @Autowired
-    public LuceneUserSearch(Directory index) {
-        this.index = index;
+    public LuceneUserSearch(@Qualifier Directory luceneUserDirectory) {
+        this.index = luceneUserDirectory;
     }
 
     public boolean usernameExists(String username) {

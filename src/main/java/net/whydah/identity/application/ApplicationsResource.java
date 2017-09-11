@@ -41,9 +41,9 @@ public class ApplicationsResource {
     public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, ConstrettoConfiguration configuration) {
         this.applicationService = applicationService;
         this.applicationSearch = applicationSearch;
-        String luceneApplicationDir = configuration.evaluateToString("lucene.directory");
-        NIOFSDirectory index = createDirectory(luceneApplicationDir);
-        luceneApplicationIndexer = new LuceneApplicationIndexer(index);
+        String luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");
+        NIOFSDirectory applicationsIndex = createDirectory(luceneApplicationDir);
+        luceneApplicationIndexer = new LuceneApplicationIndexer(applicationsIndex);
 
     }
 

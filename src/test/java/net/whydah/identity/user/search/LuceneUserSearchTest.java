@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class LuceneSearchTest {
+public class LuceneUserSearchTest {
     private static final String emailWithUnderScore = "_temp_username_1434635221960@someDomain.com";
 
     @Test

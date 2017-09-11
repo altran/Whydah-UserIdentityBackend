@@ -58,10 +58,10 @@ public class UserAdminTest {
                 .getConfiguration();
 
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        String luceneDir = configuration.evaluateToString("lucene.directory");
-        FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneDir);
+        String luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneUsersDir);
 
-        FileUtils.deleteDirectory(new File(luceneDir));
+        FileUtils.deleteDirectory(new File(luceneUsersDir));
 
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());

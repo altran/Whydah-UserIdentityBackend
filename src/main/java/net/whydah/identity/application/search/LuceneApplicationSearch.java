@@ -18,6 +18,7 @@ import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class LuceneApplicationSearch {
 
 
     @Autowired
-    public LuceneApplicationSearch(Directory luceneApplicationDirectory) {
+    public LuceneApplicationSearch(@Qualifier("luceneApplicationDirectory") Directory luceneApplicationDirectory) {
         this.index = luceneApplicationDirectory;
     }
 

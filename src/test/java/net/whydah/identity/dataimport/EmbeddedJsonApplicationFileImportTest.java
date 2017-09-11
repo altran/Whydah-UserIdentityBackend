@@ -2,9 +2,7 @@ package net.whydah.identity.dataimport;
 
 import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
-import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
-import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -78,7 +76,7 @@ public class EmbeddedJsonApplicationFileImportTest {
             ais = openInputStream("Applications", applicationsImportSource);
             System.out.println("Testimporting:"+applicationsImportSource);
 
-            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+            ApplicationService applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
 
             if (applicationsImportSource.endsWith(".csv")) {
                 new ApplicationImporter(applicationService).importApplications(ais);
@@ -91,6 +89,7 @@ public class EmbeddedJsonApplicationFileImportTest {
         }
 
     }
+
     InputStream openInputStream(String tableName, String importSource) {
         InputStream is;
         if (FileUtils.localFileExist(importSource)) {

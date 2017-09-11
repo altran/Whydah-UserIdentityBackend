@@ -19,6 +19,11 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.annotation.AnnotationConfigUtils;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -61,15 +66,23 @@ public class LuceneUserIndexer {
     private static List<UserIdentity> toUserIdentityIndexStack = new LinkedList<>();
     private static List<UserAggregate> toUserAggreggateIndexStack = new LinkedList<>();
 
+    static {
+        GenericApplicationContext ctx = new GenericApplicationContext();
+        XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(ctx);
+        xmlReader.loadBeanDefinitions(new ClassPathResource("context.xml"));
+        AnnotationConfigUtils.registerAnnotationConfigProcessors(ctx);
+        ctx.refresh();
+
+    }
 
     @Autowired
-    public LuceneUserIndexer(Directory myindex) {
+    public LuceneUserIndexer(@Qualifier("luceneUserDirectory") Directory luceneUserDirectory) {
         indexWriter = null;
         ftNotTokenized.setTokenized(false);
         ftTokenized.setTokenized(true);
         ftNotIndexed.setIndexed(false);
 
-        index = myindex;
+        index = luceneUserDirectory;
         verifyWriter();
         startProcessWorker();
 

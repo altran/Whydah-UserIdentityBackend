@@ -62,8 +62,8 @@ public class UIBUserIdentityServiceTest {
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
  //       String ldapPath = "/tmp";
-        String luceneDir = configuration.evaluateToString("lucene.directory");
-        FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
+        String luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneUsersDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());
@@ -85,7 +85,7 @@ public class UIBUserIdentityServiceTest {
         ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         UserApplicationRoleEntryDao userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
 
-        index = new NIOFSDirectory(new File(luceneDir));
+        index = new NIOFSDirectory(new File(luceneUsersDir));
         luceneIndexer = new LuceneUserIndexer(index);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userApplicationRoleEntryDao, configuration);

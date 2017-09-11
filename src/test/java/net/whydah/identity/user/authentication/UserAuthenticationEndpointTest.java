@@ -5,6 +5,7 @@ import com.jayway.restassured.http.ContentType;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
@@ -57,6 +58,10 @@ public class UserAuthenticationEndpointTest {
     private static UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private static UserAdminHelper userAdminHelper;
     private static UserIdentityService userIdentityService;
+    private static LuceneApplicationIndexer luceneApplicationIndexer;
+    private static Directory index;
+
+
 
     private static Main main = null;
     private static ApplicationService applicationService;
@@ -82,7 +87,7 @@ public class UserAuthenticationEndpointTest {
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        String luceneDir = configuration.evaluateToString("lucene.directory");
+        String luceneDir = configuration.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
@@ -93,11 +98,23 @@ public class UserAuthenticationEndpointTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
+        ApplicationDao applicationDao = new ApplicationDao(dataSource);
+        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
+
+        index = new NIOFSDirectory(new File(luceneDir));
+        luceneApplicationIndexer = new LuceneApplicationIndexer(index);
+
+
         userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
-        applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+//        applicationService=  new ApplicationService( applicationDao,  auditLogDao,  luceneApplicationIndexer,  Mockito.mock(LuceneApplicationSearch.class) );
+
+        // applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
         assertEquals(userApplicationRoleEntryDao.countUserRolesInDB(), 0);
 
+
         new IamDataImporter(dataSource, configuration).importIamData();
+
+        //main.stop();
 
         main.start();
 
@@ -112,7 +129,6 @@ public class UserAuthenticationEndpointTest {
         LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
 
-        AuditLogDao auditLogDao = new AuditLogDao(dataSource);
         PasswordGenerator pwg = new PasswordGenerator();
         userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, null, null);
 

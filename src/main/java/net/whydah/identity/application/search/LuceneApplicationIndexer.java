@@ -12,11 +12,11 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,8 +34,9 @@ public class LuceneApplicationIndexer {
     private static final Logger log = LoggerFactory.getLogger(LuceneApplicationIndexer.class);
     private final Directory index;
 
+
     @Autowired
-    public LuceneApplicationIndexer(Directory luceneApplicationDirectory) {
+    public LuceneApplicationIndexer(@Qualifier("luceneApplicationDirectory") Directory luceneApplicationDirectory) {
         //this.index = luceneApplicationDirectory;
         this.index = luceneApplicationDirectory;
 
@@ -47,7 +48,7 @@ public class LuceneApplicationIndexer {
         IndexWriter w = null;
         try {
             w = getWriter();
-            log.trace("LuceneApplicationIndexer initialized. lockId={} ", index.getLockID());
+            log.trace("LucenesApplicationIndexer initialized. lockId={} ", index.getLockID());
         } catch (IOException e) {
             log.error("getWriter failed.", e);
         } finally {

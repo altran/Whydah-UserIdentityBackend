@@ -2,12 +2,14 @@ package net.whydah.identity.dataimport;
 
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.constretto.ConstrettoConfiguration;
 import org.slf4j.Logger;
@@ -24,7 +26,8 @@ public class IamDataImporter {
     private final BasicDataSource dataSource;
     private final QueryRunner queryRunner;
     private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final String luceneDir;
+    private final String luceneUsersDir;
+    private final String luceneApplicationsDir;
     private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private final ConstrettoConfiguration configuration;
 
@@ -40,9 +43,11 @@ public class IamDataImporter {
         this.configuration=configuration;
         this.queryRunner = new QueryRunner(dataSource);
         this.ldapUserIdentityDao = initLdapUserIdentityDao(configuration);
-        //String luceneDir = AppConfig.appConfig.getProperty("lucene.directory");
-        this.luceneDir = configuration.evaluateToString("lucene.directory");
-        FileUtils.deleteDirectory(new File(luceneDir));
+        //String luceneUsersDir = AppConfig.appConfig.getProperty("lucene.directory");
+        this.luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        FileUtils.deleteDirectory(new File(luceneUsersDir));
+        this.luceneApplicationsDir = configuration.evaluateToString("lucene.applicationsdirectory");
+        FileUtils.deleteDirectory(new File(luceneApplicationsDir));
 
 
         this.userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
@@ -63,11 +68,11 @@ public class IamDataImporter {
     //used by tests
     /*
     @Deprecated
-    public IamDataImporter(BasicDataSource dataSource, LdapUserIdentityDao ldapUserIdentityDao, String luceneDir)  {
+    public IamDataImporter(BasicDataSource dataSource, LdapUserIdentityDao ldapUserIdentityDao, String luceneUsersDir)  {
         this.dataSource = dataSource;
         this.queryRunner = new QueryRunner(dataSource);
         this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.luceneDir = luceneDir;
+        this.luceneUsersDir = luceneUsersDir;
     }
     */
 
@@ -90,12 +95,17 @@ public class IamDataImporter {
         InputStream rmis = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);
-            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+            Directory applicationsindex = new NIOFSDirectory(new File(luceneApplicationsDir));
+            LuceneApplicationIndexer luceneApplicationIndexer = new LuceneApplicationIndexer(applicationsindex);
 
-            if (applicationsImportSource.endsWith(".csv")){
+            ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource), luceneApplicationIndexer, null);
+            //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
+// ApplicationService.getApplicationService();  //
+
+            if (applicationsImportSource.endsWith(".csv")) {
                 new ApplicationImporter(applicationService).importApplications(ais);
             } else {
-                new ApplicationJsonImporter(applicationService,configuration).importApplications(ais);
+                new ApplicationJsonImporter(applicationService, configuration).importApplications(ais);
             }
 
 
@@ -103,14 +113,16 @@ public class IamDataImporter {
             new OrganizationImporter(queryRunner).importOrganizations(ois);
 
             uis = openInputStream("Users", userImportSource);
-            NIOFSDirectory index = createDirectory(luceneDir);
+            NIOFSDirectory usersIndex = createDirectory(luceneUsersDir);
             //Directory index = new RAMDirectory();
             //LuceneUserIndexer luceneUserIndexer = new LuceneUserIndexer(index);
-            new WhydahUserIdentityImporter(ldapUserIdentityDao, index).importUsers(uis);
+            new WhydahUserIdentityImporter(ldapUserIdentityDao, usersIndex).importUsers(uis);
             //luceneUserIndexer.closeIndexer();
 
             rmis = openInputStream("RoleMappings", roleMappingImportSource);
             new RoleMappingImporter(userApplicationRoleEntryDao).importRoleMapping(rmis);
+        } catch (Exception e) {
+            log.error("Error in Importing applications", e);
         } finally {
             FileUtils.close(ais);
             FileUtils.close(ois);
