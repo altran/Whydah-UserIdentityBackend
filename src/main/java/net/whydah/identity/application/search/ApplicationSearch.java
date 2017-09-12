@@ -14,22 +14,26 @@ import java.util.List;
 public class ApplicationSearch {
 
         private static final Logger log = LoggerFactory.getLogger(ApplicationSearch.class);
-        private final LuceneApplicationSearch luceneSearch;
-        private final LuceneApplicationIndexer luceneIndexer;
+    private final LuceneApplicationSearch luceneApplicationSearch;
+    private final LuceneApplicationIndexer luceneApplicationIndexer;
 
         @Autowired
-        public ApplicationSearch( LuceneApplicationSearch luceneSearch, LuceneApplicationIndexer luceneIndexer) {
-            this.luceneSearch = luceneSearch;
-            this.luceneIndexer = luceneIndexer;
+        public ApplicationSearch(LuceneApplicationSearch luceneApplicationSearch, LuceneApplicationIndexer luceneApplicationIndexer) {
+            this.luceneApplicationSearch = luceneApplicationSearch;
+            this.luceneApplicationIndexer = luceneApplicationIndexer;
         }
 
         public List<Application> search(String query) {
-            List<Application> applications = luceneSearch.search(query);
+            List<Application> applications = luceneApplicationSearch.search(query);
             if (applications == null) {
                 applications = new ArrayList<>();
             }
-            log.warn("lucene search with query={} returned {} applications.", query, applications.size());
+            log.warn("lucene application search with query={} returned {} applications.", query, applications.size());
 
             return applications;
         }
+
+    public int getApplicationIndexSize() {
+        return luceneApplicationSearch.getApplicationIndexSize();
+    }
     }

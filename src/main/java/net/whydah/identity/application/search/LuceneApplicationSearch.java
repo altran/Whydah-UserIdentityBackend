@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -169,4 +170,25 @@ public class LuceneApplicationSearch {
         log.debug("Original query={}, wildcard query= {}", queryString, wildCardQuery);
         return wildCardQuery;
     }
+
+    public int getApplicationIndexSize() {
+        DirectoryReader directoryReader = null;
+        try {
+            IndexReader reader = IndexReader.open(index);
+            return reader.maxDoc();
+        } catch (IOException e) {
+            log.error("Error when accessing index.", e);
+        } finally {
+            if (directoryReader != null) {
+                try {
+                    directoryReader.close();
+                } catch (IOException e) {
+                    log.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
+        }
+        return 0;
+
+    }
+
 }

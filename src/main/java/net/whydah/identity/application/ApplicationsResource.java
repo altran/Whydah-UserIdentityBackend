@@ -2,6 +2,7 @@ package net.whydah.identity.application;
 
 import net.whydah.identity.application.search.ApplicationSearch;
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
+import net.whydah.identity.health.HealthResource;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -44,6 +45,8 @@ public class ApplicationsResource {
         String luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");
         NIOFSDirectory applicationsIndex = createDirectory(luceneApplicationDir);
         luceneApplicationIndexer = new LuceneApplicationIndexer(applicationsIndex);
+        HealthResource.setNumberOfApplications(applicationSearch.getApplicationIndexSize());
+
 
     }
 

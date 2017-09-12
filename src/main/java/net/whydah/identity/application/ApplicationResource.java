@@ -2,6 +2,7 @@ package net.whydah.identity.application;
 
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.application.search.LuceneApplicationSearch;
+import net.whydah.identity.health.HealthResource;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
 import org.slf4j.Logger;
@@ -52,6 +53,8 @@ public class ApplicationResource {
             if (persisted != null) {
                 String json = ApplicationMapper.toJson(persisted);
                 luceneApplicationIndexer.addToIndex(application);
+                HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
+
                 return Response.ok(json).build();
             }
         } catch (RuntimeException e) {
@@ -138,6 +141,8 @@ public class ApplicationResource {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
                     luceneApplicationIndexer.removeFromIndex(applicationId);
+                    HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
+
                     return Response.status(Response.Status.NO_CONTENT).build();
                 default:
                     log.error("numRowsAffected={}, if more than one row was deleted, this means that the database is in an unexpected state. Data may be lost!", numRowsAffected);
