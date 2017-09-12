@@ -123,6 +123,40 @@ public class LuceneApplicationSearch {
 
         return result;
     }
+
+    public List<Application> searchApplicationName(String queryString) {
+        Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONNAME, "*" + queryString + "*");
+        Query wildcardQuery = new WildcardQuery(term);
+
+        List<Application> result = new ArrayList<>();
+        DirectoryReader directoryReader = null;
+        try {
+            //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html
+            directoryReader = DirectoryReader.open(index);
+            IndexSearcher searcher = new IndexSearcher(directoryReader);
+            TopDocs topDocs = searcher.search(wildcardQuery, MAX_HITS);
+
+            for (ScoreDoc hit : topDocs.scoreDocs) {
+                int docId = hit.doc;
+                Document d = searcher.doc(docId);
+                Application application = ApplicationMapper.fromJson(d.get(LuceneApplicationIndexer.FIELD_FULLJSON));
+                log.trace(application.toString() + " : " + wildcardQuery + ":" + hit.score);
+                result.add(application);
+            }
+        } catch (IOException e) {
+            log.error("Error when searching.", e);
+        } finally {
+            if (directoryReader != null) {
+                try {
+                    directoryReader.close();
+                } catch (IOException e) {
+                    log.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                }
+            }
+        }
+
+        return result;
+    }
     private String buildWildCardQuery(String queryString) {
         queryString=queryString.replace("_","").trim();
         String[] queryitems = queryString.split(" ");

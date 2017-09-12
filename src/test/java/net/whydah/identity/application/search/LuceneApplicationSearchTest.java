@@ -25,6 +25,8 @@ public class LuceneApplicationSearchTest {
         addApplications(index);
 
         LuceneApplicationSearch luceneApplicationSearch = new LuceneApplicationSearch(index);
+
+
         List<Application> result = luceneApplicationSearch.search("Whydah");
         assertTrue(result.size() > 8);
         List<Application> result2 = luceneApplicationSearch.search("SecurityTokenService");
@@ -37,6 +39,10 @@ public class LuceneApplicationSearchTest {
         assertTrue(result5.size() >= LuceneApplicationSearch.MAX_HITS);
         List<Application> result6 = luceneApplicationSearch.searchApplicationID("2212");
         assertEquals(1, result6.size());
+        List<Application> result7 = luceneApplicationSearch.searchApplicationName("Simulated");
+        assertEquals(LuceneApplicationSearch.MAX_HITS, result7.size());
+        List<Application> result8 = luceneApplicationSearch.searchApplicationName("SecurityTokenService");
+        assertEquals(1, result8.size());
 
     }
 

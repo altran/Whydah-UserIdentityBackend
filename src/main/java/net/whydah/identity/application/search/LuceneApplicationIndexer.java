@@ -25,6 +25,7 @@ import java.util.List;
 @Service
 public class LuceneApplicationIndexer {
     public static final String FIELD_APPLICATIONID = "applicationid";
+    public static final String FIELD_APPLICATIONNAME = "applicationname";
     public static final String FIELD_FULLJSON = "fulljson";
     public static final String FIELD_FULLSEARCH = "fullsearch";
 
@@ -140,6 +141,7 @@ public class LuceneApplicationIndexer {
 
         Document doc = new Document();
         doc.add(new Field(FIELD_APPLICATIONID, application.getId(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
+        doc.add(new Field(FIELD_APPLICATIONNAME, application.getName(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
         doc.add(new Field(FIELD_FULLJSON, ApplicationMapper.toJson(application), ftTokenized));
         doc.add(new Field(FIELD_FULLSEARCH, ApplicationMapper.toPrettyJson(application), ftTokenized));
         return doc;
