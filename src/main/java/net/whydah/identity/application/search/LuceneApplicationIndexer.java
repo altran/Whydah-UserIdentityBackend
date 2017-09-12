@@ -129,7 +129,7 @@ public class LuceneApplicationIndexer {
     private Document createLuceneDocument(Application application) {
         FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
         ftNotTokenized.setTokenized(false);
-        ftNotTokenized.setIndexed(false);
+        ftNotTokenized.setIndexed(true);
 
         FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
         ftTokenized.setTokenized(true);

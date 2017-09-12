@@ -35,6 +35,8 @@ public class LuceneApplicationSearchTest {
         assertEquals(6, result4.size());
         List<Application> result5 = luceneApplicationSearch.search("*");
         assertTrue(result5.size() >= LuceneApplicationSearch.MAX_HITS);
+        List<Application> result6 = luceneApplicationSearch.searchApplicationID("2212");
+        assertEquals(1, result6.size());
 
     }
 
