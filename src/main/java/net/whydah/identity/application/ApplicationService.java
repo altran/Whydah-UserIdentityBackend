@@ -64,10 +64,13 @@ public class ApplicationService {
         return application;
     }
 
+    public List<Application> search(String applicationQuery) {
+        return luceneApplicationSearch.search(applicationQuery);
+    }
+
     public Application getApplication(String applicationId) {
         return applicationDao.getApplication(applicationId);
     }
-
     public List<Application> getApplications() {
         return applicationDao.getApplications();
     }

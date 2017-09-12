@@ -68,7 +68,7 @@ public class ApplicationsResource {
 
     /**
      * Find users.
-     * @param query User query.
+     * @param query Application query.
      * @return json response.
      */
     @GET
@@ -76,15 +76,9 @@ public class ApplicationsResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response findUsers(@PathParam("q") String query) {
         log.info("findApplications with query=" + query);
-
-        // todo:  f*ggly workaround to make things work before we have the applications in lucene
-        if (query.contains("*")) {
-            return getApplications();
-        }
-//        List<Application> applications = applicationSearch.search(query);
-        Application applications = applicationService.getApplication(query);
+        List<Application> applications = applicationService.search(query);
         String json = ApplicationMapper.toSafeJson(applications);
-        log.info("Returning {} applications: {}", 1, first50(json));
+        log.info("Returning {} applications: {}", applications.size(), first50(json));
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
     }
