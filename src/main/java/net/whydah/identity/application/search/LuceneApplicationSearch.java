@@ -30,7 +30,7 @@ import java.util.List;
 public class LuceneApplicationSearch {
     private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearch.class);
     protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
-    private static final int MAX_HITS = 500;
+    public static final int MAX_HITS = 500;
     private final Directory index;
 
 
