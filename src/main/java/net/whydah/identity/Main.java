@@ -10,10 +10,13 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +40,20 @@ public class Main {
     private Server server;
     private String resourceBase;
 
+    int maxThreads = 100;
+    int minThreads = 10;
+    int idleTimeout = 120;
 
 
     public Main(Integer webappPort) {
         this.webappPort = webappPort;
         //log.info("Starting Jetty on port {}", webappPort);
-        this.server = new Server(webappPort);
+        QueuedThreadPool threadPool = new QueuedThreadPool(maxThreads, minThreads, idleTimeout);
+
+        this.server = new Server(threadPool);
+        ServerConnector connector = new ServerConnector(this.server);
+        connector.setPort(webappPort);
+        this.server.setConnectors(new Connector[]{connector});
 
         URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
         this.resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
