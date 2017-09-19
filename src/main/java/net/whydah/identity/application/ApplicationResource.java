@@ -1,6 +1,5 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.application.search.LuceneApplicationSearch;
 import net.whydah.identity.health.HealthResource;
 import net.whydah.sso.application.mappers.ApplicationMapper;
@@ -25,14 +24,12 @@ import static net.whydah.sso.util.LoggerUtil.first50;
 public class ApplicationResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationResource.class);
     private final ApplicationService applicationService;
-    private final LuceneApplicationIndexer luceneApplicationIndexer;
     private final LuceneApplicationSearch luceneApplicationSearch;
 
 
     @Autowired
-    public ApplicationResource(ApplicationService applicationService,LuceneApplicationIndexer luceneApplicationIndexer,LuceneApplicationSearch luceneApplicationSearch) {
+    public ApplicationResource(ApplicationService applicationService, LuceneApplicationSearch luceneApplicationSearch) {
         this.applicationService = applicationService;
-        this.luceneApplicationIndexer=luceneApplicationIndexer;
         this.luceneApplicationSearch=luceneApplicationSearch;
 
     }
@@ -52,7 +49,6 @@ public class ApplicationResource {
             Application persisted = applicationService.create(application);
             if (persisted != null) {
                 String json = ApplicationMapper.toJson(persisted);
-                luceneApplicationIndexer.addToIndex(application);
                 HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
 
                 return Response.ok(json).build();
@@ -111,12 +107,6 @@ public class ApplicationResource {
                 case 0 :
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
-                    luceneApplicationIndexer.update(application);
-//                    Application updatedapplication = applicationService.getApplication(applicationId);
-//                    String json = ApplicationMapper.toJson(updatedapplication);
-//                    log.debug("applicationJson {}", json);
-//                    return Response.ok(json).build();
-
                     return Response.status(Response.Status.NO_CONTENT).build();
                 default:
                     log.error("numRowsAffected={}, if more than one row was updated, this means that the database is in an unexpected state. Manual correction is needed!", numRowsAffected);
@@ -140,7 +130,6 @@ public class ApplicationResource {
                 case 0 :
                     return Response.status(Response.Status.NOT_FOUND).build();
                 case 1 :
-                    luceneApplicationIndexer.removeFromIndex(applicationId);
                     HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
 
                     return Response.status(Response.Status.NO_CONTENT).build();
