@@ -74,7 +74,7 @@ public class ApplicationResource {
             }
 
             String json = ApplicationMapper.toJson(application);
-            log.debug("applicationJson {}", json);
+            log.debug("applicationJson {}", first50(json));
             return Response.ok(json).build();
         } catch (IllegalArgumentException iae) {
             log.error("create: Invalid json={}", applicationId, iae);
