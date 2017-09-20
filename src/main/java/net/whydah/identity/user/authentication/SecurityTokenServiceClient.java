@@ -45,9 +45,7 @@ public class SecurityTokenServiceClient {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
-                        myApplicationCredential.getApplicationID(),
-                        myApplicationCredential.getApplicationName(),
-                        myApplicationCredential.getApplicationSecret());
+                        myApplicationCredential);
             } catch (Exception e) {
                 log.warn("Unable to create WhydahSession", e);
             }
@@ -65,9 +63,7 @@ public class SecurityTokenServiceClient {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
-                        myApplicationCredential.getApplicationID(),
-                        myApplicationCredential.getApplicationName(),
-                        myApplicationCredential.getApplicationSecret());
+                        myApplicationCredential);
             } catch (Exception e) {
                 log.warn("Unable to create WhydahSession", e);
             }
@@ -91,9 +87,7 @@ public class SecurityTokenServiceClient {
                 ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
-                        myApplicationCredential.getApplicationID(),
-                        myApplicationCredential.getApplicationName(),
-                        myApplicationCredential.getApplicationSecret());
+                        myApplicationCredential);
             } catch (Exception e) {
                 log.warn("Unable to create WhydahSession", e);
             }
