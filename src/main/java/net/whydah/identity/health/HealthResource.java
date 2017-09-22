@@ -75,7 +75,7 @@ public class HealthResource {
                 "  \"users\": \"" + numberOfUsers + "\",\n" +
                 "  \"applications\": \"" + numberOfApplications + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
-                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"\n\n" +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\",\n\n" +
                 "  \"intrusionAttemptsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
                 "  \"anonymousIntrusionAttemptsDetected\": " + healthCheckService.countAnonymousIntrusionAttempts() + "\n" +
                 "}\n";
