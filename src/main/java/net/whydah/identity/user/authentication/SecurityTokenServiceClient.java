@@ -24,7 +24,6 @@ public class SecurityTokenServiceClient {
     private static String securitytokenserviceurl;
     public static WhydahApplicationSession was = null;
     private static SecurityTokenServiceClient securityTokenServiceClient;
-    private String sts;
 
     @Autowired
     @Configure
@@ -32,6 +31,15 @@ public class SecurityTokenServiceClient {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
         this.securitytokenserviceurl = securitytokenserviceurl;
         securityTokenServiceClient = this;
+        try {
+            ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+            was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
+                    null,  // No UAS
+                    myApplicationCredential);
+        } catch (Exception e) {
+            log.warn("Unable to create WhydahSession", e);
+        }
+
     }
 
 
