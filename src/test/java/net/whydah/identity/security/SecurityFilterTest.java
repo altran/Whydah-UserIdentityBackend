@@ -125,6 +125,7 @@ public class SecurityFilterTest {
         verify(chain).doFilter(request, response);
     }
 
+
     @Test
     public void testFindPathElement() throws Exception {
         assertEquals("/usertoken", securityFilter.findPathElement("/123/usertoken/", 2));
@@ -165,6 +166,7 @@ public class SecurityFilterTest {
         verify(chain).doFilter(request, response);
         log.debug("Status {}", response.getStatus());
     }
+
 
     @Test
     public void verifyAuthenticateUserUrl() throws Exception {

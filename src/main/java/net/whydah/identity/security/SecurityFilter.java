@@ -45,7 +45,7 @@ public class SecurityFilter implements Filter {
     public static final String applicationListPatten = "/applications";
     public static final String applicationSearchPatten = "/applications/find/*";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten, applicationSearchPatten};
     public static final String HEALH_PATH = "/health";
 
     private final SecurityTokenServiceClient securityTokenHelper;
@@ -118,6 +118,7 @@ public class SecurityFilter implements Filter {
         /{applicationTokenId}/user/{uid}/change_password    //PasswordResource2
         /{applicationTokenId}/authenticate/user/*           //UserAuthenticationEndpoint
         /{stsApplicationtokenId}/application/auth")         //Applicationcredential verification endpoint  (ApplicationAuthenticationEndpoint)
+        /{applicationtokenid}/applications    //ApplicationsResource
         /{applicationTokenId}/signup/user                   //UserSignupEndpoint
         */
         for (String pattern : patternsWithoutUserTokenId) {
@@ -130,7 +131,6 @@ public class SecurityFilter implements Filter {
 
         /*
         /{applicationtokenid}/{userTokenId}/application     //ApplicationResource
-        /{applicationtokenid}/{userTokenId}/applications    //ApplicationsResource
         /{applicationtokenid}/{userTokenId}/user            //UserResource
         /{applicationtokenid}/{usertokenid}/useraggregate   //UserAggregateResource
         /{applicationtokenid}/{usertokenid}/users           //UsersResource
