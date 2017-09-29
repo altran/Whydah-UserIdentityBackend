@@ -24,6 +24,7 @@ public class SecurityTokenServiceClient {
     private static String securitytokenserviceurl;
     public static WhydahApplicationSession was = null;
     private static SecurityTokenServiceClient securityTokenServiceClient;
+    private ApplicationCredential myApplicationCredential;
 
     @Autowired
     @Configure
@@ -31,14 +32,7 @@ public class SecurityTokenServiceClient {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
         this.securitytokenserviceurl = securitytokenserviceurl;
         securityTokenServiceClient = this;
-        try {
-            ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
-            was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
-                    null,  // No UAS
-                    myApplicationCredential);
-        } catch (Exception e) {
-            log.warn("Unable to create WhydahSession", e);
-        }
+        myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
 
     }
 
@@ -50,7 +44,6 @@ public class SecurityTokenServiceClient {
     public String getActiveUibApplicationTokenId(){
         if (was == null) {
             try {
-                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -68,7 +61,6 @@ public class SecurityTokenServiceClient {
     public UserToken getUserToken(String usertokenid){
         if (was == null) {
             try {
-                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -82,7 +74,7 @@ public class SecurityTokenServiceClient {
             if (userTokenXML != null && userTokenXML.length() > 10) {
                 return UserTokenMapper.fromUserTokenXml(userTokenXML);
             } else {
-                // Attempt to auto-recover if sts-state has been lost
+                // Attempt to signal auto-recover if sts-state has been lost
                 was.renewWhydahApplicationSession();
             }
         }
