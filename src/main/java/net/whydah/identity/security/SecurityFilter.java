@@ -136,27 +136,29 @@ public class SecurityFilter implements Filter {
         /{applicationtokenid}/{usertokenid}/users           //UsersResource
          */
         //paths WITH userTokenId verification
-        String pathElement1 = findPathElement(pathInfo, 1);
-        String applicationTokenId = findPathElement(pathInfo, 1).substring(1);
-        String usertokenId = findPathElement(pathInfo, 2).substring(1);
-        if (applicationTokenId != null) {
-            // Not calling myself
-            if (!applicationTokenId.equalsIgnoreCase(securityTokenHelper.getActiveUibApplicationTokenId())) {
-                UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
-                if (userToken == null || userToken.toString().length() < 10) {
-                    return HttpServletResponse.SC_UNAUTHORIZED;
+        try {
+            String applicationTokenId = findPathElement(pathInfo, 1).substring(1);
+            String usertokenId = findPathElement(pathInfo, 2).substring(1);
+            if (applicationTokenId != null) {
+                // Not calling myself
+                if (!applicationTokenId.equalsIgnoreCase(securityTokenHelper.getActiveUibApplicationTokenId())) {
+                    UserToken userToken = securityTokenHelper.getUserToken(usertokenId);
+                    if (userToken == null || userToken.toString().length() < 10) {
+                        return HttpServletResponse.SC_UNAUTHORIZED;
+                    }
+
+                    // We are happy here :)
+                    Authentication.setAuthenticatedUser(userToken);
+                } else {
+                    log.info("UIB is calling itself - shuld be OK");
                 }
-
-                // We are happy here :)
-                Authentication.setAuthenticatedUser(userToken);
             } else {
-                log.info("UIB is calling itself - shuld be OK");
+                log.warn("Missing applicationTokenId in request ");
+                return HttpServletResponse.SC_UNAUTHORIZED;
             }
-        } else {
-            log.warn("Missing applicationTokenId in request ");
-            return HttpServletResponse.SC_UNAUTHORIZED;
+        } catch (Exception e) {
+            log.info("Unable to find expected elements in request path (applicationtokenid/userTokenId/) pathInfo: {}", pathInfo);
         }
-
 
         return null;
     }
@@ -194,7 +196,7 @@ public class SecurityFilter implements Filter {
             log.warn("Running in noSecurityFilter mode, non-authorized applications may access UIB!");
             isUas = true;
         }
-        log.trace("Header appCred: {}",applicationCredentialXmlEncoded);
+        log.trace("Header appCred: {}", applicationCredentialXmlEncoded);
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
             String applicationCredentialXml = "";
             if (applicationCredentialXmlEncoded != null) {
