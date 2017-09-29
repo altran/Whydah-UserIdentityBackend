@@ -134,6 +134,14 @@ public class Main {
                 SSLTool.disableCertificateValidation();
             }
 
+
+
+            //main.startHttpServer(requiredRoleName);
+            main.start();
+            main.join();
+            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
+
             // Let us join the whydah network
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new Runnable() {
@@ -142,13 +150,6 @@ public class Main {
                     log.debug("Asynchronous startWhydahClient task");
                 }
             });
-
-
-            //main.startHttpServer(requiredRoleName);
-            main.start();
-            main.join();
-            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
-            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
 
 
             if (!embeddedDSEnabled) {
