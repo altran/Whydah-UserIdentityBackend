@@ -20,7 +20,6 @@ public class ApplicationJsonImporter {
 
     private ApplicationService applicationService;
     private final String luceneApplicationDir;
-    private final LuceneApplicationIndexer luceneApplicationIndexer;
 
 
 
@@ -28,7 +27,7 @@ public class ApplicationJsonImporter {
         this.applicationService = applicationService;
         this.luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");
         NIOFSDirectory index = createDirectory(luceneApplicationDir);
-        luceneApplicationIndexer = new LuceneApplicationIndexer(index);
+        LuceneApplicationIndexer luceneApplicationIndexer = new LuceneApplicationIndexer(index);
 
     }
 
@@ -69,7 +68,7 @@ public class ApplicationJsonImporter {
         for (Application application: applications) {
             try {
                 applicationService.create(application.getId(), application);
-                luceneApplicationIndexer.addToIndex(application);
+                //luceneApplicationIndexer.addToIndex(application);
                 log.info("Imported Application. Id {}, Name {}", application.getId(), application.getName());
             } catch(Exception e) {
                 log.error("Unable to persist application: {}", application.toString(), e);
