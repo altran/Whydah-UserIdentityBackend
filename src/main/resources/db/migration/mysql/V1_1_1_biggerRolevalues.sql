@@ -1,1 +1,1 @@
-ALTER TABLE UserRolesMODIFY RoleValues TYPE varchar(4096);
+ALTER TABLE UserRoles MODIFY RoleValues varchar(4096);
