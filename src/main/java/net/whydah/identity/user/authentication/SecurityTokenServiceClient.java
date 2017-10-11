@@ -25,14 +25,16 @@ public class SecurityTokenServiceClient {
     public static WhydahApplicationSession was = null;
     private static SecurityTokenServiceClient securityTokenServiceClient;
     private ApplicationCredential myApplicationCredential;
+    private static ApplicationService applicationService;
 
     @Autowired
     @Configure
-    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID) {
+    public SecurityTokenServiceClient(@Configuration("securitytokenservice") String securitytokenserviceurl, @Configuration("my_applicationid") String MY_APPLICATION_ID, ApplicationService applicationService) {
         this.MY_APPLICATION_ID = MY_APPLICATION_ID;
         this.securitytokenserviceurl = securitytokenserviceurl;
         securityTokenServiceClient = this;
-        myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+        this.applicationService = applicationService;
+
 
     }
 
@@ -44,6 +46,7 @@ public class SecurityTokenServiceClient {
     public String getActiveUibApplicationTokenId(){
         if (was == null) {
             try {
+                myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -61,6 +64,7 @@ public class SecurityTokenServiceClient {
     public UserToken getUserToken(String usertokenid){
         if (was == null) {
             try {
+                myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -84,7 +88,7 @@ public class SecurityTokenServiceClient {
     public WhydahApplicationSession getWAS() {
         if (was == null) {
             try {
-                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
+                myApplicationCredential = getAppCredentialForApplicationId(this.MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -98,7 +102,6 @@ public class SecurityTokenServiceClient {
 
 
     private ApplicationCredential getAppCredentialForApplicationId(String appNo){
-        ApplicationService applicationService = ApplicationService.getApplicationService();
         Application app = applicationService.getApplication(appNo);
         String appid = app.getId();
         String appname=app.getName();

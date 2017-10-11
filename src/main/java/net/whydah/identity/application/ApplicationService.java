@@ -24,7 +24,6 @@ public class ApplicationService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
     private final ApplicationDao applicationDao;
-    public static ApplicationService staticApplicationService;
     private final AuditLogDao auditLogDao;
     private final LuceneApplicationIndexer luceneApplicationIndexer;
     private final LuceneApplicationSearch luceneApplicationSearch;
@@ -32,14 +31,9 @@ public class ApplicationService {
     @Autowired
     public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao, @Qualifier("luceneApplicationsDirectory") LuceneApplicationIndexer luceneApplicationIndexer, LuceneApplicationSearch luceneApplicationSearch) {
         this.applicationDao = applicationDao;
-        staticApplicationService = this;
         this.auditLogDao = auditLogDao;
         this.luceneApplicationIndexer = luceneApplicationIndexer;
         this.luceneApplicationSearch = luceneApplicationSearch;
-    }
-
-    public static ApplicationService getApplicationService(){
-        return staticApplicationService;
     }
 
     ////// CRUD

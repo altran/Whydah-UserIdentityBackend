@@ -2,6 +2,7 @@ package net.whydah.identity.dataimport;
 
 import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
+import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.user.UserAggregateService;
@@ -94,7 +95,7 @@ public class IamDataImporterTest {
         assertEquals("Drolshammer", erikdUserIdentity.getLastName());
         assertEquals("erik.drolshammer", erikdUserIdentity.getUid());
 
-        ApplicationService applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), null);
+        ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), null, null, null);
         UserAggregateService userAggregateService = new UserAggregateService(null, dataImporter.getUserApplicationRoleEntryDao(),
                 applicationService, null, null);
 
