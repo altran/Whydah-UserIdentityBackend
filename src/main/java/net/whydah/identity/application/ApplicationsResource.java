@@ -50,6 +50,43 @@ public class ApplicationsResource {
 
     }
 
+    /**
+     * Find users.
+     *
+     * @param query Application query.
+     * @return json response.
+     */
+    @GET
+    @Path("/applications/find/{q}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response findUsersNoUserToken(@PathParam("q") String query) {
+        log.info("findApplications with query=" + query);
+        List<Application> applications = applicationService.search(query);
+        String json = ApplicationMapper.toSafeJson(applications);
+        log.info("Returning {} applications: {}", applications.size(), first50(json));
+        Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
+        return response;
+    }
+
+    /**
+     * Find users.
+     *
+     * @param query Application query.
+     * @return json response.
+     */
+    @GET
+    @Path("/find/applications/{q}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response findUsersNoUserToken2(@PathParam("q") String query) {
+        log.info("findApplications with query=" + query);
+        List<Application> applications = applicationService.search(query);
+        String json = ApplicationMapper.toSafeJson(applications);
+        log.info("Returning {} applications: {}", applications.size(), first50(json));
+        Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
+        return response;
+    }
+
+
     @GET
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON)
@@ -69,39 +106,6 @@ public class ApplicationsResource {
         }
     }
 
-    /**
-     * Find users.
-     * @param query Application query.
-     * @return json response.
-     */
-    @GET
-    @Path("/applications/find/{q}")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response findUsersNoUserToken(@PathParam("q") String query) {
-        log.info("findApplications with query=" + query);
-        List<Application> applications = applicationService.search(query);
-        String json = ApplicationMapper.toSafeJson(applications);
-        log.info("Returning {} applications: {}", applications.size(), first50(json));
-        Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
-        return response;
-    }
-
-    /**
-     * Find users.
-     * @param query Application query.
-     * @return json response.
-     */
-    @GET
-    @Path("/find/applications/{q}")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response findUsersNoUserToken2(@PathParam("q") String query) {
-        log.info("findApplications with query=" + query);
-        List<Application> applications = applicationService.search(query);
-        String json = ApplicationMapper.toSafeJson(applications);
-        log.info("Returning {} applications: {}", applications.size(), first50(json));
-        Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
-        return response;
-    }
 
     /**
      * Find users.
