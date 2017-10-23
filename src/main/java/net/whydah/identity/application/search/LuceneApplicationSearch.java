@@ -40,6 +40,7 @@ public class LuceneApplicationSearch {
 
     public List<Application> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
+        log.debug("Seach Application index - query:{}", wildCardQuery);
         String[] fields = {
                 LuceneApplicationIndexer.FIELD_APPLICATIONID,
                 LuceneApplicationIndexer.FIELD_FULLJSON,
@@ -74,7 +75,7 @@ public class LuceneApplicationSearch {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
                 Application application = ApplicationMapper.fromJson(d.get(LuceneApplicationIndexer.FIELD_FULLJSON));
-                log.trace(application.toString() + " : " + q + ":" + hit.score);
+                log.info(application.toString() + " : " + q + ":" + hit.score);
                 result.add(application);
             }
         } catch (IOException e) {
