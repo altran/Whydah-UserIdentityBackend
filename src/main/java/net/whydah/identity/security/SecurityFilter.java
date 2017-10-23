@@ -44,8 +44,9 @@ public class SecurityFilter implements Filter {
     public static final String applicationAuthPatten = "/application/auth";
     public static final String applicationListPatten = "/applications";
     public static final String applicationSearchPatten = "/applications/find/*";
+    public static final String applicationSearchPatten2 = "/find/applications/*";
     public static final String userSignupPattern = "/signup/user";
-    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten, applicationSearchPatten};
+    public static final String[] patternsWithoutUserTokenId = {applicationAuthPatten, pwPattern, pwPattern2, pwPattern3, userAuthPattern, userSignupPattern, applicationListPatten, applicationSearchPatten, applicationSearchPatten2};
     public static final String HEALH_PATH = "/health";
 
     private final SecurityTokenServiceClient securityTokenHelper;
