@@ -2,6 +2,8 @@ package net.whydah.identity.health;
 
 import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
 import net.whydah.sso.util.WhydahUtil;
+import org.constretto.annotation.Configuration;
+import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class HealthResource {
     private static final Logger log = LoggerFactory.getLogger(HealthResource.class);
     private final HealthCheckService healthCheckService;
     private static SecurityTokenServiceClient securityTokenServiceClient;
+    private static String applicationInstanceName;
+    private static boolean ok = true;
 
 
     private static long numberOfUsers = 0;
@@ -33,15 +37,17 @@ public class HealthResource {
     private static long numberOfApplications = 0;
 
     @Autowired
-    public HealthResource(SecurityTokenServiceClient securityTokenHelper, HealthCheckService healthCheckService) {
+    @Configure
+    public HealthResource(SecurityTokenServiceClient securityTokenHelper, HealthCheckService healthCheckService, @Configuration("applicationname") String applicationname) {
         this.securityTokenServiceClient = securityTokenHelper;
         this.healthCheckService = healthCheckService;
+        this.applicationInstanceName = applicationname;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response isHealthy() {
-        boolean ok = healthCheckService.isOK();
+        ok = healthCheckService.isOK();
         String statusText = WhydahUtil.getPrintableStatus(securityTokenServiceClient.getWAS());
         log.trace("isHealthy={}, {status}", ok, statusText);
         if (ok) {
@@ -66,7 +72,7 @@ public class HealthResource {
 
     public String getHealthTextJson() {
         return "{\n" +
-                "  \"Status\": \"OK\",\n" +
+                "  \"Status\": \"" + ok + "\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
                 "  \"DEFCON\": \"" + SecurityTokenServiceClient.was.getDefcon() + "\",\n" +
                 "  \"STS\": \"" + SecurityTokenServiceClient.was.getSTS() + "\",\n" +
@@ -89,12 +95,12 @@ public class HealthResource {
         if (mavenVersionResource != null) {
             try {
                 mavenProperties.load(mavenVersionResource.openStream());
-                return mavenProperties.getProperty("version", "missing version info in " + resourcePath);
+                return mavenProperties.getProperty("version", "missing version info in " + resourcePath) + " [" + applicationInstanceName + " - " + WhydahUtil.getMyIPAddresssesString() + "]";
             } catch (IOException e) {
                 log.warn("Problem reading version resource from classpath: ", e);
             }
         }
-        return "(DEV VERSION)";
+        return "(DEV VERSION)" + " [" + applicationInstanceName + " - " + WhydahUtil.getMyIPAddresssesString() + "]";
     }
 
     public static long getNumberOfUsers() {
