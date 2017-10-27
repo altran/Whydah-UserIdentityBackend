@@ -147,8 +147,8 @@ public class ApplicationAuthenticationEndpointTest {
 
     @Test
     public void testApplicationAuthOK() throws Exception {
-        /**
-         ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "",UAS_APPLICATION_SECRET);
+
+        ApplicationCredential uasAppCredential = new ApplicationCredential(uas.getId(), "",UAS_APPLICATION_SECRET);
          String uasAppCredentialXml = ApplicationCredentialMapper.toXML(uasAppCredential);
          ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "",TESTAPP_APPLICATION_SECRET);
          String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
@@ -161,6 +161,6 @@ public class ApplicationAuthenticationEndpointTest {
          .log().ifError()
          .when()
          .post(AUTH_PATH, STS_APPTOKEN_ID_NOT_IN_USE);
-         **/
+
     }
 }

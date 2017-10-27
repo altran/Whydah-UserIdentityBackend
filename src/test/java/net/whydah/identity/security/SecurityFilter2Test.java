@@ -3,8 +3,8 @@ package net.whydah.identity.security;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.health.HealthCheckService;
 import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
+import net.whydah.sso.user.mappers.UserTokenMapper;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.servlet.FilterChain;
@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
@@ -25,7 +26,7 @@ public class SecurityFilter2Test {
     private SecurityFilter securityFilter;
     private HealthCheckService healthCheckService;
 
-    private final static String userAdminUserTokenId ="au123";
+    private final static String userAdminUserTokenId = "au123";
     private final static String tokenBrukeradmin = "<application ID=\"1\"><organizationName>2</organizationName><role name=\"WhydahUserAdmin\"/></application>";
 
 
@@ -59,27 +60,26 @@ public class SecurityFilter2Test {
 
 
     @Test
-    @Ignore
     public void testPathsWithoutUserTokenIdOK() {
-        /**
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/authenticate/user"));
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/signup/user"));
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/reset_password"));
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/change_password"));
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/applications"));
-         //assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/applications/find"));
-         assertNotNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/" + userAdminUserTokenId + "/application"));
 
-         }
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/authenticate/user"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/signup/user"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/reset_password"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/user/someUid/change_password"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/applications"));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/applications/find"));
+        assertNotNull(securityFilter.authenticateAndAuthorizeRequest("/appTokenIdUser/" + userAdminUserTokenId + "/application"));
 
-         @Test
-         @Ignore public void testUsertokenIdAuthenticationOK() {
-         String appTokenId = "appTokenIdUser";
-         when(stsHelper.getUserToken( userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/user"));
-         assertEquals(Authentication.getAuthenticatedUser().getRoleList().get(0).getRoleName(), "WhydahUserAdmin");
-         assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/application"));
-         **/
+    }
+
+    @Test
+    public void testUsertokenIdAuthenticationOK() {
+        String appTokenId = "appTokenIdUser";
+        when(stsHelper.getUserToken(userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/user"));
+        assertEquals(Authentication.getAuthenticatedUser().getRoleList().get(0).getRoleName(), "WhydahUserAdmin");
+        assertNull(securityFilter.authenticateAndAuthorizeRequest("/" + appTokenId + "/" + userAdminUserTokenId + "/application"));
+
     }
 
 
