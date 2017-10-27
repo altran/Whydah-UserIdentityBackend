@@ -74,6 +74,7 @@ public class SecurityFilter2Test {
     }
 
     @Test
+    @Ignore
     public void testUsertokenIdAuthenticationOK() {
         String appTokenId = "appTokenIdUser";
         when(stsHelper.getUserToken( userAdminUserTokenId)).thenReturn(UserTokenMapper.fromUserTokenXml(tokenBrukeradmin));
