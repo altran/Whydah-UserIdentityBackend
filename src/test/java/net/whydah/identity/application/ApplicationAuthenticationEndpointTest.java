@@ -26,9 +26,9 @@ import static com.jayway.restassured.RestAssured.given;
  */
 public class ApplicationAuthenticationEndpointTest {
     //testapplications.csv
-    private static final String UAS_APPLICATION_ID = "12";
+    private static final String UAS_APPLICATION_ID = "1234";
     private static final String UAS_APPLICATION_SECRET = "9ju592A4t8dzz8mz7a5QQJ7Px";
-    private static final String TESTAPP_APPLICATION_ID = "99";
+    private static final String TESTAPP_APPLICATION_ID = "9977";
     private static final String TESTAPP_APPLICATION_SECRET = "33879936R6Jr47D4Hj5R6p9qT";
     private static String AUTH_PATH = "/{stsapplicationtokenId}/application/auth";
     private static final String STS_APPTOKEN_ID_NOT_IN_USE = "stsApptokenIdNotInUse";
@@ -153,14 +153,14 @@ public class ApplicationAuthenticationEndpointTest {
          ApplicationCredential appCredential = new ApplicationCredential(testapp.getId(), "",TESTAPP_APPLICATION_SECRET);
          String testAppAppCredentialXml = ApplicationCredentialMapper.toXML(appCredential);
          given()
-         .formParam(ApplicationAuthenticationEndpoint.UAS_APP_CREDENTIAL_XML, uasAppCredentialXml)
-         .contentType(ContentType.URLENC)
-         .log().everything()
-         .expect()
-         .statusCode(204)
-         .log().ifError()
-         .when()
-         .post(AUTH_PATH, STS_APPTOKEN_ID_NOT_IN_USE);
+                 .formParam(ApplicationAuthenticationEndpoint.UAS_APP_CREDENTIAL_XML, uasAppCredentialXml)
+                 .contentType(ContentType.URLENC)
+                 .log().everything()
+                 .expect()
+                 .statusCode(403)
+                 .log().ifError()
+                 .when()
+                 .post(AUTH_PATH, STS_APPTOKEN_ID_NOT_IN_USE);
 
     }
 }
