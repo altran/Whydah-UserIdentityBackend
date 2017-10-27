@@ -45,7 +45,7 @@ public class ApplicationAuthenticationEndpoint {
      * Authenticate UAS application using app credential
      * @param applicationtokenId not in use, expected to be useful in the future
      * @param uasAppCredentialXml   application credential for UAS, only UAS is allowed to communicate with UIB
-     * @param appCredentialXml  application credential for application to authenticate
+     * @param authCredentialXml  application credential for application to authenticate
      * @return  204 No Content if successful, otherwise 401 Forbidden
      */
     @POST
@@ -54,14 +54,24 @@ public class ApplicationAuthenticationEndpoint {
     //@Produces(MediaType.TEXT_PLAIN)
     public Response authenticateApplication(@PathParam("applicationtokenId") String applicationtokenId,
                                             @FormParam(UAS_APP_CREDENTIAL_XML) String uasAppCredentialXml,
-                                            @FormParam(APP_CREDENTIAL_XML) String appCredentialXml) {
+                                            @FormParam(APP_CREDENTIAL_XML) String authCredentialXml) {
 
         try {
-            //verify uasAppCredentialXml
+            //verify uasAppCredentialXml for UAS
             ApplicationCredential uasAppCredential = ApplicationCredentialMapper.fromXml(uasAppCredentialXml);
             log.info("UAS ApplicationCredential lookup for applicationID={}", uasAppCredential.getApplicationID());
             Application uasApplication = authenticationService.authenticate(uasAppCredential);
             if (uasApplication == null) {
+                log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+
+            //verify uasAppCredentialXml for UAS
+            ApplicationCredential authAppCredential = ApplicationCredentialMapper.fromXml(authCredentialXml);
+            log.info("UAS ApplicationCredential lookup for applicationID={}", authAppCredential.getApplicationID());
+            Application authApplication = authenticationService.authenticate(authAppCredential);
+            if (authApplication == null) {
                 log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
