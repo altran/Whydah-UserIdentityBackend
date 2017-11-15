@@ -1,7 +1,12 @@
 package net.whydah.identity.user.identity;
 
+import static org.junit.Assert.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.whydah.sso.ddd.model.CellPhone;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.junit.Test;
 
 import java.util.Random;
@@ -19,14 +24,16 @@ public class UIBUserIdentityTest {
 
         for (String telephoneNumber : telephoneNumbers) {
             userIdentity.setCellPhone(telephoneNumber);
-            userIdentity.validate();
         }
     }
-    @Test(expected = InvalidUserIdentityFieldException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testValidateCellPhoneInvalid() {
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
-        userIdentity.setCellPhone("900-FLYING-CIRCUS");
-        userIdentity.validate();
+    	try{
+    		LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid1", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", "", "personRef1");
+    		userIdentity.setCellPhone("900-FLYING-CIRCUS");
+    	} catch(Exception ex ){
+    		throw ex;
+    	}
     }
 
 
@@ -36,7 +43,7 @@ public class UIBUserIdentityTest {
         String[] personRefs = new String[]{"0", "123", "abc", "123abc", "valid@email.dk", "123-456", "123/456", "", null};
         for (String personRef : personRefs) {
             userIdentity.setPersonRef(personRef);
-            userIdentity.validate();
+            
         }
     }
 
@@ -72,6 +79,6 @@ public class UIBUserIdentityTest {
                 null,
                 "pref");
 
-        userIdentity.validate();
+        
     }
 }

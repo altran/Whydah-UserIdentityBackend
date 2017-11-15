@@ -60,7 +60,7 @@ public class RoleMappingImporter {
 				UserApplicationRoleEntry userPropertyAndRole = new UserApplicationRoleEntry();
 
 				userPropertyAndRole.setUserId(cleanString(lineArray[USERNAME]));
-				userPropertyAndRole.setUserName(cleanString(lineArray[USERNAME]));
+				
 				userPropertyAndRole.setApplicationId(cleanString(lineArray[APPLICATIONID]));
 	            userPropertyAndRole.setApplicationName(cleanString(lineArray[APPLICATIONNAME]));
 

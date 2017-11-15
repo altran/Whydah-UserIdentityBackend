@@ -77,7 +77,7 @@ public class LdapUserIdentityDao {
             return false;
         }
 
-        userIdentity.validate();
+       
 
         Attributes attributes = getLdapAttributes(userIdentity);
 
@@ -113,8 +113,6 @@ public class LdapUserIdentityDao {
             log.warn("addUserIdentity called, but LDAP server is configured read-only. LDAPUserIdentity was not added.");
             return false;
         }
-
-        new LDAPUserIdentity(userIdentity, password).validate();
 
         Attributes attributes = getLdapAttributes(userIdentity, password);
 
@@ -210,8 +208,6 @@ public class LdapUserIdentityDao {
             return;
         }
 
-        newuser.validate();
-
         try {
             LDAPUserIdentity olduser = getUserIndentityByUid(uid);
             updateLdapAttributesForUser(uid, newuser, olduser);
@@ -252,8 +248,6 @@ public class LdapUserIdentityDao {
             log.warn("updateUserIdentityForUsername called, but LDAP server is configured read-only. LDAPUserIdentity was not updated.");
             return;
         }
-
-        newuser.validate();
 
         try {
             LDAPUserIdentity olduser = getUserIndentity(username);

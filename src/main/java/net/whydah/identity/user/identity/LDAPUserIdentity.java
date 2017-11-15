@@ -1,16 +1,26 @@
 package net.whydah.identity.user.identity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import net.whydah.sso.ddd.model.Email;
+import net.whydah.sso.ddd.model.FirstName;
+import net.whydah.sso.ddd.model.LastName;
+import net.whydah.sso.ddd.model.Password;
+import net.whydah.sso.ddd.model.PersonRef;
+import net.whydah.sso.ddd.model.UID;
+import net.whydah.sso.ddd.model.UserName;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.TelephoneNumberSyntaxChecker;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A class representing the identity of a User - backed by LDAP scheme.
@@ -23,83 +33,83 @@ public class LDAPUserIdentity extends UserIdentity implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(LDAPUserIdentity.class);
     private static final long serialVersionUID = 1;
     private static final TelephoneNumberSyntaxChecker telephoneNumberSyntaxChecker = new TelephoneNumberSyntaxChecker();
-    private String uid;
+    //private String uid;
 
     public LDAPUserIdentity() {
     }
 
     public LDAPUserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
                             String cellPhone, String personRef) {
-        this.uid = uid;
-        this.username = (username != null ? username : email);
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.personRef = personRef;
-        this.email = email;
+        this.uid = new net.whydah.sso.ddd.model.UID(uid);
+        this.username = new UserName(username != null ? username : email);
+        this.firstName = new FirstName(firstName);
+        this.lastName = new LastName(lastName);
+        this.personRef = new PersonRef(personRef);
+        this.email = new Email(email);
         setCellPhone(cellPhone);
-        this.password = password;
+        this.password = new Password(password);
     }
 
     public LDAPUserIdentity(UserIdentity userIdentity, String password) {
-        this.uid = userIdentity.getUid();
-        this.username = (userIdentity.getUsername() != null ? userIdentity.getUsername() : userIdentity.getEmail());
-        this.firstName = userIdentity.getFirstName();
-        this.lastName = userIdentity.getLastName();
-        this.personRef = userIdentity.getPersonRef();
-        this.email = userIdentity.getEmail();
+        this.uid = new UID(userIdentity.getUid());
+        this.username = new UserName((userIdentity.getUsername() != null ? userIdentity.getUsername() : userIdentity.getEmail()));
+        this.firstName = new FirstName(userIdentity.getFirstName());
+        this.lastName = new LastName(userIdentity.getLastName());
+        this.personRef = new PersonRef(userIdentity.getPersonRef());
+        this.email = new Email(userIdentity.getEmail());
         setCellPhone(userIdentity.getCellPhone());
-        this.password = password;
+        this.password = new Password(password);
     }
 
-    protected transient String password;
+    protected transient Password password;
 
     public String getPassword() {
-        return password;
+        return password!=null?password.getInput():null;
     }
 
     public String getCellPhone() {
-        return this.cellPhone;
+        return this.cellPhone!=null?this.cellPhone.getInput():null;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = new Password(password);
     }
 
-    public void validate() throws InvalidUserIdentityFieldException {
-        validateSetAndMinimumLength(UID, uid, 2);
-        validateSetAndMinimumLength("username", username, 3);
+//    public void validate() throws InvalidUserIdentityFieldException {
+//        validateSetAndMinimumLength(UID, uid, 2);
+//        validateSetAndMinimumLength("username", username.getInput(), 3);
+//
+//        validateEmail();
+//
+//        //Printable string (alphabetic, digits, ', (, ), +, ,, -, ., /, :, ?, and space) and "
+//        //http://pic.dhe.ibm.com/infocenter/zvm/v6r3/index.jsp?topic=%2Fcom.ibm.zvm.v630.kldl0%2Fkldl023.htm
+//        if (cellPhone != null && !telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
+//            throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
+//        }
+//
+//        // valid
+//    }
+//
+//    private void validateSetAndMinimumLength(String key, String value, int minLength) {
+//        if (value == null || value.length() < minLength) {
+//            throw new InvalidUserIdentityFieldException(key, value);
+//        }
+//    }
 
-        validateEmail();
 
-        //Printable string (alphabetic, digits, ', (, ), +, ,, -, ., /, :, ?, and space) and "
-        //http://pic.dhe.ibm.com/infocenter/zvm/v6r3/index.jsp?topic=%2Fcom.ibm.zvm.v630.kldl0%2Fkldl023.htm
-        if (cellPhone != null && !telephoneNumberSyntaxChecker.isValidSyntax(cellPhone)) {
-            throw new InvalidUserIdentityFieldException("cellPhone", cellPhone);
-        }
-
-        // valid
-    }
-
-    private void validateSetAndMinimumLength(String key, String value, int minLength) {
-        if (value == null || value.length() < minLength) {
-            throw new InvalidUserIdentityFieldException(key, value);
-        }
-    }
-
-
-    private void validateEmail() {
-        if (email == null || email.length() < 5) {
-            throw new InvalidUserIdentityFieldException("email", email);
-        }
-
-        InternetAddress internetAddress = new InternetAddress();
-        internetAddress.setAddress(email);
-        try {
-            internetAddress.validate();
-        } catch (AddressException e) {
-            throw new InvalidUserIdentityFieldException("email", email);
-        }
-    }
+//    private void validateEmail() {
+//        if (email == null || email.length() < 5) {
+//            throw new InvalidUserIdentityFieldException("email", email);
+//        }
+//
+//        InternetAddress internetAddress = new InternetAddress();
+//        internetAddress.setAddress(email);
+//        try {
+//            internetAddress.validate();
+//        } catch (AddressException e) {
+//            throw new InvalidUserIdentityFieldException("email", email);
+//        }
+//    }
 
 
     @Override
@@ -160,11 +170,11 @@ public class LDAPUserIdentity extends UserIdentity implements Serializable {
     }
 
     public String getUid() {
-        return uid;
+        return uid!=null?uid.getId():null;
     }
 
     public void setUid(String uid) {
-        this.uid = uid;
+        this.uid = new UID(uid);
     }
 
     public static LDAPUserIdentity fromJson(String userJson) {
