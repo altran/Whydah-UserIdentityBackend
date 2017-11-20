@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -101,7 +102,7 @@ public class LuceneUserSearchTest {
             add(createUser("kari.norman@example.com", "Kari", "norman", "kari.norman@example.com", "kari.norman@example.com"));
             add(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
             add(createUser("medel.svenson@example.com", "Medel", "Svenson", "medel.svenson@example.com", "medel.svenson@example.com"));
-            add(createUser(emailWithUnderScore, "first", "last", emailWithUnderScore, emailWithUnderScore));
+            add(createUser("test@tull.no", "first", "last", emailWithUnderScore, UUID.randomUUID().toString()));
         }};
         luceneIndexer.addToIndex(users);
         return luceneIndexer;
