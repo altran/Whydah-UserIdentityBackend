@@ -20,6 +20,7 @@ import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
+import net.whydah.sso.ddd.model.PersonRef;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -45,8 +46,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 
 /**
@@ -251,7 +251,7 @@ public class UserAuthenticationEndpointTest {
         */
         //LDAPUserIdentity identity = userAggregate.getIdentity();
         assertEquals(username, userAggregate.getUsername());
-        assertEquals(userAggregate.getPersonRef(), null);
+        assertTrue(PersonRef.isValid(userAggregate.getPersonRef()));
         assertEquals(email, userAggregate.getEmail());
         assertNotNull(userAggregate.getUid());
 
