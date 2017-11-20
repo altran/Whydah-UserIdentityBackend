@@ -221,6 +221,7 @@ public class UserAuthenticationEndpointTest {
     @Test
     public void testAuthenticateUsingFacebookCredentials() throws NamingException {
         LDAPUserIdentity newIdentity = new LDAPUserIdentity();
+        newIdentity.setUid("demofbidentity");
         String username = "facebookUsername";
         newIdentity.setUsername(username);
         String facebookId = "1234";
@@ -250,7 +251,7 @@ public class UserAuthenticationEndpointTest {
         */
         //LDAPUserIdentity identity = userAggregate.getIdentity();
         assertEquals(username, userAggregate.getUsername());
-        assertEquals(userAggregate.getPersonRef(), "");
+        assertEquals(userAggregate.getPersonRef(), null);
         assertEquals(email, userAggregate.getEmail());
         assertNotNull(userAggregate.getUid());
 
