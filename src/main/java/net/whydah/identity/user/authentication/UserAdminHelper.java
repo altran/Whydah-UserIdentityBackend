@@ -7,6 +7,7 @@ import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.ddd.model.UserName;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
 import org.constretto.ConstrettoConfiguration;
@@ -134,6 +135,9 @@ public class UserAdminHelper {
             String firstName = (String) xPath.evaluate("//firstName", fbUserDoc, XPathConstants.STRING);
             String lastName = (String) xPath.evaluate("//lastName", fbUserDoc, XPathConstants.STRING);
             String username = (String) xPath.evaluate("//username", fbUserDoc, XPathConstants.STRING);
+            if (!UserName.isValid(username)) {
+                username = fbUserId;
+            }
             String email = (String) xPath.evaluate("//email", fbUserDoc, XPathConstants.STRING);
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
