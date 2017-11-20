@@ -7,6 +7,7 @@ import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.sso.ddd.model.Email;
 import net.whydah.sso.ddd.model.UserName;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserToken;
@@ -139,6 +140,9 @@ public class UserAdminHelper {
                 username = fbUserId;
             }
             String email = (String) xPath.evaluate("//email", fbUserDoc, XPathConstants.STRING);
+            if (!Email.isValid(email)) {
+                email = fbUserId + "@facebook.com";
+            }
             logger.debug("From fbuserXml, fbUserId=" + fbUserId + ", firstName=" + firstName + ", lastName=" + lastName);
 
             LDAPUserIdentity userIdentity = new LDAPUserIdentity();

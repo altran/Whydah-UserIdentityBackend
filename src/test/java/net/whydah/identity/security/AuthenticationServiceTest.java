@@ -36,10 +36,13 @@ public class AuthenticationServiceTest {
         ApplicationCredential validAppCred = ApplicationCredentialMapper.fromXml(applicatinCredential);
         assertTrue(authenticationService.isAuthenticatedAsUAS(validAppCred));
 
-        ApplicationCredential inValidAppCred = ApplicationCredentialMapper.fromXml(applicatinCredentialMissingSecred);
-        assertFalse(authenticationService.isAuthenticatedAsUAS(inValidAppCred));
+        try {
+            ApplicationCredential inValidAppCred = ApplicationCredentialMapper.fromXml(applicatinCredentialMissingSecred);
+            assertFalse(authenticationService.isAuthenticatedAsUAS(inValidAppCred));
 
-
+        } catch (Exception e) {
+            // Should end here is ApplicationCredential creation will fail
+        }
     }
 
     private static String applicatinCredential = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \n" +

@@ -42,5 +42,5 @@ public class UserSignupServiceTest  {
         assertTrue(userWithRole.contains("whydah-user"));
     }
 
-    private String userWithoutRolesJson = "{\"username\":\"helloMe\", \"firstName\":\"hello\", \"lastName\":\"me\", \"personRef\":\"\", \"email\":\"hello.me@example.com\", \"cellPhone\":\"+47 90221133\"}";
+    private String userWithoutRolesJson = "{\"username\":\"helloMe\", \"firstName\":\"hello\", \"lastName\":\"meLast\", \"personRef\":\"\", \"email\":\"hello.me@example.com\", \"cellPhone\":\"+47 90221133\"}";
 }
