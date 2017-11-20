@@ -25,13 +25,13 @@ public class OrganizationImporterTest {
         List<Organization> organizations = OrganizationImporter.parseOrganizations(organizationsStream);
 		
         assertEquals("All organizations must be found.", 6, organizations.size());
-        assertAppIdAndOrgName(organizations.get(0), "1", "Whydah");
-        assertAppIdAndOrgName(organizations.get(1), "1", "Cantara");
-        assertAppIdAndOrgName(organizations.get(2), "2", "Whydah");
-        assertAppIdAndOrgName(organizations.get(3), "2", "Cantara");
-        assertAppIdAndOrgName(organizations.get(4), "3", "Whydah");
-        assertAppIdAndOrgName(organizations.get(5), "3", "Cantara");
-	}
+        assertAppIdAndOrgName(organizations.get(0), "2001", "Whydah");
+        assertAppIdAndOrgName(organizations.get(1), "2011", "Cantara");
+        assertAppIdAndOrgName(organizations.get(2), "2012", "Whydah");
+        assertAppIdAndOrgName(organizations.get(3), "2022", "Cantara");
+        assertAppIdAndOrgName(organizations.get(4), "2013", "Whydah");
+        assertAppIdAndOrgName(organizations.get(5), "2023", "Cantara");
+    }
 
     private void assertAppIdAndOrgName(Organization organization, String appId, String orgName) {
         assertEquals("applicationId must be set.", appId, organization.getAppId());
