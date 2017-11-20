@@ -89,7 +89,7 @@ public class LdapUIBUserIdentityDaoTest {
         String firstName = "Oddvar";
         String lastName = "jensen";
         String email = "staven@hotmail.com";
-        String password = "pass";
+        String password = "passpuss";
         String cellPhone = "+4798765432";
         String personRef = "some@email.dk";
         LDAPUserIdentity user = new LDAPUserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
@@ -155,13 +155,13 @@ public class LdapUIBUserIdentityDaoTest {
     @Test
     public void testChangePassword() throws Exception {
         String username = "stoven@hotmail.com";
-        String firstPassword = "pass";
+        String firstPassword = "firstpass";
         String uid = username;
-        UserIdentity user = createValidUser(uid, username, "Oddvar", "Bra", "stoven@hotmail.com");
+        UserIdentity user = createValidUser(uid, username, "Oddvar", "Bravo", "stoven@hotmail.com");
         ldapUserIdentityDao.addUserIdentity(new LDAPUserIdentity(user, firstPassword));
 
         assertNotNull(ldapAuthenticator.authenticateWithTemporaryPassword(username, firstPassword));
-        String secondPassword = "snafs";
+        String secondPassword = "snafssnufs";
         assertNull(ldapAuthenticator.authenticate(username, secondPassword));
 
         ldapUserIdentityDao.changePassword(username, secondPassword);
