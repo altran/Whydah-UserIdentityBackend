@@ -40,7 +40,7 @@ public class LuceneApplicationSearch {
 
     public List<Application> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
-        log.debug("Seach Application index - query:{}", wildCardQuery);
+        log.debug("findApplications - Seach Application index - query:{}", wildCardQuery);
         String[] fields = {
                 LuceneApplicationIndexer.FIELD_APPLICATIONID,
                 LuceneApplicationIndexer.FIELD_FULLJSON,
@@ -59,7 +59,7 @@ public class LuceneApplicationSearch {
             q = multiFieldQueryParser.parse(wildCardQuery);
 
         } catch (ParseException e) {
-            log.error("Could not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
+            log.error("findApplications - ould not parse wildCardQuery={}. Returning empty search result.", wildCardQuery, e);
             return new ArrayList<>();
         }
 
@@ -75,17 +75,17 @@ public class LuceneApplicationSearch {
                 int docId = hit.doc;
                 Document d = searcher.doc(docId);
                 Application application = ApplicationMapper.fromJson(d.get(LuceneApplicationIndexer.FIELD_FULLJSON));
-                log.info(application.toString() + " : " + q + ":" + hit.score);
+                log.info("findApplications- " + application.toString() + " : " + q + ":" + hit.score);
                 result.add(application);
             }
         } catch (IOException e) {
-            log.error("Error when searching.", e);
+            log.error("findApplications - Error when searching.", e);
         } finally {
             if (directoryReader != null) {
                 try {
                     directoryReader.close();
                 } catch (IOException e) {
-                    log.info("searcher.close() failed. Ignore. {}", e.getMessage());
+                    log.info("findApplications - searcher.close() failed. Ignore. {}", e.getMessage());
                 }
             }
         }
