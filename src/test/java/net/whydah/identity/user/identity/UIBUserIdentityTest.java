@@ -1,12 +1,7 @@
 package net.whydah.identity.user.identity;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.whydah.sso.ddd.model.CellPhone;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.junit.Test;
 
 import java.util.Random;
@@ -39,7 +34,7 @@ public class UIBUserIdentityTest {
 
     @Test
     public void testValidatePersonRefOK() {
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid2", "username1", "firstName1", "lastName1", "valid@email.dk", "password1", null, "personRef1");
         String[] personRefs = new String[]{"0", "123", "abc", "123abc", "valid@email.dk", "123-456", "123/456", "", null};
         for (String personRef : personRefs) {
             userIdentity.setPersonRef(personRef);
@@ -70,7 +65,7 @@ public class UIBUserIdentityTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid",
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid3",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",

@@ -157,7 +157,7 @@ public class UIBUserIdentityServiceTest {
                 new UserIdentityService(null, ldapUserIdentityDao, null, passwordGenerator, luceneIndexer, Mockito.mock(LuceneUserSearch.class));
 
         String username = "username123";
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uidvalue", username, "firstName", "lastName", "test@test.no", "password", "12345678", "personRef"
         );
         userAdminHelper.addUser(userIdentity);
 
@@ -176,7 +176,7 @@ public class UIBUserIdentityServiceTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid",
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uidvalue",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",
@@ -217,7 +217,7 @@ public class UIBUserIdentityServiceTest {
 
         Random rand = new Random();
         rand.setSeed(new java.util.Date().getTime());
-        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uid",
+        LDAPUserIdentity userIdentity = new LDAPUserIdentity("uidvalue",
                 "us" + UUID.randomUUID().toString().replace("-", "").replace("_", ""),
                 "Mt Test",
                 "Testesen",

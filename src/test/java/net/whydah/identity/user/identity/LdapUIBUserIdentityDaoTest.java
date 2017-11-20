@@ -110,7 +110,7 @@ public class LdapUIBUserIdentityDaoTest {
     public void testUpdateUser() throws Exception {
         String uid = UUID.randomUUID().toString();
         String username = "nalle";
-        UserIdentity user = createValidUser(uid, username, "Nalle", "Puh", "nalle@hotmail.com");
+        UserIdentity user = createValidUser(uid, username, "Nalle", "Puhh", "nalle@hotmail.com");
         ldapUserIdentityDao.addUserIdentity(new LDAPUserIdentity(user, "pass"));
         UserIdentity gotUser = ldapUserIdentityDao.getUserIndentity(username);
         assertNull(gotUser.getCellPhone());
