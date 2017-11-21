@@ -48,14 +48,19 @@ public class HealthResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response isHealthy() {
         ok = healthCheckService.isOK();
-        String statusText = WhydahUtil.getPrintableStatus(securityTokenServiceClient.getWAS());
-        log.trace("isHealthy={}, {status}", ok, statusText);
-        if (ok) {
-            //return Response.status(Response.Status.NO_CONTENT).build();
-            return Response.ok(getHealthTextJson()).build();
-        } else {
-            //Intentionally not returning anything the client can use to determine what's the error for security reasons.
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        try {
+            String statusText = WhydahUtil.getPrintableStatus(securityTokenServiceClient.getWAS());
+            log.trace("isHealthy={}, {status}", ok, statusText);
+            if (ok) {
+                //return Response.status(Response.Status.NO_CONTENT).build();
+                return Response.ok(getHealthTextJson()).build();
+            } else {
+                //Intentionally not returning anything the client can use to determine what's the error for security reasons.
+                return Response.ok(getSimpleTextJson()).build();
+            }
+        } catch (Exception e) {
+            return Response.ok(getSimpleTextJson()).build();
+
         }
     }
 
@@ -87,6 +92,14 @@ public class HealthResource {
                 "}\n";
     }
 
+    public String getSimpleTextJson() {
+        return "{\n" +
+                "  \"Status\": \"" + ok + "\",\n" +
+                "  \"Version\": \"" + getVersion() + "\",\n" +
+                "  \"now\": \"" + Instant.now() + "\",\n" +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\",\n\n" +
+                "}\n";
+    }
 
     public static String getVersion() {
         Properties mavenProperties = new Properties();
