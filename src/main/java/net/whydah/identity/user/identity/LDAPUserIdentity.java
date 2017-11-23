@@ -1,26 +1,19 @@
 package net.whydah.identity.user.identity;
 
-import java.io.Serializable;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
-import net.whydah.sso.ddd.model.Email;
-import net.whydah.sso.ddd.model.FirstName;
-import net.whydah.sso.ddd.model.LastName;
-import net.whydah.sso.ddd.model.Password;
-import net.whydah.sso.ddd.model.PersonRef;
-import net.whydah.sso.ddd.model.UID;
-import net.whydah.sso.ddd.model.UserName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import net.whydah.sso.ddd.model.customer.FirstName;
+import net.whydah.sso.ddd.model.customer.LastName;
+import net.whydah.sso.ddd.model.user.*;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.TelephoneNumberSyntaxChecker;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import java.io.Serializable;
 
 /**
  * A class representing the identity of a User - backed by LDAP scheme.
@@ -40,7 +33,7 @@ public class LDAPUserIdentity extends UserIdentity implements Serializable {
 
     public LDAPUserIdentity(String uid, String username, String firstName, String lastName, String email, String password,
                             String cellPhone, String personRef) {
-        this.uid = new net.whydah.sso.ddd.model.UID(uid);
+        this.uid = new UID(uid);
         this.username = new UserName(username != null ? username : email);
         this.firstName = new FirstName(firstName);
         this.lastName = new LastName(lastName);

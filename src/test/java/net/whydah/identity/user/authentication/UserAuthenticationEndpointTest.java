@@ -20,7 +20,7 @@ import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
-import net.whydah.sso.ddd.model.PersonRef;
+import net.whydah.sso.ddd.model.user.PersonRef;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import org.apache.commons.dbcp.BasicDataSource;
