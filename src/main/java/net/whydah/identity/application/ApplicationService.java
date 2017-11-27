@@ -70,7 +70,7 @@ public class ApplicationService {
         List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
         if (applicationDBList.size() >= applicationLuceneList.size()) {
             for (Application application : applicationDBList) {
-                luceneApplicationIndexer.update(application);
+                luceneApplicationIndexer.addToIndex(application);
             }
         }
         return applicationDao.getApplications();
