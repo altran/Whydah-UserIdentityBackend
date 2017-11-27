@@ -66,6 +66,13 @@ public class ApplicationService {
         return applicationDao.getApplication(applicationId);
     }
     public List<Application> getApplications() {
+        List<Application> applicationDBList = applicationDao.getApplications();
+        List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
+        if (applicationDBList.size() >= applicationLuceneList.size()) {
+            for (Application application : applicationDBList) {
+                luceneApplicationIndexer.update(application);
+            }
+        }
         return applicationDao.getApplications();
     }
 
