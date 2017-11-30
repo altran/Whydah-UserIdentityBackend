@@ -251,12 +251,24 @@ public class SecurityFilter implements Filter {
         return isHealthPath;
     }
 
+    public static String getClientIp(HttpServletRequest request) {
+
+
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
+
     private ThreatSignal createThreat(String text, HttpServletRequest request) {
         ThreatSignal threatSignal = new ThreatSignal();
-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
-        if (ipAddress == null || ipAddress.length() < 5) {
-            ipAddress = request.getRemoteAddr();
-        }
+        String ipAddress = getClientIp(request);
 
         threatSignal.setSource(ipAddress);
         threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [SecurityFilter:" + WhydahUtil.getMyIPAddresssesString() + "]");
