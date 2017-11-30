@@ -262,12 +262,20 @@ public class SecurityFilter implements Filter {
     }
 
     protected void notifyFailedAnonymousAttempt(HttpServletRequest request) {
-        SecurityTokenServiceClient.was.reportThreatSignal(getClientIp(request), WhydahUtil.getMyIPAddresssesString(), "notifyFailedAttempt - Failed intrusion detected. Header is missing");
+        try {
+            SecurityTokenServiceClient.was.reportThreatSignal(getClientIp(request), WhydahUtil.getMyIPAddresssesString(), "notifyFailedAttempt - Failed intrusion detected. Header is missing");
+        } catch (Exception e) {
+            log.warn("Trouble issuing a thread warning", e);
+        }
         healthCheckService.addIntrusionAnonymous();
     }
 
     protected void notifyFailedAttempt(HttpServletRequest request) {
-        SecurityTokenServiceClient.was.reportThreatSignal(getClientIp(request), WhydahUtil.getMyIPAddresssesString(), "notifyFailedAttempt - Failed intrusion detected. Header is missing");
+        try {
+            SecurityTokenServiceClient.was.reportThreatSignal(getClientIp(request), WhydahUtil.getMyIPAddresssesString(), "notifyFailedAttempt - Failed intrusion detected. Header is missing");
+        } catch (Exception e) {
+            log.warn("Trouble issuing a thread warning", e);
+        }
         healthCheckService.addIntrusion();
     }
 
