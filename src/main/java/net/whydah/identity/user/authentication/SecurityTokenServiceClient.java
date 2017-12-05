@@ -77,9 +77,7 @@ public class SecurityTokenServiceClient {
             String userTokenXML = new CommandGetUsertokenByUsertokenId(URI.create(was.getSTS()), was.getActiveApplicationTokenId(), was.getActiveApplicationTokenXML(), usertokenid).execute();
             if (userTokenXML != null && userTokenXML.length() > 10) {
                 return UserTokenMapper.fromUserTokenXml(userTokenXML);
-            } else {
-                // Attempt to signal auto-recover if sts-state has been lost
-                was.renewWhydahApplicationSession();
+
             }
         }
         return null;
