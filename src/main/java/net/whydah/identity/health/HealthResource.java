@@ -76,13 +76,30 @@ public class HealthResource {
     }
 
     public String getHealthTextJson() {
+        if (SecurityTokenServiceClient.getWAS() != null) {
+            return "{\n" +
+                    "  \"Status\": \"" + ok + "\",\n" +
+                    "  \"Version\": \"" + getVersion() + "\",\n" +
+                    "  \"DEFCON\": \"" + SecurityTokenServiceClient.getWAS().getDefcon() + "\",\n" +
+                    "  \"STS\": \"" + SecurityTokenServiceClient.getWAS().getSTS() + "\",\n" +
+                    "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getWAS().getActiveApplicationTokenId() != null) + "\",\n" +
+                    "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getWAS().checkActiveSession()) + "\",\n" +
+                    "  \"users\": \"" + numberOfUsers + "\",\n" +
+                    "  \"applications\": \"" + numberOfApplications + "\",\n" +
+                    "  \"now\": \"" + Instant.now() + "\",\n" +
+                    "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\",\n\n" +
+                    "  \"intrusionAttemptsDetected\": " + healthCheckService.countIntrusionAttempts() + ",\n" +
+                    "  \"anonymousIntrusionAttemptsDetected\": " + healthCheckService.countAnonymousIntrusionAttempts() + "\n" +
+                    "}\n";
+
+        }  // Else, return uninitialized was result
         return "{\n" +
                 "  \"Status\": \"" + ok + "\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
-                "  \"DEFCON\": \"" + SecurityTokenServiceClient.was.getDefcon() + "\",\n" +
-                "  \"STS\": \"" + SecurityTokenServiceClient.was.getSTS() + "\",\n" +
-                "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.getActiveApplicationTokenId() != null) + "\",\n" +
-                "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.was.checkActiveSession()) + "\",\n" +
+                "  \"DEFCON\": \"" + "N/A" + "\",\n" +
+                "  \"STS\": \"" + "N/A" + "\",\n" +
+                "  \"hasApplicationToken\": \"" + "false" + "\",\n" +
+                "  \"hasValidApplicationToken\": \"" + "false" + "\",\n" +
                 "  \"users\": \"" + numberOfUsers + "\",\n" +
                 "  \"applications\": \"" + numberOfApplications + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +

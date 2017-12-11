@@ -86,7 +86,7 @@ public class ApplicationAuthenticationEndpoint {
     }
 
     protected void notifyFailedAttempt(String text) {
-        String tokenServiceUri = SecurityTokenServiceClient.was.getSTS();
+        String tokenServiceUri = SecurityTokenServiceClient.getWAS().getSTS();
         String myApplicationTokenID = SecurityTokenServiceClient.getSecurityTokenServiceClient().getActiveUibApplicationTokenId();
         new CommandSendThreatSignal(URI.create(tokenServiceUri), myApplicationTokenID, createThreat(text)).queue();
         healthCheckService.addIntrusion();
@@ -96,8 +96,8 @@ public class ApplicationAuthenticationEndpoint {
         ThreatSignal threatSignal = new ThreatSignal();
 
         threatSignal.setSource("");
-        threatSignal.setSignalEmitter(SecurityTokenServiceClient.was.getActiveApplicationName() + " [ApplicationAuthenticationEndpoint:" + WhydahUtil.getMyIPAddresssesString() + "]");
-        threatSignal.setAdditionalProperty("DEFCON", SecurityTokenServiceClient.was.getDefcon());
+        threatSignal.setSignalEmitter(SecurityTokenServiceClient.getWAS().getActiveApplicationName() + " [ApplicationAuthenticationEndpoint:" + WhydahUtil.getMyIPAddresssesString() + "]");
+        threatSignal.setAdditionalProperty("DEFCON", SecurityTokenServiceClient.getWAS().getDefcon());
         threatSignal.setAdditionalProperty("Version", HealthResource.getVersion());
         threatSignal.setInstant(Instant.now().toString());
         threatSignal.setText(text);
