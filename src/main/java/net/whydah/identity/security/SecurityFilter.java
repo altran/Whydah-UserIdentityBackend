@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 
 /**
@@ -184,10 +185,20 @@ public class SecurityFilter implements Filter {
         return pathElement;
     }
 
+    private void logHTTPHeaders(ServletRequest request) {
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
+        Enumeration headerNames = servletRequest.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = (String) headerNames.nextElement();
+            log.info("" + headerName + ":" + servletRequest.getHeader(headerName));
+        }
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
 
+        logHTTPHeaders(request);
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
         boolean isUas = false;
         //Enable tests to pass through.
