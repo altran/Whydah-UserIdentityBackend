@@ -31,6 +31,7 @@ public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
     public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials/xml";
+    public static final String APPLICATION_CREDENTIALS_HEADER = "uas-app-credentials";
     public static final String pwPattern = "/user/.+/(reset|change)_password";
     // /password/6f485dd168bb999c7fb9696c75fad3c3/reset/username/totto@cantara.no
 //    public static final String pwPattern2 = "/password/(.*)/reset/username/(.*)";
@@ -205,6 +206,9 @@ public class SecurityFilter implements Filter {
 
         logHTTPHeaders(request);
         String applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER_XML);
+        if (applicationCredentialXmlEncoded == null || applicationCredentialXmlEncoded.length() < 10) {
+            applicationCredentialXmlEncoded = servletRequest.getHeader(APPLICATION_CREDENTIALS_HEADER);
+        }
         boolean isUas = false;
         //Enable tests to pass through.
         if (ApplicationMode.skipSecurityFilter()) {
