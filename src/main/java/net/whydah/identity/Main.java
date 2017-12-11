@@ -94,12 +94,6 @@ public class Main {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    log.debug("ShutdownHook triggered. Exiting application");
-                    main.stop();
-                }
-            });
 
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
@@ -141,6 +135,14 @@ public class Main {
             main.join();
             log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
             log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    log.debug("ShutdownHook triggered. Exiting application");
+                    main.stop();
+                }
+            });
+
 
             // Let us join the whydah network
             ExecutorService executorService = Executors.newSingleThreadExecutor();
