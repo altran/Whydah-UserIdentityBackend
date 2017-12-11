@@ -25,8 +25,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -136,15 +134,7 @@ public class Main {
             }
 
 
-
-            // Let us joinJetty the whydah network
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.execute(new Runnable() {
-                public void run() {
-                    startWhydahClient(configuration);
-                    log.debug("Asynchronous startWhydahClient task");
-                }
-            });
+            startWhydahClient();
 
 
             if (!embeddedDSEnabled) {
@@ -154,7 +144,7 @@ public class Main {
                 } catch (InterruptedException ie) {
                     log.warn("Thread was interrupted.", ie);
                 }
-                log.debug("Finished waiting for Thread.currentThread().joinJetty()");
+                log.debug("Finished waiting for Thread.currentThread().join()");
                 main.stop();
             }
 
@@ -252,18 +242,8 @@ public class Main {
         }
     }
 
-    public static void startWhydahClient(ConstrettoConfiguration configuration) {
-        SecurityTokenServiceClient whydahClient = SecurityTokenServiceClient.getSecurityTokenServiceClient();
-        String myApplicationTokenId = whydahClient.getActiveUibApplicationTokenId();
-        log.info("WhydahClient initialized, applicationtokenid:{}", myApplicationTokenId);
-        Runtime.getRuntime().removeShutdownHook(Thread.currentThread());
-        try {
-            // wait forever...
-            Thread.currentThread().join();
-        } catch (InterruptedException ie) {
-            log.warn("Thread was interrupted.", ie);
-        }
-        log.debug("Finished waiting for Thread.currentThread().joinJetty()");
+    public static void startWhydahClient() {
+        SecurityTokenServiceClient.getWAS();
     }
 
     public void startEmbeddedDS(Map<String, String> properties) {
