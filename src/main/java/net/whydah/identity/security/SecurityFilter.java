@@ -195,7 +195,7 @@ public class SecurityFilter implements Filter {
         }
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            log.trace("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
+            log.info("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
         }
     }
 
@@ -295,6 +295,7 @@ public class SecurityFilter implements Filter {
     Read the credentialXml, and validate this content towards the credentials stored in applicationdatabase.
      */
     protected boolean requestViaUas(String applicationCredentialXml) {
+        log.debug("Found applicationCredentialXml:{}", applicationCredentialXml);
         boolean isUAS = false;
         if (isCI) {
             isUAS = true;
