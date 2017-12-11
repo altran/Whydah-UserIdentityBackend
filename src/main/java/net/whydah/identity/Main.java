@@ -25,6 +25,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -90,8 +92,15 @@ public class Main {
         try {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
-            startWhydahClient();
 
+            // Let us join the whydah network
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(new Runnable() {
+                public void run() {
+                    startWhydahClient();
+                    log.debug("Asynchronous startWhydahClient task");
+                }
+            });
 
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
