@@ -36,7 +36,7 @@
     <logger name="net.whydah.sso.user.helpers.UserTokenXpathHelper" level="INFO"/>
     <logger name="net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId" level="INFO"/>
     <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
-    <logger name="net.whydah.identity" level="TRACE" />
+    <logger name="net.whydah.identity" level="DEBUG"/>
 
 
     <root level="DEBUG">
