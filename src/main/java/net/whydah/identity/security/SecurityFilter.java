@@ -186,8 +186,14 @@ public class SecurityFilter implements Filter {
     }
 
     private void logHTTPHeaders(ServletRequest request) {
+        if (request == null) {
+            return;
+        }
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         Enumeration headerNames = servletRequest.getHeaderNames();
+        if (headerNames == null) {
+            return;
+        }
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
             log.info("" + headerName + ":" + servletRequest.getHeader(headerName));
