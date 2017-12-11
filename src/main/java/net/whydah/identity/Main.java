@@ -60,7 +60,6 @@ public class Main {
     }
 
 
-
     // 1a. Default:        External ldap and database
     // or
     // 1b. Test scenario:  start embedded Ldap and database
@@ -106,19 +105,27 @@ public class Main {
             FileUtils.createDirectory(luceneUsersDirectory);
             FileUtils.createDirectory(luceneApplicationDirectory);
 
-            if (embeddedDSEnabled) {
-                if (importEnabled) {
-                    FileUtils.deleteDirectories(ldapEmbeddedpath);
+            try {
+                if (embeddedDSEnabled) {
+                    if (importEnabled) {
+                        FileUtils.deleteDirectories(ldapEmbeddedpath);
+                    }
+                    main.startEmbeddedDS(configuration.asMap());
                 }
-                main.startEmbeddedDS(configuration.asMap());
+            } catch (Exception e) {
+                log.error("Unable to start Embedded LDAP chema", e);
             }
 
-            BasicDataSource dataSource = initBasicDataSource(configuration);
-            new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+            try {
+                BasicDataSource dataSource = initBasicDataSource(configuration);
+                new DatabaseMigrationHelper(dataSource).upgradeDatabase();
 
-            if (importEnabled) {
-                // Populate ldap, database and lucene index
-                new IamDataImporter(dataSource, configuration).importIamData();
+                if (importEnabled) {
+                    // Populate ldap, database and lucene index
+                    new IamDataImporter(dataSource, configuration).importIamData();
+                }
+            } catch (Exception e) {
+                log.error("Unable to upgrade DB chema", e);
             }
 
 
@@ -127,7 +134,6 @@ public class Main {
             if ("disabled".equalsIgnoreCase(sslVerification)) {
                 SSLTool.disableCertificateValidation();
             }
-
 
 
             //main.startHttpServer(requiredRoleName);
@@ -194,7 +200,7 @@ public class Main {
         return dataSource;
     }
 
-    public void start()  {
+    public void start() {
 
         WebAppContext webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
@@ -207,7 +213,6 @@ public class Main {
         Handler[] handlerList = {webAppContext, new DefaultHandler()};
         handlers.setHandlers(handlerList);
         server.setHandler(handlers);
-
 
 
         try {
