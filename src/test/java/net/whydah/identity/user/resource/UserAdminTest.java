@@ -75,7 +75,7 @@ public class UserAdminTest {
 
         //String requiredRoleName = AppConfig.appConfig.getProperty("useradmin.requiredrolename");
         //main.startHttpServer(requiredRoleName);   //TODO
-        main.start();
+        main.startJetty();
 
         URI baseUri = UriBuilder.fromUri("http://localhost/uib/uib/useradmin/").port(main.getPort()).build();
         URI logonUri = UriBuilder.fromUri("http://localhost/uib/").port(main.getPort()).build();

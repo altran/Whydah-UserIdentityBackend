@@ -148,7 +148,7 @@ public class SecurityFilterTest {
      */
     protected String findUserTokenId(String pathInfo) {
         if (pathInfo != null && !pathInfo.startsWith("/")) {
-            log.error("Call to UIB does not start with '/' which can be because of configuration problem. Problematic Path: {}", pathInfo);
+            log.error("Call to UIB does not startJetty with '/' which can be because of configuration problem. Problematic Path: {}", pathInfo);
         }
         String tokenIdPath = securityFilter.findPathElement(pathInfo, 2);
         String tokenId = null;

@@ -45,7 +45,7 @@ public class EmbeddedJsonApplicationFileImportTest {
         main = new Main(6655);
         main.startEmbeddedDS(configuration.asMap());
 
-        main.start();
+        main.startJetty();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }

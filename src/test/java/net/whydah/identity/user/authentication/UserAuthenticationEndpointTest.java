@@ -116,7 +116,7 @@ public class UserAuthenticationEndpointTest {
 
         //main.stop();
 
-        main.start();
+        main.startJetty();
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");

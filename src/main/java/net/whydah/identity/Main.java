@@ -62,13 +62,13 @@ public class Main {
 
     // 1a. Default:        External ldap and database
     // or
-    // 1b. Test scenario:  start embedded Ldap and database
+    // 1b. Test scenario:  startJetty embedded Ldap and database
 
     // 2. run db migrations (should not share any objects with the web application)
 
     // 3. possibly import (should not share any objects with the web application)
 
-    // 4. start webserver
+    // 4. startJetty webserver
     public static void main(String[] args) {
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -113,7 +113,7 @@ public class Main {
                     main.startEmbeddedDS(configuration.asMap());
                 }
             } catch (Exception e) {
-                log.error("Unable to start Embedded LDAP chema", e);
+                log.error("Unable to startJetty Embedded LDAP chema", e);
             }
 
             try {
@@ -137,8 +137,8 @@ public class Main {
 
 
             //main.startHttpServer(requiredRoleName);
-            main.start();
-            main.join();
+            main.startJetty();
+            main.joinJetty();
             log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
             log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
 
@@ -150,7 +150,7 @@ public class Main {
             });
 
 
-            // Let us join the whydah network
+            // Let us joinJetty the whydah network
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new Runnable() {
                 public void run() {
@@ -167,7 +167,7 @@ public class Main {
                 } catch (InterruptedException ie) {
                     log.warn("Thread was interrupted.", ie);
                 }
-                log.debug("Finished waiting for Thread.currentThread().join()");
+                log.debug("Finished waiting for Thread.currentThread().joinJetty()");
                 main.stop();
             }
         } catch (RuntimeException e) {
@@ -200,7 +200,7 @@ public class Main {
         return dataSource;
     }
 
-    public void start() {
+    public void startJetty() {
 
         WebAppContext webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
@@ -243,11 +243,11 @@ public class Main {
         }
     }
 
-    public void join() {
+    public void joinJetty() {
         try {
             server.join();
         } catch (InterruptedException e) {
-            log.error("Jetty server thread when join. Pretend everything is OK.", e);
+            log.error("Jetty server thread when joinJetty. Pretend everything is OK.", e);
         }
     }
 
@@ -262,7 +262,7 @@ public class Main {
         } catch (InterruptedException ie) {
             log.warn("Thread was interrupted.", ie);
         }
-        log.debug("Finished waiting for Thread.currentThread().join()");
+        log.debug("Finished waiting for Thread.currentThread().joinJetty()");
     }
 
     public void startEmbeddedDS(Map<String, String> properties) {

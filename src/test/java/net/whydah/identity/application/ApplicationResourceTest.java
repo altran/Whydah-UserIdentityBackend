@@ -57,7 +57,7 @@ public class ApplicationResourceTest {
         dbHelper.upgradeDatabase();
 
         main = new Main(6646);
-        main.start();
+        main.startJetty();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }

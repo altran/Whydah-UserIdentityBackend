@@ -50,7 +50,7 @@ public class ApplicationsResourceTest {
         dbHelper.upgradeDatabase();
 
         main = new Main(16655);
-        main.start();
+        main.startJetty();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }

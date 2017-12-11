@@ -58,7 +58,7 @@ public class IamDataImporterTest {
 
         dataImporter = new IamDataImporter(dataSource, configuration);
 
-        main.start();
+        main.startJetty();
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
     }

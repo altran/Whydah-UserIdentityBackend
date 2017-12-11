@@ -285,7 +285,7 @@ public class EmbeddedADS {
             log.info("Removing Directory service workfiles: {}", instanceDir.getAbsolutePath());
             FileUtils.deleteDirectory(instanceDir);
         } else {
-            log.info("Working LDAP directory not deleted. Delete it manually if you want to start with fresh LDAP data. Directory location: " + instanceDir.getAbsolutePath());
+            log.info("Working LDAP directory not deleted. Delete it manually if you want to startJetty with fresh LDAP data. Directory location: " + instanceDir.getAbsolutePath());
         }
     }
 

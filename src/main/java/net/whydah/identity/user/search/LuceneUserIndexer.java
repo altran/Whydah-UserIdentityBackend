@@ -360,7 +360,7 @@ public class LuceneUserIndexer {
             //schedule to run after sometime
             log.debug("startProcessWorker - Current Time = " + new Date());
             try {
-                Thread.sleep(1000);  // Do not start too early...
+                Thread.sleep(1000);  // Do not startJetty too early...
                 scheduledThreadPool.scheduleWithFixedDelay(new Runnable() {
                     public void run() {
                         indexFromQueue();
