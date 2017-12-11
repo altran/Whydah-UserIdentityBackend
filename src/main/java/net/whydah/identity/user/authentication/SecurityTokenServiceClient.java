@@ -75,7 +75,7 @@ public class SecurityTokenServiceClient {
                         null,  // No UAS
                         myApplicationCredential);
             } catch (Exception e) {
-                log.warn("Unable to create WhydahApplicationSession", e);
+                log.warn("Trouble to create WhydahApplicationSession, was:", was, e);
             }
 
         }
