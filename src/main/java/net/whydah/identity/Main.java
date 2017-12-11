@@ -94,12 +94,12 @@ public class Main {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
 
-            //Runtime.getRuntime().addShutdownHook(new Thread() {
-            //    public void run() {
-            //        log.debug("ShutdownHook triggered. Exiting application");
-                    //main.stop();
-            //    }
-            //});
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    log.debug("ShutdownHook triggered. Exiting application");
+                    main.stop();
+                }
+            });
 
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
