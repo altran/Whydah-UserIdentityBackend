@@ -59,7 +59,7 @@ public class ApplicationAuthenticationEndpoint {
         try {
             //verify uasAppCredentialXml for UAS
             ApplicationCredential uasAppCredential = ApplicationCredentialMapper.fromXml(uasAppCredentialXml);
-            log.info("UAS ApplicationCredential lookup for applicationID={}", uasAppCredential.getApplicationID());
+            log.info("UAS ApplicationCredential lookup for applicationID:{}", uasAppCredential.getApplicationID());
             Application uasApplication = authenticationService.authenticate(uasAppCredential);
             if (uasApplication == null) {
                 log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
@@ -67,15 +67,15 @@ public class ApplicationAuthenticationEndpoint {
             }
 
 
-            //verify uasAppCredentialXml for UAS
+            //verify appCredentialXml for UAS
             ApplicationCredential authAppCredential = ApplicationCredentialMapper.fromXml(authCredentialXml);
-            log.info("UAS ApplicationCredential lookup for applicationID={}", authAppCredential.getApplicationID());
+            log.info("ApplicationCredential lookup for applicationID:{}", authAppCredential.getApplicationID());
             Application authApplication = authenticationService.authenticate(authAppCredential);
             if (authApplication == null) {
-                log.warn("UAS Application authentication failed for {}. Returning {}", uasAppCredential, Response.Status.FORBIDDEN);
+                log.warn("Application authentication failed for {}. Returning {}", authAppCredential, Response.Status.FORBIDDEN);
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
-            log.info("UAS Application Authentication ok for {}", uasApplication);
+            log.info("Application Authentication ok for {}", authAppCredential);
             return Response.status(Response.Status.NO_CONTENT).build();
 
         } catch (Exception e) {

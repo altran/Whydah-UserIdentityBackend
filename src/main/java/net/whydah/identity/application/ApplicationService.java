@@ -111,7 +111,7 @@ public class ApplicationService {
         //List<Application> applications = applicationDao.getApplications();
         Application application = applicationDao.getApplication(credential.getApplicationID().trim());
         if (application == null) {
-            log.warn("authenticate - ApplicationID:{} - Not Found", credential.getApplicationID().trim());
+            log.warn("authenticate - ApplicationID:{}- name={} - Not Found", credential.getApplicationID(), application.getName());
             return null;
         }
         String applicationSecret = application.getSecurity().getSecret().trim();
