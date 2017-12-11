@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
-    public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials";
+    public static final String APPLICATION_CREDENTIALS_HEADER_XML = "uas-app-credentials/xml";
     public static final String pwPattern = "/user/.+/(reset|change)_password";
     // /password/6f485dd168bb999c7fb9696c75fad3c3/reset/username/totto@cantara.no
 //    public static final String pwPattern2 = "/password/(.*)/reset/username/(.*)";
@@ -196,7 +196,7 @@ public class SecurityFilter implements Filter {
         }
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            log.info("" + headerName + ":" + servletRequest.getHeader(headerName));
+            log.info("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
         }
     }
 
