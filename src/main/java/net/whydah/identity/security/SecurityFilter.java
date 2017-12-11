@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 
@@ -214,12 +213,7 @@ public class SecurityFilter implements Filter {
         }
         log.trace("Header appCred: {}", applicationCredentialXmlEncoded);
         if (applicationCredentialXmlEncoded != null && !applicationCredentialXmlEncoded.isEmpty()) {
-            String applicationCredentialXml = "";
-            if (applicationCredentialXmlEncoded != null) {
-                applicationCredentialXml = URLDecoder.decode(applicationCredentialXmlEncoded, "UTF-8");
-                log.trace("Encoded appCred:" + applicationCredentialXmlEncoded);
-            }
-            isUas = requestViaUas(applicationCredentialXml);
+            isUas = requestViaUas(applicationCredentialXmlEncoded);
             log.trace("Request via UAS {}", isUas);
             if (!isUas) {
                 notifyFailedAttempt(servletRequest);
@@ -315,6 +309,7 @@ public class SecurityFilter implements Filter {
             }
 
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
+            log.debug("Found ApplicationCredential:{}", applicationCredential.toString());
             isUAS = authenticationService.isAuthenticatedAsUAS(applicationCredential);
         }
         return isUAS;
