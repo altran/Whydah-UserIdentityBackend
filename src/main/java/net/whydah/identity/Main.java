@@ -90,6 +90,7 @@ public class Main {
         try {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
+            startWhydahClient();
 
 
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
@@ -132,9 +133,6 @@ public class Main {
             if ("disabled".equalsIgnoreCase(sslVerification)) {
                 SSLTool.disableCertificateValidation();
             }
-
-
-            startWhydahClient();
 
 
             if (!embeddedDSEnabled) {
