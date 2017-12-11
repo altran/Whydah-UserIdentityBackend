@@ -18,6 +18,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
@@ -288,6 +289,14 @@ public class SecurityFilter implements Filter {
             isUAS = true;
         }
         if (applicationCredentialXml != null && !applicationCredentialXml.isEmpty()) {
+            String realData = null;
+            try {
+                realData = java.net.URLDecoder.decode(applicationCredentialXml, "UTF-8");
+                applicationCredentialXml = realData;
+            } catch (UnsupportedEncodingException e) {
+                // Nothing to do, it should not happen as you supplied a standard one
+            }
+
             ApplicationCredential applicationCredential = ApplicationCredentialMapper.fromXml(applicationCredentialXml);
             isUAS = authenticationService.isAuthenticatedAsUAS(applicationCredential);
         }
