@@ -136,19 +136,6 @@ public class Main {
             }
 
 
-            //main.startHttpServer(requiredRoleName);
-            main.startJetty();
-            main.joinJetty();
-            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
-            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    log.debug("ShutdownHook triggered. Exiting application");
-                    main.stop();
-                }
-            });
-
 
             // Let us joinJetty the whydah network
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -170,6 +157,20 @@ public class Main {
                 log.debug("Finished waiting for Thread.currentThread().joinJetty()");
                 main.stop();
             }
+
+            //main.startHttpServer(requiredRoleName);
+            main.startJetty();
+            main.joinJetty();
+            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
+            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    log.debug("ShutdownHook triggered. Exiting application");
+                    main.stop();
+                }
+            });
+
         } catch (RuntimeException e) {
             log.error("Error during startup. Shutting down UserIdentityBackend.", e);
             System.exit(1);
