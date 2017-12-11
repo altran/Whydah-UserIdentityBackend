@@ -196,7 +196,7 @@ public class SecurityFilter implements Filter {
         }
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            log.info("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
+            log.trace("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
         }
     }
 
