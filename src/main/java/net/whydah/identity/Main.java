@@ -93,15 +93,7 @@ public class Main {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
 
-            // Let us join the whydah network
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.execute(new Runnable() {
-                public void run() {
-                    startWhydahClient();
-                    log.debug("Asynchronous startWhydahClient task");
-                }
-            });
-
+            
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
             String luceneUsersDirectory = configuration.evaluateToString("lucene.usersdirectory");
@@ -154,6 +146,8 @@ public class Main {
                 log.debug("Finished waiting for Thread.currentThread().join()");
                 main.stop();
             }
+
+         
 
             //main.startHttpServer(requiredRoleName);
             main.startJetty();
@@ -249,9 +243,9 @@ public class Main {
         }
     }
 
-    public static void startWhydahClient() {
-        SecurityTokenServiceClient.getWAS();
-    }
+//    public static void startWhydahClient() {
+//        SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS();
+//    }
 
     public void startEmbeddedDS(Map<String, String> properties) {
         ads = new EmbeddedADS(properties);

@@ -76,14 +76,14 @@ public class HealthResource {
     }
 
     public String getHealthTextJson() {
-        if (SecurityTokenServiceClient.getWAS() != null) {
+        if (SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS() != null) {
             return "{\n" +
                     "  \"Status\": \"" + ok + "\",\n" +
                     "  \"Version\": \"" + getVersion() + "\",\n" +
-                    "  \"DEFCON\": \"" + SecurityTokenServiceClient.getWAS().getDefcon() + "\",\n" +
-                    "  \"STS\": \"" + SecurityTokenServiceClient.getWAS().getSTS() + "\",\n" +
-                    "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getWAS().getActiveApplicationTokenId() != null) + "\",\n" +
-                    "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getWAS().checkActiveSession()) + "\",\n" +
+                    "  \"DEFCON\": \"" + SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS().getDefcon() + "\",\n" +
+                    "  \"STS\": \"" + SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS().getSTS() + "\",\n" +
+                    "  \"hasApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS().getActiveApplicationTokenId() != null) + "\",\n" +
+                    "  \"hasValidApplicationToken\": \"" + Boolean.toString(SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS().checkActiveSession()) + "\",\n" +
                     "  \"users\": \"" + numberOfUsers + "\",\n" +
                     "  \"applications\": \"" + numberOfApplications + "\",\n" +
                     "  \"now\": \"" + Instant.now() + "\",\n" +

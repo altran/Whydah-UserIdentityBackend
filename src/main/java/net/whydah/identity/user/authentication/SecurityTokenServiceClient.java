@@ -7,6 +7,7 @@ import net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId;
 import net.whydah.sso.session.WhydahApplicationSession;
 import net.whydah.sso.user.mappers.UserTokenMapper;
 import net.whydah.sso.user.types.UserToken;
+
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -15,17 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class SecurityTokenServiceClient {
     private static final Logger log = LoggerFactory.getLogger(SecurityTokenServiceClient.class);
 
-    private static String MY_APPLICATION_ID = "2210";
-    private static String securitytokenserviceurl;
+    private  String MY_APPLICATION_ID = "2210";
+    private  String securitytokenserviceurl;
     private static WhydahApplicationSession was = null;
     private static SecurityTokenServiceClient securityTokenServiceClient;
     private ApplicationCredential myApplicationCredential;
-    private static ApplicationService applicationService;
+    private ApplicationService applicationService;
 
     @Autowired
     @Configure
@@ -35,7 +38,13 @@ public class SecurityTokenServiceClient {
         securityTokenServiceClient = this;
         this.applicationService = applicationService;
 
-
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(new Runnable() {
+            public void run() {
+                getWAS();
+                log.debug("Asynchronous startWhydahClient task");
+            }
+        });
     }
 
 
@@ -67,10 +76,10 @@ public class SecurityTokenServiceClient {
         return null;
     }
 
-    public static WhydahApplicationSession getWAS() {
+    public WhydahApplicationSession getWAS() {
         if (was == null) {
             try {
-                ApplicationCredential myApplicationCredential = getAppCredentialForApplicationId(MY_APPLICATION_ID);
+                myApplicationCredential = getAppCredentialForApplicationId(MY_APPLICATION_ID);
                 was = WhydahApplicationSession.getInstance(securitytokenserviceurl,
                         null,  // No UAS
                         myApplicationCredential);
@@ -83,7 +92,7 @@ public class SecurityTokenServiceClient {
     }
 
 
-    private static ApplicationCredential getAppCredentialForApplicationId(String appNo) {
+    private ApplicationCredential getAppCredentialForApplicationId(String appNo) {
         Application app = applicationService.getApplication(appNo);
         String appid = app.getId();
         String appname=app.getName();
