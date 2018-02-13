@@ -171,10 +171,12 @@ public class LdapAuthenticator {
             throw he;
         }
         Attributes attributes = searchResult.getAttributes();
-        if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
-            log.info("User has temp password, must change before logon");
-            return null;
-        }
+        //HUY: No security concern here b/c user is already authenticated 
+        //Huy: should allow here. There is a case in which someone tries to reset my password. I should still be able to access my page
+//        if (attributes.get(LdapUserIdentityDao.ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
+//            log.info("User has temp password, must change before logon");
+//            return null;
+//        }
 
         LDAPUserIdentity userIdentity = new LDAPUserIdentity();
         userIdentity.setUid(getAttribValue(attributes, uidAttribute));

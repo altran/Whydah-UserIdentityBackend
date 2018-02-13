@@ -40,6 +40,7 @@ public class UserIdentityService {
 
     private final LuceneUserIndexer luceneIndexer;
     private final LuceneUserSearch searcher;
+    private static String temporary_pwd=null;
 
 
     //@Named("primaryLdap")
@@ -53,6 +54,7 @@ public class UserIdentityService {
         this.passwordGenerator = passwordGenerator;
         this.luceneIndexer = luceneIndexer;
         this.searcher = searcher;
+       
     }
 
     public LDAPUserIdentity authenticate(final String username, final String password) {
@@ -61,9 +63,14 @@ public class UserIdentityService {
 
 
     public String setTempPassword(String username, String uid) {
-        String newPassword = passwordGenerator.generate();
+    	if(temporary_pwd==null){
+    		temporary_pwd = passwordGenerator.generate();
+    	}
+        String newPassword = temporary_pwd;
         String salt = passwordGenerator.generate();
-        ldapUserIdentityDao.setTempPassword(username, newPassword, salt);
+        //HUY: disable saving a new password
+        ldapUserIdentityDao.setTempPassword(username, null, salt);
+        //ldapUserIdentityDao.setTempPassword(username, newPassword, salt);
         audit(uid,ActionPerformed.MODIFIED, "resetpassword", uid);
 
         byte[] saltAsBytes;
@@ -92,7 +99,9 @@ public class UserIdentityService {
             throw new RuntimeException("Error with salt for username=" + username, e1);
         }
         ChangePasswordToken changePasswordToken = ChangePasswordToken.fromTokenString(changePasswordTokenAsString, saltAsBytes);
-        boolean ok = primaryLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
+        //HUY: we don't store a temporary password in setTempPassword(), so we just compare the salt 
+        //boolean ok = primaryLdapAuthenticator.authenticateWithTemporaryPassword(username, changePasswordToken.getPassword());
+        boolean ok = changePasswordToken.getPassword().equals(temporary_pwd);
         log.info("authenticateWithChangePasswordToken was ok={} for username={}", ok, username);
         return ok;
     }

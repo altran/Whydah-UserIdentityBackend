@@ -508,13 +508,15 @@ public class LdapUserIdentityDao {
                     return;
                 }
             }
-            ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
-            ModificationItem[] mis = {mip};
-            try {
-                new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
-            } catch(HystrixBadRequestException he) {
-                log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE PASSWORD.", username, getAdminPrincipal(), he.getCause());
-                return;
+            if(password!=null && password.length()>0){
+            	ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
+            	ModificationItem[] mis = {mip};
+            	try {
+            		new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+            	} catch(HystrixBadRequestException he) {
+            		log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE PASSWORD.", username, getAdminPrincipal(), he.getCause());
+            		return;
+            	}
             }
         } catch (NoPermissionException np) {
             log.error("setTempPassword failed for username={}, not sufficient access rights using admin principal={}. NoPermissionException msg={} ",
