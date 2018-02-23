@@ -6,6 +6,8 @@ import net.whydah.identity.audit.ActionPerformed;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
+import net.whydah.sso.util.Lock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,15 +67,26 @@ public class ApplicationService {
     public Application getApplication(String applicationId) {
         return applicationDao.getApplication(applicationId);
     }
+    
+    Lock lock = new Lock();
     public List<Application> getApplications() {
         List<Application> applicationDBList = applicationDao.getApplications();
         List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
-        if (applicationDBList.size() >= applicationLuceneList.size()) {
-            for (Application application : applicationDBList) {
-                luceneApplicationIndexer.addToIndex(application);
-            }
+        if(!lock.isLocked()){
+        	try {
+				lock.lock();
+				if (applicationDBList.size() > applicationLuceneList.size()) {
+	        		for (Application application : applicationDBList) {
+	        			luceneApplicationIndexer.addToIndex(application);
+	        		}
+	        	}
+			} catch (InterruptedException e) {
+				
+			} finally{
+				lock.unlock();
+			}
         }
-        return applicationDao.getApplications();
+        return applicationDBList;
     }
 
     public int update(Application application) {
