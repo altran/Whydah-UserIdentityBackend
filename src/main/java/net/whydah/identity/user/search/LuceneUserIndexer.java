@@ -3,6 +3,7 @@ package net.whydah.identity.user.search;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.types.UserAggregate;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -110,7 +111,7 @@ public class LuceneUserIndexer {
             getWriter();
             Document doc = createLuceneDocument(user);
             indexWriter.addDocument(doc);
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error("addToIndex failed for {}.", user.toString(), e);
         } finally {
             closeWriter();
@@ -261,9 +262,8 @@ public class LuceneUserIndexer {
         Document doc = new Document();
         doc.add(new Field(FIELD_UID, user.getUid(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
         doc.add(new Field(FIELD_USERNAME, user.getUsername(), ftTokenized));
-        if (user.getEmail() != null) {
-        	doc.add(new Field(FIELD_EMAIL, user.getEmail(), ftTokenized));
-        }
+        doc.add(new Field(FIELD_EMAIL, user.getEmail(), ftTokenized));
+        
         
 
         if (user.getFirstName() != null) {

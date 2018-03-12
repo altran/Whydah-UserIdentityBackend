@@ -59,7 +59,11 @@ public class UserSearch {
 						    		
 									for(LDAPUserIdentity user : list){
 										 log.debug("Added a user found in LDAP to lucene index: {}", user.toString());
-										 luceneUserIndexer.addToIndex(user);
+										 try {
+											 luceneUserIndexer.addToIndex(user);
+										 }	catch(Exception ex){
+											 ex.printStackTrace();
+										 }
 									}
 								}
 							}
