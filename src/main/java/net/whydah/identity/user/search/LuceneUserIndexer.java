@@ -261,7 +261,10 @@ public class LuceneUserIndexer {
         Document doc = new Document();
         doc.add(new Field(FIELD_UID, user.getUid(), ftNotTokenized)); //Field.Index.NOT_ANALYZED
         doc.add(new Field(FIELD_USERNAME, user.getUsername(), ftTokenized));
-        doc.add(new Field(FIELD_EMAIL, user.getEmail(), ftTokenized));
+        if (user.getEmail() != null) {
+        	doc.add(new Field(FIELD_EMAIL, user.getEmail(), ftTokenized));
+        }
+        
 
         if (user.getFirstName() != null) {
             doc.add(new Field(FIELD_FIRSTNAME, user.getFirstName(), ftTokenized));
