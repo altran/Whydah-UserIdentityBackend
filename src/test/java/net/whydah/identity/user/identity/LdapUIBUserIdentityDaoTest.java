@@ -4,6 +4,7 @@ import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
@@ -14,7 +15,12 @@ import org.junit.Test;
 import java.io.File;
 import java.util.UUID;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+
 import static org.junit.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class LdapUIBUserIdentityDaoTest {
     private static Main main = null;
@@ -168,6 +174,15 @@ public class LdapUIBUserIdentityDaoTest {
         assertNull(ldapAuthenticator.authenticate(username, firstPassword));
         assertNotNull(ldapAuthenticator.authenticate(username, secondPassword));
     }
+    
+
+    @Test
+    public void testGetAllUsers() throws Exception {
+    	assertTrue(ldapUserIdentityDao.getAllUsers().size()>0);
+    	
+    	
+    }
+    
 
     private static UserIdentity createValidUser(String uid, String username, String firstName, String lastName, String email) {
         return new UserIdentity(uid, username, firstName, lastName, null, email, null);

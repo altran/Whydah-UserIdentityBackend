@@ -2,7 +2,9 @@ package net.whydah.identity.user.identity;
 
 
 import com.netflix.hystrix.exception.HystrixBadRequestException;
+
 import net.whydah.sso.user.types.UserIdentity;
+
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -12,8 +14,10 @@ import org.springframework.stereotype.Repository;
 
 import javax.naming.*;
 import javax.naming.directory.*;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * https://wiki.cantara.no/display/whydah/UserIdentity+LDAP+mapping
@@ -347,7 +351,60 @@ public class LdapUserIdentityDao {
         return getAttributesFor(uidAttribute, usernameOrUid);
     }
 
-    private Attributes getAttributesFor(String attributeName, String attributeValue) throws NamingException {
+    public List<LDAPUserIdentity> getAllUsers() throws NamingException{
+    	SearchControls constraints = new SearchControls();
+    	constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+    	NamingEnumeration objs = new InitialDirContext(admenv).search("","(objectClass=*)", constraints);
+    	List<LDAPUserIdentity> list = new ArrayList<>();
+    	while (objs.hasMoreElements())
+    	{
+    		//Each item is a SearchResult object
+    		SearchResult match = (SearchResult) objs.nextElement();
+
+    		//Print out the node name
+    		//System.out.println("Found "+match.getName()+":");
+
+    		//Get the node's attributes
+    		Attributes attrs = match.getAttributes();
+
+    		//NamingEnumeration e = attrs.getAll();
+
+    		LDAPUserIdentity ldapUser = fromLdapAttributes(attrs);
+    		
+    		if(ldapUser!=null){
+    			list.add(ldapUser);
+    		}
+    		
+    		
+    		
+    		//System.out.print(ldapUser);
+    		
+    		
+    		/*
+    		//Loop through the attributes
+    		while (e.hasMoreElements())
+    		{
+    			//Get the next attribute
+    			Attribute attr = (Attribute) e.nextElement();
+
+    			//Print out the attribute's value(s)
+    			System.out.print(attr.getID()+" = ");
+    			for (int i=0; i < attr.size(); i++)
+    			{
+    				if (i > 0) System.out.print(", ");
+    				System.out.print(attr.get(i));
+    			}
+    			System.out.println();
+    		}
+    		System.out.println("---------------------------------------");
+    		*/
+    	}
+    	
+    	return list;
+
+    }
+    
+    public Attributes getAttributesFor(String attributeName, String attributeValue) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         log.trace("getAttributesForUid using {}={}", attributeName, attributeValue);

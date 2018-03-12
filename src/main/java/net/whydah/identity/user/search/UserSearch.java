@@ -3,6 +3,8 @@ package net.whydah.identity.user.search;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.sso.user.types.UserIdentity;
+import net.whydah.sso.util.Lock;
+
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -11,8 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NamingException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
@@ -24,6 +30,8 @@ public class UserSearch {
     private final LuceneUserSearch luceneUserSearch;
     private final LuceneUserIndexer luceneUserIndexer;
     private final boolean alwayslookupinexternaldirectory;
+    ScheduledExecutorService scheduler;
+    Lock locker = new Lock();
 
     @Autowired
     @Configure
@@ -32,7 +40,34 @@ public class UserSearch {
         this.luceneUserSearch = luceneSearch;
         this.luceneUserIndexer = luceneIndexer;
         this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
-
+        //start a thread to populate data from LDAP to user index list
+        scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleAtFixedRate(
+				new Runnable() {
+					public void run() {
+						try{
+							
+							if(!locker.isLocked()){
+								locker.lock();
+								if(luceneUserSearch.getUserIndexSize()==0 && alwayslookupinexternaldirectory){
+									List<LDAPUserIdentity> list = ldapUserIdentityDao.getAllUsers();
+									for(LDAPUserIdentity user : list){
+										 log.debug("Added a user found in LDAP to lucene index: {}", user.toString());
+										 luceneUserIndexer.addToIndex(user);
+									}
+								}
+							}
+							
+														
+						} catch(Exception ex){
+							ex.printStackTrace();
+						} finally{
+							locker.unlock();
+						}
+					}
+				},
+				60, 30, TimeUnit.SECONDS);
+ 
     }
 
     public List<UserIdentity> search(String query) {
@@ -43,20 +78,20 @@ public class UserSearch {
         log.debug("lucene search with query={} returned {} users.", query, users.size());
 
         //If user is not found in lucene, try to search AD.
-        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-            try {
-                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-                if (user != null) {
-                    users.add(user);
-                    //Update user to lucene.
-                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-                    //luceneUserIndexer.update(user);
-                    luceneUserIndexer.addToIndex(user);
-                }
-            } catch (NamingException e) {
-                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-            }
-        }
+//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
+//            try {
+//                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+//                if (user != null) {
+//                    users.add(user);
+//                    //Update user to lucene.
+//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
+//                    //luceneUserIndexer.update(user);
+//                    luceneUserIndexer.addToIndex(user);
+//                }
+//            } catch (NamingException e) {
+//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
+//            }
+//        }
         return users;
     }
 
@@ -91,22 +126,22 @@ public class UserSearch {
         log.debug("lucene search with query={} returned {} users.", query, users.size());
 
         //If user is not found in lucene, try to search AD.
-        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-            try {
-                UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-                if (user != null) {
-                    users.add(user);
-                    //Update user to lucene.
-                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-                    //luceneUserIndexer.update(user);
-                    luceneUserIndexer.addToIndex(user);
-                }
-            } catch (NamingException e) {
-                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-            }
-
-            paginatedDL.data = users;
-        }
+//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
+//            try {
+//                UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+//                if (user != null) {
+//                    users.add(user);
+//                    //Update user to lucene.
+//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
+//                    //luceneUserIndexer.update(user);
+//                    luceneUserIndexer.addToIndex(user);
+//                }
+//            } catch (NamingException e) {
+//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
+//            }
+//
+//            paginatedDL.data = users;
+//        }
 
         return paginatedDL;
     }
