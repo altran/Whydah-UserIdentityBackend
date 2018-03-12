@@ -84,20 +84,20 @@ public class UserSearch {
         log.debug("lucene search with query={} returned {} users.", query, users.size());
 
         //If user is not found in lucene, try to search AD.
-        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-            try {
-                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-                if (user != null) {
-                    users.add(user);
-                    //Update user to lucene.
-                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-                    //luceneUserIndexer.update(user);
-                    luceneUserIndexer.addToIndex(user);
-                }
-            } catch (NamingException e) {
-                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-            }
-        }
+//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
+//            try {
+//                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+//                if (user != null) {
+//                    users.add(user);
+//                    //Update user to lucene.
+//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
+//                    //luceneUserIndexer.update(user);
+//                    luceneUserIndexer.addToIndex(user);
+//                }
+//            } catch (NamingException e) {
+//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
+//            }
+//        }
         return users;
     }
 

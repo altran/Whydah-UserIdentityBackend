@@ -179,6 +179,20 @@ public class LdapUIBUserIdentityDaoTest {
     @Test
     public void testGetAllUsers() throws Exception {
     	
+    	//{uid='uibadmin', username='uibadmin', firstName='uibadmin', lastName='uibadmin', personRef='null', email='null', cellPhone='null'}
+//
+//    	 String uid = "uibadmin";
+//         String username = "uibadmin";
+//         String firstName = "uibadmin";
+//         String lastName = "uibadmin";
+//         String email = "mail@gmail.com";
+//         String password = null;
+//         String cellPhone = null;
+//         String personRef = null;
+//         LDAPUserIdentity user = new LDAPUserIdentity(uid, username, firstName, lastName, email, password, cellPhone, personRef);
+//         ldapUserIdentityDao.addUserIdentity(user);
+//         LDAPUserIdentity gotUser = ldapUserIdentityDao.getUserIndentity("uibadmin");
+//         assertTrue(gotUser!=null);
     	 assertTrue(ldapUserIdentityDao.getAllUsers().size()>0);
     	
     	

@@ -110,7 +110,7 @@ public class LuceneUserIndexer {
             getWriter();
             Document doc = createLuceneDocument(user);
             indexWriter.addDocument(doc);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("addToIndex failed for {}.", user.toString(), e);
         } finally {
             closeWriter();
