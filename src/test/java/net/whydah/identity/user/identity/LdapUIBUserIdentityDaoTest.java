@@ -178,7 +178,8 @@ public class LdapUIBUserIdentityDaoTest {
 
     @Test
     public void testGetAllUsers() throws Exception {
-    	assertTrue(ldapUserIdentityDao.getAllUsers().size()>0);
+    	
+    	 assertTrue(ldapUserIdentityDao.getAllUsers().size()>0);
     	
     	
     }

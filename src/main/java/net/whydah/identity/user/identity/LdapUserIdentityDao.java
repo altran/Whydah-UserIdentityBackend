@@ -355,11 +355,11 @@ public class LdapUserIdentityDao {
     	SearchControls constraints = new SearchControls();
     	constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
     	NamingEnumeration objs = new InitialDirContext(admenv).search("","(objectClass=*)", constraints);
-    	List<LDAPUserIdentity> list = new ArrayList<>();
-    	while (objs.hasMoreElements())
+    	List<LDAPUserIdentity> list = new ArrayList<LDAPUserIdentity>();
+    	while (objs.hasMore())
     	{
     		//Each item is a SearchResult object
-    		SearchResult match = (SearchResult) objs.nextElement();
+    		SearchResult match = (SearchResult) objs.next();
 
     		//Print out the node name
     		//System.out.println("Found "+match.getName()+":");
@@ -374,7 +374,6 @@ public class LdapUserIdentityDao {
     		if(ldapUser!=null){
     			list.add(ldapUser);
     		}
-    		
     		
     		
     		//System.out.print(ldapUser);
@@ -404,7 +403,7 @@ public class LdapUserIdentityDao {
 
     }
     
-    public Attributes getAttributesFor(String attributeName, String attributeValue) throws NamingException {
+    private Attributes getAttributesFor(String attributeName, String attributeValue) throws NamingException {
         SearchControls constraints = new SearchControls();
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         log.trace("getAttributesForUid using {}={}", attributeName, attributeValue);

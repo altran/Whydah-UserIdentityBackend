@@ -50,7 +50,13 @@ public class UserSearch {
 							if(!locker.isLocked()){
 								locker.lock();
 								if(luceneUserSearch.getUserIndexSize()==0 && alwayslookupinexternaldirectory){
+									
+									log.debug("lucene index is empty. Trying to import from LDAP...");
+									
 									List<LDAPUserIdentity> list = ldapUserIdentityDao.getAllUsers();
+
+						    		log.debug("Found LDAP user list size: {}", list.size());
+						    		
 									for(LDAPUserIdentity user : list){
 										 log.debug("Added a user found in LDAP to lucene index: {}", user.toString());
 										 luceneUserIndexer.addToIndex(user);
@@ -66,7 +72,7 @@ public class UserSearch {
 						}
 					}
 				},
-				60, 30, TimeUnit.SECONDS);
+				1, 1, TimeUnit.MINUTES);
  
     }
 
@@ -78,20 +84,20 @@ public class UserSearch {
         log.debug("lucene search with query={} returned {} users.", query, users.size());
 
         //If user is not found in lucene, try to search AD.
-//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-//            try {
-//                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-//                if (user != null) {
-//                    users.add(user);
-//                    //Update user to lucene.
-//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-//                    //luceneUserIndexer.update(user);
-//                    luceneUserIndexer.addToIndex(user);
-//                }
-//            } catch (NamingException e) {
-//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-//            }
-//        }
+        if (users.isEmpty() && alwayslookupinexternaldirectory) {
+            try {
+                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
+                if (user != null) {
+                    users.add(user);
+                    //Update user to lucene.
+                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
+                    //luceneUserIndexer.update(user);
+                    luceneUserIndexer.addToIndex(user);
+                }
+            } catch (NamingException e) {
+                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
+            }
+        }
         return users;
     }
 
