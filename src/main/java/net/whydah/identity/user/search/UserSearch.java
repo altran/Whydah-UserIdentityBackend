@@ -46,6 +46,7 @@ public class UserSearch {
 				new Runnable() {
 					public void run() {
 						try{
+						    Thread.sleep(60000);
 							
 							if(!locker.isLocked()){
 								locker.lock();
@@ -76,7 +77,7 @@ public class UserSearch {
 						}
 					}
 				},
-				1, 1, TimeUnit.MINUTES);
+				1, 10, TimeUnit.MINUTES);
  
     }
 
