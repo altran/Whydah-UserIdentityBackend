@@ -42,6 +42,7 @@ public class UserAdminTest {
     private static WebTarget baseResource;
     private static WebTarget logonResource;
     private static Main main;
+    String luceneUsersDir;
 
     @Before
     public void init() throws Exception {
@@ -58,11 +59,9 @@ public class UserAdminTest {
                 .getConfiguration();
 
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        String luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneUsersDir);
-
-        FileUtils.deleteDirectory(new File(luceneUsersDir));
-
+        
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());
 
@@ -103,11 +102,12 @@ public class UserAdminTest {
         main.stop();
         FileUtils.deleteDirectory(new File("target/data/lucene"));
         FileUtils.deleteDirectory(new File("data/lucene"));
-
+        FileUtils.deleteDirectory(new File(luceneUsersDir));
     }
 
     @Test
     public void testFind() {
+    	System.out.println("==================test Find()======================");
         WebTarget webResource = baseResource.path("users/find/useradmin");
         Response response = webResource.request().get(Response.class);
         String entity = response.readEntity(String.class);
@@ -116,14 +116,16 @@ public class UserAdminTest {
 
     @Test
     public void getUser() {
+    	System.out.println("==================getUser()======================");
         WebTarget webResource = baseResource.path("user/useradmin");
         String s = webResource.request().get(String.class);
-        System.out.println(s);
-        assertTrue(s.contains("\"firstName\":\"User\""));
+        System.out.println("===>" + s);
+        assertTrue(s.contains("\"firstName\":\"User"));
     }
 
     @Test
     public void getNonExistingUser() {
+    	System.out.println("==================getNonExistingUser()======================");
         FileUtils.deleteDirectory(new File("target/data/lucene"));
         FileUtils.deleteDirectory(new File("data/lucene"));
         WebTarget webResource = baseResource.path("user/");
@@ -138,7 +140,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyUser() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================modifyUser()======================");
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
 
         String s = baseResource.path("user/" + uid).request().get(String.class);
@@ -171,7 +173,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserOK() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================deleteUserOK()======================");
         String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
 
         Response response = baseResource.path("user/" + uid).request().delete(Response.class);
@@ -188,7 +190,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserNotFound() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================deleteUserNotFound()======================");
         WebTarget webResource = baseResource.path("users/dededede@hotmail.com/delete");
         try {
             String s = webResource.request().get(String.class);
@@ -203,7 +205,7 @@ public class UserAdminTest {
     @Test
     public void getuserroles() {
 
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================getuserroles()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId1", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappIdX", "0005", "NN", "another");
@@ -236,7 +238,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserrole() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================adduserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         List<Map<String, Object>> rolesBefore = doGetUserRoles(uid);
         assertTrue(rolesBefore.isEmpty());
@@ -251,7 +253,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleNoJson() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================adduserroleNoJson()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "");
@@ -264,7 +266,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleBadJson() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================adduserroleBadJson()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "{ dilldall }");
@@ -278,7 +280,7 @@ public class UserAdminTest {
 
     @Test
     public void addExistingUserrole() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addExistingUserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         doAddUserRole(uid, "testappId", "0005", "KK", "test");
         try {
@@ -291,7 +293,7 @@ public class UserAdminTest {
 
     @Test(expected = NotFoundException.class)
     public void addRoleNonExistingUser() {
-        LuceneUserIndexer.closeIndexer();
+        
         String uid = "nonExistingUserId";
         WebTarget webResource = baseResource.path("user/" + uid + "/role");
         String payload = "{\"organizationName\": \"" + "0005" + "\",\n" +
@@ -304,7 +306,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteuserrole() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================deleteuserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "tjohei");
@@ -322,7 +324,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyuserrole() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================modifyuserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
 
@@ -352,7 +354,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetExistingUser() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================testGetExistingUser()======================");
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("Hoytahl"));
@@ -361,7 +363,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetNonExistingUser() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================testGetNonExistingUser()======================");
         doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String uid = "non-existent-uid";
         try {
@@ -375,7 +377,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWillRespondWithConflictWhenUsernameAlreadyExists() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================testAddUserWillRespondWithConflictWhenUsernameAlreadyExists()======================");
         doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             doAddUser("tifftaff", "snyper", "Another", "Wanderer", "wanderer@midget.orj", "34343434");
@@ -405,7 +407,7 @@ public class UserAdminTest {
 
     @Test
     public void addUser() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addUser()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Gøæøåffse", "snyper@midget.orj", "12121212");
         assertNotNull(uid);
 
@@ -421,27 +423,27 @@ public class UserAdminTest {
 
     @Test
     public void addUserAllowMissingPersonRef() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addUserAllowMissingPersonRef()======================");
         String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
         baseResource.path("user/" + uid).request().get(String.class);
     }
 
     @Test
     public void addUserAllowMissingFirstName() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addUserAllowMissingFirstName()======================");
         doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void addUserAllowMissingLastName() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addUserAllowMissingLastName()======================");
         doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void thatAddUserDoesNotAllowMissingEmail() {
-        LuceneUserIndexer.closeIndexer();
-        try {
+    	System.out.println("==================thatAddUserDoesNotAllowMissingEmail()======================");
+       try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", null, "12121212");
             fail("Expected 400 BAD_REQUEST");
         } catch (ClientErrorException e) {
@@ -451,7 +453,7 @@ public class UserAdminTest {
 
     @Test
     public void addUserWithMissingPhoneNumber() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================addUserWithMissingPhoneNumber()======================");
         String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", null);
         baseResource.path("user/" + uid).request().get(String.class);
     }
@@ -467,7 +469,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWithLettersInPhoneNumberIsNotAllowed() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================testAddUserWithLettersInPhoneNumberIsNotAllowed()======================");
         // Apache DS does not allow phone number with non-number letters
         try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
@@ -481,7 +483,7 @@ public class UserAdminTest {
     @Test
     @Ignore
     public void resetAndChangePassword() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================resetAndChangePassword()======================");
         String uid = doAddUser("123123123", "sneile", "Effert", "Huffse", "sneile@midget.orj", "21212121");
 
         //baseResource.path("user/sneile/resetpassword").type("application/json").post(ClientResponse.class);
@@ -507,7 +509,7 @@ public class UserAdminTest {
 
     @Test
     public void thatEmailCanBeUsedAsUsername() {
-        LuceneUserIndexer.closeIndexer();
+    	System.out.println("==================thatEmailCanBeUsedAsUsername()======================");
         String uid = doAddUser("riffraff", "snyper@midget.orj", "Edmund", "Goffse", "somotheremail@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));

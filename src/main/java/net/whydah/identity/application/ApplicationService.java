@@ -91,7 +91,7 @@ public class ApplicationService {
 
     public int update(Application application) {
         int numRowsAffected = applicationDao.update(application);
-        luceneApplicationIndexer.update(application);
+        luceneApplicationIndexer.updateIndex(application);
         audit(ActionPerformed.MODIFIED, application.getId() + ", " + application.getName());
         return numRowsAffected;
     }

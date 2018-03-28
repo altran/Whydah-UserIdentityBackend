@@ -15,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 
@@ -72,7 +73,7 @@ public class EmbeddedJsonApplicationFileImportTest {
     }
 
     @Test
-    public void testEmbeddedJsonApplicationsFile(ConstrettoConfiguration configuration) {
+    public void testEmbeddedJsonApplicationsFile(ConstrettoConfiguration configuration) throws IOException {
         InputStream ais = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);

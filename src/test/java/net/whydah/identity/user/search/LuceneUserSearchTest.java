@@ -21,7 +21,7 @@ public class LuceneUserSearchTest {
         RAMDirectory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
+        LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Norman");
@@ -40,7 +40,7 @@ public class LuceneUserSearchTest {
 
         LuceneUserIndexer luceneIndexer = addUsers(index);
 
-        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
+        LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         luceneIndexer.removeFromIndex("ola@example.com");
@@ -54,12 +54,12 @@ public class LuceneUserSearchTest {
         RAMDirectory index = new RAMDirectory();
         LuceneUserIndexer luceneIndexer = addUsers(index);
 
-        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
+        LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
-        luceneIndexer.update(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
+        luceneIndexer.updateIndex(createUser("ola@example.com", "Ola", "Norman", "ola@example.com", "ola@example.com"));
         result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
@@ -72,7 +72,7 @@ public class LuceneUserSearchTest {
         Directory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
+        LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
         result = luceneSearch.search("Ola");
@@ -89,7 +89,7 @@ public class LuceneUserSearchTest {
         Directory index = new RAMDirectory();
         addUsers(index);
 
-        LuceneUserSearch luceneSearch = new LuceneUserSearch(index);
+        LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Norman");
         assertEquals(2, result.size());
         assertEquals("ola@example.com", result.get(1).getUsername());

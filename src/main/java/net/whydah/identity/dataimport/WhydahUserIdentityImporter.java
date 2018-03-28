@@ -35,7 +35,7 @@ public class WhydahUserIdentityImporter {
     public LuceneUserIndexer luceneIndexer;
 
     @Autowired
-    public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, Directory index) {
+    public WhydahUserIdentityImporter(LdapUserIdentityDao ldapUserIdentityDao, Directory index) throws IOException {
         this.ldapUserIdentityDao = ldapUserIdentityDao;
         this.luceneIndexer = new LuceneUserIndexer(index);
     }
@@ -115,14 +115,13 @@ public class WhydahUserIdentityImporter {
             }
 
             luceneIndexer.addToIndex(userIdentities);
-            luceneIndexer.closeIndexer();
+            
         } catch (Exception e) {
             log.error("Error importing users!", e);
-            luceneIndexer.closeIndexer();
+     
             throw new RuntimeException("Error importing users!", e);
         }
 
-        luceneIndexer.closeIndexer();
         return userAddedCount;
     }
 }

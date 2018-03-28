@@ -161,8 +161,11 @@ public class UserIdentityService {
                 email, passwordGenerator.generate(), dto.getCellPhone(), dto.getPersonRef());
         try {
             ldapUserIdentityDao.addUserIdentity(userIdentity);
-            luceneIndexer.addToIndex(userIdentity);
-            HealthResource.setNumberOfUsers(searcher.getUserIndexSize());
+            if(luceneIndexer.addToIndex(userIdentity)) {
+            	HealthResource.setNumberOfUsers(searcher.getUserIndexSize());
+            } else {
+            	 throw new IllegalArgumentException("addUserIdentity failed for " + userIdentity.toString());
+            }
 
         } catch (NamingException e) {
             throw new RuntimeException("addUserIdentity failed for " + userIdentity.toString(), e);
@@ -195,7 +198,7 @@ public class UserIdentityService {
 
     public void updateUserIdentityForUid(String uid, LDAPUserIdentity newUserIdentity) {
         ldapUserIdentityDao.updateUserIdentityForUid(uid, newUserIdentity);
-        luceneIndexer.update(newUserIdentity);
+        luceneIndexer.updateIndex(newUserIdentity);
         audit(uid,ActionPerformed.MODIFIED, "user", newUserIdentity.toString());
     }
 
@@ -206,7 +209,7 @@ public class UserIdentityService {
 
     public void updateUserIdentity(String username, LDAPUserIdentity newuser) {
         ldapUserIdentityDao.updateUserIdentityForUsername(username, newuser);
-        luceneIndexer.update(newuser);
+        luceneIndexer.updateIndex(newuser);
     }
 
     public void deleteUserIdentity(String username) throws NamingException {

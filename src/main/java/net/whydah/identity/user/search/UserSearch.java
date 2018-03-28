@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.naming.NamingException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,17 +55,9 @@ public class UserSearch {
 									log.debug("lucene index is empty. Trying to import from LDAP...");
 									
 									List<LDAPUserIdentity> list = ldapUserIdentityDao.getAllUsers();
-
+									List<UserIdentity> clones = new ArrayList<UserIdentity>(list);
 						    		log.debug("Found LDAP user list size: {}", list.size());
-						    		
-									for(LDAPUserIdentity user : list){
-										 log.debug("Added a user found in LDAP to lucene index: {}", user.toString());
-										 try {
-											 luceneUserIndexer.addToIndex(user);
-										 }	catch(Exception ex){
-											 ex.printStackTrace();
-										 }
-									}
+						    		luceneUserIndexer.addToIndex(clones);
 								}
 							}
 							

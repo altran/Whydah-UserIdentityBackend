@@ -39,7 +39,7 @@ public class ApplicationsResource {
     //}
 
     @Autowired
-    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, ConstrettoConfiguration configuration) {
+    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, ConstrettoConfiguration configuration) throws IOException {
         this.applicationService = applicationService;
         this.applicationSearch = applicationSearch;
         String luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");

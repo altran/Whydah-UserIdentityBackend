@@ -1,11 +1,11 @@
 package net.whydah.identity;
 
-import net.whydah.identity.dataimport.DatabaseMigrationHelper;
-import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.ldapserver.EmbeddedADS;
-import net.whydah.identity.user.authentication.SecurityTokenServiceClient;
-import net.whydah.identity.util.FileUtils;
-import net.whydah.sso.util.SSLTool;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -22,13 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.identity.dataimport.IamDataImporter;
+import net.whydah.identity.ldapserver.EmbeddedADS;
+import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.identity.util.BaseLuceneIndexer;
+import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.util.SSLTool;
 
 public class Main {
     public static final String CONTEXT_PATH = "/uib";
@@ -159,6 +160,7 @@ public class Main {
                 public void run() {
                     log.debug("ShutdownHook triggered. Exiting application");
                     main.stop();
+                    
                 }
             });
 
@@ -192,15 +194,18 @@ public class Main {
         return dataSource;
     }
 
-    public void startJetty() {
+    WebAppContext webAppContext;
+    
 
-        WebAppContext webAppContext = new WebAppContext();
+    public void startJetty() {
+    	
+        webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
         webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");
         webAppContext.setResourceBase(resourceBase);
         webAppContext.setContextPath(CONTEXT_PATH);
         webAppContext.setParentLoaderPriority(true);
-
+        
         HandlerList handlers = new HandlerList();
         Handler[] handlerList = {webAppContext, new DefaultHandler()};
         handlers.setHandlers(handlerList);
@@ -220,6 +225,7 @@ public class Main {
 
     public void stop() {
         try {
+        	BaseLuceneIndexer.closeAllIndexWriters();
             server.stop();
         } catch (Exception e) {
             log.warn("Error when stopping Jetty server", e);

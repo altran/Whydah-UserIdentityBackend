@@ -23,7 +23,7 @@ public class ApplicationJsonImporter {
 
 
 
-    public ApplicationJsonImporter(ApplicationService applicationService, ConstrettoConfiguration configuration) {
+    public ApplicationJsonImporter(ApplicationService applicationService, ConstrettoConfiguration configuration) throws IOException {
         this.applicationService = applicationService;
         this.luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");
         NIOFSDirectory index = createDirectory(luceneApplicationDir);
