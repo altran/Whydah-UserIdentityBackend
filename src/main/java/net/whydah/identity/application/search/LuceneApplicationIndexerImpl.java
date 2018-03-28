@@ -18,9 +18,7 @@ public class LuceneApplicationIndexerImpl extends BaseLuceneIndexer<Application>
 	public static final String FIELD_APPLICATIONNAME = "applicationname";
 	public static final String FIELD_FULLJSON = "fulljson";
 	public static final String FIELD_FULLSEARCH = "fullsearch";
-	public Directory dir;
 
-	
 		
 	public LuceneApplicationIndexerImpl(Directory luceneApplicationDirectory) throws IOException {
 		super(luceneApplicationDirectory);

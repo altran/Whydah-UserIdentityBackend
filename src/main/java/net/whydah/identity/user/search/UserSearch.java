@@ -26,131 +26,100 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class UserSearch {
-    private static final Logger log = LoggerFactory.getLogger(UserSearch.class);
-    private final LdapUserIdentityDao ldapUserIdentityDao;
-    private final LuceneUserSearch luceneUserSearch;
-    private final LuceneUserIndexer luceneUserIndexer;
-    private final boolean alwayslookupinexternaldirectory;
-    ScheduledExecutorService scheduler;
-    Lock locker = new Lock();
+	private static final Logger log = LoggerFactory.getLogger(UserSearch.class);
+	private final LdapUserIdentityDao ldapUserIdentityDao;
+	private final LuceneUserSearch luceneUserSearch;
+	private final LuceneUserIndexer luceneUserIndexer;
+	private final boolean alwayslookupinexternaldirectory;
+	ScheduledExecutorService scheduler;
+	Lock locker = new Lock();
 
-    @Autowired
-    @Configure
-    public UserSearch(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserSearch luceneSearch, LuceneUserIndexer luceneIndexer, @Configuration("ldap.primary.alwayslookupinexternaldirectory") boolean _alwayslookupinexternaldirectory) {
-        this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.luceneUserSearch = luceneSearch;
-        this.luceneUserIndexer = luceneIndexer;
-        this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
-        //start a thread to populate data from LDAP to user index list
-        scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(
-				new Runnable() {
-					public void run() {
-						try{
-						    Thread.sleep(60000);
-							
-							if(!locker.isLocked()){
-								locker.lock();
-								if(luceneUserSearch.getUserIndexSize()==0 && alwayslookupinexternaldirectory){
-									
-									log.debug("lucene index is empty. Trying to import from LDAP...");
-									
-									List<LDAPUserIdentity> list = ldapUserIdentityDao.getAllUsers();
-									List<UserIdentity> clones = new ArrayList<UserIdentity>(list);
-						    		log.debug("Found LDAP user list size: {}", list.size());
-						    		luceneUserIndexer.addToIndex(clones);
-								}
-							}
-							
-														
-						} catch(Exception ex){
-							ex.printStackTrace();
-						} finally{
-							locker.unlock();
-						}
+	@Autowired
+	@Configure
+	public UserSearch(LdapUserIdentityDao ldapUserIdentityDao, LuceneUserSearch luceneSearch, LuceneUserIndexer luceneIndexer, @Configuration("ldap.primary.alwayslookupinexternaldirectory") boolean _alwayslookupinexternaldirectory) {
+		this.ldapUserIdentityDao = ldapUserIdentityDao;
+		this.luceneUserSearch = luceneSearch;
+		this.luceneUserIndexer = luceneIndexer;
+		this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
+
+		importUsersIfEmpty();
+	}
+
+	private void importUsersIfEmpty() {
+		if(getUserIndexSize()==0 && alwayslookupinexternaldirectory){
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+
+
+
+					log.debug("lucene index is empty. Trying to import from LDAP...");
+
+					List<LDAPUserIdentity> list;
+					try {
+						list = ldapUserIdentityDao.getAllUsers();
+						List<UserIdentity> clones = new ArrayList<UserIdentity>(list);
+						log.debug("Found LDAP user list size: {}", list.size());
+						luceneUserIndexer.addToIndex(clones);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				},
-				1, 10, TimeUnit.MINUTES);
- 
-    }
 
-    public List<UserIdentity> search(String query) {
-        List<UserIdentity> users = luceneUserSearch.search(query);
-        if (users == null) {
-            users = new ArrayList<>();
-        }
-        log.debug("lucene search with query={} returned {} users.", query, users.size());
 
-        //If user is not found in lucene, try to search AD.
-//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-//            try {
-//                LDAPUserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-//                if (user != null) {
-//                    users.add(user);
-//                    //Update user to lucene.
-//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-//                    //luceneUserIndexer.update(user);
-//                    luceneUserIndexer.addToIndex(user);
-//                }
-//            } catch (NamingException e) {
-//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-//            }
-//        }
-        return users;
-    }
 
-    public UserIdentity getUserIdentityIfExists(String username) {
-        UserIdentity user = luceneUserSearch.getUserIdentityIfExists(username);
-        if (user == null && alwayslookupinexternaldirectory) {
+				}
+			}).start();
+		}        	
 
-            try {
-                user = ldapUserIdentityDao.getUserIndentity(username); //???
-            } catch (NamingException e) {
-                log.warn("Could not find username from ldap/AD. Query: {}", username, e);
-            }
-        }
-        return user;
-    }
+	}
 
-    public boolean isUserIdentityIfExists(String username) throws NamingException {
-        boolean existing = luceneUserSearch.usernameExists(username);
-        if (!existing && alwayslookupinexternaldirectory) {
-            return ldapUserIdentityDao.usernameExist(username);
-        }
-        return existing;
+	public List<UserIdentity> search(String query) {
+		List<UserIdentity> users = luceneUserSearch.search(query);
+		if (users == null) {
+			users = new ArrayList<>();
+		}
+		log.debug("lucene search with query={} returned {} users.", query, users.size());
 
-    }
+		importUsersIfEmpty();
+		
+		return users;
+	}
 
-    public PaginatedUserIdentityDataList query(int page, String query) {
-        PaginatedUserIdentityDataList paginatedDL = luceneUserSearch.query(page, query);
-        List<UserIdentity> users = paginatedDL.data;
-        if (users == null) {
-            users = new ArrayList<>();
-        }
-        log.debug("lucene search with query={} returned {} users.", query, users.size());
+	public UserIdentity getUserIdentityIfExists(String username) {
+		UserIdentity user = luceneUserSearch.getUserIdentityIfExists(username);
+		if (user == null && alwayslookupinexternaldirectory) {
 
-        //If user is not found in lucene, try to search AD.
-//        if (users.isEmpty() && alwayslookupinexternaldirectory) {
-//            try {
-//                UserIdentity user = ldapUserIdentityDao.getUserIndentity(query);
-//                if (user != null) {
-//                    users.add(user);
-//                    //Update user to lucene.
-//                    log.trace("Added a user found in LDAP to lucene index: {}", user.toString());
-//                    //luceneUserIndexer.update(user);
-//                    luceneUserIndexer.addToIndex(user);
-//                }
-//            } catch (NamingException e) {
-//                log.warn("Could not find users from ldap/AD. Query: {}", query, e);
-//            }
-//
-//            paginatedDL.data = users;
-//        }
+			try {
+				user = ldapUserIdentityDao.getUserIndentity(username); //???
+			} catch (NamingException e) {
+				log.warn("Could not find username from ldap/AD. Query: {}", username, e);
+			}
+		}
+		return user;
+	}
 
-        return paginatedDL;
-    }
+	public boolean isUserIdentityIfExists(String username) throws NamingException {
+		boolean existing = luceneUserSearch.usernameExists(username);
+		if (!existing && alwayslookupinexternaldirectory) {
+			return ldapUserIdentityDao.usernameExist(username);
+		}
+		return existing;
 
-    public int getUserIndexSize() {
-        return luceneUserSearch.getUserIndexSize();
-    }
+	}
+
+	public PaginatedUserIdentityDataList query(int page, String query) {
+		PaginatedUserIdentityDataList paginatedDL = luceneUserSearch.query(page, query);
+		List<UserIdentity> users = paginatedDL.data;
+		if (users == null) {
+			users = new ArrayList<>();
+		}
+		log.debug("lucene search with query={} returned {} users.", query, users.size());
+		importUsersIfEmpty();
+		return paginatedDL;
+	}
+
+	public int getUserIndexSize() {
+		return luceneUserSearch.getUserIndexSize();
+	}
 }

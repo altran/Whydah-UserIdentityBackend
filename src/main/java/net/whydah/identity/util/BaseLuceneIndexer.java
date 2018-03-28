@@ -343,7 +343,7 @@ public abstract class BaseLuceneIndexer<T> {
 	/**
 	 * @return the indexWriter
 	 */
-	public IndexWriter getIndexWriter() {
+	public synchronized IndexWriter getIndexWriter() {
 		
 		if(!indexWriters.containsKey(currentDirectoryLockId)) {
 			try {
@@ -363,19 +363,11 @@ public abstract class BaseLuceneIndexer<T> {
 		
 		scheduledThreadPool.shutdown();
 		
-		while(isQueueProcessing) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				
-			}
-		}
-		
 		closeIndexWriter(currentDirectoryLockId);
 		
-		addActionQueue.remove(currentDirectoryLockId);
-		updateActionQueue.remove(currentDirectoryLockId);
-		deleteActionQueue.remove(currentDirectoryLockId);
+		getAddActionQueue().clear();
+		getUpdateActionQueue().clear();
+		getDeleteActionQueue().clear();
 		
 	}
 	
@@ -413,10 +405,10 @@ public abstract class BaseLuceneIndexer<T> {
 			return new IndexWriter(directory, new IndexWriterConfig(LUCENE_VERSION, ANALYZER));
 		} else if (directory instanceof FSDirectory) {
 			try {
-				File path = new File(((FSDirectory) directory).getDirectory().getPath());
-				if (!path.exists()) {
-					path.mkdir();
-				}
+//				File path = new File(((FSDirectory) directory).getDirectory().getPath());
+//				if (!path.exists()) {
+//					path.mkdir();
+//				}
 						
 				IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
 				indexWriterConfig.setMaxBufferedDocs(500);
