@@ -19,6 +19,7 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
+import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import net.whydah.sso.ddd.model.user.PersonRef;
@@ -31,7 +32,9 @@ import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
@@ -56,30 +59,33 @@ import static org.junit.Assert.*;
  * @since 10/18/12
  */
 public class UserAuthenticationEndpointTest {
-    private static DatabaseMigrationHelper dbHelper;
+
     private static UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private static UserAdminHelper userAdminHelper;
     private static UserIdentityService userIdentityService;
     private static LuceneApplicationIndexer luceneApplicationIndexer;
-    private static Directory index;
-
+    private static LuceneUserIndexer luceneUserIndexer;
+  
+    static LuceneApplicationSearch luceneAppSearch;
+    static LuceneUserSearch luceneUserSearch;
 
 
     private static Main main = null;
     private static ApplicationService applicationService;
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         /*
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
         */
-
+    	 //ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
+        // SecurityFilter.setCIFlag(true);
         ApplicationMode.setCIMode();
-        SecurityFilter.setCIFlag(true);
+//        SecurityFilter.setCIFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
@@ -89,26 +95,33 @@ public class UserAuthenticationEndpointTest {
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        String luceneDir = configuration.evaluateToString("lucene.usersdirectory");
-        FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
+        String luceneUserDir = configuration.evaluateToString("lucene.usersdirectory");
+        String luceneAppDir = configuration.evaluateToString("lucene.applicationsdirectory");
+        FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneUserDir, luceneAppDir);
 
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());
-
+      
+        
         BasicDataSource dataSource = initBasicDataSource(configuration);
-        dbHelper = new DatabaseMigrationHelper(dataSource);
-        dbHelper.cleanDatabase();
-        dbHelper.upgradeDatabase();
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+       
+        
+        main.startJetty();
 
         ApplicationDao applicationDao = new ApplicationDao(dataSource);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
 
-        index = new NIOFSDirectory(new File(luceneDir));
-        luceneApplicationIndexer = new LuceneApplicationIndexer(index);
+        Directory appIndex = new NIOFSDirectory(new File(luceneAppDir));
+        luceneApplicationIndexer = new LuceneApplicationIndexer(appIndex);
 
+        Directory userIndex = new NIOFSDirectory(new File(luceneUserDir));
+        luceneUserIndexer = new LuceneUserIndexer(userIndex);
 
+        luceneAppSearch = new LuceneApplicationSearch(appIndex);
+        
         userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
-        applicationService=  new ApplicationService(applicationDao,  auditLogDao,  luceneApplicationIndexer,  new LuceneApplicationSearch(index));
+        applicationService=  new ApplicationService(applicationDao,  auditLogDao,  luceneApplicationIndexer, luceneAppSearch);
 
         // applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
         assertEquals(userApplicationRoleEntryDao.countUserRolesInDB(), 0);
@@ -118,7 +131,7 @@ public class UserAuthenticationEndpointTest {
 
         //main.stop();
 
-        main.startJetty();
+        
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -132,15 +145,13 @@ public class UserAuthenticationEndpointTest {
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
 
         PasswordGenerator pwg = new PasswordGenerator();
-        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, null, null);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, luceneUserIndexer,luceneUserSearch);
 
-
-        FileUtils.deleteDirectory(new File(luceneDir));
-        Directory index = new NIOFSDirectory(new File(luceneDir));
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, new LuceneUserIndexer(index), auditLogDao, userApplicationRoleEntryDao, configuration);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneUserIndexer, auditLogDao, userApplicationRoleEntryDao, configuration);
 
         RestAssured.port = main.getPort();
         RestAssured.basePath = Main.CONTEXT_PATH;
+        
     }
 
 
@@ -213,8 +224,8 @@ public class UserAuthenticationEndpointTest {
         return dataSource;
     }
 
-    @After
-    public void stop() {
+    @AfterClass
+    public static void stop() {
         if (main != null) {
             main.stop();
         }
