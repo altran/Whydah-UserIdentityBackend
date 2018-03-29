@@ -390,6 +390,10 @@ public abstract class BaseLuceneIndexer<T> {
 			indexWriterConfig.setMaxBufferedDocs(500);
 			indexWriterConfig.setRAMBufferSizeMB(300);
 			try {
+				if (IndexWriter.isLocked(directory)) {
+			        IndexWriter.unlock(directory);
+			        log.info("Removed Lucene lock file in " + directory);
+			      }
 				writer = new IndexWriter(directory, indexWriterConfig);
 				indexWriters.put(currentDirectoryLockId, writer);
 			}
