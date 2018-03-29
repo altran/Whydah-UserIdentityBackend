@@ -169,7 +169,7 @@ public class UserAdminHelper {
     public void addDefaultWhydahUserRole(LDAPUserIdentity userIdentity) {
         UserApplicationRoleEntry role = new UserApplicationRoleEntry();
 
-        role.setId(userIdentity.getUid());
+        role.setUserId(userIdentity.getUid());
         role.setApplicationId(defaultApplicationId);
         role.setApplicationName(defaultApplicationName);
         role.setOrgName(defaultOrganizationName);
@@ -224,7 +224,7 @@ public class UserAdminHelper {
     private void addDefaultNetIQRole(LDAPUserIdentity userIdentity) {
         UserApplicationRoleEntry role;
         role = new UserApplicationRoleEntry();
-        role.setId(userIdentity.getUid());
+        role.setUserId(userIdentity.getUid());
         role.setApplicationId(netIQapplicationId);
         role.setApplicationName(netIQapplicationName);
         role.setOrgName(netIQorganizationName);
@@ -236,7 +236,7 @@ public class UserAdminHelper {
     private void addDefaultFacebookRole(LDAPUserIdentity userIdentity, String roleValue) {
         UserApplicationRoleEntry role;
         role = new UserApplicationRoleEntry();
-        role.setId(userIdentity.getUid());
+        role.setUserId(userIdentity.getUid());
         role.setApplicationId(fbapplicationId);
         role.setApplicationName(fbapplicationName);
         role.setOrgName(fborganizationName);

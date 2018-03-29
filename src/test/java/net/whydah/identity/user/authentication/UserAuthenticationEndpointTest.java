@@ -6,6 +6,7 @@ import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
+import net.whydah.identity.application.search.LuceneApplicationSearch;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
@@ -32,6 +33,7 @@ import org.constretto.model.Resource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Document;
 
 import javax.naming.NamingException;
@@ -106,7 +108,7 @@ public class UserAuthenticationEndpointTest {
 
 
         userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
-//        applicationService=  new ApplicationService( applicationDao,  auditLogDao,  luceneApplicationIndexer,  Mockito.mock(LuceneApplicationSearch.class) );
+        applicationService=  new ApplicationService(applicationDao,  auditLogDao,  luceneApplicationIndexer,  new LuceneApplicationSearch(index));
 
         // applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
         assertEquals(userApplicationRoleEntryDao.countUserRolesInDB(), 0);
