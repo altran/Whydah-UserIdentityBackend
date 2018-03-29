@@ -2,6 +2,7 @@ package net.whydah.identity.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -21,8 +22,11 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.SegmentInfos.FindSegmentsFile;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -42,7 +46,7 @@ public abstract class BaseLuceneIndexer<T> {
 	protected static final Analyzer ANALYZER = new StandardAnalyzer();
 
 	protected final Logger log = LoggerFactory.getLogger(BaseLuceneIndexer.class);
-	
+
 
 	protected FieldType ftNotTokenized = new FieldType(StringField.TYPE_STORED);
 	protected FieldType ftTokenized = new FieldType(StringField.TYPE_STORED);
@@ -50,30 +54,41 @@ public abstract class BaseLuceneIndexer<T> {
 
 
 	protected boolean isQueueProcessing = false;
-	
+
+	Directory directory;
+	String indexPath;
 	String currentDirectoryLockId;
-	public static Map<String, Directory> dirs = Collections.synchronizedMap(new HashMap<String, Directory>());
+
+	
 	public static Map<String, IndexWriter> indexWriters = Collections.synchronizedMap(new HashMap<String, IndexWriter>());
-	public Map<String, List<T>> addActionQueue = Collections.synchronizedMap(new HashMap<String, List<T>>());; 
-	public Map<String, List<T>> updateActionQueue = Collections.synchronizedMap(new HashMap<String, List<T>>());;
-	public Map<String, List<String>> deleteActionQueue = Collections.synchronizedMap(new HashMap<String, List<String>>());;
+	
+	//we use these queue to prevent loss of data in case there is some exception related to disk/memory
+	public Map<String, List<T>> addActionQueue = Collections.synchronizedMap(new HashMap<String, List<T>>());
+	public Map<String, List<T>> updateActionQueue = Collections.synchronizedMap(new HashMap<String, List<T>>());
+	public Map<String, List<String>> deleteActionQueue = Collections.synchronizedMap(new HashMap<String, List<String>>());
+	//this scheduled service will check and handle items in the queues
 	ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
 	public BaseLuceneIndexer(Directory luceneDirectory) throws IOException {
-		currentDirectoryLockId = luceneDirectory.getLockID();
-		if(!dirs.containsKey(currentDirectoryLockId)) {
-			dirs.put(currentDirectoryLockId, luceneDirectory);
+		this.directory = luceneDirectory;
+		this.currentDirectoryLockId = luceneDirectory.getLockID();	
+		if (directory instanceof FSDirectory) {	
+			indexPath = ((FSDirectory) directory).getDirectory().getPath();
+			File path = new File(indexPath);
+			if (!path.exists()) {
+				path.mkdir();
+			}
 		}
-		
+
 		addActionQueue.put(currentDirectoryLockId, Collections.synchronizedList(new ArrayList<>()));
 		updateActionQueue.put(currentDirectoryLockId, Collections.synchronizedList(new ArrayList<>()));
 		deleteActionQueue.put(currentDirectoryLockId, Collections.synchronizedList(new ArrayList<>()));
-		
+
 		ftNotTokenized.setTokenized(false);
 		ftNotTokenized.setIndexed(true);
 		ftTokenized.setTokenized(true);
 		ftNotIndexed.setIndexed(false);
-		
+
 		checkQueueProcessWorker();
 	}
 
@@ -290,7 +305,7 @@ public abstract class BaseLuceneIndexer<T> {
 
 
 	public void checkQueueProcessWorker() {	
-		
+
 		log.debug("startProcessWorker - Current Time = " + new Date());
 		scheduledThreadPool.scheduleWithFixedDelay(new Runnable() {
 			public void run() {
@@ -306,7 +321,7 @@ public abstract class BaseLuceneIndexer<T> {
 
 
 	}
-	
+
 
 	public List<T> getAddActionQueue(){
 		return addActionQueue.get(currentDirectoryLockId);
@@ -315,7 +330,7 @@ public abstract class BaseLuceneIndexer<T> {
 	public List<T> getUpdateActionQueue(){
 		return updateActionQueue.get(currentDirectoryLockId);
 	}
-	
+
 	public List<String> getDeleteActionQueue(){
 		return deleteActionQueue.get(currentDirectoryLockId);
 	}
@@ -336,93 +351,94 @@ public abstract class BaseLuceneIndexer<T> {
 	}
 
 	public int numDocs() {
-		return getIndexWriter().numDocs();
+		try {
+			return getIndexWriter().numDocs();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 
 	/**
 	 * @return the indexWriter
 	 */
-	public synchronized IndexWriter getIndexWriter() {
-		
-		if(!indexWriters.containsKey(currentDirectoryLockId)) {
-			try {
-				IndexWriter indexWriter = createWriter(dirs.get(currentDirectoryLockId));
-				if(indexWriter!=null) {
-					indexWriters.put(currentDirectoryLockId, indexWriter);
-				}				
-			} catch (IOException e) {
-				e.printStackTrace();
+
+	/** 
+	 * Gets an index writer for the repository. The index will be created if it does not already exist or if forceCreate is specified.
+	 * @param repository
+	 * @return an IndexWriter
+	 * @throws IOException
+	 */
+
+	public synchronized IndexWriter getIndexWriter() throws IOException {
+		IndexWriter writer = indexWriters.get(currentDirectoryLockId);
+
+		if(writer ==null) {
+			if (directory instanceof FSDirectory) {
+				try {
+					((FSDirectory) directory).getDirectory();	//this will call ensureOpen();			
+				}catch(AlreadyClosedException ex) {
+					//should reopen
+					directory = FSDirectory.open(new File(indexPath));
+				}
 			}
+
+			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
+			indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+			indexWriterConfig.setMaxBufferedDocs(500);
+			indexWriterConfig.setRAMBufferSizeMB(300);
+			try {
+				writer = new IndexWriter(directory, indexWriterConfig);
+				indexWriters.put(currentDirectoryLockId, writer);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+				throw new IOException("Unable to access lock to lucene index worker for directory " + directory.toString());
+			}	
+
 		}
-		return indexWriters.get(currentDirectoryLockId);
+
+		return writer;
+
+
 	}
 
 
 	public void closeIndexWriter() {
-		
-		scheduledThreadPool.shutdown();
-		
-		closeIndexWriter(currentDirectoryLockId);
-		
-		getAddActionQueue().clear();
-		getUpdateActionQueue().clear();
-		getDeleteActionQueue().clear();
-		
+
+		while(getAddActionQueue().size()>0 || 
+				getUpdateActionQueue().size()>0 ||
+				getDeleteActionQueue().size()>0) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				break;
+			}
+		}
+
+		scheduledThreadPool.shutdown();		
+		closeIndexWriter(currentDirectoryLockId);	
 	}
-	
+
 	private static void closeIndexWriter(String dirId) {
 		try {		
-			if(indexWriters.get(dirId)!=null) {
-				
-				while(indexWriters.get(dirId).hasPendingMerges()) {
-					Thread.sleep(100);
-				}			
-				indexWriters.get(dirId).close();
+			if(indexWriters.get(dirId)!=null) {				
+				IndexWriter writer = indexWriters.remove(dirId);
+				writer.close();
 			}
-			indexWriters.remove(dirId);
-			
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void closeAllIndexWriters() {
-		for(String dirId : new ArrayList<>(dirs.keySet())) {
+
+		for(String dirId : new ArrayList<>(indexWriters.keySet())) {
 			closeIndexWriter(dirId);
 		}
 	}
-	
-	public static IndexWriter createWriter(Directory directory) throws IOException {
-		
-		if(IndexWriter.isLocked(directory)) {
-			//IndexWriter.unlock(directory);
-			return null;
-		}
-		
-		if (directory instanceof RAMDirectory) {			
-			return new IndexWriter(directory, new IndexWriterConfig(LUCENE_VERSION, ANALYZER));
-		} else if (directory instanceof FSDirectory) {
-			try {
-//				File path = new File(((FSDirectory) directory).getDirectory().getPath());
-//				if (!path.exists()) {
-//					path.mkdir();
-//				}
-						
-				IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
-				indexWriterConfig.setMaxBufferedDocs(500);
-				indexWriterConfig.setRAMBufferSizeMB(300);
-				
-				return new IndexWriter(directory, indexWriterConfig);
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new IOException("Unable to access lock to lucene index worker for directory " + directory.toString());
-			}		
-		} else {
-			throw new IOException("Directory type " + directory.getClass() + " is not supported");
-		}
 
-	}
 }
