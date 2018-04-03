@@ -41,6 +41,7 @@ public class UserSearch {
 		this.luceneUserSearch = luceneSearch;
 		this.luceneUserIndexer = luceneIndexer;
 		this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
+		importUsersIfEmpty();
 	}
 
 	private void importUsersIfEmpty() {
