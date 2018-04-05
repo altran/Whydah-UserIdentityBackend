@@ -111,7 +111,7 @@ public class UserAdminTest {
         WebTarget webResource = baseResource.path("users/find/useradmin");
         Response response = webResource.request().get(Response.class);
         String entity = response.readEntity(String.class);
-        assertTrue(entity.contains("\"firstName\":\"UserAdmin\""));
+        assertTrue(entity.contains("\"firstName\":\"User\""));
     }
 
     @Test
