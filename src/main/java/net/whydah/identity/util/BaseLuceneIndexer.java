@@ -2,7 +2,6 @@ package net.whydah.identity.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,29 +15,17 @@ import java.util.concurrent.TimeUnit;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.SegmentInfos.FindSegmentsFile;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.LockFactory;
-import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileSystemUtils;
-
-import net.whydah.identity.user.search.LuceneUserIndexerImpl;
-import net.whydah.sso.user.mappers.UserAggregateMapper;
-import net.whydah.sso.user.types.UserAggregate;
-import net.whydah.sso.user.types.UserIdentity;
 
 public abstract class BaseLuceneIndexer<T> {
 
@@ -58,7 +45,6 @@ public abstract class BaseLuceneIndexer<T> {
 	Directory directory;
 	String indexPath;
 	String currentDirectoryLockId;
-
 	
 	public static Map<String, IndexWriter> indexWriters = Collections.synchronizedMap(new HashMap<String, IndexWriter>());
 	
@@ -259,15 +245,19 @@ public abstract class BaseLuceneIndexer<T> {
 		//			}
 		//		}
 
-		//bulk insert
-		if(getAddActionQueue().size()>0) {
+		if(!indexWriters.containsKey(currentDirectoryLockId)) {
+			scheduledThreadPool.shutdown();
+		} else {
 
-			//List<UserIdentity> clones = new ArrayList<UserIdentity>(Collections.unmodifiableCollection(getAddActionQueue()));//get all items from the queue
-			List<T> subList = getAddActionQueue().subList(0, getAddActionQueue().size());
-			List<T> clones = new ArrayList<T>(subList);
-			subList.clear();
-			addToIndex(clones);
+			//bulk insert
+			if(getAddActionQueue().size()>0) {
 
+				//List<UserIdentity> clones = new ArrayList<UserIdentity>(Collections.unmodifiableCollection(getAddActionQueue()));//get all items from the queue
+				List<T> subList = getAddActionQueue().subList(0, getAddActionQueue().size());
+				List<T> clones = new ArrayList<T>(subList);
+				subList.clear();
+				addToIndex(clones);
+			}
 		}
 	}
 	public void handleUpdateIndexFromQueue() {
@@ -278,12 +268,17 @@ public abstract class BaseLuceneIndexer<T> {
 		//			}
 		//		}
 
-		//bulk update
-		if(getUpdateActionQueue().size()>0) {
-			List<T> subList = getUpdateActionQueue().subList(0, getUpdateActionQueue().size());
-			List<T> clones = new ArrayList<T>(subList);
-			subList.clear();
-			updateIndex(clones);
+		if(!indexWriters.containsKey(currentDirectoryLockId)) {
+			scheduledThreadPool.shutdown();
+		} else {
+
+			//bulk update
+			if(getUpdateActionQueue().size()>0) {
+				List<T> subList = getUpdateActionQueue().subList(0, getUpdateActionQueue().size());
+				List<T> clones = new ArrayList<T>(subList);
+				subList.clear();
+				updateIndex(clones);
+			}
 		}
 	}
 	public void handleRemoveIndexFromQueue() {
@@ -294,12 +289,16 @@ public abstract class BaseLuceneIndexer<T> {
 		//			}
 		//		}
 
-		//bulk delete
-		if(getDeleteActionQueue().size()>0) {
-			List<String> subList = getDeleteActionQueue().subList(0, getDeleteActionQueue().size());
-			List<String> clones = new ArrayList<String>(subList);
-			subList.clear();
-			removeFromIndex(clones);
+		if(!indexWriters.containsKey(currentDirectoryLockId)) {
+			scheduledThreadPool.shutdown();
+		} else {
+			//bulk delete
+			if(getDeleteActionQueue().size()>0) {
+				List<String> subList = getDeleteActionQueue().subList(0, getDeleteActionQueue().size());
+				List<String> clones = new ArrayList<String>(subList);
+				subList.clear();
+				removeFromIndex(clones);
+			}
 		}
 	}
 
@@ -309,12 +308,22 @@ public abstract class BaseLuceneIndexer<T> {
 		log.debug("startProcessWorker - Current Time = " + new Date());
 		scheduledThreadPool.scheduleWithFixedDelay(new Runnable() {
 			public void run() {
+				
+
+				if(!indexWriters.containsKey(currentDirectoryLockId)) {
+					scheduledThreadPool.shutdown();
+				}
+				
 				if(!isQueueProcessing()) {
 					setQueueProcessing(true);
 					handleRemoveIndexFromQueue();
 					handleUpdateIndexFromQueue();
 					handleAddIndexFromQueue();
 					setQueueProcessing(false);
+				}
+				
+				if(!indexWriters.containsKey(currentDirectoryLockId)) {
+					scheduledThreadPool.shutdown();
 				}
 			}
 		}, 5, 5, TimeUnit.SECONDS);
@@ -360,6 +369,16 @@ public abstract class BaseLuceneIndexer<T> {
 		return 0;
 	}
 
+	public boolean isDirectoryOpen() {
+		if (directory instanceof FSDirectory) {
+			try {
+				((FSDirectory) directory).getDirectory();	//this will call ensureOpen();			
+			}catch(AlreadyClosedException ex) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * @return the indexWriter
@@ -374,28 +393,39 @@ public abstract class BaseLuceneIndexer<T> {
 
 	public synchronized IndexWriter getIndexWriter() throws IOException {
 		IndexWriter writer = indexWriters.get(currentDirectoryLockId);
-
-		if(writer ==null) {
-			if (directory instanceof FSDirectory) {
-				try {
-					((FSDirectory) directory).getDirectory();	//this will call ensureOpen();			
-				}catch(AlreadyClosedException ex) {
-					//should reopen
-					directory = FSDirectory.open(new File(indexPath));
-				}
+		if(writer == null || !isDirectoryOpen()) {
+			
+			if(writer!=null) {
+				indexWriters.remove(currentDirectoryLockId).close();
 			}
-
+			
+			if(!isDirectoryOpen()) {
+				directory = FSDirectory.open(new File(indexPath));
+				currentDirectoryLockId = directory.getLockID();
+			}
+			
+			
+			
 			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
 			indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 			indexWriterConfig.setMaxBufferedDocs(500);
 			indexWriterConfig.setRAMBufferSizeMB(300);
 			try {
 				if (IndexWriter.isLocked(directory)) {
-			        IndexWriter.unlock(directory);
-			        log.info("Removed Lucene lock file in " + directory);
-			      }
-				writer = new IndexWriter(directory, indexWriterConfig);
-				indexWriters.put(currentDirectoryLockId, writer);
+					IndexWriter.unlock(directory);
+					log.info("Removed Lucene lock file in " + directory);
+				}
+				try {
+					writer = new IndexWriter(directory, indexWriterConfig);					
+					indexWriters.put(currentDirectoryLockId, writer);					
+				} catch(AlreadyClosedException ex) {
+					//should reopen
+					directory = FSDirectory.open(new File(indexPath));
+					currentDirectoryLockId = directory.getLockID();
+					writer = new IndexWriter(directory, indexWriterConfig);
+					indexWriters.put(currentDirectoryLockId, writer);
+				}
+				
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -411,18 +441,6 @@ public abstract class BaseLuceneIndexer<T> {
 
 
 	public void closeIndexWriter() {
-
-		while(getAddActionQueue().size()>0 || 
-				getUpdateActionQueue().size()>0 ||
-				getDeleteActionQueue().size()>0) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				break;
-			}
-		}
-
 		scheduledThreadPool.shutdown();		
 		closeIndexWriter(currentDirectoryLockId);	
 	}
