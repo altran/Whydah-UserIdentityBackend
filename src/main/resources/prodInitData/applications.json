@@ -596,5 +596,53 @@
       "applicationId" : "9999",
       "applicationACLPath" : "/"
     }]
+  },
+  {
+    "id": "602222",
+    "name": "WhydahSPAProxyService",
+    "description": "Proxy for SPA applications.",
+    "company": "Cantara",
+    "tags": "HIDDEN, JURISDICTION_NORWAY",
+    "applicationUrl": "https://whydahdev.cantara.no/spaservice",
+    "logoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7vDCWeE45Z9Oor3SKgp5c8FaOK_uNr8cQ9RIgqV9V3PdymGjX",
+    "roles": [
+      {
+        "id": "whydah-admin",
+        "name": "whydah-admin"
+      },
+      {
+        "id": "read",
+        "name": "read"
+      }
+    ],
+    "defaultRoleName": "read",
+    "organizationNames": [
+      {
+        "id": "Whydah",
+        "name": "Whydah"
+      }
+    ],
+    "defaultOrganizationName": "Whydah",
+    "security": {
+      "minSecurityLevel": "0",
+      "minimumDEFCONLevel": "DEFCON5",
+      "maxSessionTimeoutSeconds": "86400",
+      "allowedIpAddresses": null,
+      "userTokenFilter": true,
+      "whydahUASAccess": true,
+      "secret": "5342554bNpnvQEF2vCJSWtctB",
+      "whydahAdmin": false
+    },
+    "supportedUserSessionLevels": [],
+    "acl": [],
+    "minimumApplicationDEFCON": "DEFCON5",
+    "orgs": [
+      {
+        "id": "Whydah",
+        "name": "Whydah"
+      }
+    ],
+    "isFiltered": false,
+    "isSelected": true
   }
 ]
