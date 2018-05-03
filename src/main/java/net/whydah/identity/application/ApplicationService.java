@@ -8,6 +8,7 @@ import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.util.Lock;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -71,6 +74,10 @@ public class ApplicationService {
     Lock lock = new Lock();
     public List<Application> getApplications() {
         List<Application> applicationDBList = applicationDao.getApplications();
+        Map<String, Application> dbMap = new HashMap<>();
+        for(Application a : applicationDBList) {
+        	dbMap.put(a.getId(), a);
+        }
         List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
         if(!lock.isLocked()){
         	try {
@@ -79,7 +86,19 @@ public class ApplicationService {
 	        		for (Application application : applicationDBList) {
 	        			luceneApplicationIndexer.addToIndex(application);
 	        		}
+	        		
 	        	}
+				 //this is an unexpected condition, avoid data loss if something went wrong 
+				else if (applicationDBList.size() < applicationLuceneList.size())  {
+	        		//merge the applications from lucene to DB
+	        		for(Application app : applicationLuceneList) {
+	        			if(!dbMap.containsKey(app.getId())) {
+	        				applicationDao.create(app);
+	        				applicationDBList.add(app);
+	        			}
+	        		}
+	        	}
+				
 			} catch (InterruptedException e) {
 				
 			} finally{
