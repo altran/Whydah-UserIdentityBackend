@@ -43,7 +43,7 @@ public class ApplicationsResourceTest {
     @BeforeClass
     public void startServer() {
         ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
-        removeLuceneAppData();
+        ApplicationService.skipImportFromLuceneIndex = true; //don't mess up with index data list
         
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);

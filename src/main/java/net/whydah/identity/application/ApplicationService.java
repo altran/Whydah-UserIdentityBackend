@@ -32,6 +32,7 @@ public class ApplicationService {
     private final AuditLogDao auditLogDao;
     private final LuceneApplicationIndexer luceneApplicationIndexer;
     private final LuceneApplicationSearch luceneApplicationSearch;
+    public static boolean skipImportFromLuceneIndex = false;
 
     @Autowired
     public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao, @Qualifier("luceneApplicationsDirectory") LuceneApplicationIndexer luceneApplicationIndexer, LuceneApplicationSearch luceneApplicationSearch) {
@@ -90,13 +91,19 @@ public class ApplicationService {
 	        	}
 				 //this is an unexpected condition, avoid data loss if something went wrong 
 				else if (applicationDBList.size() < applicationLuceneList.size())  {
-	        		//merge the applications from lucene to DB
-	        		for(Application app : applicationLuceneList) {
-	        			if(!dbMap.containsKey(app.getId())) {
-	        				applicationDao.create(app);
-	        				applicationDBList.add(app);
-	        			}
-	        		}
+					log.warn("This is an unexpected condition, lucene data list has more items than the database list");
+					if(!skipImportFromLuceneIndex) {
+						log.info("New items in lucene indexer is being imported into DB");					
+						//merge the applications from lucene to DB
+						for(Application app : applicationLuceneList) {
+							if(!dbMap.containsKey(app.getId())) {
+								applicationDao.create(app);
+								applicationDBList.add(app);
+							}
+						}
+					} else {
+						log.warn("Skipped the import process");
+					}
 	        	}
 				
 			} catch (InterruptedException e) {
