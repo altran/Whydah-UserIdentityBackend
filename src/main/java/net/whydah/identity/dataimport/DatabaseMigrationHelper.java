@@ -54,7 +54,7 @@ public class DatabaseMigrationHelper {
     public void cleanDatabase() {
         try {
             flyway.clean();
-        } catch (FlywayException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Database cleaning failed.", e);
         }
     }

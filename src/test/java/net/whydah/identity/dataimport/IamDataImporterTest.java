@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -83,6 +84,16 @@ public class IamDataImporterTest {
         if (main != null) {
             main.stop();
         }
+        
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         FileUtils.deleteDirectory(new File("target/data/"));
     }
     

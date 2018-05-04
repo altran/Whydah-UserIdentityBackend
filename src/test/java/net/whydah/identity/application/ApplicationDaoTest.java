@@ -5,10 +5,12 @@ import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationAvailableOrganizationNames;
 import net.whydah.sso.application.types.ApplicationAvailableRoleNames;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +43,18 @@ public class ApplicationDaoTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
         assertEquals(applicationDao.countApplications(), 0);
+    }
+    
+    @After
+    public void close() {
+    	try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 

@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import static com.jayway.restassured.RestAssured.given;
 
+import java.sql.SQLException;
+
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-11-21.
  */
@@ -38,7 +40,7 @@ public class ApplicationAuthenticationEndpointTest {
     private Main main;
     private Application uas;
     private Application testapp;
-
+    BasicDataSource dataSource;
 
     @BeforeClass
     public void startServer() {
@@ -52,7 +54,7 @@ public class ApplicationAuthenticationEndpointTest {
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);
-        BasicDataSource dataSource = initBasicDataSource(configuration);
+        dataSource = initBasicDataSource(configuration);
         DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
@@ -89,6 +91,14 @@ public class ApplicationAuthenticationEndpointTest {
         if (main != null) {
             main.stop();
         }
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 

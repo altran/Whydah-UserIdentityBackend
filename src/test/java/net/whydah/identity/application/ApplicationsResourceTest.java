@@ -17,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -38,24 +39,32 @@ public class ApplicationsResourceTest {
             .addResource(Resource.create("file:./useridentitybackend_override.properties"))
             .done()
             .getConfiguration();
-
+    BasicDataSource dataSource;
 
     @BeforeClass
     public void startServer() {
-        ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
-        ApplicationService.skipImportFromLuceneIndex = true; //don't mess up with index data list
-        
-        String roleDBDirectory = configuration.evaluateToString("roledb.directory");
-        FileUtils.deleteDirectory(roleDBDirectory);
-        BasicDataSource dataSource = initBasicDataSource(configuration);
-        DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
-        dbHelper.cleanDatabase();
-        dbHelper.upgradeDatabase();
+    
+    	 ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
+         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+                 .createPropertiesStore()
+                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
+                 .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+                 .done()
+                 .getConfiguration();
 
-        main = new Main(16655);
-        main.startJetty();
-        RestAssured.port = main.getPort();
-        RestAssured.basePath = Main.CONTEXT_PATH;
+         removeLuceneAppData();
+         
+         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
+         FileUtils.deleteDirectory(roleDBDirectory);
+         dataSource = initBasicDataSource(configuration);
+         DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
+         dbHelper.cleanDatabase();
+         dbHelper.upgradeDatabase();
+
+         main = new Main(6645);
+         main.startJetty();
+         RestAssured.port = main.getPort();
+         RestAssured.basePath = Main.CONTEXT_PATH;
     }
 
     private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
@@ -77,6 +86,14 @@ public class ApplicationsResourceTest {
         if (main != null) {
             main.stop();
         }
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     void removeLuceneAppData() {
@@ -97,6 +114,9 @@ public class ApplicationsResourceTest {
 
         String jsonResponse = response.body().asString();
         List<Application> applications = ApplicationMapper.fromJsonList(jsonResponse);
+        for(Application app: applications) {
+        	System.out.println("Application found :" + app.toString());
+        }
         assertEquals(applications.size(), 0);
     }
 

@@ -31,6 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,8 @@ public class UserAdminTest {
     private static WebTarget logonResource;
     private static Main main;
     String luceneUsersDir;
-
+    BasicDataSource dataSource;
+    
     @Before
     public void init() throws Exception {
         FileUtils.deleteDirectory(new File("target/data/lucene"));
@@ -65,7 +67,7 @@ public class UserAdminTest {
         main = new Main(configuration.evaluateToInt("service.port"));
         main.startEmbeddedDS(configuration.asMap());
 
-        BasicDataSource dataSource = initBasicDataSource(configuration);
+        dataSource = initBasicDataSource(configuration);
         DatabaseMigrationHelper dbHelper =  new DatabaseMigrationHelper(dataSource);
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
@@ -100,6 +102,16 @@ public class UserAdminTest {
     @After
     public void teardown() throws InterruptedException {
         main.stop();
+        
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         FileUtils.deleteDirectory(new File("target/data/lucene"));
         FileUtils.deleteDirectory(new File("data/lucene"));
         FileUtils.deleteDirectory(new File(luceneUsersDir));

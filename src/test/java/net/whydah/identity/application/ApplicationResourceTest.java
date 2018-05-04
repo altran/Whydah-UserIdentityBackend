@@ -24,6 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 
+import java.sql.SQLException;
+
 /**
  * End-to-end test against the exposed HTTP endpoint and down to the in-mem HSQLDB.
  *
@@ -38,7 +40,8 @@ public class ApplicationResourceTest {
     private Main main;
     private String appId1FromCreatedResponse;
     private Application app;
-
+    BasicDataSource dataSource;
+    
     @BeforeClass
     public void startServer() {
         ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
@@ -51,7 +54,7 @@ public class ApplicationResourceTest {
 
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);
-        BasicDataSource dataSource = initBasicDataSource(configuration);
+        dataSource = initBasicDataSource(configuration);
         DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
@@ -81,6 +84,15 @@ public class ApplicationResourceTest {
         if (main != null) {
             main.stop();
         }
+        
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Test(enabled = false)

@@ -3,10 +3,13 @@ package net.whydah.identity.user.role;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,18 @@ public class UserPropertyAndRoleDaoTest {
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
         assertEquals(roleRepository.countUserRolesInDB(), 0);
+    }
+    
+    @AfterClass
+    public static void close() {
+    	try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 

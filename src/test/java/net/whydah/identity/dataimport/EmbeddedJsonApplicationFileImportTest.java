@@ -17,13 +17,15 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 
 
 public class EmbeddedJsonApplicationFileImportTest {
     private BasicDataSource dataSource;
     private Main main;
     String applicationsImportSource;
-
+   
+    
     @BeforeClass
     public void startServer() {
         ApplicationMode.setCIMode();
@@ -70,6 +72,15 @@ public class EmbeddedJsonApplicationFileImportTest {
         if (main != null) {
             main.stop();
         }
+        
+        try {
+        	if(!dataSource.isClosed()) {
+        		dataSource.close();
+        	}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Test
