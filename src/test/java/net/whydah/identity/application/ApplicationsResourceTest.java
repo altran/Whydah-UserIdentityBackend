@@ -31,17 +31,20 @@ public class ApplicationsResourceTest {
     private final String appToken1 = "appToken1";
     private final String userToken1 = "userToken1";
     private Main main;
+    
+    ConstrettoConfiguration configuration = new ConstrettoBuilder()
+            .createPropertiesStore()
+            .addResource(Resource.create("classpath:useridentitybackend.properties"))
+            .addResource(Resource.create("file:./useridentitybackend_override.properties"))
+            .done()
+            .getConfiguration();
+
 
     @BeforeClass
     public void startServer() {
         ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
-                .createPropertiesStore()
-                .addResource(Resource.create("classpath:useridentitybackend.properties"))
-                .addResource(Resource.create("file:./useridentitybackend_override.properties"))
-                .done()
-                .getConfiguration();
-
+        removeLuceneAppData();
+        
         String roleDBDirectory = configuration.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);
         BasicDataSource dataSource = initBasicDataSource(configuration);
@@ -74,6 +77,11 @@ public class ApplicationsResourceTest {
         if (main != null) {
             main.stop();
         }
+    }
+    
+    void removeLuceneAppData() {
+    	String luceneApplicationDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
+    	FileUtils.deleteDirectory(luceneApplicationDirectory);
     }
 
     @Test
