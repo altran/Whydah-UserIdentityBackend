@@ -512,5 +512,42 @@
       "applicationId" : "9999",
       "applicationACLPath" : "/"
     }]
-  }
+  },
+  {
+  "id": "c31d1769-f3b3-46bb-aeba-18009870565b",
+  "name": "INNSelfService",
+  "description": "",
+  "company": "INN",
+  "tags": "",
+  "applicationUrl": "https:\/\/whydahdev.cantara.no\/innss\/",
+  "logoUrl": null,
+  "roles": [
+    
+  ],
+  "defaultRoleName": "user",
+  "organizationNames": [
+    
+  ],
+  "defaultOrganizationName": "Opplysningen QA",
+  "security": {
+    "minSecurityLevel": "0",
+    "minimumDEFCONLevel": "DEFCON5",
+    "maxSessionTimeoutSeconds": "840000",
+    "allowedIpAddresses": null,
+    "userTokenFilter": false,
+    "whydahUASAccess": true,
+    "secret": "WcPrU1j1YzmdWrmU6muxmcpKdn6zxLFDXGdCUjHHZyQ7KswEum7HOkVgbcjQ5TuC",
+    "whydahAdmin": true
+  },
+  "supportedUserSessionLevels": [
+    
+  ],
+  "acl": [
+    
+  ],
+  "minimumApplicationDEFCON": "DEFCON5",
+  "orgs": [
+    
+  ]
+}
 ]
