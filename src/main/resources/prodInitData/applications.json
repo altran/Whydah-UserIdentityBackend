@@ -644,5 +644,97 @@
     ],
     "isFiltered": false,
     "isSelected": true
+  },
+   {
+    "id": "402222",
+    "name": "SPAProxyService",
+    "description": "",
+    "company": "Capra",
+    "tags": "",
+    "applicationUrl": "http://whydahdev.cantara.no/proxy",
+    "logoUrl": "",
+    "roles": [],
+    "defaultRoleName": "",
+    "organizationNames": [],
+    "defaultOrganizationName": "",
+    "security": {
+      "minSecurityLevel": "0",
+      "minimumDEFCONLevel": "DEFCON5",
+      "maxSessionTimeoutSeconds": "15552000000",
+      "allowedIpAddresses": null,
+      "userTokenFilter": true,
+      "whydahUASAccess": true,
+      "secret": "pIgWd57tLsVn8709psMpx",
+      "whydahAdmin": false
+    },
+    "supportedUserSessionLevels": [],
+    "acl": [
+      {
+        "applicationId": "402222",
+        "applicationACLPath": "",
+        "accessRights": [
+          "READ",
+          "SSO_REDIRECT"
+        ]
+      },
+      {
+        "applicationId": "402222",
+        "applicationACLPath": "",
+        "accessRights": [
+          "READ",
+          "OAUTH2_REDIRECT"
+        ]
+      }
+    ],
+    "orgs": [],
+    "minimumApplicationDEFCON": "DEFCON5",
+    "isFiltered": false,
+    "isSelected": true
+  }
+  {
+    "id": "77d89985faa6952a98dbd6e7e",
+    "name": "spademo-app",
+    "description": "this is for demoing SPA service",
+    "company": "Capra",
+    "tags": "",
+    "applicationUrl": "https://github.com/capralifecycle/INN-SPADEMO",
+    "logoUrl": "",
+    "roles": [],
+    "defaultRoleName": "",
+    "organizationNames": [],
+    "defaultOrganizationName": "",
+    "security": {
+      "minSecurityLevel": "0",
+      "minimumDEFCONLevel": "DEFCON5",
+      "maxSessionTimeoutSeconds": "15552000000",
+      "allowedIpAddresses": null,
+      "userTokenFilter": true,
+      "whydahUASAccess": false,
+      "secret": "4c2b67c61700a619727bc2bb1",
+      "whydahAdmin": false
+    },
+    "supportedUserSessionLevels": [],
+    "acl": [
+      {
+        "applicationId": "77d89985faa6952a98dbd6e7e",
+        "applicationACLPath": "",
+        "accessRights": [
+          "READ",
+          "SSO_REDIRECT"
+        ]
+      },
+      {
+        "applicationId": "77d89985faa6952a98dbd6e7e",
+        "applicationACLPath": "",
+        "accessRights": [
+          "READ",
+          "OAUTH2_REDIRECT"
+        ]
+      }
+    ],
+    "minimumApplicationDEFCON": "DEFCON5",
+    "orgs": [],
+    "isFiltered": false,
+    "isSelected": true
   }
 ]
