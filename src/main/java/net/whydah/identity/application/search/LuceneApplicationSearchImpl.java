@@ -1,6 +1,7 @@
 package net.whydah.identity.application.search;
 
 
+import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.sso.application.mappers.ApplicationMapper;
 import net.whydah.sso.application.types.Application;
@@ -92,8 +93,8 @@ public class LuceneApplicationSearchImpl {
         return result;
     }
 
-    public List<Application> searchApplicationID(String queryString) {
-        Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONID, queryString);
+    public boolean isApplicationExists(String id) {
+        Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONID, id);
         TermQuery termQuery = new TermQuery(term);
         List<Application> result = new ArrayList<>();
         DirectoryReader directoryReader = null;
@@ -103,13 +104,8 @@ public class LuceneApplicationSearchImpl {
             IndexSearcher searcher = new IndexSearcher(directoryReader);
             TopDocs topDocs = searcher.search(termQuery, MAX_HITS);
 
-            for (ScoreDoc hit : topDocs.scoreDocs) {
-                int docId = hit.doc;
-                Document d = searcher.doc(docId);
-                Application application = ApplicationMapper.fromJson(d.get(LuceneApplicationIndexer.FIELD_FULLJSON));
-                log.trace(application.toString() + " : " + termQuery + ":" + hit.score);
-                result.add(application);
-            }
+            return topDocs.scoreDocs.length>0;
+            
         } catch (IOException e) {
             log.error("Error when searching.", e);
         } finally {
@@ -121,9 +117,10 @@ public class LuceneApplicationSearchImpl {
                 }
             }
         }
-
-        return result;
-    }
+        return false;
+    } 
+    
+   
 
     public List<Application> searchApplicationName(String queryString) {
         Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONNAME, "*" + queryString + "*");

@@ -59,7 +59,9 @@ public class ApplicationService {
     public Application create(String applicationId, Application application) {
         application.setId(applicationId);
         int numRowsAffected = applicationDao.create(application);
-        luceneApplicationIndexer.addToIndex(application);
+        if(numRowsAffected>0) {
+        	luceneApplicationIndexer.addToIndex(application);
+        }
         audit(ActionPerformed.ADDED, application.getId() + ", " + application.getName());
         return application;
     }
@@ -79,24 +81,35 @@ public class ApplicationService {
         for(Application a : applicationDBList) {
         	dbMap.put(a.getId(), a);
         }
-        List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
+        int indexSize = luceneApplicationSearch.getApplicationIndexSize();
         if(!lock.isLocked()){
         	try {
 				lock.lock();
-				if (applicationDBList.size() > applicationLuceneList.size()) {
+				
+				if (applicationDBList.size() > indexSize) {
+					
 	        		for (Application application : applicationDBList) {
-	        			luceneApplicationIndexer.addToIndex(application);
-	        		}
-	        		
+	        			
+	        			if(!luceneApplicationSearch.isApplicationExists(application.getId())) {
+	        				if(luceneApplicationIndexer.addToIndex(application)) {
+		        				log.info("new application: " + application.getName() + " is added to the Lucene index");
+		        			} else {
+		        				luceneApplicationIndexer.addActionQueue.clear(); //no need to queue, try again later
+		        				log.error("failed to add the new application: " + application.getName() + " to the Lucene index");
+		        			}
+	        			}	        			
+	        		}	        		
 	        	}
 				 //this is an unexpected condition, avoid data loss if something went wrong 
-				else if (applicationDBList.size() < applicationLuceneList.size())  {
+				else if (applicationDBList.size() < indexSize)  {
 					log.warn("This is an unexpected condition, lucene data list has more items than the database list");
 					if(!skipImportFromLuceneIndex) {
 						log.info("New items in lucene indexer is being imported into DB");					
 						//merge the applications from lucene to DB
+						List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
 						for(Application app : applicationLuceneList) {
 							if(!dbMap.containsKey(app.getId())) {
+								log.info("application id={}, appName={} is not existing in the DB. Try to create and import", app.getId(), app.getName());
 								applicationDao.create(app);
 								applicationDBList.add(app);
 							}

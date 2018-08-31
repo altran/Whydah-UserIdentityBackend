@@ -37,8 +37,7 @@ public class LuceneApplicationSearchTest {
         assertEquals(6, result4.size());
         List<Application> result5 = luceneApplicationSearch.search("*");
         assertTrue(result5.size() >= LuceneApplicationSearch.MAX_HITS);
-        List<Application> result6 = luceneApplicationSearch.searchApplicationID("2212");
-        assertEquals(1, result6.size());
+        assertEquals(1, luceneApplicationSearch.isApplicationExists("2212"));
         List<Application> result7 = luceneApplicationSearch.searchApplicationName("Simulated");
         assertEquals(LuceneApplicationSearch.MAX_HITS, result7.size());
         List<Application> result8 = luceneApplicationSearch.searchApplicationName("SecurityTokenService");
