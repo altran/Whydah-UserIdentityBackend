@@ -90,14 +90,20 @@ public class ApplicationService {
 					
 	        		for (Application application : applicationDBList) {
 	        			
-	        			if(!luceneApplicationSearch.isApplicationExists(application.getId())) {
-	        				if(luceneApplicationIndexer.addToIndex(application)) {
-		        				log.info("new application: " + application.getName() + " is added to the Lucene index");
-		        			} else {
-		        				luceneApplicationIndexer.addActionQueue.clear(); //no need to queue, try again later
-		        				log.error("failed to add the new application: " + application.getName() + " to the Lucene index");
-		        			}
-	        			}	        			
+	        			try {
+	        				if(!luceneApplicationSearch.isApplicationExists(application.getId())) {
+	        					if(luceneApplicationIndexer.addToIndex(application)) {
+	        						log.info("new application: " + application.getName() + " is added to the Lucene index");
+	        					} else {
+	        						luceneApplicationIndexer.addActionQueue.clear(); //no need to queue, try again later
+	        						log.error("failed to add the new application: " + application.getName() + " to the Lucene index");
+	        					}
+	        				}
+	        			}catch(Exception ex) {
+	        				ex.printStackTrace();	        			
+	        				log.error("Failed to import applications to application index. Db's size: {} but luncene index's size: {}", applicationDBList.size(), indexSize);
+	        			}
+	        			
 	        		}	        		
 	        	}
 				 //this is an unexpected condition, avoid data loss if something went wrong 

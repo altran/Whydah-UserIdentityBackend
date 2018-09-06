@@ -84,7 +84,7 @@ public abstract class BaseLuceneIndexer<T> {
 
 			Document doc = createLuceneDocument(obj);
 			getIndexWriter().addDocument(doc);
-			getIndexWriter().commit();
+			getIndexWriter().commit();		
 			return true;
 
 		}
@@ -93,8 +93,9 @@ public abstract class BaseLuceneIndexer<T> {
 			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("addToIndex failed for {}.", obj.toString(), e);
+			log.error("addToIndex failed for {}, error: {}", obj.toString(), e);
 			getAddActionQueue().add(obj);
+			closeIndexWriter(currentDirectoryLockId);
 		}
 		return false;
 	}
@@ -124,6 +125,7 @@ public abstract class BaseLuceneIndexer<T> {
 
 		}  catch (Exception e) {
 			e.printStackTrace();
+			closeIndexWriter(currentDirectoryLockId);
 			//add back to queue because the whole commit process failed
 			for (T obj : objs) {
 				getAddActionQueue().add(obj);
@@ -143,8 +145,10 @@ public abstract class BaseLuceneIndexer<T> {
 			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("updating {} failed.", obj.toString(), e);
+			log.error("updating {} failed. Error {}", obj.toString(), e);
+			closeIndexWriter(currentDirectoryLockId);
 			getUpdateActionQueue().add(obj);
+			
 		}
 		return false;
 	}
@@ -172,6 +176,7 @@ public abstract class BaseLuceneIndexer<T> {
 
 		}  catch (Exception e) {
 			e.printStackTrace();
+			closeIndexWriter(currentDirectoryLockId);
 			//add back to queue because the whole commit process failed
 			for (T obj : objs) {
 				getUpdateActionQueue().add(obj);
@@ -194,7 +199,8 @@ public abstract class BaseLuceneIndexer<T> {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			log.error("removeFromIndex failed. uid={}", id, e);
+			log.error("removeFromIndex failed. uid={}. Error {}", id, e);
+			closeIndexWriter(currentDirectoryLockId);
 			getDeleteActionQueue().add(id);
 		}
 		return false;
@@ -225,6 +231,7 @@ public abstract class BaseLuceneIndexer<T> {
 			getIndexWriter().commit();
 		} catch (Exception e) {
 			e.printStackTrace();
+			closeIndexWriter(currentDirectoryLockId);
 			//add back to queue because the whole commit process failed
 			for (String id : ids) {
 				getDeleteActionQueue().add(id);
