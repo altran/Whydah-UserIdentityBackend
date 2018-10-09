@@ -1,16 +1,9 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.application.search.ApplicationSearch;
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.health.HealthResource;
-import net.whydah.sso.application.mappers.ApplicationMapper;
-import net.whydah.sso.application.types.Application;
-import org.apache.lucene.store.NIOFSDirectory;
-import org.constretto.ConstrettoConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import static net.whydah.sso.util.LoggerUtil.first50;
+
+import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,11 +11,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
-import static net.whydah.sso.util.LoggerUtil.first50;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import net.whydah.sso.application.mappers.ApplicationMapper;
+import net.whydah.sso.application.types.Application;
 
 
 @Component
@@ -30,32 +26,13 @@ import static net.whydah.sso.util.LoggerUtil.first50;
 public class ApplicationsResource {
     private static final Logger log = LoggerFactory.getLogger(ApplicationsResource.class);
     private final ApplicationService applicationService;
-    private final ApplicationSearch applicationSearch;
-    private final LuceneApplicationIndexer luceneApplicationIndexer;
-
-    //@Autowired
-    //public ApplicationsResource(ApplicationService applicationService) {
-    //    this.applicationService = applicationService;
-    //}
-
+    
     @Autowired
-    public ApplicationsResource(ApplicationService applicationService, ApplicationSearch applicationSearch, ConstrettoConfiguration configuration) throws IOException {
-        this.applicationService = applicationService;
-        this.applicationSearch = applicationSearch;
-        String luceneApplicationDir = configuration.evaluateToString("lucene.applicationsdirectory");
-        NIOFSDirectory applicationsIndex = createDirectory(luceneApplicationDir);
-        luceneApplicationIndexer = new LuceneApplicationIndexer(applicationsIndex);
-        HealthResource.setNumberOfApplications(applicationSearch.getApplicationIndexSize());
-
-
+    public ApplicationsResource(ApplicationService applicationService) throws IOException {
+        this.applicationService = applicationService;       
     }
 
-    /**
-     * Find users.
-     *
-     * @param query Application query.
-     * @return json response.
-     */
+  
     @GET
     @Path("/applications/find/{q}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -68,12 +45,7 @@ public class ApplicationsResource {
         return response;
     }
 
-    /**
-     * Find users.
-     *
-     * @param query Application query.
-     * @return json response.
-     */
+  
     @GET
     @Path("/find/applications/{q}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -123,21 +95,6 @@ public class ApplicationsResource {
         log.info("findApplications - Returning {} applications: {}", applications.size(), first50(json));
         Response response = Response.ok(json).header("Content-Type", MediaType.APPLICATION_JSON + ";charset=utf-8").build();
         return response;
-    }
-
-    private NIOFSDirectory createDirectory(String luceneDir) {
-        try {
-            File luceneDirectory = new File(luceneDir);
-            if (!luceneDirectory.exists()) {
-                boolean dirsCreated = luceneDirectory.mkdirs();
-                if (!dirsCreated) {
-                    log.debug("{} was not successfully created.", luceneDirectory.getAbsolutePath());
-                }
-            }
-            return new NIOFSDirectory(luceneDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

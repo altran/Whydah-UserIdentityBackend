@@ -81,7 +81,7 @@ public class ApplicationDao {
         return application;
     }
 
-    List<Application> getApplications() {
+    public List<Application> getApplications() {
         return this.jdbcTemplate.query(APPLICATIONS_SQL, new ApplicationMapper2());
     }
 

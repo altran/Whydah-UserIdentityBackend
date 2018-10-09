@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
+import net.whydah.identity.application.search.LuceneApplicationIndexerTest.DirectoryType;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.sso.user.types.UserIdentity;
 
@@ -38,6 +39,10 @@ public class LuceneUserIndexerTest {
 	@Before
 	public void beforeTest() throws Exception {		
 		System.out.println("initializing before tests...");
+		initDirectory();
+	}
+
+	private void initDirectory() throws IOException {
 		dir = null;
 		if(type == DirectoryType.NIOF) {
 			File path = new File("lunceneUserIndexDirectoryTest");
@@ -63,7 +68,7 @@ public class LuceneUserIndexerTest {
 	@After
 	public void afterTest() throws Exception {		
 		System.out.println("tear down after tests...");
-		indexer.closeIndexWriter();
+		
 		File path = new File("lunceneUserIndexDirectoryTest");
 		FileSystemUtils.deleteRecursively(path);
 	}
@@ -120,11 +125,7 @@ public class LuceneUserIndexerTest {
 			t.join();
 		}
 		
-		//wait until all items are committed
-		while(indexer.isQueueProcessing() || indexer.getAddActionQueue().size()>0) {
-			Thread.sleep(200);
-		}
-			
+		
 		Thread.sleep(2000);
 		System.out.println("Thread count " + ts.size());
 		System.out.println("Total records: " + indexer.numDocs());
@@ -142,6 +143,13 @@ public class LuceneUserIndexerTest {
 		i.setLastName("William");
 		boolean updateResult = indexer.updateIndex(i);		
 		assertTrue(updateResult);
+		
+		//we have to reopen the directory (the directory is closed after every operation in order to avoid the "too many open files" exception in Linux)
+		if(type == DirectoryType.NIOF) {
+			File path = new File("lunceneUserIndexDirectoryTest");
+			dir = new NIOFSDirectory(path);
+		}
+		
 		LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(dir);
 		List<UserIdentity> result = luceneSearch.search("William Shakespeare");
 		assertTrue(result.size()==1);
@@ -203,11 +211,7 @@ public class LuceneUserIndexerTest {
 			t.join();
 		}
 		
-		//wait until all items are committed
-		while(indexer.isQueueProcessing() || indexer.getAddActionQueue().size()>0) {
-			Thread.sleep(200);
-		}
-		
+	
 		
 		Thread.sleep(5000);
 		System.out.println("Thread count " + ts.size());	
@@ -243,6 +247,13 @@ public class LuceneUserIndexerTest {
 			list.get(i).setFirstName("Henry");
 		}
 		indexer.updateIndex(list);
+		
+		//we have to reopen the directory (the directory is closed after every operation in order to avoid the "too many open files" exception in Linux)
+		if(type == DirectoryType.NIOF) {
+			File path = new File("lunceneUserIndexDirectoryTest");
+			dir = new NIOFSDirectory(path);
+		}
+
 		LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(dir);
 		List<UserIdentity> result = luceneSearch.search("Henry");
 		assertTrue(result.size()==100);

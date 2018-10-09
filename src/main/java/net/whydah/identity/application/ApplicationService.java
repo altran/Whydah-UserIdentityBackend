@@ -1,26 +1,25 @@
 package net.whydah.identity.application;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.application.search.LuceneApplicationSearch;
-import net.whydah.identity.audit.ActionPerformed;
-import net.whydah.identity.audit.AuditLogDao;
-import net.whydah.sso.application.types.Application;
-import net.whydah.sso.application.types.ApplicationCredential;
-import net.whydah.sso.util.Lock;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import net.whydah.identity.application.search.LuceneApplicationIndexer;
+import net.whydah.identity.application.search.LuceneApplicationSearch;
+import net.whydah.identity.audit.ActionPerformed;
+import net.whydah.identity.audit.AuditLogDao;
+import net.whydah.identity.health.HealthResource;
+import net.whydah.sso.application.types.Application;
+import net.whydah.sso.application.types.ApplicationCredential;
+import net.whydah.sso.util.Lock;
 
 
 @Service
@@ -32,7 +31,6 @@ public class ApplicationService {
     private final AuditLogDao auditLogDao;
     private final LuceneApplicationIndexer luceneApplicationIndexer;
     private final LuceneApplicationSearch luceneApplicationSearch;
-    public static boolean skipImportFromLuceneIndex = false;
 
     @Autowired
     public ApplicationService(ApplicationDao applicationDao, AuditLogDao auditLogDao, @Qualifier("luceneApplicationsDirectory") LuceneApplicationIndexer luceneApplicationIndexer, LuceneApplicationSearch luceneApplicationSearch) {
@@ -67,70 +65,23 @@ public class ApplicationService {
     }
 
     public List<Application> search(String applicationQuery) {
-        return luceneApplicationSearch.search(applicationQuery);
+    	List<Application> list = luceneApplicationSearch.search(applicationQuery);
+    	log.debug("lucene search with query={} returned {} apps.", applicationQuery, list.size());
+		importApplicationsIfEmpty();
+    	return list;
     }
 
     public Application getApplication(String applicationId) {
         return applicationDao.getApplication(applicationId);
     }
     
-    Lock lock = new Lock();
+    Lock importLock = new Lock();
+    
+    //TODO: this should only be called by internal applications
     public List<Application> getApplications() {
+    	//data is queried directly from DB instead of LUCENE index
         List<Application> applicationDBList = applicationDao.getApplications();
-        Map<String, Application> dbMap = new HashMap<>();
-        for(Application a : applicationDBList) {
-        	dbMap.put(a.getId(), a);
-        }
-        int indexSize = luceneApplicationSearch.getApplicationIndexSize();
-        if(!lock.isLocked()){
-        	try {
-				lock.lock();
-				
-				if (applicationDBList.size() > indexSize) {
-					
-	        		for (Application application : applicationDBList) {
-	        			
-	        			try {
-	        				if(!luceneApplicationSearch.isApplicationExists(application.getId())) {
-	        					if(luceneApplicationIndexer.addToIndex(application)) {
-	        						log.info("new application: " + application.getName() + " is added to the Lucene index");
-	        					} else {
-	        						luceneApplicationIndexer.addActionQueue.clear(); //no need to queue, try again later
-	        						log.error("failed to add the new application: " + application.getName() + " to the Lucene index");
-	        					}
-	        				}
-	        			}catch(Exception ex) {
-	        				ex.printStackTrace();	        			
-	        				log.error("Failed to import applications to application index. Db's size: {} but luncene index's size: {}", applicationDBList.size(), indexSize);
-	        			}
-	        			
-	        		}	        		
-	        	}
-				 //this is an unexpected condition, avoid data loss if something went wrong 
-				else if (applicationDBList.size() < indexSize)  {
-					log.warn("This is an unexpected condition, lucene data list has more items than the database list");
-					if(!skipImportFromLuceneIndex) {
-						log.info("New items in lucene indexer is being imported into DB");					
-						//merge the applications from lucene to DB
-						List<Application> applicationLuceneList = luceneApplicationSearch.search("*");
-						for(Application app : applicationLuceneList) {
-							if(!dbMap.containsKey(app.getId())) {
-								log.info("application id={}, appName={} is not existing in the DB. Try to create and import", app.getId(), app.getName());
-								applicationDao.create(app);
-								applicationDBList.add(app);
-							}
-						}
-					} else {
-						log.warn("Skipped the import process");
-					}
-	        	}
-				
-			} catch (InterruptedException e) {
-				
-			} finally{
-				lock.unlock();
-			}
-        }
+        importApplicationsIfEmpty(applicationDBList);
         return applicationDBList;
     }
 
@@ -154,7 +105,46 @@ public class ApplicationService {
         auditLogDao.store(actionPerformed);
     }
 
+    private void importApplicationsIfEmpty() {
+    	List<Application> applicationDBList = applicationDao.getApplications();
+    	importApplicationsIfEmpty(applicationDBList);
+    }
 
+    private void importApplicationsIfEmpty(List<Application> applicationDBList) {
+    	if(!importLock.isLocked()){
+    		try {
+    			importLock.lock();
+    			if(luceneApplicationSearch.getApplicationIndexSize()==0){
+    				new Thread(new Runnable() {
+
+    					@Override
+    					public void run() {
+
+    						log.debug("lucene index is empty. Trying to import from DB...");
+    						try {
+    							List<Application> clones = new ArrayList<Application>(applicationDBList);
+    							log.debug("Found application list size: {}", applicationDBList.size());
+    							luceneApplicationIndexer.addToIndex(clones);
+    							
+    							HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
+    						
+    						} catch (Exception e) {
+    							e.printStackTrace();
+    							log.error("failed to import applications, exception: " + e.getMessage());
+    						}
+
+    					}
+    				}).start();
+    			}    
+    		}
+    		catch (InterruptedException e) {
+
+    		} finally{
+    			importLock.unlock();
+    		}
+    	}
+    }
+	
     ////// Authentication
 
     /**

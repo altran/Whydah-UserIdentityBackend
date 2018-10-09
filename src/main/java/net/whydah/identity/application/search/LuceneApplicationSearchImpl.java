@@ -1,10 +1,11 @@
 package net.whydah.identity.application.search;
 
 
-import net.whydah.identity.user.search.LuceneUserIndexer;
-import net.whydah.identity.user.search.LuceneUserSearch;
-import net.whydah.sso.application.mappers.ApplicationMapper;
-import net.whydah.sso.application.types.Application;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -13,32 +14,32 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import net.whydah.identity.user.search.LuceneUserSearch;
+import net.whydah.identity.util.BaseLuceneReader;
+import net.whydah.sso.application.mappers.ApplicationMapper;
+import net.whydah.sso.application.types.Application;
 
-public class LuceneApplicationSearchImpl {
+public class LuceneApplicationSearchImpl extends BaseLuceneReader {
     private static final Logger log = LoggerFactory.getLogger(LuceneUserSearch.class);
     protected static final Analyzer ANALYZER = new StandardAnalyzer();  //use LuceneUserIndexer.ANALYZER?
     public static final int MAX_HITS = 500;
-    private final Directory index;
-
-
+  
     public LuceneApplicationSearchImpl(Directory luceneApplicationDirectory) {
-        this.index = luceneApplicationDirectory;
+        super(luceneApplicationDirectory);
     }
 
 
-    public List<Application> search(String queryString) {
+    public synchronized List<Application> search(String queryString) {
         String wildCardQuery = buildWildCardQuery(queryString);
         log.trace("findApplications - Seach Application index - query:{}", wildCardQuery);
         String[] fields = {
@@ -64,10 +65,10 @@ public class LuceneApplicationSearchImpl {
         }
 
         List<Application> result = new ArrayList<>();
-        DirectoryReader directoryReader = null;
+        IndexReader directoryReader = null;
         try {
-            //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html
-            directoryReader = DirectoryReader.open(index);
+           
+            directoryReader = getIndexReader();
             IndexSearcher searcher = new IndexSearcher(directoryReader);
             TopDocs topDocs = searcher.search(q, MAX_HITS);
 
@@ -84,6 +85,7 @@ public class LuceneApplicationSearchImpl {
             if (directoryReader != null) {
                 try {
                     directoryReader.close();
+                    closeDirectory();
                 } catch (IOException e) {
                     log.info("findApplications - searcher.close() failed. Ignore. {}", e.getMessage());
                 }
@@ -93,14 +95,15 @@ public class LuceneApplicationSearchImpl {
         return result;
     }
 
-    public boolean isApplicationExists(String id) {
+    public synchronized boolean isApplicationExists(String id) {
         Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONID, id);
         TermQuery termQuery = new TermQuery(term);
         List<Application> result = new ArrayList<>();
-        DirectoryReader directoryReader = null;
+      
+        IndexReader directoryReader = null;
         try {
-            //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html
-            directoryReader = DirectoryReader.open(index);
+           
+            directoryReader = getIndexReader();
             IndexSearcher searcher = new IndexSearcher(directoryReader);
             TopDocs topDocs = searcher.search(termQuery, MAX_HITS);
 
@@ -112,6 +115,7 @@ public class LuceneApplicationSearchImpl {
             if (directoryReader != null) {
                 try {
                     directoryReader.close();
+                    closeDirectory();
                 } catch (IOException e) {
                     log.info("searcher.close() failed. Ignore. {}", e.getMessage());
                 }
@@ -122,15 +126,16 @@ public class LuceneApplicationSearchImpl {
     
    
 
-    public List<Application> searchApplicationName(String queryString) {
+    public synchronized List<Application> searchApplicationName(String queryString) {
         Term term = new Term(LuceneApplicationIndexer.FIELD_APPLICATIONNAME, "*" + queryString + "*");
         Query wildcardQuery = new WildcardQuery(term);
 
         List<Application> result = new ArrayList<>();
-        DirectoryReader directoryReader = null;
+       
+        IndexReader directoryReader = null;
         try {
-            //searcher = new IndexSearcher(index, true);    //http://lucene.472066.n3.nabble.com/IndexSearcher-close-removed-in-4-0-td4041177.html
-            directoryReader = DirectoryReader.open(index);
+           
+            directoryReader = getIndexReader();
             IndexSearcher searcher = new IndexSearcher(directoryReader);
             TopDocs topDocs = searcher.search(wildcardQuery, MAX_HITS);
 
@@ -147,6 +152,7 @@ public class LuceneApplicationSearchImpl {
             if (directoryReader != null) {
                 try {
                     directoryReader.close();
+                    closeDirectory();
                 } catch (IOException e) {
                     log.info("searcher.close() failed. Ignore. {}", e.getMessage());
                 }
@@ -168,24 +174,8 @@ public class LuceneApplicationSearchImpl {
         return wildCardQuery;
     }
 
-    public int getApplicationIndexSize() {
-        DirectoryReader directoryReader = null;
-        try {
-        	directoryReader = DirectoryReader.open(index);
-            return directoryReader.numDocs();
-        } catch (IOException e) {
-            log.error("Error when accessing index.", e);
-        } finally {
-            if (directoryReader != null) {
-                try {
-                    directoryReader.close();
-                } catch (IOException e) {
-                    log.info("searcher.close() failed. Ignore. {}", e.getMessage());
-                }
-            }
-        }
-        return 0;
-
+    public synchronized int getApplicationIndexSize() {
+       return getIndexSize();
     }
 
 }

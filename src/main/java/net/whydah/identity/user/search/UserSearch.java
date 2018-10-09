@@ -41,17 +41,14 @@ public class UserSearch {
 		this.luceneUserSearch = luceneSearch;
 		this.luceneUserIndexer = luceneIndexer;
 		this.alwayslookupinexternaldirectory = _alwayslookupinexternaldirectory;
-		//importUsersIfEmpty();
 	}
 
 	private void importUsersIfEmpty() {
-		if(getUserIndexSize()==0 && alwayslookupinexternaldirectory){
+		if(getUserIndexSize()==0){
 			new Thread(new Runnable() {
 
 				@Override
 				public void run() {
-
-
 
 					log.debug("lucene index is empty. Trying to import from LDAP...");
 
@@ -63,6 +60,7 @@ public class UserSearch {
 						luceneUserIndexer.addToIndex(clones);
 					} catch (Exception e) {
 						e.printStackTrace();
+						log.error("failed to import users, exception: " + e.getMessage());
 					}
 
 

@@ -225,7 +225,6 @@ public class Main {
 
     public void stop() {
         try {
-        	BaseLuceneIndexer.closeAllIndexWriters();
             server.stop();
         } catch (Exception e) {
             log.warn("Error when stopping Jetty server", e);

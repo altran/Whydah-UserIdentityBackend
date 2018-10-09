@@ -66,7 +66,7 @@ public class LuceneApplicationIndexerTest {
 	@After
 	public void afterTest() throws Exception {		
 		System.out.println("tear down after tests...");
-		indexer.closeIndexWriter();
+		
 		File path = new File("lunceneApplciationIndexDirectoryTest");
 		FileSystemUtils.deleteRecursively(path);
 	}
@@ -110,10 +110,7 @@ public class LuceneApplicationIndexerTest {
 			t.join();
 		}
 		
-		//wait until all items are committed
-		while(indexer.isQueueProcessing() || indexer.getAddActionQueue().size()>0) {
-			Thread.sleep(200);
-		}
+		
 			
 		Thread.sleep(2000);
 		System.out.println("Thread count " + ts.size());
@@ -131,6 +128,13 @@ public class LuceneApplicationIndexerTest {
 		i.setCompany("Delta");
 		boolean updateResult = indexer.updateIndex(i);		
 		assertTrue(updateResult);
+		
+		//we have to reopen the directory (the directory is closed after every operation in order to avoid the "too many open files" exception in Linux)
+		if(type == DirectoryType.NIOF) {
+			File path = new File("lunceneApplciationIndexDirectoryTest");
+			dir = new NIOFSDirectory(path);
+		}
+
 		LuceneApplicationSearchImpl luceneSearch = new LuceneApplicationSearchImpl(dir);
 		List<Application> result = luceneSearch.search("Delta");
 		assertTrue(result.size()==1);
@@ -191,12 +195,7 @@ public class LuceneApplicationIndexerTest {
 			t.join();
 		}
 		
-		//wait until all items are committed
-		while(indexer.isQueueProcessing() || indexer.getAddActionQueue().size()>0) {
-			Thread.sleep(200);
-		}
-		
-		
+	
 		Thread.sleep(5000);
 		System.out.println("Thread count " + ts.size());	
 		System.out.println("Total items updated: " + numberOfItemsUpdated.get());
@@ -225,6 +224,13 @@ public class LuceneApplicationIndexerTest {
 			app.setCompany("Delta");
 		}
 		indexer.updateIndex(apps);
+		
+		//we have to reopen the directory (the directory is closed after every operation in order to avoid the "too many open files" exception in Linux)
+		if(type == DirectoryType.NIOF) {
+			File path = new File("lunceneApplciationIndexDirectoryTest");
+			dir = new NIOFSDirectory(path);
+		}
+		
 		LuceneApplicationSearchImpl luceneSearch = new LuceneApplicationSearchImpl(dir);
 		List<Application> result = luceneSearch.search("Delta");
 		assertTrue(result.size()==apps.size());

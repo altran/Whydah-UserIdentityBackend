@@ -145,7 +145,6 @@ public class UIBUserIdentityServiceTest {
         if (main != null) {
             main.stop();
         }
-        luceneIndexer.closeIndexWriter();
         main=null;
         luceneIndexer = null;
         FileUtils.deleteDirectory(new File("target/data/"));

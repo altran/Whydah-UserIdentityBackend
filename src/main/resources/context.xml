@@ -30,7 +30,8 @@
         <property name="password" value="${roledb.jdbc.password}"/>
     </bean>
 
-    <bean id="luceneUserDirectory" class="org.apache.lucene.store.NIOFSDirectory" factory-method="open">
+
+    <bean id="luceneUserDirectory" class="org.apache.lucene.store.NIOFSDirectory">
         <constructor-arg>
             <bean class="java.io.File">
                 <constructor-arg value="${lucene.usersdirectory}"/>
@@ -38,7 +39,7 @@
         </constructor-arg>
     </bean>
 
-    <bean id="luceneApplicationDirectory" class="org.apache.lucene.store.NIOFSDirectory" factory-method="open">
+    <bean id="luceneApplicationDirectory" class="org.apache.lucene.store.NIOFSDirectory">
         <constructor-arg>
             <bean class="java.io.File">
                 <constructor-arg value="${lucene.applicationsdirectory}"/>

@@ -71,7 +71,7 @@ public class LuceneUserSearchTest {
     public void testWildcardSearch() throws Exception {
         Directory index = new RAMDirectory();
         addUsers(index);
-
+        
         LuceneUserSearchImpl luceneSearch = new LuceneUserSearchImpl(index);
         List<UserIdentity> result = luceneSearch.search("Ola");
         assertEquals(1, result.size());
