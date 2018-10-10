@@ -28,6 +28,8 @@ public class CommandLdapDestroySubcontext extends HystrixCommand<Void> {
             ctx.destroySubcontext(userDN);
         } catch (NamingException e) {
             throw new HystrixBadRequestException("", e);
+        } finally {
+        	ctx.close();
         }
         return null;
     }

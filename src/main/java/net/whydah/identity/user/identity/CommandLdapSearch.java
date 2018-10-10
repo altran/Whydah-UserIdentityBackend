@@ -40,6 +40,8 @@ public class CommandLdapSearch extends HystrixCommand<SearchResult> {
             return searchResult;
         } catch (NamingException e) {
             throw new HystrixBadRequestException("", e);
+        } finally {
+        	context.close();
         }
     }
 }

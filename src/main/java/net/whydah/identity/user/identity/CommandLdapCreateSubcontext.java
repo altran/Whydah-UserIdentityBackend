@@ -34,6 +34,8 @@ public class CommandLdapCreateSubcontext extends HystrixCommand<DirContext> {
             return subcontext;
         } catch (NoPermissionException | NameAlreadyBoundException | InvalidAttributeValueException e) {
             throw new HystrixBadRequestException("", e);
+        } finally {
+        	ctx.close();
         }
     }
 }

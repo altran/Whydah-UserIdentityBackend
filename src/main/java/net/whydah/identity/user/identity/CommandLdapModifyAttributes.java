@@ -31,6 +31,8 @@ public class CommandLdapModifyAttributes extends HystrixCommand<Void> {
             ctx.modifyAttributes(userDN, mis);
         } catch (NamingException e) {
             throw new HystrixBadRequestException("", e);
+        } finally {
+        	ctx.close();
         }
         return null;
     }

@@ -49,12 +49,12 @@ public class LdapAuthenticator {
     }
 
 
-    public LDAPUserIdentity authenticate(final String username, final String password) {
-        InitialDirContext initialDirContext = authenticateUser(username, password, "simple");
-        if (initialDirContext == null) {
-            return null;
-        }
-        try {
+    public LDAPUserIdentity authenticate(final String username, final String password) {      
+    	 InitialDirContext initialDirContext = authenticateUser(username, password, "simple");
+         if (initialDirContext == null) {
+             return null;
+         }
+    	try {
             return getUserinfo(username, initialDirContext);
         } catch (NamingException e) {
             log.error("Failed to create getUserinfo in authenticate.", e);
@@ -116,14 +116,7 @@ public class LdapAuthenticator {
 
 
     private String findUserDN(String username) {
-        InitialDirContext adminContext;
-        try {
-            adminContext = new InitialDirContext(admenv);
-        } catch (Exception e) {
-            log.error("Error authenticating as superuser, check configuration", e);
-            return null;
-        }
-
+        
         try {
             SearchControls constraints = new SearchControls();
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -131,7 +124,7 @@ public class LdapAuthenticator {
             String filter = "(" + usernameAttribute + "=" + username + ")";
             SearchResult searchResult;
             try {
-                searchResult = new CommandLdapSearch(adminContext, baseDN, filter, constraints).execute();
+                searchResult = new CommandLdapSearch(getContext(), baseDN, filter, constraints).execute();
             } catch (HystrixBadRequestException he) {
                 if (he.getCause() instanceof NamingException) {
                     throw (NamingException) he.getCause();
@@ -154,6 +147,11 @@ public class LdapAuthenticator {
             return null;
         }
     }
+
+
+	private InitialDirContext getContext() throws NamingException {
+		return new InitialDirContext(admenv);    
+	}
 
 
     private LDAPUserIdentity getUserinfo(String username, InitialDirContext context) throws NamingException {

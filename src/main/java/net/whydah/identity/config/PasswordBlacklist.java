@@ -42,6 +42,14 @@ public final class PasswordBlacklist {
             }
         } catch (IOException e) {
             throw new RuntimeException("Error reading " + pwfile + " from classpath.", e);
+        } finally {
+        	if(is!=null) {
+        		try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	}
         }
     }
 

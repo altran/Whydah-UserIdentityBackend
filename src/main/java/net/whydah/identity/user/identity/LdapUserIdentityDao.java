@@ -238,7 +238,7 @@ public class LdapUserIdentityDao {
         addModificationItem(modificationItems, usernameAttribute, olduser.getUsername(), newuser.getUsername());
 
         try {
-            new CommandLdapModifyAttributes(new InitialDirContext(admenv), createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()])).execute();
+            new CommandLdapModifyAttributes(getContext(), createUserDNFromUID(newuser.getUid()), modificationItems.toArray(new ModificationItem[modificationItems.size()])).execute();
         } catch(HystrixBadRequestException he) {
             if (he.getCause() instanceof NamingException) {
                 throw (NamingException) he.getCause();
@@ -408,7 +408,7 @@ public class LdapUserIdentityDao {
         constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
         log.trace("getAttributesForUid using {}={}", attributeName, attributeValue);
         try {
-            SearchResult searchResult = new CommandLdapSearch(new InitialDirContext(admenv), "", "(" + attributeName + "=" + attributeValue + ")", constraints).execute();
+            SearchResult searchResult = new CommandLdapSearch(getContext(), "", "(" + attributeName + "=" + attributeValue + ")", constraints).execute();
             if (searchResult == null) {
                 log.trace("getAttributesForUid found no attributes for {}={}.", attributeName, attributeValue);
                 return null;
@@ -503,20 +503,13 @@ public class LdapUserIdentityDao {
             return;
         }
 
-        DirContext ctx;
-        try {
-            ctx = new InitialDirContext(admenv);
-        } catch (NamingException e) {
-            log.error("Error when changing password. Could not create initial context", e);
-            return;
-        }
-
+        
         if (attributes.get(ATTRIBUTE_NAME_TEMPPWD_SALT) != null) {
             ModificationItem mif = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT));
             ModificationItem[] mis = {mif};
             try {
-                new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
-            } catch (HystrixBadRequestException he) {
+                new CommandLdapModifyAttributes(getContext(), userDN, mis).execute();
+            } catch (HystrixBadRequestException | NamingException he) {
                 log.error("Error when changing password. Could not remove attribute " + ATTRIBUTE_NAME_TEMPPWD_SALT + "for username=", username, he.getCause());
                 return;
             }
@@ -525,14 +518,18 @@ public class LdapUserIdentityDao {
         ModificationItem mi = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, newPassword));
         ModificationItem[] mis = {mi};
         try {
-            new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
-        } catch(HystrixBadRequestException he) {
+            new CommandLdapModifyAttributes(getContext(), userDN, mis).execute();
+        } catch(HystrixBadRequestException | NamingException he) {
             log.error("Error when changing password. Could not replace password for username=", username, he.getCause());
             return;
         }
 
         log.trace("Password successfully changed for user with username={}", username);
     }
+
+	private DirContext getContext() throws NamingException {
+		return new InitialDirContext(admenv);
+	}
 
 
     public void setTempPassword(String username, String password, String salt) {
@@ -544,12 +541,12 @@ public class LdapUserIdentityDao {
         try {
             Attributes attributes = getUserAttributesForUsernameOrUid(username);
             String userDN = createUserDNFromUsername(username);
-            DirContext ctx = new InitialDirContext(admenv);
+   
             if (getAttribValue(attributes, ATTRIBUTE_NAME_TEMPPWD_SALT) == null) {
                 ModificationItem mif = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
                 try {
-                    new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+                    new CommandLdapModifyAttributes(getContext(), userDN, mis).execute();
                 } catch(HystrixBadRequestException he) {
                     log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: ADD TEMPPWD_SALT.", username, getAdminPrincipal(), he.getCause());
                     return;
@@ -558,7 +555,7 @@ public class LdapUserIdentityDao {
                 ModificationItem mif = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_TEMPPWD_SALT, salt));
                 ModificationItem[] mis = {mif};
                 try {
-                    new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+                    new CommandLdapModifyAttributes(getContext(), userDN, mis).execute();
                 } catch(HystrixBadRequestException he) {
                     log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE TEMPPWD_SALT.", username, getAdminPrincipal(), he.getCause());
                     return;
@@ -568,7 +565,7 @@ public class LdapUserIdentityDao {
             	ModificationItem mip = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(ATTRIBUTE_NAME_PASSWORD, password));
             	ModificationItem[] mis = {mip};
             	try {
-            		new CommandLdapModifyAttributes(ctx, userDN, mis).execute();
+            		new CommandLdapModifyAttributes(getContext(), userDN, mis).execute();
             	} catch(HystrixBadRequestException he) {
             		log.error("setTempPassword failed for username={} using admin principal={}. Attribute modification: REPLACE PASSWORD.", username, getAdminPrincipal(), he.getCause());
             		return;
