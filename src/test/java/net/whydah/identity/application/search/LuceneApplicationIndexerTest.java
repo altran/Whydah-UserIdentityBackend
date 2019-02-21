@@ -1,34 +1,30 @@
 package net.whydah.identity.application.search;
 
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
+import net.whydah.sso.application.helpers.ApplicationHelper;
+import net.whydah.sso.application.mappers.ApplicationMapper;
+import net.whydah.sso.application.types.Application;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 
-import net.whydah.identity.user.identity.LDAPUserIdentity;
-import net.whydah.sso.application.helpers.ApplicationHelper;
-import net.whydah.sso.application.mappers.ApplicationMapper;
-import net.whydah.sso.application.types.Application;
-import net.whydah.sso.user.types.UserIdentity;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 public class LuceneApplicationIndexerTest {
-
+	private static final Logger log = LoggerFactory.getLogger(LuceneApplicationIndexerTest.class);
 	LuceneApplicationIndexerImpl indexer;
 	DirectoryType type = DirectoryType.NIOF; //we can switch to RAM
 	Directory dir = null;
@@ -40,7 +36,7 @@ public class LuceneApplicationIndexerTest {
 
 	@Before
 	public void beforeTest() throws Exception {		
-		System.out.println("initializing before tests...");
+		log.debug("initializing before tests...");
 		dir = null;
 		if(type == DirectoryType.NIOF) {
 			File path = new File("lunceneApplciationIndexDirectoryTest");
@@ -57,7 +53,7 @@ public class LuceneApplicationIndexerTest {
 
 		if(dir!=null) {
 			indexer = new LuceneApplicationIndexerImpl(dir);
-			System.out.println("initialized");
+			log.debug("initialized");
 		} else {
 			fail("Initialization failed. No directory found");
 		}
@@ -65,7 +61,7 @@ public class LuceneApplicationIndexerTest {
 	
 	@After
 	public void afterTest() throws Exception {		
-		System.out.println("tear down after tests...");
+		log.debug("tear down after tests...");
 		
 		File path = new File("lunceneApplciationIndexDirectoryTest");
 		FileSystemUtils.deleteRecursively(path);
@@ -96,7 +92,7 @@ public class LuceneApplicationIndexerTest {
 				public void run() {		
 					
 					boolean ok = indexer.addToIndex(app); //should always return true under normal condition (i.e. enough memory/disk space)
-					System.out.println(Thread.currentThread().getName() + ( ok? " added item to index":" added item to queue"));					
+					log.debug(Thread.currentThread().getName() + ( ok? " added item to index":" added item to queue"));					
 				}
 			});
 			
@@ -113,8 +109,8 @@ public class LuceneApplicationIndexerTest {
 		
 			
 		Thread.sleep(2000);
-		System.out.println("Thread count " + ts.size());
-		System.out.println("Total records: " + indexer.numDocs());
+		log.debug("Thread count " + ts.size());
+		log.debug("Total records: " + indexer.numDocs());
 		assertTrue(indexer.numDocs()==ts.size());
 
 	}
@@ -164,18 +160,18 @@ public class LuceneApplicationIndexerTest {
 				public void run() {		
 					
 					boolean addResult = indexer.addToIndex(app);
-					System.out.println(Thread.currentThread().getName() + " added its item to the index");
+					log.debug(Thread.currentThread().getName() + " added its item to the index");
 					assertTrue(addResult);//should return true under normal condition (i.e. enough memory/disk space)
 					if(new Random().nextBoolean()) {
 						app.setCompany("Capra test");
 						boolean updateResult = indexer.updateIndex(app);
 						assertTrue(updateResult);
-						System.out.println(Thread.currentThread().getName() + " updated its item");	
+						log.debug(Thread.currentThread().getName() + " updated its item");	
 						numberOfItemsUpdated.getAndIncrement();
 					} else {
 						boolean removeResult = indexer.removeFromIndex(app.getId());
 						assertTrue(removeResult);
-						System.out.println(Thread.currentThread().getName() + " removed its item out of the index list");	
+						log.debug(Thread.currentThread().getName() + " removed its item out of the index list");	
 						numberOfItemsRemoved.getAndIncrement();
 					}
 					
@@ -197,10 +193,10 @@ public class LuceneApplicationIndexerTest {
 		
 	
 		Thread.sleep(5000);
-		System.out.println("Thread count " + ts.size());	
-		System.out.println("Total items updated: " + numberOfItemsUpdated.get());
-		System.out.println("Total items removed: " + numberOfItemsRemoved.get());
-		System.out.println("Total records (exlude deletion): " + indexer.numDocs());
+		log.debug("Thread count " + ts.size());	
+		log.debug("Total items updated: " + numberOfItemsUpdated.get());
+		log.debug("Total items removed: " + numberOfItemsRemoved.get());
+		log.debug("Total records (exlude deletion): " + indexer.numDocs());
 		assertTrue(indexer.numDocs()==ts.size() - numberOfItemsRemoved.get());
 
 	}

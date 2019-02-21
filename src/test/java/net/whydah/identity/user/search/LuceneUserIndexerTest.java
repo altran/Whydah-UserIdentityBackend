@@ -1,7 +1,16 @@
 package net.whydah.identity.user.search;
 
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import net.whydah.identity.user.identity.LDAPUserIdentity;
+import net.whydah.sso.user.types.UserIdentity;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.RAMDirectory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,21 +20,11 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.store.RAMDirectory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.util.FileSystemUtils;
-
-import net.whydah.identity.application.search.LuceneApplicationIndexerTest.DirectoryType;
-import net.whydah.identity.user.identity.LDAPUserIdentity;
-import net.whydah.sso.user.types.UserIdentity;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 public class LuceneUserIndexerTest {
+	private static final Logger log = LoggerFactory.getLogger(LuceneUserIndexerTest.class);
 
 	LuceneUserIndexerImpl indexer;
 	DirectoryType type = DirectoryType.NIOF; //we can switch to RAM
@@ -38,7 +37,7 @@ public class LuceneUserIndexerTest {
 
 	@Before
 	public void beforeTest() throws Exception {		
-		System.out.println("initializing before tests...");
+		log.debug("initializing before tests...");
 		initDirectory();
 	}
 
@@ -59,7 +58,7 @@ public class LuceneUserIndexerTest {
 
 		if(dir!=null) {
 			indexer = new LuceneUserIndexerImpl(dir);
-			System.out.println("initialized");
+			log.debug("initialized");
 		} else {
 			fail("Initialization failed. No directory found");
 		}
@@ -67,7 +66,7 @@ public class LuceneUserIndexerTest {
 	
 	@After
 	public void afterTest() throws Exception {		
-		System.out.println("tear down after tests...");
+		log.debug("tear down after tests...");
 		
 		File path = new File("lunceneUserIndexDirectoryTest");
 		FileSystemUtils.deleteRecursively(path);
@@ -111,7 +110,7 @@ public class LuceneUserIndexerTest {
 				public void run() {		
 					UserIdentity i = getRandomUser();
 					boolean ok = indexer.addToIndex(i); //should always return true under normal condition (i.e. enough memory/disk space)
-					System.out.println(Thread.currentThread().getName() + ( ok? " added item to index":" added item to queue"));					
+					log.debug(Thread.currentThread().getName() + ( ok? " added item to index":" added item to queue"));					
 				}
 			});
 			
@@ -127,8 +126,8 @@ public class LuceneUserIndexerTest {
 		
 		
 		Thread.sleep(2000);
-		System.out.println("Thread count " + ts.size());
-		System.out.println("Total records: " + indexer.numDocs());
+		log.debug("Thread count " + ts.size());
+		log.debug("Total records: " + indexer.numDocs());
 		assertTrue(indexer.numDocs()==ts.size());
 
 	}
@@ -179,19 +178,19 @@ public class LuceneUserIndexerTest {
 				public void run() {		
 					UserIdentity i = getRandomUser();
 					boolean addResult = indexer.addToIndex(i);
-					System.out.println(Thread.currentThread().getName() + " added its user to the index");
+					log.debug(Thread.currentThread().getName() + " added its user to the index");
 					assertTrue(addResult);//should return true under normal condition (i.e. enough memory/disk space)
 					if(new Random().nextBoolean()) {
 						i.setFirstName("Shakespeare");
 						i.setLastName("William");
 						boolean updateResult = indexer.updateIndex(i);
 						assertTrue(updateResult);
-						System.out.println(Thread.currentThread().getName() + " updated its user");	
+						log.debug(Thread.currentThread().getName() + " updated its user");	
 						numberOfItemsUpdated.getAndIncrement();
 					} else {
 						boolean removeResult = indexer.removeFromIndex(i.getUid());
 						assertTrue(removeResult);
-						System.out.println(Thread.currentThread().getName() + " removed its user out of the index list");	
+						log.debug(Thread.currentThread().getName() + " removed its user out of the index list");	
 						numberOfItemsRemoved.getAndIncrement();
 					}
 					
@@ -214,10 +213,10 @@ public class LuceneUserIndexerTest {
 	
 		
 		Thread.sleep(5000);
-		System.out.println("Thread count " + ts.size());	
-		System.out.println("Total items updated: " + numberOfItemsUpdated.get());
-		System.out.println("Total items removed: " + numberOfItemsRemoved.get());
-		System.out.println("Total records (exlude deletion): " + indexer.numDocs());
+		log.debug("Thread count " + ts.size());	
+		log.debug("Total items updated: " + numberOfItemsUpdated.get());
+		log.debug("Total items removed: " + numberOfItemsRemoved.get());
+		log.debug("Total records (exlude deletion): " + indexer.numDocs());
 		assertTrue(indexer.numDocs()==ts.size() - numberOfItemsRemoved.get());
 
 	}
