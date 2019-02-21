@@ -53,7 +53,7 @@ public class ApplicationJsonImporter {
                 }
             }
         }
-        log.info("Importing applications: {}", applicationsJson);
+        log.debug("Importing applications from json: {}", applicationsJson);
         List<Application> applications = ApplicationMapper.fromJsonList(applicationsJson);
         if (applications.size()>0){
             saveApplications(applications);
