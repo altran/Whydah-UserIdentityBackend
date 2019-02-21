@@ -29,29 +29,28 @@ public class ApplicationImporter {
         this.applicationService = applicationService;
     }
 
-	public void importApplications(InputStream applicationsSource) {
+	void importApplications(InputStream applicationsSource) {
 		List<Application> applications = parseApplications(applicationsSource);
 		saveApplications(applications);
         log.info("{} applications imported.", applications.size());
 	}
 
 	private void saveApplications(List<Application> applications) {
+    	StringBuilder strb = new StringBuilder("Imported Applications: \n");
         for (Application application: applications) {
             try {
                 applicationService.create(application.getId(), application);
-                /*
-                queryRunner.update("INSERT INTO Application (Id, Name, DefaultRoleName, DefaultOrgName, Secret) values (?, ?, ?, ?, ?)",
-                        application.getId(), application.getName(), application.getDefaultRoleName(), application.getDefaultOrganizationId(),application.getApplicationSecret());
-                */
-                log.info("Imported Application. Id {}, Name {}", application.getId(), application.getName());
+				strb.append("  id=").append(application.getId()).append(", name=").append(application.getName()).append("\n");
             } catch(Exception e) {
                 log.error("Unable to persist application: {}", application.toString(), e);
                 throw new RuntimeException("Unable to persist application: " + application.toString(), e);
-            }
+            } finally {
+            	log.info(strb.toString());
+			}
         }
 	}
 
-	protected static List<Application> parseApplications(InputStream applicationsStream) {
+	private static List<Application> parseApplications(InputStream applicationsStream) {
 		BufferedReader reader = null;
 		try {
 			List<Application> applications = new ArrayList<>();

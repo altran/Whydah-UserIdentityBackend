@@ -65,17 +65,20 @@ public class ApplicationJsonImporter {
 
 
     private void saveApplications(List<Application> applications) {
+        StringBuilder strb = new StringBuilder("Imported Applications: \n");
         for (Application application: applications) {
             try {
                 applicationService.create(application.getId(), application);
-                //luceneApplicationIndexer.addToIndex(application);
-                log.info("Imported Application. Id {}, Name {}", application.getId(), application.getName());
+                strb.append("  id=").append(application.getId()).append(", name=").append(application.getName()).append("\n");
             } catch(Exception e) {
                 log.error("Unable to persist application: {}", application.toString(), e);
                 throw new RuntimeException("Unable to persist application: " + application.toString(), e);
+            } finally {
+                log.info(strb.toString());
             }
         }
     }
+
     private NIOFSDirectory createDirectory(String luceneDir) {
         try {
             File luceneDirectory = new File(luceneDir);
