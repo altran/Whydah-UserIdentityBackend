@@ -44,10 +44,9 @@ public class ApplicationImporter {
             } catch(Exception e) {
                 log.error("Unable to persist application: {}", application.toString(), e);
                 throw new RuntimeException("Unable to persist application: " + application.toString(), e);
-            } finally {
-            	log.info(strb.toString());
-			}
+            }
         }
+        log.info(strb.toString());
 	}
 
 	private static List<Application> parseApplications(InputStream applicationsStream) {

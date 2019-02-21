@@ -31,13 +31,13 @@ public class ApplicationJsonImporter {
 
     }
 
-    public void importApplications(InputStream applicationsSource) {
+    void importApplications(InputStream applicationsSource) {
         log.info("Importing basis applications from file: {}", applicationsSource);
         BufferedReader reader = null;
         String applicationsJson = "";
         try {
             reader = new BufferedReader(new InputStreamReader(applicationsSource, IamDataImporter.CHARSET_NAME));
-            String line=null;
+            String line = null;
             while (null != (line = reader.readLine())) {
                 applicationsJson = applicationsJson + line;
             }
@@ -53,19 +53,20 @@ public class ApplicationJsonImporter {
                 }
             }
         }
+
         log.debug("Importing applications from json: {}", applicationsJson);
         List<Application> applications = ApplicationMapper.fromJsonList(applicationsJson);
-        if (applications.size()>0){
-            saveApplications(applications);
-        } else {
+        if (applications.size() <= 0) {
             log.warn("Empty applications list detected, no import.");
+            return;
         }
-        log.info("{} applications imported.", applications.size());
+
+        saveApplications(applications);
     }
 
 
     private void saveApplications(List<Application> applications) {
-        StringBuilder strb = new StringBuilder("Imported Applications: \n");
+        StringBuilder strb = new StringBuilder("Imported ").append(applications.size()).append(" applications: \n");
         for (Application application: applications) {
             try {
                 applicationService.create(application.getId(), application);
@@ -73,10 +74,9 @@ public class ApplicationJsonImporter {
             } catch(Exception e) {
                 log.error("Unable to persist application: {}", application.toString(), e);
                 throw new RuntimeException("Unable to persist application: " + application.toString(), e);
-            } finally {
-                log.info(strb.toString());
             }
         }
+        log.info(strb.toString());
     }
 
     private NIOFSDirectory createDirectory(String luceneDir) {

@@ -27,7 +27,6 @@ public class OrganizationImporter {
 	public void importOrganizations(InputStream organizationsSource) {
 		List<Organization> organizations = parseOrganizations(organizationsSource);
 		saveOrganizations(organizations);
-        log.info("{} organizations imported.", organizations.size());
 	}
 	
 	protected static List<Organization> parseOrganizations(InputStream organizationsStream) {
@@ -77,15 +76,18 @@ public class OrganizationImporter {
 	}
 
     private void saveOrganizations(List<Organization> organizations) {
-        try {
+		StringBuilder strb = new StringBuilder("Imported ").append(organizations.size()).append(" organizations: \n");
+		try {
             for (Organization organization: organizations) {
                 queryRunner.update("INSERT INTO Organization values (?, ?)", organization.getAppId(), organization.getName());
-                log.info("Imported Organization. Id {}, Name {}", organization.getAppId(), organization.getName());
+				strb.append("  id=").append(organization.getAppId()).append(", name=").append(organization.getName()).append("\n");
             }
         } catch(Exception e) {
             log.error("Unable to persist organizations.", e);
             throw new RuntimeException("Unable to persist organizations.", e);
-        }
+        } finally {
+			log.info(strb.toString());
+		}
     }
 }
 
