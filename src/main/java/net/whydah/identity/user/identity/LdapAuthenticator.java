@@ -83,7 +83,7 @@ public class LdapAuthenticator {
 
         final String userDN = findUserDN(username);
         if (userDN == null) {
-            log.warn("authenticateUser failed (returned null), because could not find userDN for username={}", username);
+            log.debug("authenticateUser failed (returned null), because could not find userDN for username={}", username);
             return null;
         }
 
@@ -96,10 +96,10 @@ public class LdapAuthenticator {
 
         try {
             InitialDirContext initialDirContext = new InitialDirContext(myEnv);
-            log.trace("authenticateUser with username and password was successful for username=" + username);
+            log.debug("authenticateUser with username and password was successful for username=" + username);
             return initialDirContext;
         } catch (AuthenticationException ae) {
-            log.trace("authenticateUser failed (returned null), because {}: {}", ae.getClass().getSimpleName(), ae.getMessage());
+            log.debug("authenticateUser failed (returned null), because {}: {}", ae.getClass().getSimpleName(), ae.getMessage());
         } catch (Exception e) {
             log.error("authenticateUser failed (returned null), because could not create InitialDirContext.", e);
             return null;
@@ -132,18 +132,18 @@ public class LdapAuthenticator {
                 throw he;
             }
             if (searchResult == null) {
-                log.trace("findUserDN, empty searchResult for {}={}", usernameAttribute, username);
+                log.debug("findUserDN, empty searchResult for {}={}", usernameAttribute, username);
                 return null;
             }
             String userDN = searchResult.getNameInNamespace();
             if (userDN == null) {
-                log.trace("findUserDN, userDN not found for {}={}", usernameAttribute, username);
+                log.debug("findUserDN, userDN not found for {}={}", usernameAttribute, username);
                 return null;
             }
-            log.trace("findUserDN with {}={} found userDN={}", usernameAttribute, username, userDN);
+            log.debug("findUserDN with {}={} found userDN={}", usernameAttribute, username, userDN);
             return userDN;
         } catch (Exception e) {
-            log.info("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute,username, e);
+            log.debug("findUserDN failed for user with usernameattribute=username: {}={}, ",usernameAttribute, username, e);
             return null;
         }
     }
