@@ -3,11 +3,12 @@ package net.whydah.identity.user.role;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-01-18
  */
 public class UserPropertyAndRoleDaoTest {
+    private static final Logger log = LoggerFactory.getLogger(UserPropertyAndRoleDaoTest.class);
     private final static String basepath = "target/UserPropertyAndRoleDaoTest/";
     private final static String dbpath = basepath + "hsqldb/roles";
     private static BasicDataSource dataSource;
@@ -52,8 +54,7 @@ public class UserPropertyAndRoleDaoTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
 

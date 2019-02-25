@@ -1,17 +1,5 @@
 package net.whydah.identity.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,11 +11,14 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.util.IOUtils;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public abstract class BaseLuceneIndexer<T> {
 
@@ -69,15 +60,14 @@ public abstract class BaseLuceneIndexer<T> {
 			w.addDocument(doc);
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
-			log.error("addToIndex failed for {}, error: {}", obj.toString(), e.getMessage());
+			log.error("addToIndex failed for {}, error: {}", obj.toString(), e);
 		} finally {
 			if(w!=null) {
 				try {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 				
 			}
@@ -96,14 +86,12 @@ public abstract class BaseLuceneIndexer<T> {
 					Document doc = createLuceneDocument(obj);
 					w.addDocument(doc);
 				} catch (Exception e) {
-					e.printStackTrace();
-					log.error("addToIndex failed for {}. This item was not added to lucene index.", obj.toString(), e);					
+					log.error("addToIndex failed for {}. This item was not added to lucene index.", obj.toString(), e);
 				}
 			}
 
 		}  catch (Exception e) {
-			e.printStackTrace();
-			
+			log.error("", e);
 		} finally {
 			
 			if(w!=null) {
@@ -111,13 +99,10 @@ public abstract class BaseLuceneIndexer<T> {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
-				
 			}
 		}
-
-
 	}
 
 
@@ -128,7 +113,6 @@ public abstract class BaseLuceneIndexer<T> {
 			w.updateDocument(getTermForUpdate(obj), createLuceneDocument(obj));
 			return true;
 		}  catch (Exception e) {
-			e.printStackTrace();
 			log.error("updateIndex {} failed. Error {}", obj.toString(), e);
 			
 		} finally {
@@ -138,9 +122,8 @@ public abstract class BaseLuceneIndexer<T> {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
-				
 			}
 		}
 		return false;
@@ -154,7 +137,7 @@ public abstract class BaseLuceneIndexer<T> {
 				try {
 					w.updateDocument(getTermForUpdate(obj), createLuceneDocument(obj));
 				} catch(IllegalArgumentException e){
-					e.printStackTrace();
+					log.error("", e);
 				} catch (Exception e) {
 					log.error("updateIndex {} failed.", obj.toString(), e);		
 					
@@ -162,33 +145,28 @@ public abstract class BaseLuceneIndexer<T> {
 			}
 
 		}  catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		} finally {
-			
 			if(w!=null) {
 				try {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
-				
 			}
 		}
-
 	}
 
 
 
 	public synchronized boolean removeFromIndex(String id) {
-
 		IndexWriter w = null;
 		try {
 			w = getIndexWriter();
 			w.deleteDocuments(getTermForDeletion(id));		
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.error("removeFromIndex failed. uid={}. Error {}", id, e);
 		} finally {
 			
@@ -197,7 +175,7 @@ public abstract class BaseLuceneIndexer<T> {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 				
 			}
@@ -223,7 +201,7 @@ public abstract class BaseLuceneIndexer<T> {
 			}
 		
 		} catch (Exception e) {
-			e.printStackTrace();			
+			log.error("", e);
 		}  finally {
 			
 			if(w!=null) {
@@ -231,7 +209,7 @@ public abstract class BaseLuceneIndexer<T> {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 				
 			}
@@ -250,14 +228,14 @@ public abstract class BaseLuceneIndexer<T> {
 			return w.numDocs();
 		} catch (IOException e) {
 
-			e.printStackTrace();
+			log.error("", e);
 		} finally {
 			if(w!=null) {
 				try {
 					w.close();
 					closeDirectory();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 				
 			}
@@ -276,17 +254,12 @@ public abstract class BaseLuceneIndexer<T> {
 		return true;
 	}
 
-	/**
-	 * @return the indexWriter
-	 */
 
 	/** 
 	 * Gets an index writer for the repository. The index will be created if it does not already exist or if forceCreate is specified.
-	 * @param repository
 	 * @return an IndexWriter
 	 * @throws IOException
 	 */
-
 	public synchronized IndexWriter getIndexWriter() throws IOException {
 		IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
 		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
@@ -309,6 +282,4 @@ public abstract class BaseLuceneIndexer<T> {
 			 IOUtils.close(directory);
 		 }
 	 }
-
-
 }

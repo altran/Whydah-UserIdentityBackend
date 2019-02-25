@@ -3,10 +3,13 @@ package net.whydah.identity.user;
 //import com.sun.jersey.core.util.Base64;
 
 import org.glassfish.jersey.internal.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 
 public class ChangePasswordToken {
+    private static final Logger log = LoggerFactory.getLogger(ChangePasswordToken.class);
     private static final long lifetime = 3 * 24 * 60 * 60 * 1000; // 3 dager
 
     private final String userid;
@@ -29,8 +32,8 @@ public class ChangePasswordToken {
 			try {
 				innerTokenbytes = encodedInnerToken.getBytes("UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}         
+                log.error("", e);
+			}
             
             for (int i = 0; i < innerTokenbytes.length; i++) {
                 innerTokenbytes[i] = (byte) (innerTokenbytes[i] ^ salt[i % salt.length]);

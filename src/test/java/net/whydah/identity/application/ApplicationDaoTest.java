@@ -9,9 +9,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-01-18
  */
 public class ApplicationDaoTest {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationDaoTest.class);
     private final static String basepath = "target/ApplicationDaoTest/";
     private final static String dbpath = basepath + "hsqldb/roles";
     private static BasicDataSource dataSource;
@@ -52,8 +54,7 @@ public class ApplicationDaoTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
 

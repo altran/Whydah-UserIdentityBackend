@@ -92,7 +92,7 @@ public class EmbeddedADS {
                 try {
                     ldapEmbeddedServer.stop();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("", e);
                 }
             }
 

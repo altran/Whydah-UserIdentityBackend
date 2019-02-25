@@ -11,6 +11,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -21,9 +23,11 @@ import java.sql.SQLException;
 
 
 public class EmbeddedJsonApplicationFileImportTest {
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedJsonApplicationFileImportTest.class);
+
     private BasicDataSource dataSource;
     private Main main;
-    String applicationsImportSource;
+    private String applicationsImportSource;
    
     
     @BeforeClass
@@ -78,8 +82,7 @@ public class EmbeddedJsonApplicationFileImportTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
 
@@ -88,7 +91,7 @@ public class EmbeddedJsonApplicationFileImportTest {
         InputStream ais = null;
         try {
             ais = openInputStream("Applications", applicationsImportSource);
-            System.out.println("Testimporting:"+applicationsImportSource);
+            log.debug("Testimporting:"+applicationsImportSource);
 
             ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource), null, null);
 

@@ -29,15 +29,15 @@ public class PasswordGeneratorTest {
         /*
         try {
             myBytes = myString.getBytes("UTF-8");
-            System.out.println("UTF8:"+ new String(myString.getBytes("ISO-8859-1"), "UTF-8"));
-            System.out.println("ISO-8859-1:"+ new String(myString.getBytes("ISO-8859-1"), "ISO-8859-1"));
+            log.debug("UTF8:"+ new String(myString.getBytes("ISO-8859-1"), "UTF-8"));
+            log.debug("ISO-8859-1:"+ new String(myString.getBytes("ISO-8859-1"), "ISO-8859-1"));
         } catch (UnsupportedEncodingException e) {
-            System.out.println("UTF8"+myBytes);
+            log.debug("UTF8"+myBytes);
             System.exit(-1);
         }
 
         for (byte myByte : myBytes) {
-            System.out.println(myByte);
+            log.debug(myByte);
         }
         */
     }

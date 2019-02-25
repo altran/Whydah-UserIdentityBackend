@@ -13,6 +13,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,6 +31,7 @@ import static org.testng.Assert.assertEquals;
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-02-01
  */
 public class ApplicationsResourceTest {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationsResourceTest.class);
     private final String appToken1 = "appToken1";
     private final String userToken1 = "userToken1";
     private Main main;
@@ -43,7 +46,6 @@ public class ApplicationsResourceTest {
 
     @BeforeClass
     public void startServer() {
-    
     	 ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
          final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                  .createPropertiesStore()
@@ -91,12 +93,11 @@ public class ApplicationsResourceTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
     
-    void removeLuceneAppData() {
+    private void removeLuceneAppData() {
     	String luceneApplicationDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
     	FileUtils.deleteDirectory(luceneApplicationDirectory);
     }
@@ -115,13 +116,13 @@ public class ApplicationsResourceTest {
         String jsonResponse = response.body().asString();
         List<Application> applications = ApplicationMapper.fromJsonList(jsonResponse);
         for(Application app: applications) {
-        	System.out.println("Application found :" + app.toString());
+        	log.debug("Application found :" + app.toString());
         }
         assertEquals(applications.size(), 0);
     }
 
     @Test(dependsOnMethods = "testGetApplicationsEmptyList", enabled = false)
-    public void testGetApplicationsOK() throws Exception {
+    public void testGetApplicationsOK() {
         //Add applications
         int nrOfApplications = 4;
         String createPath = "/{applicationtokenid}/{userTokenId}/application";

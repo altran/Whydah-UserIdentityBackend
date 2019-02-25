@@ -17,7 +17,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -27,10 +28,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 
 public class IamDataImporterTest {
+    private static final Logger log = LoggerFactory.getLogger(IamDataImporterTest.class);
+
     private BasicDataSource dataSource;
     private IamDataImporter dataImporter;
     private Main main;
@@ -90,8 +92,7 @@ public class IamDataImporterTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
         
         FileUtils.deleteDirectory(new File("target/data/"));

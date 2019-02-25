@@ -15,16 +15,18 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.sql.SQLException;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
-
-import java.sql.SQLException;
 
 /**
  * End-to-end test against the exposed HTTP endpoint and down to the in-mem HSQLDB.
@@ -35,6 +37,7 @@ import java.sql.SQLException;
 //TODO Tests disabled due to strange test error when run by Jenkins. Perhaps shared ldap or db with other tests?
 @Test(enabled = false)
 public class ApplicationResourceTest {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationResourceTest.class);
     private final String appToken1 = "appToken1";
     private final String userTokenID1 = "userTokenID1";
     private Main main;
@@ -90,8 +93,7 @@ public class ApplicationResourceTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
 
