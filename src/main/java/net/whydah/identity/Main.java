@@ -1,11 +1,10 @@
 package net.whydah.identity;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.identity.dataimport.IamDataImporter;
+import net.whydah.identity.ldapserver.EmbeddedADS;
+import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.util.SSLTool;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -22,33 +21,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.dataimport.DatabaseMigrationHelper;
-import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.ldapserver.EmbeddedADS;
-import net.whydah.identity.user.search.LuceneUserIndexer;
-import net.whydah.identity.util.BaseLuceneIndexer;
-import net.whydah.identity.util.FileUtils;
-import net.whydah.sso.util.SSLTool;
+import java.net.URL;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 public class Main {
     public static final String CONTEXT_PATH = "/uib";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private EmbeddedADS ads;
-    //private HttpServer httpServer;
     private int webappPort;
     private Server server;
     private String resourceBase;
 
-    int maxThreads = 100;
-    int minThreads = 10;
-    int idleTimeout = 120;
-
-
     public Main(Integer webappPort) {
         this.webappPort = webappPort;
         //log.info("Starting Jetty on port {}", webappPort);
+        int maxThreads = 100;
+        int minThreads = 10;
+        int idleTimeout = 120;
         QueuedThreadPool threadPool = new QueuedThreadPool(maxThreads, minThreads, idleTimeout);
 
         this.server = new Server(threadPool);
@@ -90,11 +82,11 @@ public class Main {
         boolean importEnabled = configuration.evaluateToBoolean("import.enabled");
         boolean embeddedDSEnabled = configuration.evaluateToBoolean("ldap.embedded");
         log.info("Starting UserIdentityBackend version={}, import.enabled={}, embeddedDSEnabled={}", version, importEnabled, embeddedDSEnabled);
+
         try {
             Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
 
-            
             String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
             String roleDBDirectory = configuration.evaluateToString("roledb.directory");
             String luceneUsersDirectory = configuration.evaluateToString("lucene.usersdirectory");
@@ -148,9 +140,7 @@ public class Main {
                 main.stop();
             }
 
-         
 
-            //main.startHttpServer(requiredRoleName);
             main.startJetty();
             main.joinJetty();
             log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
@@ -170,15 +160,6 @@ public class Main {
         }
     }
 
-    public static Map<Object, Object> subProperties(ConstrettoConfiguration configuration, String prefix) {
-        final Map<Object, Object> ldapProperties = new HashMap<>();
-        configuration.forEach(property -> {
-            if (property.getKey().startsWith(prefix)) {
-                ldapProperties.put(property.getKey(), property.getValue());
-            }
-        });
-        return ldapProperties;
-    }
 
     private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
         String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
@@ -194,12 +175,9 @@ public class Main {
         return dataSource;
     }
 
-    WebAppContext webAppContext;
-    
 
     public void startJetty() {
-    	
-        webAppContext = new WebAppContext();
+        WebAppContext webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
         webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");
         webAppContext.setResourceBase(resourceBase);
@@ -210,7 +188,6 @@ public class Main {
         Handler[] handlerList = {webAppContext, new DefaultHandler()};
         handlers.setHandlers(handlerList);
         server.setHandler(handlers);
-
 
         try {
             server.start();
@@ -240,7 +217,7 @@ public class Main {
         }
     }
 
-    public void joinJetty() {
+    private void joinJetty() {
         try {
             server.join();
         } catch (InterruptedException e) {
@@ -248,9 +225,6 @@ public class Main {
         }
     }
 
-//    public static void startWhydahClient() {
-//        SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS();
-//    }
 
     public void startEmbeddedDS(Map<String, String> properties) {
         ads = new EmbeddedADS(properties);
@@ -272,7 +246,6 @@ public class Main {
 
     public int getPort() {
         return webappPort;
-        //        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
     private static void printConfiguration(ConstrettoConfiguration configuration) {
