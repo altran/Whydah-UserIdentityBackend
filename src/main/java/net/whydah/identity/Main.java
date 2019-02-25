@@ -207,6 +207,10 @@ public class Main {
             log.warn("Error when stopping Jetty server", e);
         }
 
+        stopEmbeddedDS();
+    }
+
+    public void stopEmbeddedDS() {
         if (ads != null) {
             log.info("Stopping embedded Apache DS.");
             try {

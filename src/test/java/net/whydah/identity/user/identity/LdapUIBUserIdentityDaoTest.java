@@ -4,7 +4,6 @@ import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
@@ -13,11 +12,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 
 import static org.junit.Assert.*;
 import static org.testng.Assert.assertEquals;
@@ -27,12 +24,14 @@ public class LdapUIBUserIdentityDaoTest {
 
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static LdapAuthenticator ldapAuthenticator;
+    private static final String ldapPath = "target/LdapUIBUserIdentityDaoTest/ldap";
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() {
         //System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
         //System.setProperty(ConfigTags.CONSTRETTO_TAGS, ConfigTags.DEV_MODE);
-        FileUtils.deleteDirectory(new File("target/data/"));
+
+        FileUtils.deleteDirectory(new File(ldapPath));
 
         ApplicationMode.setCIMode();
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
@@ -42,49 +41,44 @@ public class LdapUIBUserIdentityDaoTest {
                 .done()
                 .getConfiguration();
 
-        String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        FileUtils.deleteDirectories(ldapPath);
-
-        main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(configuration.asMap());
-
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
         String primaryAdmCredentials = configuration.evaluateToString("ldap.primary.admin.credentials");
         String primaryUidAttribute = configuration.evaluateToString("ldap.primary.uid.attribute");
         String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
         String readonly = configuration.evaluateToString("ldap.primary.readonly");
+
+        //String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
+        Map<String, String> ldapProperties = subProperties(configuration, "ldap");
+
+        ldapProperties.put("ldap.embedded.directory", ldapPath);
+        ldapProperties.put("import.enabled", configuration.evaluateToString("import.enabled"));
+        FileUtils.deleteDirectories(ldapPath);
+
+        main = new Main(6651);
+        main.startEmbeddedDS(ldapProperties);
+
+
         ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
+    }
 
-        /*
-        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        int LDAP_PORT = 18389;
-        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
-        String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
-        ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials");
-
-        String workDirPath = "target/" + LdapUIBUserIdentityDaoTest.class.getSimpleName();
-        File workDir = new File(workDirPath);
-        FileUtils.deleteDirectory(workDir);
-        if (!workDir.mkdirs()) {
-            fail("Error creating working directory " + workDirPath);
-        }
-        // Create the server
-        ads = new EmbeddedADS(workDir);
-        ads.startServer(LDAP_PORT);
-        Thread.sleep(1000);
-        */
+    private static Map<String, String> subProperties(ConstrettoConfiguration configuration, String prefix) {
+        final Map<String, String> ldapProperties = new HashMap<>();
+        configuration.forEach(property -> {
+            if (property.getKey().startsWith(prefix)) {
+                ldapProperties.put(property.getKey(), property.getValue());
+            }
+        });
+        return ldapProperties;
     }
 
     @AfterClass
     public static void stop() {
         if (main != null) {
-            main.stop();
+            main.stopEmbeddedDS();
         }
-        FileUtils.deleteDirectory(new File("target/data/"));
-
+        FileUtils.deleteDirectory(new File(ldapPath));
     }
 
 
