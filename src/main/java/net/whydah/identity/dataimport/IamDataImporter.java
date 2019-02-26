@@ -1,5 +1,6 @@
 package net.whydah.identity.dataimport;
 
+import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public class IamDataImporter {
     private static final Logger log = LoggerFactory.getLogger(IamDataImporter.class);
@@ -29,7 +31,7 @@ public class IamDataImporter {
     private final String luceneUsersDir;
     private final String luceneApplicationsDir;
     private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
-    private final ConstrettoConfiguration configuration;
+    private final ConstrettoConfiguration config;
 
 
     private String applicationsImportSource;
@@ -38,53 +40,30 @@ public class IamDataImporter {
     private String roleMappingImportSource;
 
 
-    public IamDataImporter(BasicDataSource dataSource, ConstrettoConfiguration configuration)  {
+    public IamDataImporter(BasicDataSource dataSource, ConstrettoConfiguration config)  {
+        this(dataSource, config, Main.ldapProperties(config));
+    }
+
+    //used by tests
+    IamDataImporter(BasicDataSource dataSource, ConstrettoConfiguration configuration, Map<String, String> ldapProperties)  {
         this.dataSource = dataSource;
-        this.configuration=configuration;
         this.queryRunner = new QueryRunner(dataSource);
-        this.ldapUserIdentityDao = initLdapUserIdentityDao(configuration);
-        //String luceneUsersDir = AppConfig.appConfig.getProperty("lucene.directory");
-        this.luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
-        FileUtils.deleteDirectory(new File(luceneUsersDir));
-        this.luceneApplicationsDir = configuration.evaluateToString("lucene.applicationsdirectory");
-        FileUtils.deleteDirectory(new File(luceneApplicationsDir));
-
-
         this.userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
 
-        /*
-        this.applicationsImportSource = AppConfig.appConfig.getProperty("import.applicationssource");
-        this.organizationsImportSource = AppConfig.appConfig.getProperty("import.organizationssource");
-        this.userImportSource = AppConfig.appConfig.getProperty("import.usersource");
-        this.roleMappingImportSource = AppConfig.appConfig.getProperty("import.rolemappingsource");
-        */
+        this.config = configuration;
+
+        this.luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        this.luceneApplicationsDir = configuration.evaluateToString("lucene.applicationsdirectory");
+        FileUtils.deleteDirectories(luceneUsersDir, luceneApplicationsDir);
+
         this.applicationsImportSource = configuration.evaluateToString("import.applicationssource");
         this.organizationsImportSource = configuration.evaluateToString("import.organizationssource");
         this.userImportSource = configuration.evaluateToString("import.usersource");
         this.roleMappingImportSource = configuration.evaluateToString("import.rolemappingsource");
+
+        this.ldapUserIdentityDao = initLdapUserIdentityDao(ldapProperties);
     }
 
-
-    //used by tests
-    /*
-    @Deprecated
-    public IamDataImporter(BasicDataSource dataSource, LdapUserIdentityDao ldapUserIdentityDao, String luceneUsersDir)  {
-        this.dataSource = dataSource;
-        this.queryRunner = new QueryRunner(dataSource);
-        this.ldapUserIdentityDao = ldapUserIdentityDao;
-        this.luceneUsersDir = luceneUsersDir;
-    }
-    */
-
-      /*
-    @Deprecated
-	public IamDataImporter(BasicDataSource dataSource)  {
-        this.dataSource = dataSource;
-        this.queryRunner = new QueryRunner(dataSource);
-        this.ldapUserIdentityDao = initLdapUserIdentityDao(null);
-        this.index = initDirectory(AppConfig.appConfig.getProperty("lucene.directory"));
-	}
-	*/
 
 
     //Database migrations should already have been performed before import.
@@ -99,13 +78,11 @@ public class IamDataImporter {
             LuceneApplicationIndexer luceneApplicationIndexer = new LuceneApplicationIndexer(applicationsindex);
 
             ApplicationService applicationService = new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource), luceneApplicationIndexer, null);
-            //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
-// ApplicationService.getApplicationService();  //
 
             if (applicationsImportSource.endsWith(".csv")) {
                 new ApplicationImporter(applicationService).importApplications(ais);
             } else {
-                new ApplicationJsonImporter(applicationService, configuration).importApplications(ais);
+                new ApplicationJsonImporter(applicationService, config).importApplications(ais);
             }
 
 
@@ -146,24 +123,14 @@ public class IamDataImporter {
     }
 
 
-    private LdapUserIdentityDao initLdapUserIdentityDao(ConstrettoConfiguration configuration) {
-        //Primary LDAP
-        /*
-        String primaryLdapUrl = AppConfig.appConfig.getProperty("ldap.primary.url");
-        String primaryAdmPrincipal = AppConfig.appConfig.getProperty("ldap.primary.admin.principal");
-        String primaryAdmCredentials = AppConfig.appConfig.getProperty("ldap.primary.admin.credentials");
-        String primaryUidAttribute = AppConfig.appConfig.getProperty("ldap.primary.uid.attribute");
-        String primaryUsernameAttribute = AppConfig.appConfig.getProperty("ldap.primary.username.attribute");
-        boolean readonly = Boolean.parseBoolean(AppConfig.appConfig.getProperty("ldap.primary.readonly"));
-        */
-        String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
-        String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
-        String primaryAdmCredentials = configuration.evaluateToString("ldap.primary.admin.credentials");
-        String primaryUidAttribute = configuration.evaluateToString("ldap.primary.uid.attribute");
-        String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
-        String readonly = configuration.evaluateToString("ldap.primary.readonly");
+    private LdapUserIdentityDao initLdapUserIdentityDao(Map<String, String> ldapProperties) {
+        String primaryLdapUrl = ldapProperties.get("ldap.primary.url");
+        String primaryAdmPrincipal = ldapProperties.get("ldap.primary.admin.principal");
+        String primaryAdmCredentials = ldapProperties.get("ldap.primary.admin.credentials");
+        String primaryUidAttribute = ldapProperties.get("ldap.primary.uid.attribute");
+        String primaryUsernameAttribute = ldapProperties.get("ldap.primary.username.attribute");
+        String readonly = ldapProperties.get("ldap.primary.readonly");
         return new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
-        //return new LdapUserIdentityDao(configuration);
     }
 
     private NIOFSDirectory createDirectory(String luceneDir) {
