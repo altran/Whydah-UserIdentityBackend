@@ -63,7 +63,7 @@ public class ApplicationsResourceTest {
          dbHelper.cleanDatabase();
          dbHelper.upgradeDatabase();
 
-         main = new Main(6645);
+         main = new Main(6647);
          main.startJetty();
          RestAssured.port = main.getPort();
          RestAssured.basePath = Main.CONTEXT_PATH;
@@ -103,7 +103,7 @@ public class ApplicationsResourceTest {
     }
 
     @Test
-    public void testGetApplicationsEmptyList() throws Exception {
+    public void testGetApplicationsEmptyList() {
         String path = "/{applicationtokenid}/applications";
         Response response = given()
                 .log().everything()

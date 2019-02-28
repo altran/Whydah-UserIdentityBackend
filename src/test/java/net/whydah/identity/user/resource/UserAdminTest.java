@@ -67,7 +67,7 @@ public class UserAdminTest {
         luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneUsersDir);
         
-        main = new Main(configuration.evaluateToInt("service.port"));
+        main = new Main(6653);
         main.startEmbeddedDS(configuration.asMap());
 
         dataSource = initBasicDataSource(configuration);
