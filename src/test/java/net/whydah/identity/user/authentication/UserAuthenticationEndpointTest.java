@@ -77,11 +77,11 @@ public class UserAuthenticationEndpointTest {
         String luceneAppDir = configuration.evaluateToString("lucene.applicationsdirectory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneUserDir, luceneAppDir);
 
-        main = new Main(configuration.evaluateToInt("service.port"));
+        main = new Main(6649);
         main.startEmbeddedDS(configuration.asMap());
       
         
-        BasicDataSource dataSource = initBasicDataSource(configuration);
+        BasicDataSource dataSource = Main.initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
        
         
@@ -101,13 +101,8 @@ public class UserAuthenticationEndpointTest {
         userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
         applicationService=  new ApplicationService(applicationDao,  auditLogDao, luceneApplicationIndexer, luceneAppSearch);
 
-        // applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
-        //assertEquals(userApplicationRoleEntryDao.countUserRolesInDB(), 0);
-
 
         new IamDataImporter(dataSource, configuration).importIamData();
-
-        //main.stop();
 
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
@@ -117,7 +112,6 @@ public class UserAuthenticationEndpointTest {
         String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
         String readonly = configuration.evaluateToString("ldap.primary.readonly");
 
-        //String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
         LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
 
@@ -195,21 +189,6 @@ public class UserAuthenticationEndpointTest {
                 .post(path, "notValidApplicationtokenid");
     }
 
-    private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
-        String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
-        String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
-        String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
-        String roledbpasswd = configuration.evaluateToString("roledb.jdbc.password");
-
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(jdbcdriver);
-        dataSource.setUrl(jdbcurl);
-        dataSource.setUsername(roledbuser);
-        dataSource.setPassword(roledbpasswd);
-        return dataSource;
-    }
-
-  
 
     @Test
     public void testAuthenticateUsingFacebookCredentials() {
