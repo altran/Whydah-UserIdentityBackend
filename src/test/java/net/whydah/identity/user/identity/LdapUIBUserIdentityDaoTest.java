@@ -66,7 +66,6 @@ public class LdapUIBUserIdentityDaoTest {
         if (main != null) {
             main.stopEmbeddedDS();
         }
-        FileUtils.deleteDirectory(new File(ldapPath));
     }
 
 
