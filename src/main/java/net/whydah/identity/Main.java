@@ -52,6 +52,9 @@ public class Main {
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
+        copyConfigExamples();
+        copyConfig();
+
         final ConstrettoConfiguration config = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
@@ -286,8 +289,18 @@ public class Main {
 
     private static void printConfiguration(ConstrettoConfiguration configuration) {
         Map<String, String> properties = configuration.asMap();
+        StringBuilder strb = new StringBuilder("Configuration properties (property=value):");
         for (String key : properties.keySet()) {
-            log.debug("Using Property: {}, value: {}", key, properties.get(key));
+            strb.append("\n ").append(key).append("=").append(properties.get(key));
         }
+        log.debug(strb.toString());
+    }
+
+    static void copyConfigExamples() {
+        FileUtils.copyFiles(new String[]{"useridentitybackend.properties", "logback.xml"}, "config_examples", true);
+    }
+
+    static void copyConfig() {
+        FileUtils.copyFiles(new String[]{"useridentitybackend_override.properties", "logback.xml"}, "config", false);
     }
 }

@@ -27,15 +27,15 @@
     <logger name="ch.qos.logback" level="WARN" />
     <logger name="org.eclipse.jetty" level="WARN" />
     <logger name="org.apache.mina.filter.codec" level="WARN"/>
-
     <logger name="org.springframework" level="WARN" />
     <logger name="hsqldb.db" level="WARN" />
     <logger name="org.apache.directory" level="WARN" />
     <logger name="org.apache.mina" level="WARN"/>
+
     <logger name="net.whydah.identity.user.resource.FreemarkerViewProcessor" level="INFO" />
     <logger name="net.whydah.sso.user.helpers.UserTokenXpathHelper" level="INFO"/>
     <logger name="net.whydah.sso.commands.userauth.CommandGetUsertokenByUsertokenId" level="INFO"/>
-    <logger name="net.whydah.identity.util.FileUtils" level="WARN" />
+    <logger name="net.whydah.identity.util.FileUtils" level="INFO" />
     <logger name="net.whydah.identity" level="DEBUG"/>
 
 
