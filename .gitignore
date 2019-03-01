@@ -18,5 +18,5 @@ target/
 
 /bootstrapdata
 /lucene
-useridentitybackend_override.properties
+/useridentitybackend_override.properties
 /data/
