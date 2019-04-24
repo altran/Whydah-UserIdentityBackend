@@ -1,10 +1,10 @@
 package net.whydah.identity.dataimport;
 
-import com.jayway.restassured.RestAssured;
 import net.whydah.identity.Main;
 import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.application.ApplicationService;
 import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.ldapserver.EmbeddedADS;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
@@ -17,29 +17,32 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 
 public class IamDataImporterTest {
+    private static final Logger log = LoggerFactory.getLogger(IamDataImporterTest.class);
+    private static final String ldapPath = "target/IamDataImporterTest/ldap";
+
     private BasicDataSource dataSource;
     private IamDataImporter dataImporter;
     private Main main;
-    String applicationsImportSource;
 
     @BeforeClass
     public void startServer() {
         ApplicationMode.setCIMode();
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+        final ConstrettoConfiguration config = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
                 .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
@@ -47,42 +50,32 @@ public class IamDataImporterTest {
                 .getConfiguration();
 
 
-        String roleDBDirectory = configuration.evaluateToString("roledb.directory");
-        applicationsImportSource = configuration.evaluateToString("import.applicationssource");
+        String roleDBDirectory = config.evaluateToString("roledb.directory");
         FileUtils.deleteDirectory(roleDBDirectory);
-        dataSource = initBasicDataSource(configuration);
+
+        dataSource = Main.initBasicDataSource(config);
         DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
         dbHelper.cleanDatabase();
         dbHelper.upgradeDatabase();
 
-        main = new Main(6655);
-        main.startEmbeddedDS(configuration.asMap());
+        main = new Main(6649);
 
-        dataImporter = new IamDataImporter(dataSource, configuration);
+        Map<String, String> ldapProperties = Main.ldapProperties(config);
+        ldapProperties.put("ldap.embedded.directory", ldapPath);
+        ldapProperties.put(EmbeddedADS.PROPERTY_BIND_PORT, "10489");
+        ldapProperties.put("ldap.primary.url", "ldap://localhost:10489/dc=people,dc=whydah,dc=no");
+        FileUtils.deleteDirectories(ldapPath);
 
-        main.startJetty();
-        RestAssured.port = main.getPort();
-        RestAssured.basePath = Main.CONTEXT_PATH;
+        main.startEmbeddedDS(ldapProperties);
+
+        dataImporter = new IamDataImporter(dataSource, config, ldapProperties);
     }
 
-    private BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
-        String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
-        String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
-        String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
-        String roledbpasswd = configuration.evaluateToString("roledb.jdbc.password");
-
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(jdbcdriver);
-        dataSource.setUrl(jdbcurl);
-        dataSource.setUsername(roledbuser);
-        dataSource.setPassword(roledbpasswd);
-        return dataSource;
-    }
 
     @AfterClass
     public void stop() {
         if (main != null) {
-            main.stop();
+            main.stopEmbeddedDS();
         }
         
         try {
@@ -90,11 +83,10 @@ public class IamDataImporterTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
-        
-        FileUtils.deleteDirectory(new File("target/data/"));
+
+        FileUtils.deleteDirectories(ldapPath);
     }
     
     @Test
@@ -118,7 +110,7 @@ public class IamDataImporterTest {
 
         List<UserApplicationRoleEntry> propsAndRoles2 = userAggregate2.getRoleList();
         assertEquals(1, propsAndRoles2.size());
-        //assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Capra Consulting", "WhydahUserAdmin", "70"));
+        assertTrue(containsRoleMapping(propsAndRoles2, "erik.drolshammer", "2212", "Whydah-UserAdminService", "Capra Consulting", "WhydahUserAdmin", "70"));
     }
 
     private boolean containsRoleMapping(List<UserApplicationRoleEntry> propsAndRoles, String uid, String appId, String appName, String orgName, String roleName, String roleValue) {

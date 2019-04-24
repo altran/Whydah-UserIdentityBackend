@@ -194,10 +194,12 @@ public class SecurityFilter implements Filter {
         if (headerNames == null) {
             return;
         }
+        StringBuilder strb = new StringBuilder("HTTP headers: \n");
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            log.info("HTTP-header " + headerName + ":" + servletRequest.getHeader(headerName));
+            strb.append(headerName).append(" : ").append(servletRequest.getHeader(headerName)).append("\n");
         }
+        log.debug(strb.toString());
     }
 
     @Override

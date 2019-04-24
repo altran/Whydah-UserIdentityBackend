@@ -1,17 +1,5 @@
 package net.whydah.identity.application;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import net.whydah.identity.application.search.LuceneApplicationIndexer;
 import net.whydah.identity.application.search.LuceneApplicationSearch;
 import net.whydah.identity.audit.ActionPerformed;
@@ -20,6 +8,17 @@ import net.whydah.identity.health.HealthResource;
 import net.whydah.sso.application.types.Application;
 import net.whydah.sso.application.types.ApplicationCredential;
 import net.whydah.sso.util.Lock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -129,8 +128,7 @@ public class ApplicationService {
     							HealthResource.setNumberOfApplications(luceneApplicationSearch.getApplicationIndexSize());
     						
     						} catch (Exception e) {
-    							e.printStackTrace();
-    							log.error("failed to import applications, exception: " + e.getMessage());
+    							log.error("failed to import applications, exception: " + e);
     						}
 
     					}

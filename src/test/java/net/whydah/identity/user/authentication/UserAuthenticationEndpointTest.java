@@ -11,7 +11,6 @@ import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.security.SecurityFilter;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapAuthenticator;
@@ -19,7 +18,6 @@ import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.identity.user.identity.UserIdentityService;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
-import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.identity.util.PasswordGenerator;
 import net.whydah.sso.ddd.model.user.PersonRef;
@@ -31,15 +29,11 @@ import org.apache.lucene.store.NIOFSDirectory;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.w3c.dom.Document;
 
-import javax.naming.NamingException;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,37 +53,17 @@ import static org.junit.Assert.*;
  * @since 10/18/12
  */
 public class UserAuthenticationEndpointTest {
-
     private static UserApplicationRoleEntryDao userApplicationRoleEntryDao;
     private static UserAdminHelper userAdminHelper;
     private static UserIdentityService userIdentityService;
-    private static LuceneApplicationIndexer luceneApplicationIndexer;
-    private static LuceneUserIndexer luceneUserIndexer;
-  
-    static LuceneApplicationSearch luceneAppSearch;
-    static LuceneUserSearch luceneUserSearch;
-
-
-    private static Main main = null;
     private static ApplicationService applicationService;
+    private static Main main = null;
 
-    static String roleDBDirectory;
-    static String ldapPath;
-    static String luceneUserDir;
-    static String luceneAppDir;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
-        /*
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-        LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
-        */
-    	 //ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
-        // SecurityFilter.setCIFlag(true);
+    	//ApplicationMode.setTags(ApplicationMode.CI_MODE, ApplicationMode.NO_SECURITY_FILTER);
         ApplicationMode.setCIMode();
-//        SecurityFilter.setCIFlag(true);
         final ConstrettoConfiguration configuration = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
@@ -97,17 +71,17 @@ public class UserAuthenticationEndpointTest {
                 .done()
                 .getConfiguration();
 
-        roleDBDirectory = configuration.evaluateToString("roledb.directory");
-        ldapPath = configuration.evaluateToString("ldap.embedded.directory");
-        luceneUserDir = configuration.evaluateToString("lucene.usersdirectory");
-        luceneAppDir = configuration.evaluateToString("lucene.applicationsdirectory");
+        String roleDBDirectory = configuration.evaluateToString("roledb.directory");
+        String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
+        String luceneUserDir = configuration.evaluateToString("lucene.usersdirectory");
+        String luceneAppDir = configuration.evaluateToString("lucene.applicationsdirectory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneUserDir, luceneAppDir);
 
-        main = new Main(configuration.evaluateToInt("service.port"));
+        main = new Main(6649);
         main.startEmbeddedDS(configuration.asMap());
       
         
-        BasicDataSource dataSource = initBasicDataSource(configuration);
+        BasicDataSource dataSource = Main.initBasicDataSource(configuration);
         new DatabaseMigrationHelper(dataSource).upgradeDatabase();
        
         
@@ -117,25 +91,19 @@ public class UserAuthenticationEndpointTest {
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
 
         Directory appIndex = new NIOFSDirectory(new File(luceneAppDir));
-        luceneApplicationIndexer = new LuceneApplicationIndexer(appIndex);
+        LuceneApplicationIndexer luceneApplicationIndexer = new LuceneApplicationIndexer(appIndex);
 
         Directory userIndex = new NIOFSDirectory(new File(luceneUserDir));
-        luceneUserIndexer = new LuceneUserIndexer(userIndex);
+        LuceneUserIndexer luceneUserIndexer = new LuceneUserIndexer(userIndex);
 
-        luceneAppSearch = new LuceneApplicationSearch(appIndex);
+        LuceneApplicationSearch luceneAppSearch = new LuceneApplicationSearch(appIndex);
         
         userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
-        applicationService=  new ApplicationService(applicationDao,  auditLogDao,  luceneApplicationIndexer, luceneAppSearch);
-
-        // applicationService = ApplicationService.getApplicationService();  //new ApplicationService(new ApplicationDao(dataSource), new AuditLogDao(dataSource));
-        //assertEquals(userApplicationRoleEntryDao.countUserRolesInDB(), 0);
+        applicationService=  new ApplicationService(applicationDao,  auditLogDao, luceneApplicationIndexer, luceneAppSearch);
 
 
         new IamDataImporter(dataSource, configuration).importIamData();
 
-        //main.stop();
-
-        
 
         String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
         String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
@@ -144,12 +112,11 @@ public class UserAuthenticationEndpointTest {
         String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
         String readonly = configuration.evaluateToString("ldap.primary.readonly");
 
-        //String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
         LdapUserIdentityDao ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         LdapAuthenticator ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
 
         PasswordGenerator pwg = new PasswordGenerator();
-        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, luceneUserIndexer,luceneUserSearch);
+        userIdentityService = new UserIdentityService(ldapAuthenticator, ldapUserIdentityDao, auditLogDao, pwg, luceneUserIndexer, null);
 
         userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneUserIndexer, auditLogDao, userApplicationRoleEntryDao, configuration);
 
@@ -159,15 +126,14 @@ public class UserAuthenticationEndpointTest {
     }
 
     @AfterClass
-	public static void tearDown() throws Exception {
-    	
+	public static void tearDown() {
     	if (main != null) {
             main.stop();
         }
     }
 
     @Test
-    public void testAuthenticateUserOK() throws Exception {
+    public void testAuthenticateUserOK() {
         ApplicationMode.setTags(ApplicationMode.NO_SECURITY_FILTER);
         String userName = "systest";
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
@@ -191,16 +157,18 @@ public class UserAuthenticationEndpointTest {
 
         String responseAsString = response.body().asString();
         UserAggregate user = UserAggregateMapper.fromXML(responseAsString);
+
+        //test data is fetched from src/test/resources/testdata/users.csv
         assertEquals(user.getUsername(), userName);
-//        assertEquals(user.getFirstName(), "test");
-//        assertEquals(user.getLastName(), "me");
-//        assertEquals(user.getUid(), "test.me@example.com");
-//        assertEquals(user.getEmail(), "test.me@example.com");
-//        assertNull(user.getRoles());
+        assertEquals(user.getFirstName(), "UserAdmin");
+        assertEquals(user.getLastName(), "UserAdminWebApp");
+        assertEquals(user.getUid(), "systest");
+        assertEquals(user.getEmail(), "whydahadmin@getwhydah.com");
+        assertTrue(user.getRoleList().isEmpty());
     }
 
     @Test
-    public void testAuthenticateUserForbidden() throws Exception {
+    public void testAuthenticateUserForbidden() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 " <usercredential>\n" +
                 "    <params>\n" +
@@ -221,24 +189,9 @@ public class UserAuthenticationEndpointTest {
                 .post(path, "notValidApplicationtokenid");
     }
 
-    private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
-        String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
-        String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
-        String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
-        String roledbpasswd = configuration.evaluateToString("roledb.jdbc.password");
-
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(jdbcdriver);
-        dataSource.setUrl(jdbcurl);
-        dataSource.setUsername(roledbuser);
-        dataSource.setPassword(roledbpasswd);
-        return dataSource;
-    }
-
-  
 
     @Test
-    public void testAuthenticateUsingFacebookCredentials() throws NamingException {
+    public void testAuthenticateUsingFacebookCredentials() {
         LDAPUserIdentity newIdentity = new LDAPUserIdentity();
         newIdentity.setUid("demofbidentity");
         String username = "facebookUsername";

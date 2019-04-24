@@ -1,11 +1,10 @@
 package net.whydah.identity;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-
+import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.identity.dataimport.IamDataImporter;
+import net.whydah.identity.ldapserver.EmbeddedADS;
+import net.whydah.identity.util.FileUtils;
+import net.whydah.sso.util.SSLTool;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
@@ -22,145 +21,60 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import net.whydah.identity.application.search.LuceneApplicationIndexer;
-import net.whydah.identity.dataimport.DatabaseMigrationHelper;
-import net.whydah.identity.dataimport.IamDataImporter;
-import net.whydah.identity.ldapserver.EmbeddedADS;
-import net.whydah.identity.user.search.LuceneUserIndexer;
-import net.whydah.identity.util.BaseLuceneIndexer;
-import net.whydah.identity.util.FileUtils;
-import net.whydah.sso.util.SSLTool;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 public class Main {
     public static final String CONTEXT_PATH = "/uib";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private EmbeddedADS ads;
-    //private HttpServer httpServer;
     private int webappPort;
     private Server server;
-    private String resourceBase;
 
-    int maxThreads = 100;
-    int minThreads = 10;
-    int idleTimeout = 120;
-
-
-    public Main(Integer webappPort) {
-        this.webappPort = webappPort;
-        //log.info("Starting Jetty on port {}", webappPort);
-        QueuedThreadPool threadPool = new QueuedThreadPool(maxThreads, minThreads, idleTimeout);
-
-        this.server = new Server(threadPool);
-        ServerConnector connector = new ServerConnector(this.server);
-        connector.setPort(webappPort);
-        this.server.setConnectors(new Connector[]{connector});
-
-        URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
-        this.resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
-    }
-
-
-    // 1a. Default:        External ldap and database
-    // or
-    // 1b. Test scenario:  startJetty embedded Ldap and database
-
-    // 2. run db migrations (should not share any objects with the web application)
-
-    // 3. possibly import (should not share any objects with the web application)
-
-    // 4. startJetty webserver
+    /*
+     * 1a. Default:        External ldap and database
+     * or
+     * 1b. Test scenario:  startJetty embedded Ldap and database
+     *
+     * 2. run db migrations (should not share any objects with the web application)
+     *
+     * 3. possibly import (should not share any objects with the web application)
+     *
+     * 4. startJetty webserver
+     */
     public static void main(String[] args) {
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
 
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+        copyConfigExamples();
+        copyConfig();
+
+        final ConstrettoConfiguration config = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
                 .addResource(Resource.create("file:./useridentitybackend_override.properties"))
                 .done()
                 .getConfiguration();
 
-        printConfiguration(configuration);
+        printConfiguration(config);
 
-        String version = Main.class.getPackage().getImplementationVersion();
-
-        boolean importEnabled = configuration.evaluateToBoolean("import.enabled");
-        boolean embeddedDSEnabled = configuration.evaluateToBoolean("ldap.embedded");
-        log.info("Starting UserIdentityBackend version={}, import.enabled={}, embeddedDSEnabled={}", version, importEnabled, embeddedDSEnabled);
+        Integer webappPort = config.evaluateToInt("service.port");
         try {
-            Integer webappPort = configuration.evaluateToInt("service.port");
             final Main main = new Main(webappPort);
 
-            
-            String ldapEmbeddedpath = configuration.evaluateToString("ldap.embedded.directory");
-            String roleDBDirectory = configuration.evaluateToString("roledb.directory");
-            String luceneUsersDirectory = configuration.evaluateToString("lucene.usersdirectory");
-            String luceneApplicationDirectory = configuration.evaluateToString("lucene.applicationsdirectory");
-
-            if (importEnabled) {
-                FileUtils.deleteDirectories(roleDBDirectory, luceneUsersDirectory, luceneApplicationDirectory);
-            }
-            FileUtils.createDirectory(luceneUsersDirectory);
-            FileUtils.createDirectory(luceneApplicationDirectory);
-
-            try {
-                if (embeddedDSEnabled) {
-                    if (importEnabled) {
-                        FileUtils.deleteDirectories(ldapEmbeddedpath);
-                    }
-                    main.startEmbeddedDS(configuration.asMap());
-                }
-            } catch (Exception e) {
-                log.error("Unable to startJetty Embedded LDAP chema", e);
-            }
-
-            try {
-                BasicDataSource dataSource = initBasicDataSource(configuration);
-                new DatabaseMigrationHelper(dataSource).upgradeDatabase();
-
-                if (importEnabled) {
-                    // Populate ldap, database and lucene index
-                    new IamDataImporter(dataSource, configuration).importIamData();
-                }
-            } catch (Exception e) {
-                log.error("Unable to upgrade DB chema", e);
-            }
-
-
-            // Property-overwrite of SSL verification to support weak ssl certificates
-            String sslVerification = configuration.evaluateToString("sslverification");
-            if ("disabled".equalsIgnoreCase(sslVerification)) {
-                SSLTool.disableCertificateValidation();
-            }
-
-
-            if (!embeddedDSEnabled) {
-                try {
-                    // wait forever...
-                    Thread.currentThread().join();
-                } catch (InterruptedException ie) {
-                    log.warn("Thread was interrupted.", ie);
-                }
-                log.debug("Finished waiting for Thread.currentThread().join()");
-                main.stop();
-            }
-
-         
-
-            //main.startHttpServer(requiredRoleName);
-            main.startJetty();
-            main.joinJetty();
-            log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
-            log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
+            main.start(config);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     log.debug("ShutdownHook triggered. Exiting application");
                     main.stop();
-                    
+
                 }
             });
 
@@ -170,17 +84,116 @@ public class Main {
         }
     }
 
-    public static Map<Object, Object> subProperties(ConstrettoConfiguration configuration, String prefix) {
-        final Map<Object, Object> ldapProperties = new HashMap<>();
-        configuration.forEach(property -> {
+    public Main(Integer webappPort) {
+        this.webappPort = webappPort;
+    }
+
+    private void start(ConstrettoConfiguration config) {
+        // Property-overwrite of SSL verification to support weak ssl certificates
+        String sslVerification = config.evaluateToString("sslverification");
+        if ("disabled".equalsIgnoreCase(sslVerification)) {
+            SSLTool.disableCertificateValidation();
+        }
+
+
+        boolean importEnabled = config.evaluateToBoolean("import.enabled");
+        boolean embeddedDSEnabled = config.evaluateToBoolean("ldap.embedded");
+        String version = Main.class.getPackage().getImplementationVersion();
+        log.info("Starting UserIdentityBackend version={}, import.enabled={}, embeddedDSEnabled={}", version, importEnabled, embeddedDSEnabled);
+
+
+        initLucene(config);
+
+        if (embeddedDSEnabled) {
+            startEmbeddedDS(config);
+        }
+
+
+        BasicDataSource dataSource = initRoleDB(config);
+
+        if (importEnabled) {
+            // Populate ldap, database and lucene index
+            new IamDataImporter(dataSource, config).importIamData();
+        }
+
+
+        if (!embeddedDSEnabled) {
+            try {
+                // wait forever...
+                Thread.currentThread().join();
+            } catch (InterruptedException ie) {
+                log.warn("Thread was interrupted.", ie);
+            }
+            log.debug("Finished waiting for Thread.currentThread().join()");
+            stop();
+        }
+
+
+        startJetty();
+        joinJetty();
+        log.info("UserIdentityBackend version:{} started on port {}. ", version, webappPort + " context-path:" + CONTEXT_PATH);
+        log.info("Health: http://localhost:{}/{}/{}/", webappPort, CONTEXT_PATH, "health");
+    }
+
+    private void initLucene(ConstrettoConfiguration config) {
+        String luceneUsersDirectory = config.evaluateToString("lucene.usersdirectory");
+        String luceneApplicationDirectory = config.evaluateToString("lucene.applicationsdirectory");
+
+        boolean importEnabled = config.evaluateToBoolean("import.enabled");
+        if (importEnabled) {
+            FileUtils.deleteDirectories(luceneUsersDirectory, luceneApplicationDirectory);
+        }
+
+        FileUtils.createDirectory(luceneUsersDirectory);
+        FileUtils.createDirectory(luceneApplicationDirectory);
+    }
+
+
+    private void startEmbeddedDS(ConstrettoConfiguration config) {
+        boolean importEnabled = config.evaluateToBoolean("import.enabled");
+        if (importEnabled) {
+            String ldapEmbeddedpath = config.evaluateToString("ldap.embedded.directory");
+            FileUtils.deleteDirectories(ldapEmbeddedpath);
+        }
+        startEmbeddedDS(ldapProperties(config));
+    }
+
+    public static Map<String, String> ldapProperties(ConstrettoConfiguration config) {
+        String prefix = "ldap";
+        final Map<String, String> ldapProperties = new HashMap<>();
+        config.forEach(property -> {
             if (property.getKey().startsWith(prefix)) {
                 ldapProperties.put(property.getKey(), property.getValue());
             }
         });
+        ldapProperties.put("import.enabled", config.evaluateToString("import.enabled"));
         return ldapProperties;
     }
 
-    private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
+    public void startEmbeddedDS(Map<String, String> properties) {
+        ads = new EmbeddedADS(properties);
+        try {
+            ads.init();
+            ads.start();
+        } catch (Exception e) {
+            //runtimeException(e);
+            log.error("Unable to startJetty Embedded LDAP chema", e);
+        }
+    }
+
+
+    private BasicDataSource initRoleDB(ConstrettoConfiguration config) {
+        boolean importEnabled = config.evaluateToBoolean("import.enabled");
+        if (importEnabled) {
+            String roleDBDirectory = config.evaluateToString("roledb.directory");
+            FileUtils.deleteDirectories(roleDBDirectory);
+        }
+        BasicDataSource dataSource = initBasicDataSource(config);
+        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+        return dataSource;
+    }
+
+    public static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
         String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
         String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
         String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
@@ -194,23 +207,32 @@ public class Main {
         return dataSource;
     }
 
-    WebAppContext webAppContext;
-    
 
     public void startJetty() {
-    	
-        webAppContext = new WebAppContext();
+        int maxThreads = 100;
+        int minThreads = 10;
+        int idleTimeout = 120;
+        QueuedThreadPool threadPool = new QueuedThreadPool(maxThreads, minThreads, idleTimeout);
+
+        this.server = new Server(threadPool);
+        ServerConnector connector = new ServerConnector(this.server);
+        connector.setPort(webappPort);
+        this.server.setConnectors(new Connector[]{connector});
+
+        URL url = ClassLoader.getSystemResource("WEB-INF/web.xml");
+        String resourceBase = url.toExternalForm().replace("WEB-INF/web.xml", "");
+
+        WebAppContext webAppContext = new WebAppContext();
         log.debug("Start Jetty using resourcebase={}", resourceBase);
         webAppContext.setDescriptor(resourceBase + "/WEB-INF/web.xml");
         webAppContext.setResourceBase(resourceBase);
         webAppContext.setContextPath(CONTEXT_PATH);
         webAppContext.setParentLoaderPriority(true);
-        
+
         HandlerList handlers = new HandlerList();
         Handler[] handlerList = {webAppContext, new DefaultHandler()};
         handlers.setHandlers(handlerList);
         server.setHandler(handlers);
-
 
         try {
             server.start();
@@ -230,6 +252,10 @@ public class Main {
             log.warn("Error when stopping Jetty server", e);
         }
 
+        stopEmbeddedDS();
+    }
+
+    public void stopEmbeddedDS() {
         if (ads != null) {
             log.info("Stopping embedded Apache DS.");
             try {
@@ -240,7 +266,7 @@ public class Main {
         }
     }
 
-    public void joinJetty() {
+    private void joinJetty() {
         try {
             server.join();
         } catch (InterruptedException e) {
@@ -248,19 +274,6 @@ public class Main {
         }
     }
 
-//    public static void startWhydahClient() {
-//        SecurityTokenServiceClient.getSecurityTokenServiceClient().getWAS();
-//    }
-
-    public void startEmbeddedDS(Map<String, String> properties) {
-        ads = new EmbeddedADS(properties);
-        try {
-            ads.init();
-            ads.start();
-        } catch (Exception e) {
-            runtimeException(e);
-        }
-    }
 
     private void runtimeException(Exception e) {
         if (e instanceof RuntimeException) {
@@ -272,13 +285,22 @@ public class Main {
 
     public int getPort() {
         return webappPort;
-        //        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
     private static void printConfiguration(ConstrettoConfiguration configuration) {
         Map<String, String> properties = configuration.asMap();
+        StringBuilder strb = new StringBuilder("Configuration properties (property=value):");
         for (String key : properties.keySet()) {
-            log.info("Using Property: {}, value: {}", key, properties.get(key));
+            strb.append("\n ").append(key).append("=").append(properties.get(key));
         }
+        log.debug(strb.toString());
+    }
+
+    static void copyConfigExamples() {
+        FileUtils.copyFiles(new String[]{"useridentitybackend.properties", "logback.xml"}, "config_examples", true);
+    }
+
+    static void copyConfig() {
+        FileUtils.copyFiles(new String[]{"useridentitybackend_override.properties", "logback.xml"}, "config", false);
     }
 }

@@ -1,10 +1,10 @@
 package net.whydah.identity.user.identity;
 
 import net.whydah.identity.Main;
-import net.whydah.identity.application.ApplicationDao;
 import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
+import net.whydah.identity.ldapserver.EmbeddedADS;
 import net.whydah.identity.user.authentication.UserAdminHelper;
 import net.whydah.identity.user.role.UserApplicationRoleEntryDao;
 import net.whydah.identity.user.search.LuceneUserIndexer;
@@ -18,23 +18,30 @@ import org.apache.lucene.store.NIOFSDirectory;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.sql.SQLException;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 02/04/14
  */
 public class UIBUserIdentityServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(UIBUserIdentityServiceTest.class);
+    private static final String ldapPath = "target/UIBUserIdentityServiceTest/ldap";
+
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static PasswordGenerator passwordGenerator;
     private static LuceneUserIndexer luceneIndexer;
@@ -42,16 +49,13 @@ public class UIBUserIdentityServiceTest {
     private static Directory index;
 
     private static Main main = null;
+    private BasicDataSource dataSource;
 
 
     @BeforeClass
-    public static void setUp() throws Exception {
-        //System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        //System.setProperty(ConfigTags.CONSTRETTO_TAGS, ConfigTags.DEV_MODE);
-        FileUtils.deleteDirectory(new File("target/data/"));
-
+    public void setUp() throws Exception {
         ApplicationMode.setCIMode();
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+        final ConstrettoConfiguration config = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
                 .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
@@ -59,95 +63,56 @@ public class UIBUserIdentityServiceTest {
                 .getConfiguration();
 
 
-        String roleDBDirectory = configuration.evaluateToString("roledb.directory");
-        String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
- //       String ldapPath = "/tmp";
-        String luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
+        String roleDBDirectory = config.evaluateToString("roledb.directory");
+        String luceneUsersDir = config.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneUsersDir);
 
-        main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(configuration.asMap());
+        Map<String, String> ldapProperties = Main.ldapProperties(config);
+        ldapProperties.put("ldap.embedded.directory", ldapPath);
+        ldapProperties.put(EmbeddedADS.PROPERTY_BIND_PORT, "10789");
+        String primaryLdapUrl = "ldap://localhost:10789/dc=people,dc=whydah,dc=no";
+        ldapProperties.put("ldap.primary.url", primaryLdapUrl);
 
-        BasicDataSource dataSource = initBasicDataSource(configuration);
-        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
+        main = new Main(6652);
+        main.startEmbeddedDS(ldapProperties);
+
+        dataSource = Main.initBasicDataSource(config);
+        DatabaseMigrationHelper dbHelper = new DatabaseMigrationHelper(dataSource);
+        dbHelper.cleanDatabase();
+        dbHelper.upgradeDatabase();
 
 
-        String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
-        String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
-        String primaryAdmCredentials = configuration.evaluateToString("ldap.primary.admin.credentials");
-        String primaryUidAttribute = configuration.evaluateToString("ldap.primary.uid.attribute");
-        String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
-        String readonly = configuration.evaluateToString("ldap.primary.readonly");
-
+        String primaryAdmPrincipal = config.evaluateToString("ldap.primary.admin.principal");
+        String primaryAdmCredentials = config.evaluateToString("ldap.primary.admin.credentials");
+        String primaryUidAttribute = config.evaluateToString("ldap.primary.uid.attribute");
+        String primaryUsernameAttribute = config.evaluateToString("ldap.primary.username.attribute");
+        String readonly = config.evaluateToString("ldap.primary.readonly");
         ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
 
-
-        ApplicationDao configDataRepository = new ApplicationDao(dataSource);
         UserApplicationRoleEntryDao userApplicationRoleEntryDao = new UserApplicationRoleEntryDao(dataSource);
 
         index = new NIOFSDirectory(new File(luceneUsersDir));
         luceneIndexer = new LuceneUserIndexer(index);
         AuditLogDao auditLogDao = new AuditLogDao(dataSource);
-        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userApplicationRoleEntryDao, configuration);
+        userAdminHelper = new UserAdminHelper(ldapUserIdentityDao, luceneIndexer, auditLogDao, userApplicationRoleEntryDao, config);
         passwordGenerator = new PasswordGenerator();
-
-        /*
-        int LDAP_PORT = 19389;
-        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
-        String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
-
-
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
-        dataSource.setUsername("sa");
-        dataSource.setPassword("");
-        dataSource.setUrl("jdbc:hsqldb:file:" + "target/" + UIBUserIdentityServiceTest.class.getSimpleName()  + "/hsqldb");
-
-        new DatabaseMigrationHelper(dataSource).upgradeDatabase();
-
-
-        String workDirPath = "target/" + UIBUserIdentityServiceTest.class.getSimpleName();
-        File workDir = new File(workDirPath);
-        FileUtils.deleteDirectory(workDir);
-        if (!workDir.mkdirs()) {
-            fail("Error creating working directory " + workDirPath);
-
-        }
-
-        luceneIndexer = new LuceneUserIndexer(index);
-
-        // Create the server
-        ads = new EmbeddedADS(workDir);
-        ads.startServer(LDAP_PORT);
-        Thread.sleep(1000);
-        */
-
-
-    }
-
-    private static BasicDataSource initBasicDataSource(ConstrettoConfiguration configuration) {
-        String jdbcdriver = configuration.evaluateToString("roledb.jdbc.driver");
-        String jdbcurl = configuration.evaluateToString("roledb.jdbc.url");
-        String roledbuser = configuration.evaluateToString("roledb.jdbc.user");
-        String roledbpasswd = configuration.evaluateToString("roledb.jdbc.password");
-
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(jdbcdriver);
-        dataSource.setUrl(jdbcurl);
-        dataSource.setUsername(roledbuser);
-        dataSource.setPassword(roledbpasswd);
-        return dataSource;
     }
 
     @AfterClass
-    public static void stop() {
+    public void stop() {
         if (main != null) {
-            main.stop();
+            main.stopEmbeddedDS();
         }
-        main=null;
-        luceneIndexer = null;
-        FileUtils.deleteDirectory(new File("target/data/"));
+
+        try {
+            if(!dataSource.isClosed()) {
+                dataSource.close();
+            }
+        } catch (SQLException e) {
+            log.error("", e);
+        }
+
+        FileUtils.deleteDirectories(ldapPath);
     }
 
     @Test
@@ -164,8 +129,7 @@ public class UIBUserIdentityServiceTest {
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
-        assertTrue("Expected ConflictException because user should already exist.",
-                response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
+        assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus(), "Expected ConflictException because user should already exist.");
     }
 
     @Test
@@ -206,7 +170,7 @@ public class UIBUserIdentityServiceTest {
 
         assertEquals(userIdentity, fromLdap);
         Response response = userAdminHelper.addUser(userIdentity);
-        assertTrue("Expected ConflictException because user should already exist.", response.getStatus() == Response.Status.NOT_ACCEPTABLE.getStatusCode());
+        assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus(), "Expected ConflictException because user should already exist.");
     }
 
     @Test

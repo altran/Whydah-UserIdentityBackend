@@ -1,28 +1,23 @@
 package net.whydah.identity.user.search;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import net.whydah.identity.user.identity.LDAPUserIdentity;
+import net.whydah.identity.util.BaseLuceneReader;
+import net.whydah.sso.user.types.UserIdentity;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TotalHitCountCollector;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.whydah.identity.user.identity.LDAPUserIdentity;
-import net.whydah.identity.util.BaseLuceneReader;
-import net.whydah.sso.user.types.UserIdentity;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class LuceneUserSearchImpl extends BaseLuceneReader {
     private static final Logger logger = LoggerFactory.getLogger(LuceneUserSearchImpl.class);
@@ -174,7 +169,7 @@ public class LuceneUserSearchImpl extends BaseLuceneReader {
                 user.setPersonRef(d.get(LuceneUserIndexer.FIELD_PERSONREF));
                 user.setCellPhone(d.get(LuceneUserIndexer.FIELD_MOBILE));
                 user.setEmail(d.get(LuceneUserIndexer.FIELD_EMAIL));
-                //System.out.println(user.getUsername() + " : " + hit.score);
+                //log.debug(user.getUsername() + " : " + hit.score);
                 result.add(user);
             }
         } catch (IOException e) {
@@ -254,7 +249,7 @@ public class LuceneUserSearchImpl extends BaseLuceneReader {
             		user.setPersonRef(d.get(LuceneUserIndexer.FIELD_PERSONREF));
             		user.setCellPhone(d.get(LuceneUserIndexer.FIELD_MOBILE));
             		user.setEmail(d.get(LuceneUserIndexer.FIELD_EMAIL));
-            		//System.out.println(user.getUsername() + " : " + hit.score);
+            		//log.debug(user.getUsername() + " : " + hit.score);
             		result.add(user);               
             	}
             }

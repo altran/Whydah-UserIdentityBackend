@@ -15,18 +15,22 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static com.jayway.restassured.RestAssured.given;
-
 import java.sql.SQLException;
+
+import static com.jayway.restassured.RestAssured.given;
 
 /**
  * @author <a href="mailto:erik-dev@fjas.no">Erik Drolshammer</a> 2015-11-21.
  */
 public class ApplicationAuthenticationEndpointTest {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationAuthenticationEndpointTest.class);
+
     //testapplications.csv
     private static final String UAS_APPLICATION_ID = "1234";
     private static final String UAS_APPLICATION_SECRET = "9ju592A4t8dzz8mz7a5QQJ7Px";
@@ -96,8 +100,7 @@ public class ApplicationAuthenticationEndpointTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
     }
 

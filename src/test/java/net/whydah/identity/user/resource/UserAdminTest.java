@@ -8,7 +8,6 @@ import net.whydah.identity.config.ApplicationMode;
 import net.whydah.identity.dataimport.DatabaseMigrationHelper;
 import net.whydah.identity.dataimport.IamDataImporter;
 import net.whydah.identity.security.SecurityFilter;
-import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.util.FileUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.constretto.ConstrettoBuilder;
@@ -19,6 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -39,15 +40,17 @@ import static org.junit.Assert.*;
 
 
 public class UserAdminTest {
+    private static final Logger log = LoggerFactory.getLogger(UserAdminTest.class);
+
     private static Client client = ClientBuilder.newClient();
     private static WebTarget baseResource;
     private static WebTarget logonResource;
     private static Main main;
-    String luceneUsersDir;
-    BasicDataSource dataSource;
+    private String luceneUsersDir;
+    private BasicDataSource dataSource;
     
     @Before
-    public void init() throws Exception {
+    public void init() {
         FileUtils.deleteDirectory(new File("target/data/lucene"));
         FileUtils.deleteDirectory(new File("data/lucene"));
         //ApplicationMode.setCIMode();
@@ -64,7 +67,7 @@ public class UserAdminTest {
         luceneUsersDir = configuration.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, "target/bootstrapdata/", luceneUsersDir);
         
-        main = new Main(configuration.evaluateToInt("service.port"));
+        main = new Main(6653);
         main.startEmbeddedDS(configuration.asMap());
 
         dataSource = initBasicDataSource(configuration);
@@ -100,7 +103,7 @@ public class UserAdminTest {
     }
 
     @After
-    public void teardown() throws InterruptedException {
+    public void teardown() {
         main.stop();
         
         try {
@@ -108,8 +111,7 @@ public class UserAdminTest {
         		dataSource.close();
         	}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
         
         FileUtils.deleteDirectory(new File("target/data/lucene"));
@@ -119,7 +121,7 @@ public class UserAdminTest {
 
     @Test
     public void testFind() {
-    	System.out.println("==================test Find()======================");
+    	log.debug("==================test Find()======================");
         WebTarget webResource = baseResource.path("users/find/useradmin");
         Response response = webResource.request().get(Response.class);
         String entity = response.readEntity(String.class);
@@ -128,16 +130,16 @@ public class UserAdminTest {
 
     @Test
     public void getUser() {
-    	System.out.println("==================getUser()======================");
+    	log.debug("==================getUser()======================");
         WebTarget webResource = baseResource.path("user/useradmin");
         String s = webResource.request().get(String.class);
-        System.out.println("===>" + s);
+        log.debug("===>" + s);
         assertTrue(s.contains("\"firstName\":\"User"));
     }
 
     @Test
     public void getNonExistingUser() {
-    	System.out.println("==================getNonExistingUser()======================");
+    	log.debug("==================getNonExistingUser()======================");
         FileUtils.deleteDirectory(new File("target/data/lucene"));
         FileUtils.deleteDirectory(new File("data/lucene"));
         WebTarget webResource = baseResource.path("user/");
@@ -152,7 +154,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyUser() {
-    	System.out.println("==================modifyUser()======================");
+    	log.debug("==================modifyUser()======================");
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
 
         String s = baseResource.path("user/" + uid).request().get(String.class);
@@ -185,7 +187,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserOK() {
-    	System.out.println("==================deleteUserOK()======================");
+    	log.debug("==================deleteUserOK()======================");
         String uid = doAddUser("rubblebeard", "frustaalstrom", "Frustaal", "Strom", "frustaalstrom@gmail.com", "12121212");
 
         Response response = baseResource.path("user/" + uid).request().delete(Response.class);
@@ -202,7 +204,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteUserNotFound() {
-    	System.out.println("==================deleteUserNotFound()======================");
+    	log.debug("==================deleteUserNotFound()======================");
         WebTarget webResource = baseResource.path("users/dededede@hotmail.com/delete");
         try {
             String s = webResource.request().get(String.class);
@@ -217,7 +219,7 @@ public class UserAdminTest {
     @Test
     public void getuserroles() {
 
-    	System.out.println("==================getuserroles()======================");
+    	log.debug("==================getuserroles()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId1", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappIdX", "0005", "NN", "another");
@@ -250,7 +252,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserrole() {
-    	System.out.println("==================adduserrole()======================");
+    	log.debug("==================adduserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         List<Map<String, Object>> rolesBefore = doGetUserRoles(uid);
         assertTrue(rolesBefore.isEmpty());
@@ -265,7 +267,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleNoJson() {
-    	System.out.println("==================adduserroleNoJson()======================");
+    	log.debug("==================adduserroleNoJson()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "");
@@ -278,7 +280,7 @@ public class UserAdminTest {
 
     @Test
     public void adduserroleBadJson() {
-    	System.out.println("==================adduserroleBadJson()======================");
+    	log.debug("==================adduserroleBadJson()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             //String s = baseResource.path("user/" + uid + "/role").type("application/json").post(String.class, "{ dilldall }");
@@ -292,7 +294,7 @@ public class UserAdminTest {
 
     @Test
     public void addExistingUserrole() {
-    	System.out.println("==================addExistingUserrole()======================");
+    	log.debug("==================addExistingUserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         doAddUserRole(uid, "testappId", "0005", "KK", "test");
         try {
@@ -318,7 +320,7 @@ public class UserAdminTest {
 
     @Test
     public void deleteuserrole() {
-    	System.out.println("==================deleteuserrole()======================");
+    	log.debug("==================deleteuserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId1 = doAddUserRole(uid, "testappId", "0005", "KK", "test");
         String roleId2 = doAddUserRole(uid, "testappId", "0005", "NN", "tjohei");
@@ -336,7 +338,7 @@ public class UserAdminTest {
 
     @Test
     public void modifyuserrole() {
-    	System.out.println("==================modifyuserrole()======================");
+    	log.debug("==================modifyuserrole()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         String roleId = doAddUserRole(uid, "testappId", "0005", "KK", "test");
 
@@ -366,7 +368,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetExistingUser() {
-    	System.out.println("==================testGetExistingUser()======================");
+    	log.debug("==================testGetExistingUser()======================");
         String uid = doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("Hoytahl"));
@@ -375,7 +377,7 @@ public class UserAdminTest {
 
     @Test
     public void testGetNonExistingUser() {
-    	System.out.println("==================testGetNonExistingUser()======================");
+    	log.debug("==================testGetNonExistingUser()======================");
         doAddUser("1231312", "siqula", "Hoytahl", "Goffse", "siqula@midget.orj", "12121212");
         String uid = "non-existent-uid";
         try {
@@ -389,7 +391,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWillRespondWithConflictWhenUsernameAlreadyExists() {
-    	System.out.println("==================testAddUserWillRespondWithConflictWhenUsernameAlreadyExists()======================");
+    	log.debug("==================testAddUserWillRespondWithConflictWhenUsernameAlreadyExists()======================");
         doAddUser("riffraff", "snyper", "Edmund", "Goffse", "snyper@midget.orj", "12121212");
         try {
             doAddUser("tifftaff", "snyper", "Another", "Wanderer", "wanderer@midget.orj", "34343434");
@@ -419,7 +421,7 @@ public class UserAdminTest {
 
     @Test
     public void addUser() {
-    	System.out.println("==================addUser()======================");
+    	log.debug("==================addUser()======================");
         String uid = doAddUser("riffraff", "snyper", "Edmund", "Gøæøåffse", "snyper@midget.orj", "12121212");
         assertNotNull(uid);
 
@@ -435,26 +437,26 @@ public class UserAdminTest {
 
     @Test
     public void addUserAllowMissingPersonRef() {
-    	System.out.println("==================addUserAllowMissingPersonRef()======================");
+    	log.debug("==================addUserAllowMissingPersonRef()======================");
         String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
         baseResource.path("user/" + uid).request().get(String.class);
     }
 
     @Test
     public void addUserAllowMissingFirstName() {
-    	System.out.println("==================addUserAllowMissingFirstName()======================");
+    	log.debug("==================addUserAllowMissingFirstName()======================");
         doAddUser("triffraff", "tsnyper", null, "tGoffse", "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void addUserAllowMissingLastName() {
-    	System.out.println("==================addUserAllowMissingLastName()======================");
+    	log.debug("==================addUserAllowMissingLastName()======================");
         doAddUser("triffraff", "tsnyper", "tEdmund", null, "tsnyper@midget.orj", "12121212");
     }
 
     @Test
     public void thatAddUserDoesNotAllowMissingEmail() {
-    	System.out.println("==================thatAddUserDoesNotAllowMissingEmail()======================");
+    	log.debug("==================thatAddUserDoesNotAllowMissingEmail()======================");
        try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", null, "12121212");
             fail("Expected 400 BAD_REQUEST");
@@ -465,7 +467,7 @@ public class UserAdminTest {
 
     @Test
     public void addUserWithMissingPhoneNumber() {
-    	System.out.println("==================addUserWithMissingPhoneNumber()======================");
+    	log.debug("==================addUserWithMissingPhoneNumber()======================");
         String uid = doAddUser("triffraff", "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", null);
         baseResource.path("user/" + uid).request().get(String.class);
     }
@@ -481,7 +483,7 @@ public class UserAdminTest {
 
     @Test
     public void testAddUserWithLettersInPhoneNumberIsNotAllowed() {
-    	System.out.println("==================testAddUserWithLettersInPhoneNumberIsNotAllowed()======================");
+    	log.debug("==================testAddUserWithLettersInPhoneNumberIsNotAllowed()======================");
         // Apache DS does not allow phone number with non-number letters
         try {
             doAddUser("triffraff", "tsnyper", "tEdmund", "lastname", "tsnyper@midget.orj", "12121-bb-212");
@@ -495,7 +497,7 @@ public class UserAdminTest {
     @Test
     @Ignore
     public void resetAndChangePassword() {
-    	System.out.println("==================resetAndChangePassword()======================");
+    	log.debug("==================resetAndChangePassword()======================");
         String uid = doAddUser("123123123", "sneile", "Effert", "Huffse", "sneile@midget.orj", "21212121");
 
         //baseResource.path("user/sneile/resetpassword").type("application/json").post(ClientResponse.class);
@@ -521,7 +523,7 @@ public class UserAdminTest {
 
     @Test
     public void thatEmailCanBeUsedAsUsername() {
-    	System.out.println("==================thatEmailCanBeUsedAsUsername()======================");
+    	log.debug("==================thatEmailCanBeUsedAsUsername()======================");
         String uid = doAddUser("riffraff", "snyper@midget.orj", "Edmund", "Goffse", "somotheremail@midget.orj", "12121212");
         String s = baseResource.path("user/" + uid).request().get(String.class);
         assertTrue(s.contains("snyper@midget.orj"));

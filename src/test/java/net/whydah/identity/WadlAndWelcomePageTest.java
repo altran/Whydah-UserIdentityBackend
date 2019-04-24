@@ -49,7 +49,7 @@ public class WadlAndWelcomePageTest {
         String luceneDir = configuration.evaluateToString("lucene.usersdirectory");
         FileUtils.deleteDirectories(ldapPath, roleDBDirectory, luceneDir);
 
-        main = new Main(configuration.evaluateToInt("service.port"));
+        main = new Main(6644);
         main.startEmbeddedDS(configuration.asMap());
 
         BasicDataSource dataSource = initBasicDataSource(configuration);

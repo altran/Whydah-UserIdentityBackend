@@ -4,10 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 public class FileUtils {
     private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
-
 
     public static void deleteDirectories(String... paths) {
         String directoriesAsString = String.join(",", paths);
@@ -100,5 +104,31 @@ public class FileUtils {
             throw new RuntimeException("Error reading " + fileName + " from classpath.");
         }
         return is;
+    }
+
+    public static void copyFiles(String[] files, String targetDirectory, boolean overwrite) {
+        log.info("Copying files " + Arrays.toString(files) + " to " + targetDirectory, ", overwrite=" + overwrite);
+        if (overwrite) {
+            FileUtils.deleteDirectory(targetDirectory);
+        }
+
+        FileUtils.createDirectory(targetDirectory);
+
+        for (String file : files) {
+            try (InputStream in = FileUtils.openFileOnClasspath(file)) {
+                if ( in != null) {
+                    Path outputFile = Paths.get(targetDirectory).resolve(Paths.get(file));
+                    boolean fileExists = Files.exists(outputFile);
+                    if (!fileExists || overwrite) {
+                        Files.copy(in, outputFile, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } else {
+                    log.warn("Could not copy file, inputstream is null. " + file);
+                }
+
+            } catch (IOException e) {
+                log.warn("Could not copy file " + file, e);
+            }
+        }
     }
 }

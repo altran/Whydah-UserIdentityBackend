@@ -2,9 +2,9 @@ package net.whydah.identity.user.identity;
 
 import net.whydah.identity.Main;
 import net.whydah.identity.config.ApplicationMode;
+import net.whydah.identity.ldapserver.EmbeddedADS;
 import net.whydah.identity.util.FileUtils;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.constretto.ConstrettoBuilder;
 import org.constretto.ConstrettoConfiguration;
 import org.constretto.model.Resource;
@@ -13,78 +13,59 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Map;
 import java.util.UUID;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-
-import static org.junit.Assert.*;
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 public class LdapUIBUserIdentityDaoTest {
+    private static final String ldapPath = "target/LdapUIBUserIdentityDaoTest/ldap";
     private static Main main = null;
-
     private static LdapUserIdentityDao ldapUserIdentityDao;
     private static LdapAuthenticator ldapAuthenticator;
 
+
     @BeforeClass
-    public static void setUp() throws Exception {
-        //System.setProperty(AppConfig.IAM_MODE_KEY, AppConfig.IAM_MODE_DEV);
-        //System.setProperty(ConfigTags.CONSTRETTO_TAGS, ConfigTags.DEV_MODE);
-        FileUtils.deleteDirectory(new File("target/data/"));
+    public static void setUp() {
+        FileUtils.deleteDirectory(new File(ldapPath));
 
         ApplicationMode.setCIMode();
-        final ConstrettoConfiguration configuration = new ConstrettoBuilder()
+        final ConstrettoConfiguration config = new ConstrettoBuilder()
                 .createPropertiesStore()
                 .addResource(Resource.create("classpath:useridentitybackend.properties"))
                 .addResource(Resource.create("classpath:useridentitybackend-test.properties"))
                 .done()
                 .getConfiguration();
 
-        String ldapPath = configuration.evaluateToString("ldap.embedded.directory");
+
+        Map<String, String> ldapProperties = Main.ldapProperties(config);
+        ldapProperties.put("ldap.embedded.directory", ldapPath);
+        ldapProperties.put(EmbeddedADS.PROPERTY_BIND_PORT, "10589");
+        String primaryLdapUrl = "ldap://localhost:10589/dc=people,dc=whydah,dc=no";
+        ldapProperties.put("ldap.primary.url", primaryLdapUrl);
         FileUtils.deleteDirectories(ldapPath);
 
-        main = new Main(configuration.evaluateToInt("service.port"));
-        main.startEmbeddedDS(configuration.asMap());
 
-        String primaryLdapUrl = configuration.evaluateToString("ldap.primary.url");
-        String primaryAdmPrincipal = configuration.evaluateToString("ldap.primary.admin.principal");
-        String primaryAdmCredentials = configuration.evaluateToString("ldap.primary.admin.credentials");
-        String primaryUidAttribute = configuration.evaluateToString("ldap.primary.uid.attribute");
-        String primaryUsernameAttribute = configuration.evaluateToString("ldap.primary.username.attribute");
-        String readonly = configuration.evaluateToString("ldap.primary.readonly");
+        main = new Main(6651);
+        main.startEmbeddedDS(ldapProperties);
+
+        String primaryAdmPrincipal = config.evaluateToString("ldap.primary.admin.principal");
+        String primaryAdmCredentials = config.evaluateToString("ldap.primary.admin.credentials");
+        String primaryUidAttribute = config.evaluateToString("ldap.primary.uid.attribute");
+        String primaryUsernameAttribute = config.evaluateToString("ldap.primary.username.attribute");
+        String readonly = config.evaluateToString("ldap.primary.readonly");
+
         ldapUserIdentityDao = new LdapUserIdentityDao(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute, readonly);
         ldapAuthenticator = new LdapAuthenticator(primaryLdapUrl, primaryAdmPrincipal, primaryAdmCredentials, primaryUidAttribute, primaryUsernameAttribute);
-
-        /*
-        int LDAP_PORT = new Integer(AppConfig.appConfig.getProperty("ldap.embedded.port"));
-        int LDAP_PORT = 18389;
-        String ldapUrl = "ldap://localhost:" + LDAP_PORT + "/dc=people,dc=whydah,dc=no";
-        String readOnly = AppConfig.appConfig.getProperty("ldap.primary.readonly");
-        ldapUserIdentityDao = new LdapUserIdentityDao(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials", readOnly);
-        ldapAuthenticator = new LdapAuthenticator(ldapUrl, "uid=admin,ou=system", "secret", "uid", "initials");
-
-        String workDirPath = "target/" + LdapUIBUserIdentityDaoTest.class.getSimpleName();
-        File workDir = new File(workDirPath);
-        FileUtils.deleteDirectory(workDir);
-        if (!workDir.mkdirs()) {
-            fail("Error creating working directory " + workDirPath);
-        }
-        // Create the server
-        ads = new EmbeddedADS(workDir);
-        ads.startServer(LDAP_PORT);
-        Thread.sleep(1000);
-        */
     }
+
+
 
     @AfterClass
     public static void stop() {
         if (main != null) {
-            main.stop();
+            main.stopEmbeddedDS();
         }
-        FileUtils.deleteDirectory(new File("target/data/"));
-
     }
 
 
@@ -155,7 +136,7 @@ public class LdapUIBUserIdentityDaoTest {
         assertTrue(deleteSuccessful);
 
         UserIdentity gotUser2 = ldapUserIdentityDao.getUserIndentity(username);
-        assertNull("Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"), gotUser2);
+        assertNull(gotUser2, "Expected user to be deleted. " + (gotUser2 != null ? gotUser2.toString() : "null"));
     }
 
     @Test

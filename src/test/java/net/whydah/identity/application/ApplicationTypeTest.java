@@ -43,7 +43,7 @@ public class ApplicationTypeTest {
     @Test
     public void testToFromJson() throws Exception {
 
-        System.out.println(ApplicationMapper.toJson(app1));
+        log.debug(ApplicationMapper.toJson(app1));
 
         String indented = ApplicationMapper.toPrettyJson(app1);
         log.debug("\n" + indented);

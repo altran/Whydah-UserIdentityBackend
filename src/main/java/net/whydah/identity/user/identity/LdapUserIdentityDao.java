@@ -2,9 +2,7 @@ package net.whydah.identity.user.identity;
 
 
 import com.netflix.hystrix.exception.HystrixBadRequestException;
-
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.naming.*;
 import javax.naming.directory.*;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -362,7 +359,7 @@ public class LdapUserIdentityDao {
     		SearchResult match = (SearchResult) objs.next();
 
     		//Print out the node name
-    		//System.out.println("Found "+match.getName()+":");
+    		//log.debug("Found "+match.getName()+":");
 
     		//Get the node's attributes
     		Attributes attrs = match.getAttributes();
@@ -393,9 +390,9 @@ public class LdapUserIdentityDao {
     				if (i > 0) System.out.print(", ");
     				System.out.print(attr.get(i));
     			}
-    			System.out.println();
+    			log.debug();
     		}
-    		System.out.println("---------------------------------------");
+    		log.debug("---------------------------------------");
     		*/
     	}
     	

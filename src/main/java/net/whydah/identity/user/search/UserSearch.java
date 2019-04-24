@@ -4,7 +4,6 @@ import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.LdapUserIdentityDao;
 import net.whydah.sso.user.types.UserIdentity;
 import net.whydah.sso.util.Lock;
-
 import org.constretto.annotation.Configuration;
 import org.constretto.annotation.Configure;
 import org.slf4j.Logger;
@@ -13,13 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NamingException;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="bard.lind@gmail.com">Bard Lind</a>
@@ -59,8 +54,7 @@ public class UserSearch {
 						log.debug("Found LDAP user list size: {}", list.size());
 						luceneUserIndexer.addToIndex(clones);
 					} catch (Exception e) {
-						e.printStackTrace();
-						log.error("failed to import users, exception: " + e.getMessage());
+						log.error("failed to import users, exception: " + e);
 					}
 
 

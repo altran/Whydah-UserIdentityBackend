@@ -88,7 +88,7 @@ public class UserAuthenticationEndpoint {
 
         String passwordCredential = dto.getPasswordCredential();
         if (passwordCredential == null) {
-            log.trace("Neither password nor facebookId is set. Returning " + Response.Status.FORBIDDEN);
+            log.debug("Neither password nor facebookId is set. Returning " + Response.Status.FORBIDDEN);
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
             return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
         }
@@ -98,7 +98,7 @@ public class UserAuthenticationEndpoint {
     private Response authenticateUser(String username, String password) {
         UserIdentity userIdentity = userIdentityService.authenticate(username, password);
         if (userIdentity == null) {
-            log.trace("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
+            log.debug("Authentication failed for user with username={}. Returning {}", username, Response.Status.FORBIDDEN.toString());
             Viewable entity = new Viewable("/logonFailed.xml.ftl");
             return Response.status(Response.Status.FORBIDDEN).entity(entity).build();
         }
