@@ -1,19 +1,44 @@
+dist: trusty
 language: java
-jdk:
-- oraclejdk8
-before_install: 
-  git clone -b travis `git config --get remote.origin.url` target/travis
-install:
-  echo 'Skipping install step for Maven project'
-script: 
-  mvn clean -Dmaven.javadoc.skip=true source:jar deploy --settings target/travis/settings.xml
-branches:
-  except:
-    - travis
+# We now cache the Maven dependencies directory for faster builds
 cache:
+  apt: true
   directories:
-    - '$HOME/.m2/repository'
-env:
-  global:
-    - secure: "u+xtj7tnEX3VNwmkV5YUEZjf9RxL3HrTCAxIyHnwqOKJSVOxHkKkG0NSnmIs9JzBlb0J3Eq6RG1a9oBXWnT8CAvIdqDQWhCjFKoD72KvkXqCVNMrR6Egt0fkVmVj+ZU/LOX95K2GlHfKOqBxxkjh/3+/G1MN9tNLakhLRrPuSqhkQxYF22Y0sgMZKSwr3EYjrHFtPPjey00IeIN12UCxlIPVWAsNMkKOxG7sqqmgNC8Ro/3o2AaGwglLfTlUdBQ4d40VvPrAUk+rvv0kr82L02H6tqPGVgeqiuYyELDdG81e7T+WpLViYKEddEdsb2ghaxwv+zzzuykqnGQqwfP3ozrP5+pbKfFdDxSjyAW1DxJkauOgC+P/ynTMtDkdM5A0JhDatyePA8Ju2Fex7vcafmF6s8xX9qrHAsTU4kxY/Qpzb8F5LnxMglA6JhbmQuScd1MMWe7RrwcZa9O7F2HfiPOwI5F13i21uahdaEzsOmDWPJxtL4/chcezjFBbvG9wPMJsaLh/aJG6SHRG2ArzmKb1s/A0kQvrvGQFDigb1X4tCObFyGgjiHFBPd+qDTbDXEY3yFqrGyjj7/OyRhmu+unTYkur7+EhBmBHnlfFNZHGp4dwCjTpu28U9HQuWrwwH48a6YT6OcJrMA/ePHPHqSMwSISsJcXa7MXEqj86cf0="
-    - secure: "LxU4ZCbJzftQC64QBLxFYgx7CSAG+E7TkfbAB6OqL9SYZ1SgAaywGtQKXDCU/O/6AKkgar4PXLUXrbgaOmVmp+Xb5dI1aGGPBA19XG3LqGOZS9QV2jwYgb5qcvcPq3YD4pn95GvhjothXNerVfcT01vJoSyIBlGJBr7Ec3FMhyfwVq7ORaF4WO7JZ13d4jcRUxgI5IGc3A8wwz4XG2RRa4kZ94fcHHYpBM6PigTfnkER8DUVmEswflr1bKCSNmG0U03uWDnlnYT0vuTD0XZVp8ffeBYFeiDy1iu9n1EjhlnaboetQDBxEkFDzBeSHHsh3+tXxom15Qh2h0itOP48WMHIdj/5OmfSv6sc4BFUXi+xZ/ol3kPT4sv/OECH0D5giDqrMeC98Gk/MSv9yRy/aJRf2ZWOfKMJ+qnM2vixMe9uZ/gwGKZXG9x5NN5nwyKBLT5wFaQoHgpQO8hwAIQ5iIYInL0ofPgf9RteZYPWaTswT+MKoCPyV1H9R6pO58FpbZh+JnEI1f/xbW9njpeCIs8GL+Qd/sUPQ205Ls3eD8Qa3aqObm3DVNbMyHSaj9yoE0pVdDloGmToc9vXn+6iBsmUly8mgBL7SybKeZSqc/Mt9f1qyZvdy3ozEAgbWVF73uGuAzskmTyfh+5A4wHpu1fALZLnAUuneTbCxrV/STA="
+    - $HOME/.m2
+    - $HOME/.downloads
+sudo: true
+
+#notifications:
+#  slack: cantara:Mc0ZrDXc2tFgnWeDd5xwiTGn
+
+addons:
+  apt:
+    sources:
+      - sourceline: 'deb http://repos.azulsystems.com/ubuntu stable main'
+        key_url: 'http://repos.azulsystems.com/RPM-GPG-KEY-azulsystems'
+    packages:
+      - zulu-8
+
+
+before_install:
+  - echo 'MAVEN_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=warn"' >~/.mavenrc
+  - mkdir -p $HOME/.downloads
+  - wget -N -q -O $HOME/.downloads/ZuluJCEPolicies.zip 'https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip'
+  #  # The SHA256 checksum for JCE for Azul will break if Azul updates their archive.
+  #  # If so, you will need to update the fingerprint below after verifying the
+  #  # authenticity of the archive.
+#  - echo "8021a28b8cac41b44f1421fd210a0a0822fcaf88d62d2e70a35b2ff628a8675a  $HOME/.downloads/ZuluJCEPolicies.zip" | sha256sum -c
+#  - sudo unzip -o -j $HOME/.downloads/ZuluJCEPolicies.zip ZuluJCEPolicies/local_policy.jar ZuluJCEPolicies/US_export_policy.jar -d /usr/lib/jvm/zulu-8-amd64/jre/lib/security
+#  - sudo unzip -o -j $HOME/.downloads/ZuluJCEPolicies.zip ZuluJCEPolicies/local_policy.jar ZuluJCEPolicies/US_export_policy.jar -d /usr/lib/jvm/zulu-9-amd64/lib/security
+
+matrix:
+  fast_finish: true
+  include:
+    #   unit test build  tests (zulu-8)
+    - env:
+        - JAVA_HOME=/usr/lib/jvm/zulu-8-amd64
+        - DESC="zulu-8 unit tests"
+        - CMD="mvn clean test -Dcheckstyle.skip=true"
+        - LANG=en_US.utf8
+
+script: echo ${CMD}; ${CMD}
