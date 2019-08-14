@@ -80,13 +80,13 @@ public abstract class BaseLuceneIndexer<T> {
 		IndexWriter w = null;
 		try {
 			w = getIndexWriter();
-			
+			int n=0;
 			for (T obj : objs) {
 				try {				
 					Document doc = createLuceneDocument(obj);
 					w.addDocument(doc);
 				} catch (Exception e) {
-					log.error("addToIndex failed for {}. This item was not added to lucene index.", obj.toString(), e);
+					log.error("addToIndex {} failed for {}. This item was not added to lucene index. {}", n++, obj.toString(), e);
 				}
 			}
 

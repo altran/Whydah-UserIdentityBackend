@@ -368,9 +368,8 @@ public class LdapUserIdentityDao {
 
             do {
                 /* perform the search */
-                SearchControls sc = new SearchControls();
-                sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                String filtro = "(&(sAMAccountName=*)&(objectClass=user))";
+
+               // String filtro = "(&(sAMAccountName=*)&(objectClass=user))";
 //                NamingEnumeration results = ctx.search(getBaseDn(ctx), filtro, sc);
                 NamingEnumeration results = new InitialDirContext(admenv).search("", "(objectClass=*)", constraints);
 
@@ -394,15 +393,15 @@ public class LdapUserIdentityDao {
                             PagedResultsResponseControl prrc = (PagedResultsResponseControl) controls[i];
                             total = prrc.getResultSize();
                             if (total != 0) {
-                                System.out.println("***************** END-OF-PAGE " + "(total : " + total + ") *****************\n");
+                                log.info("***************** END-OF-PAGE " + "(total : " + total + ") *****************\n");
                             } else {
-                                System.out.println("***************** END-OF-PAGE " + "(total: unknown) ***************\n");
+                                log.info("***************** END-OF-PAGE " + "(total: unknown) ***************\n");
                             }
                             cookie = prrc.getCookie();
                         }
                     }
                 } else {
-                    System.out.println("No controls were sent from the server");
+                    log.info("No controls were sent from the server");
                 }
                 // Re-activate paged results
                 ctx.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie, Control.CRITICAL)});
@@ -412,14 +411,12 @@ public class LdapUserIdentityDao {
             ctx.close();
 
         } catch (NamingException e) {
-            System.err.println("PagedSearch failed.");
-            e.printStackTrace();
+            log.error("PagedSearch failed.",e);
         } catch (IOException ie) {
-            System.err.println("PagedSearch failed.");
+            log.error("PagedSearch failed.",ie);
             ie.printStackTrace();
         } catch (Exception ie) {
-            System.err.println("PagedSearch failed.");
-            ie.printStackTrace();
+            log.error("PagedSearch failed.",ie);
         }
 
         log.info("listUsers() size = " + (users.size()));
