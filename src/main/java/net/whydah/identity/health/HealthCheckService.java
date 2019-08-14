@@ -15,7 +15,7 @@ import javax.naming.NamingException;
  */
 @Service
 public class HealthCheckService {
-    static final String USERADMIN_UID = "useradmin";    //uid of user which should always exist
+    static String USERADMIN_UID = "useradmin";    //uid of user which should always exist
     private static final Logger log = LoggerFactory.getLogger(HealthCheckService.class);
     private final UserIdentityService identityService;
     private final UserApplicationRoleEntryDao userApplicationRoleEntryDao;
@@ -32,6 +32,9 @@ public class HealthCheckService {
     boolean isOK() {
         log.trace("Checking if uid={} can be found in LDAP and role database.", USERADMIN_UID);
         //How to do count in ldap without fetching all users?
+        if (!userExistInLdap(USERADMIN_UID)) {
+            USERADMIN_UID = "whydahadmin";  // Initiel support for future support of configurable LDAP admin UID
+        }
         return userExistInLdap(USERADMIN_UID) && atLeastOneRoleInDatabase();
 
     }
