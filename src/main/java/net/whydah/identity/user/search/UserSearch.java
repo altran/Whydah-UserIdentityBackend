@@ -49,7 +49,7 @@ public class UserSearch {
 
 					List<LDAPUserIdentity> list;
 					try {
-						list = ldapUserIdentityDao.getAllUsers();
+						list = ldapUserIdentityDao.getAllUsersPaged(); //getAllUsers();
 						List<UserIdentity> clones = new ArrayList<UserIdentity>(list);
 						log.debug("Found LDAP user list size: {}", list.size());
 						luceneUserIndexer.addToIndex(clones);

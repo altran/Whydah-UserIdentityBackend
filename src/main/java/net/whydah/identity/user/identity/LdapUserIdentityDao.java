@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.naming.*;
 import javax.naming.directory.*;
+import javax.naming.ldap.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -348,12 +350,95 @@ public class LdapUserIdentityDao {
         return getAttributesFor(uidAttribute, usernameOrUid);
     }
 
+    public List<LDAPUserIdentity> getAllUsersPaged() {
+        log.info("listUsers() inicio");
+        List<LDAPUserIdentity> users = new ArrayList<LDAPUserIdentity>();
+
+
+        try {
+            SearchControls constraints = new SearchControls();
+            constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            LdapContext ctx = new InitialLdapContext(admenv, null);
+
+            // Activate paged results
+            int pageSize = 500;
+            byte[] cookie = null;
+            ctx.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.NONCRITICAL)});
+            int total;
+
+            do {
+                /* perform the search */
+                SearchControls sc = new SearchControls();
+                sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                String filtro = "(&(sAMAccountName=*)&(objectClass=user))";
+//                NamingEnumeration results = ctx.search(getBaseDn(ctx), filtro, sc);
+                NamingEnumeration results = new InitialDirContext(admenv).search("", "(objectClass=*)", constraints);
+
+                /* for each entry */
+                while (results.hasMoreElements()) {
+                    SearchResult result = (SearchResult) results.nextElement();
+                    Attributes attributes = result.getAttributes();
+                    //convert to MyUser class
+                    LDAPUserIdentity ldapUser = fromLdapAttributes(attributes);
+
+                    if (ldapUser != null) {
+                        users.add(ldapUser);
+                    }
+                }
+
+                // Examine the paged results control response
+                Control[] controls = ctx.getResponseControls();
+                if (controls != null) {
+                    for (int i = 0; i < controls.length; i++) {
+                        if (controls[i] instanceof PagedResultsResponseControl) {
+                            PagedResultsResponseControl prrc = (PagedResultsResponseControl) controls[i];
+                            total = prrc.getResultSize();
+                            if (total != 0) {
+                                System.out.println("***************** END-OF-PAGE " + "(total : " + total + ") *****************\n");
+                            } else {
+                                System.out.println("***************** END-OF-PAGE " + "(total: unknown) ***************\n");
+                            }
+                            cookie = prrc.getCookie();
+                        }
+                    }
+                } else {
+                    System.out.println("No controls were sent from the server");
+                }
+                // Re-activate paged results
+                ctx.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie, Control.CRITICAL)});
+
+            } while (cookie != null);
+
+            ctx.close();
+
+        } catch (NamingException e) {
+            System.err.println("PagedSearch failed.");
+            e.printStackTrace();
+        } catch (IOException ie) {
+            System.err.println("PagedSearch failed.");
+            ie.printStackTrace();
+        } catch (Exception ie) {
+            System.err.println("PagedSearch failed.");
+            ie.printStackTrace();
+        }
+
+        log.info("listUsers() size = " + (users.size()));
+        log.info("listUsers() fim");
+
+        return users;
+    }
+
+
+
+
     public List<LDAPUserIdentity> getAllUsers() throws NamingException{
     	SearchControls constraints = new SearchControls();
     	constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
     	NamingEnumeration objs = new InitialDirContext(admenv).search("","(objectClass=*)", constraints);
     	List<LDAPUserIdentity> list = new ArrayList<LDAPUserIdentity>();
-    	while (objs.hasMore())
+
+
+        while (objs.hasMore())
     	{
     		//Each item is a SearchResult object
     		SearchResult match = (SearchResult) objs.next();

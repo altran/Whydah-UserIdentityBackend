@@ -8,7 +8,6 @@ import net.whydah.identity.user.search.LuceneUserIndexer;
 import net.whydah.identity.user.search.LuceneUserSearch;
 import net.whydah.identity.util.PasswordGenerator;
 import net.whydah.sso.user.types.UserIdentity;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.naming.NamingException;
-
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -190,7 +188,7 @@ public class UserIdentityService {
     public LDAPUserIdentity getUserIdentityForUid(String uid) throws NamingException {
         LDAPUserIdentity userIdentity = ldapUserIdentityDao.getUserIndentityByUid(uid);
         if (userIdentity == null) {
-            log.warn("Trying to access non-existing UID, removing form index: " + uid);
+            log.warn("Trying to access non-existing UID, removing from index: " + uid);
             luceneIndexer.removeFromIndex(uid);
         }
         return userIdentity;
