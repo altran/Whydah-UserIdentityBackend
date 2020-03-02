@@ -42,7 +42,7 @@ public class HealthCheckService {
     //TODO Make this test more robust
     private boolean userExistInLdap(String uid) {
         try {
-            LDAPUserIdentity user = identityService.getUserIdentityForUid(uid);
+            LDAPUserIdentity user = identityService.getUserIdentity(uid);
             if (user != null && uid.equals(user.getUid())) {
                 return true;
             }
