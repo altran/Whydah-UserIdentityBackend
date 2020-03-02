@@ -361,7 +361,7 @@ public class LdapUserIdentityDao {
             LdapContext ctx = new InitialLdapContext(admenv, null);
 
             // Activate paged results
-            int pageSize = 1000;
+            int pageSize = 10000;
             byte[] cookie = null;
             ctx.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.NONCRITICAL)});
             int total;
