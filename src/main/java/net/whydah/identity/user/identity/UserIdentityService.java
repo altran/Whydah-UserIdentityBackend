@@ -131,7 +131,8 @@ public class UserIdentityService {
 
         String email;
         if (dto.getEmail() != null && dto.getEmail().contains("+")) {
-            email = replacePlusWithEmpty(dto.getEmail());
+            //email = replacePlusWithEmpty(dto.getEmail());
+            email = dto.getEmail();
         } else {
             email = dto.getEmail();
         }

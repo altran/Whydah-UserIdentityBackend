@@ -436,8 +436,24 @@ public class UserAdminTest {
     }
 
     @Test
+    public void addUserWithPlusEmail() {
+        log.debug("==================addUser()======================");
+        String uid = doAddUser("priffraff", "psnyper", "pEdmund", "pGøæøåffse", "psnyper+2020@midget.orj", "12121212");
+        assertNotNull(uid);
+
+        String s = baseResource.path("user/" + uid).request().get(String.class);
+        assertTrue(s.contains("psnyper+2020@midget.orj"));
+        assertTrue(s.contains("pEdmund"));
+
+        Response findresult = baseResource.path("users/find/psnyper").request().get(Response.class);
+        String entity = findresult.readEntity(String.class);
+        assertTrue(entity.contains("psnyper+2020@midget.orj"));
+        assertTrue(entity.contains("pEdmund"));
+    }
+
+    @Test
     public void addUserAllowMissingPersonRef() {
-    	log.debug("==================addUserAllowMissingPersonRef()======================");
+        log.debug("==================addUserAllowMissingPersonRef()======================");
         String uid = doAddUser(null, "tsnyper", "tEdmund", "tGoffse", "tsnyper@midget.orj", "12121212");
         baseResource.path("user/" + uid).request().get(String.class);
     }
