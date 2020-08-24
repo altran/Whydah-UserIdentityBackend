@@ -53,18 +53,19 @@ public class WhydahUserIdentityImporter {
             reader = new BufferedReader(new InputStreamReader(userImportStream, IamDataImporter.CHARSET_NAME));
 	        String line;
 	        while (null != (line = reader.readLine())) {
-	        	boolean isComment = line.startsWith("#");
-				if (isComment) {
-	        		continue;
-	        	}
-				
-	        	String[] lineArray = line.split(",");
-	        	validateLine(line, lineArray);
+                boolean isComment = line.startsWith("#");
+                // Skip comments and empty lines
+                if (isComment || line.length() < 2) {
+                    continue;
+                }
+
+                String[] lineArray = line.split(",");
+                validateLine(line, lineArray);
 
                 LDAPUserIdentity userIdentity;
                 userIdentity = new LDAPUserIdentity();
                 userIdentity.setUid(cleanString(lineArray[USERID]));
-	        	userIdentity.setUsername(cleanString(lineArray[USERNAME]));
+                userIdentity.setUsername(cleanString(lineArray[USERNAME]));
 	        	userIdentity.setPassword(cleanString(lineArray[PASSWORD]));
 	            userIdentity.setFirstName(cleanString(lineArray[FIRSTNAME]));
 	            userIdentity.setLastName(cleanString(lineArray[LASTNAME]));
