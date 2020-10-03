@@ -24,7 +24,7 @@ import org.apache.directory.server.core.factory.AvlPartitionFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.i18n.I18n;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;

@@ -11,7 +11,7 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.extractor.impl.ResourceMap;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.naming.InvalidNameException;
 import java.net.URL;
