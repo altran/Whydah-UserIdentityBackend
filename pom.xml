@@ -25,7 +25,7 @@
         <apache.ds.version>2.0.0-M20</apache.ds.version>
         <api-ldap.version>1.0.0-M30</api-ldap.version><!-- Make sure api-ldap.version is compatible with apache.ds.version -->
         <lucene.version>4.10.4</lucene.version>
-        <jersey.version>2.23.1</jersey.version>
+        <jersey.version>2.41</jersey.version>
         <jetty.version>9.4.31.v20200723</jetty.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -129,7 +129,7 @@
         <!-- https://jersey.java.net/documentation/latest/spring.html, allows Spring to inject into Jersey managed components -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
-            <artifactId>jersey-spring3</artifactId>
+            <artifactId>jersey-spring4</artifactId>
             <version>${jersey.version}</version>
             <exclusions>
                 <exclusion>
