@@ -21,7 +21,7 @@
 
     <properties>
         <service.name>Whydah-UserIdentityBackend</service.name>
-        <whydah.admin.sdk.version>2.6.0</whydah.admin.sdk.version>
+        <whydah.admin.sdk.version>2.6.2</whydah.admin.sdk.version>
         <apache.ds.version>2.0.0-M20</apache.ds.version>
         <api-ldap.version>1.0.0-M30</api-ldap.version><!-- Make sure api-ldap.version is compatible with apache.ds.version -->
         <lucene.version>4.10.4</lucene.version>
@@ -73,22 +73,6 @@
             <organizationUrl>https://wiki.cantara.no/</organizationUrl>
         </developer>
     </developers>
-
-
-    <repositories>
-        <!-- Needed for parent  -->
-        <repository>
-            <id>cantara-releases</id>
-            <name>Cantara Release Repository</name>
-            <url>https://mvnrepo.cantara.no/content/repositories/releases/</url>
-        </repository>
-        <!-- Needed for SDK snapshots  -->
-        <repository>
-            <id>cantara-snapshots</id>
-            <name>Cantara Snapshot Repository</name>
-            <url>https://mvnrepo.cantara.no/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
 
 
     <dependencies>
@@ -716,4 +700,22 @@
             </plugin>
         </plugins>
     </build>
+    
+    
+
+    <repositories>
+        <!-- Needed for parent  -->
+        <repository>
+            <id>cantara-releases</id>
+            <name>Cantara Release Repository</name>
+            <url>https://mvnrepo.cantara.no/content/repositories/releases/</url>
+        </repository>
+        <!-- Needed for SDK snapshots  -->
+        <repository>
+            <id>cantara-snapshots</id>
+            <name>Cantara Snapshot Repository</name>
+            <url>https://mvnrepo.cantara.no/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
 </project>
