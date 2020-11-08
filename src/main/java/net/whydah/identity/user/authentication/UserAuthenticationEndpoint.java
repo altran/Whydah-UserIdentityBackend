@@ -4,6 +4,7 @@ import net.whydah.identity.audit.AuditLogDao;
 import net.whydah.identity.user.UserAggregateService;
 import net.whydah.identity.user.identity.LDAPUserIdentity;
 import net.whydah.identity.user.identity.UserIdentityService;
+import net.whydah.sso.ddd.model.userrole.RoleValue;
 import net.whydah.sso.user.mappers.UserAggregateMapper;
 import net.whydah.sso.user.mappers.UserIdentityMapper;
 import net.whydah.sso.user.types.UserAggregate;
@@ -16,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -124,28 +128,28 @@ public class UserAuthenticationEndpoint {
     @Path("createandlogon")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public Response createAndAuthenticateUser(InputStream input) {
+    public Response createAndAuthenticateUser(InputStream input) throws JsonProcessingException {
         log.debug("createAndAuthenticateUser");
 
-        Document fbUserDoc = parse(input);
-        if (fbUserDoc == null) {
+        Document userDoc = parse(input);
+        if (userDoc == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
         }
 
-        LDAPUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(fbUserDoc);
+        LDAPUserIdentity userIdentity = UserAdminHelper.createWhydahUserIdentity(userDoc);
 
         if (userIdentity == null) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("<error>Server error, could not parse input.</error>").build();
         }
 
 
-        String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
-        //String facebookUserAsString = getFacebookDataAsXmlString(input);
-        return createAndAuthenticateUser(userIdentity, facebookUserAsString, true);
+        //String facebookUserAsString = getFacebookDataAsXmlString(fbUserDoc);
+        String userDataAsString = getUserDataAsXmlString(userDoc);
+        return createAndAuthenticateUser(userIdentity, userDataAsString, true);
     }
 
     //TODO Move to UserAdminService (the separate application)
-    static String getFacebookDataAsXmlString(Document fbUserDoc) {
+    static String getUserDataAsXmlString(Document fbUserDoc) {
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transformer = transFactory.newTransformer();
@@ -154,8 +158,8 @@ public class UserAuthenticationEndpoint {
             transformer.transform(new DOMSource(fbUserDoc), new StreamResult(buffer));
             String original = buffer.toString();
 
-            // Wrap everything in CDATA
-            return "<![CDATA[" + original + "]]>";
+            // Wrap everything in CDATA. Otherwise, it won't work when parsing user
+            return "<![CDATA[" + original + "]]>"; 
         } catch (Exception e) {
             log.error("Could not convert Document to string.", e);
             return null;
@@ -189,16 +193,16 @@ public class UserAuthenticationEndpoint {
     }
 
     private Document parse(InputStream input) {
-        Document fbUserDoc;
+        Document userDoc;
         try {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = domFactory.newDocumentBuilder();
-            fbUserDoc = builder.parse(input);
+            userDoc = builder.parse(input);
         } catch (Exception e) {
             log.error("Error when creating LDAPUserIdentity from incoming xml stream.", e);
             return null;
         }
-        return fbUserDoc;
+        return userDoc;
     }
 
 

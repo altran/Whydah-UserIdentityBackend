@@ -147,4 +147,14 @@ public class UsersResource {
         return Response.ok("[" + (returnedList.size()>0 ? StringUtils.join(returnedList, ','):"") + "]").build();
     }
     
+    @POST
+    @Path("/checkexist/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findUserName(@PathParam("username") String query) throws JsonProcessingException, IOException, NamingException {
+        log.trace("checkexist");
+         boolean exists = userSearch.isUserIdentityIfExists(query);
+         return Response.ok(exists? true:false).build();
+    }
+    
 }

@@ -301,7 +301,7 @@ public class UserAuthenticationEndpointTest {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document fbUserDoc = builder.parse(input);
 
-        String fbDataValueWithCdata = UserAuthenticationEndpoint.getFacebookDataAsXmlString(fbUserDoc);
+        String fbDataValueWithCdata = UserAuthenticationEndpoint.getUserDataAsXmlString(fbUserDoc);
         assertNotNull(fbDataValueWithCdata);
 
         //Strip cdata wrapper

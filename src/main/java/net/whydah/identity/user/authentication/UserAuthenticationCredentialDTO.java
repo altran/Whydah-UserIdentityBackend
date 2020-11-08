@@ -21,12 +21,14 @@ public class UserAuthenticationCredentialDTO {
     private String password;
     private String facebookId;
     private String netIQAccessToken;
+    private String aadId;
 
-    private UserAuthenticationCredentialDTO(String username, String password, String facebookId, String netIQAccessToken) {
+    private UserAuthenticationCredentialDTO(String username, String password, String aadId, String facebookId, String netIQAccessToken) {
         this.username = username;
         this.password = password;
         this.facebookId = facebookId;
         this.netIQAccessToken = netIQAccessToken;
+        this.aadId = aadId;
     }
 
     static UserAuthenticationCredentialDTO fromXml(InputStream input) throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
@@ -35,9 +37,10 @@ public class UserAuthenticationCredentialDTO {
         XPath xPath = XPathFactory.newInstance().newXPath();
         String username = (String) xPath.evaluate("//username", dDoc, XPathConstants.STRING);
         String password = (String) xPath.evaluate("//password", dDoc, XPathConstants.STRING);
+        String aadId = (String) xPath.evaluate("//aadId", dDoc, XPathConstants.STRING);
         String facebookId = (String) xPath.evaluate("//fbId", dDoc, XPathConstants.STRING);
         String netIQAccessToken = (String) xPath.evaluate("//netiqId", dDoc, XPathConstants.STRING);
-        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, facebookId, netIQAccessToken);
+        UserAuthenticationCredentialDTO dto = new UserAuthenticationCredentialDTO(username, password, aadId, facebookId, netIQAccessToken);
         return dto;
     }
 
@@ -49,6 +52,8 @@ public class UserAuthenticationCredentialDTO {
             passwordCredentials = UserAdminHelper.calculateSyntheticPassword(facebookId);
         } else if (netIQAccessToken != null && !netIQAccessToken.equals("")) {
             passwordCredentials = UserAdminHelper.calculateSyntheticPassword(netIQAccessToken);
+        } else if (aadId !=null && aadId.equals("")) {
+        	passwordCredentials = UserAdminHelper.calculateSyntheticPassword(aadId);
         }
         return passwordCredentials;
     }
