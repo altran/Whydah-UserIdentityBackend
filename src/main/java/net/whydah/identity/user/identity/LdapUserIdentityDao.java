@@ -203,13 +203,16 @@ public class LdapUserIdentityDao {
 		if(userIdentity.getPersonName()!=null  && userIdentity.getPersonName().length()>0) {
 			container.put(new BasicAttribute(ATTRIBUTE_NAME_CN, userIdentity.getPersonName()));
 		}
-		if(userIdentity.getFirstName()!=null && userIdentity.getFirstName().length()>0) {
+		if (userIdentity.getFirstName() != null && userIdentity.getFirstName().length() > 0) {
 			container.put(new BasicAttribute(ATTRIBUTE_NAME_GIVENNAME, userIdentity.getFirstName()));
 		}
-		if(userIdentity.getLastName()!=null && userIdentity.getLastName().length()>0) {
+		if (userIdentity.getLastName() != null && userIdentity.getLastName().length() > 0) {
 			container.put(new BasicAttribute(ATTRIBUTE_NAME_SN, userIdentity.getLastName()));
+		} else {
+			// try ensuring it exists even if empty
+			container.put(new BasicAttribute(ATTRIBUTE_NAME_SN, ""));
 		}
-		if(userIdentity.getEmail()!=null && userIdentity.getEmail().length()>0) {
+		if (userIdentity.getEmail() != null && userIdentity.getEmail().length() > 0) {
 			container.put(new BasicAttribute(ATTRIBUTE_NAME_MAIL, userIdentity.getEmail()));
 		}
 		if (userIdentity.getPersonRef() != null && userIdentity.getPersonRef().length() > 0) {
