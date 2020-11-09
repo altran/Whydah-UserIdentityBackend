@@ -166,7 +166,9 @@ public class UserAdminHelper {
 			userIdentity.setUsername(username.trim());
 			userIdentity.setFirstName(firstName.trim());
 			userIdentity.setLastName(lastName.trim());
-			userIdentity.setEmail(email.trim());
+			if (email != null && email.trim().length() > 4) {
+				userIdentity.setEmail(email.trim());
+			}
 			userIdentity.setCellPhone(cellPhone);
 			userIdentity.setPersonRef(personRef);
 
