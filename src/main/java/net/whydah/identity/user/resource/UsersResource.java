@@ -16,10 +16,12 @@ import net.whydah.sso.user.types.UserApplicationRoleEntry;
 import net.whydah.sso.user.types.UserIdentity;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.server.mvc.Viewable;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.naming.NamingException;
 import javax.ws.rs.*;
@@ -147,14 +149,16 @@ public class UsersResource {
         return Response.ok("[" + (returnedList.size()>0 ? StringUtils.join(returnedList, ','):"") + "]").build();
     }
     
-    @POST
+    @GET
     @Path("/checkexist/{username}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response findUserName(@PathParam("username") String query) throws JsonProcessingException, IOException, NamingException {
         log.trace("checkexist");
          boolean exists = userSearch.isUserIdentityIfExists(query);
-         return Response.ok(exists? true:false).build();
+         JSONObject json=new JSONObject();
+         json.put("result", exists);
+         return Response.ok(json.toString()).build();
     }
+  
     
 }
