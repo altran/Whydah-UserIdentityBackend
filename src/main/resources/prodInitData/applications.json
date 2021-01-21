@@ -686,11 +686,11 @@
         ]
       }
     ],
-    "orgs": [],
-    "minimumApplicationDEFCON": "DEFCON5",
-    "isFiltered": false,
-    "isSelected": true
-  }
+     "orgs": [],
+     "minimumApplicationDEFCON": "DEFCON5",
+     "isFiltered": false,
+     "isSelected": true
+   },
   {
     "id": "77d89985faa6952a98dbd6e7e",
     "name": "spademo-app",

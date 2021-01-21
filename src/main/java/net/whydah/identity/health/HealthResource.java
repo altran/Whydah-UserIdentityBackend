@@ -114,7 +114,7 @@ public class HealthResource {
                 "  \"Status\": \"" + ok + "\",\n" +
                 "  \"Version\": \"" + getVersion() + "\",\n" +
                 "  \"now\": \"" + Instant.now() + "\",\n" +
-                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\",\n\n" +
+                "  \"running since\": \"" + WhydahUtil.getRunningSince() + "\"\n" +
                 "}\n";
     }
 
